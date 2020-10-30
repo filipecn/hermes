@@ -119,6 +119,7 @@ target_compile_options(hermes PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
 
 target_include_directories(hermes PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${PONOS_INCLUDES})
 target_link_libraries(hermes PUBLIC ${PONOS_LIBRARIES})
+add_dependencies(hermes ponos)
 
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/hermes
