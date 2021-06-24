@@ -34,17 +34,15 @@
 
 namespace hermes {
 
-namespace cuda {
-
 /// Holds 2-dimensional size
 ///\tparam T must be an unsigned integer type
-template <typename T> class Size2 {
+template<typename T> class Size2 {
   static_assert(std::is_same<T, u8>::value || std::is_same<T, u16>::value ||
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size2 must hold an unsigned integer type!");
 
 public:
-  __host__ __device__ Size2(){};
+  __host__ __device__ Size2() {};
   explicit Size2(const ponos::Size2<T> &ponos_size)
       : width(ponos_size.width), height(ponos_size.height) {}
   __host__ __device__ explicit Size2(T size) : width(size), height(size) {}
@@ -55,7 +53,7 @@ public:
   __host__ __device__ T &operator[](int i) { return (&width)[i]; }
   __host__ __device__ bool contains(int i, int j) const {
     return i >= 0 && j >= 0 && i < static_cast<i64>(width) &&
-           j < static_cast<i64>(height);
+        j < static_cast<i64>(height);
   }
 
   ponos::Size2<T> ponos() const { return ponos::Size2<T>(width, height); }
@@ -64,30 +62,30 @@ public:
   T height = T(0);
 };
 
-template <typename T>
+template<typename T>
 __host__ __device__ Size2<T> operator+(const Size2<T> &a, const Size2<T> &b) {
   return Size2<T>(a.width + b.width, a.height + b.height);
 }
 
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator==(const Size2<T> &a, const Size2<T> &b) {
   return a.width == b.width && a.height == b.height;
 }
 
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator!=(const Size2<T> &a, const Size2<T> &b) {
   return a.width != b.width || a.height != b.height;
 }
 
 /// Holds 2-dimensional size
 ///\tparam T must be an unsigned integer type
-template <typename T> class Size3 {
+template<typename T> class Size3 {
   static_assert(std::is_same<T, u8>::value || std::is_same<T, u16>::value ||
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size3 must hold an unsigned integer type!");
 
 public:
-  __host__ __device__ Size3(){};
+  __host__ __device__ Size3() {};
   __host__ Size3(T size) : width(size), height(size), depth(size) {}
   __host__ __device__ explicit Size3(T _width, T _height, T _depth)
       : width(_width), height(_height), depth(_depth) {}
@@ -113,8 +111,6 @@ using size3_8 = Size3<u8>;
 using size3_16 = Size3<u16>;
 using size3_32 = Size3<u32>;
 using size3_64 = Size3<u64>;
-
-} // namespace cuda
 
 } // namespace hermes
 

@@ -2,6 +2,7 @@
 
 #include <hermes/hermes.h>
 
+using namespace hermes;
 using namespace hermes::cuda;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,12 +14,12 @@ TEST_CASE("Interpolation", "[numeric][interpolation]") {
     { // 1D test
       auto f = [](float x) -> float { return cos(x) * sin(x); };
       for (float s = 0.0; s <= 1.0; s += 0.01) {
-        REQUIRE(monotonicCubicInterpolate(f(-0.1), f(0.0), f(0.1), f(0.2), s) ==
+        REQUIRE(ponos::monotonicCubicInterpolate(f(-0.1), f(0.0), f(0.1), f(0.2), s) ==
                 Approx(f(s * 0.1)).margin(0.1 * 0.1));
       }
       for (float s = 0.0; s <= 1.0; s += 0.01)
         REQUIRE(
-            monotonicCubicInterpolate(f(-0.01), f(0.0), f(0.01), f(0.02), s) ==
+            ponos::monotonicCubicInterpolate(f(-0.01), f(0.0), f(0.01), f(0.02), s) ==
             Approx(f(s * 0.01)).margin(0.01 * 0.01));
     }
   }

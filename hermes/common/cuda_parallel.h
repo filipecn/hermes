@@ -30,16 +30,14 @@
 
 namespace hermes {
 
-namespace cuda {
-
 #define GPU_BLOCK_SIZE 1024
 
 struct ThreadArrayDistributionInfo {
-  __host__ __device__ ThreadArrayDistributionInfo(u32 n) {
+  __host__ __device__ explicit ThreadArrayDistributionInfo(u32 n) {
     blockSize.x = GPU_BLOCK_SIZE;
     gridSize.x = n / blockSize.x + 1;
   }
-  __host__ __device__ ThreadArrayDistributionInfo(size2 s) {
+  __host__ __device__ explicit ThreadArrayDistributionInfo(size2 s) {
     blockSize = dim3(16, 16);
     gridSize = dim3((s.width + blockSize.x - 1) / blockSize.x,
                     (s.height + blockSize.y - 1) / blockSize.y);
@@ -50,12 +48,12 @@ struct ThreadArrayDistributionInfo {
     gridSize = dim3((w + blockSize.x - 1) / blockSize.x,
                     (h + blockSize.y - 1) / blockSize.y);
   }
-  __host__ __device__ ThreadArrayDistributionInfo(cuda::vec2u resolution) {
+  __host__ __device__ explicit ThreadArrayDistributionInfo(vec2u resolution) {
     blockSize = dim3(16, 16);
     gridSize = dim3((resolution.x + blockSize.x - 1) / blockSize.x,
                     (resolution.y + blockSize.y - 1) / blockSize.y);
   }
-  __host__ __device__ ThreadArrayDistributionInfo(cuda::vec3u resolution) {
+  __host__ __device__ explicit ThreadArrayDistributionInfo(vec3u resolution) {
     blockSize = dim3(16, 16);
     gridSize = dim3((resolution.x + blockSize.x - 1) / blockSize.x,
                     (resolution.y + blockSize.y - 1) / blockSize.y,
@@ -72,8 +70,6 @@ struct ThreadArrayDistributionInfo {
   dim3 gridSize;
   dim3 blockSize;
 };
-
-} // namespace cuda
 
 } // namespace hermes
 

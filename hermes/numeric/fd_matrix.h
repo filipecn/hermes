@@ -128,7 +128,7 @@ public:
       return A_[c].y;
     return 0;
   }
-  __device__ int elementIndex(hermes::cuda::index2 ij) const {
+  __device__ int elementIndex(hermes::index2 ij) const {
     if (!indices_.contains(ij))
       return -1;
     return indices_[ij];
@@ -247,7 +247,7 @@ __global__ void __mul(FDMatrix2CAccessor<T> A, Array1CAccessor<T> x,
 template <typename T>
 Vector<T> operator*(const FDMatrix2<T> &A, const Vector<T> &x) {
   Vector<T> b(x.size());
-  hermes::cuda::ThreadArrayDistributionInfo td(A.gridSize());
+  hermes::ThreadArrayDistributionInfo td(A.gridSize());
   __mul<<<td.gridSize, td.blockSize>>>(
       A.constAccessor(), x.data().constAccessor(), b.data().accessor());
   return b;

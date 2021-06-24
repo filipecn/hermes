@@ -436,8 +436,6 @@ template <typename T> T minValue(Array2<T> &data) {
   cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
   for (int i = 0; i < blockSize; i++) {
-    PING;
-    std::cerr << c[i] << std::endl;
     norm = fmin(norm, c[i]);
   }
   cudaFree(d_c);

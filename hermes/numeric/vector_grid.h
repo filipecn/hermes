@@ -197,7 +197,6 @@ public:
     setSpacing(vec2f(host_grid.spacing().x, host_grid.spacing().y));
     setOrigin(point2f(host_grid.origin().x, host_grid.origin().y));
     grid_type_ = host_grid.gridType();
-    PING;
     u_ = host_grid.u();
     v_ = host_grid.v();
     return *this;

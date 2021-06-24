@@ -26,7 +26,7 @@
 #define HERMES_GEOMETRY_CUDA_NUMERIC_H
 
 #include <hermes/common/cuda.h>
-#include <hermes/geometry/cuda_point.h>
+#include <hermes/geometry/point.h>
 
 namespace hermes {
 

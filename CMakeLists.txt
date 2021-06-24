@@ -56,13 +56,11 @@ set(HERMES_HEADERS
         hermes/common/size.h
         hermes/common/reduce.h
         hermes/geometry/bbox.h
-        hermes/geometry/cuda_bbox.inl
         hermes/geometry/matrix.h
         hermes/geometry/cuda_numeric.h
         hermes/geometry/transform.h
         hermes/geometry/vector.h
-        hermes/geometry/cuda_point.h
-        hermes/geometry/cuda_point.inl
+        hermes/geometry/point.h
         hermes/numeric/cuda_field.h
         hermes/numeric/cuda_interpolation.h
         hermes/numeric/vector_grid.h

@@ -39,7 +39,7 @@ public:
   /// Default constructor.
   __host__ __device__ HaltonSequence() : base(2), ind(1) {}
   /// \param b base ( > 1)
-  __host__ __device__ HaltonSequence(unsigned int b) : base(b), ind(1) {}
+  __host__ __device__ explicit HaltonSequence(unsigned int b) : base(b), ind(1) {}
   /// \param b base ( > 1)
   __host__ __device__ void setBase(unsigned int b) {
     base = b;

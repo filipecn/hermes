@@ -47,7 +47,7 @@ inline void print_cuda_devices() {
 
   cudaGetDeviceCount(&nDevices);
   for (int i = 0; i < nDevices; i++) {
-    cudaDeviceProp prop;
+    cudaDeviceProp prop{};
     cudaGetDeviceProperties(&prop, i);
     printf("Device Number: %d\n", i);
     printf("  Device name: %s\n", prop.name);
@@ -74,17 +74,17 @@ inline void print_cuda_devices() {
            prop.maxThreadsDim[0], prop.maxThreadsDim[1], prop.maxThreadsDim[2]);
     printf("  Maximum number of threads per block: %d\n",
            prop.maxThreadsPerBlock);
-    printf("  Maximum pitch in bytes allowed by memory copies: %u\n",
+    printf("  Maximum pitch in bytes allowed by memory copies: %zu\n",
            prop.memPitch);
     printf("  Number of multiprocessors on device: %d\n",
            prop.multiProcessorCount);
     printf("  32-bit registers available per block: %d\n", prop.regsPerBlock);
-    printf("  Shared memory available per block in bytes: %d\n",
+    printf("  Shared memory available per block in bytes: %zu\n",
            prop.sharedMemPerBlock);
-    printf("  Alignment requirement for textures: %d\n", prop.textureAlignment);
-    printf("  Constant memory available on device in bytes: %u\n",
+    printf("  Alignment requirement for textures: %zu\n", prop.textureAlignment);
+    printf("  Constant memory available on device in bytes: %zu\n",
            prop.totalConstMem);
-    printf("  Global memory available on device in bytes: %u\n",
+    printf("  Global memory available on device in bytes: %zu\n",
            prop.totalGlobalMem);
     printf("  Warp size in threads: %d\n", prop.warpSize);
   }
@@ -94,8 +94,8 @@ inline void print_cuda_memory_usage() {
   size_t free_byte;
   size_t total_byte;
   CHECK_CUDA(cudaMemGetInfo(&free_byte, &total_byte));
-  double free_db = (double)free_byte;
-  double total_db = (double)total_byte;
+  auto free_db = (double)free_byte;
+  auto total_db = (double)total_byte;
   double used_db = total_db - free_db;
   printf("GPU memory usage: used = %f, free = %f MB, total = %f MB\n",
          used_db / 1024.0 / 1024.0, free_db / 1024.0 / 1024.0,

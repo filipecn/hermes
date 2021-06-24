@@ -34,14 +34,12 @@
 
 namespace hermes {
 
-namespace cuda {
-
 /*****************************************************************************
 **************************          INDEX2           *************************
 ******************************************************************************/
 /// Holds 2-dimensional index coordinates
 ///\tparam T must be an integer type
-template <typename T> struct Index2 {
+template<typename T> struct Index2 {
   static_assert(std::is_same<T, i8>::value || std::is_same<T, i16>::value ||
                     std::is_same<T, i32>::value || std::is_same<T, i64>::value,
                 "Index2 must hold an integer type!");
@@ -85,12 +83,12 @@ public:
 // ***********************************************************************
 //                             ARITHMETIC
 // ***********************************************************************
-template <typename T>
+template<typename T>
 __host__ __device__ Index2<T> operator+(const Index2<T> &a,
                                         const Index2<T> &b) {
   return Index2<T>(a.i + b.i, a.j + b.j);
 }
-template <typename T>
+template<typename T>
 __host__ __device__ Index2<T> operator-(const Index2<T> &a,
                                         const Index2<T> &b) {
   return Index2<T>(a.i - b.i, a.j - b.j);
@@ -100,51 +98,51 @@ __host__ __device__ Index2<T> operator-(const Index2<T> &a,
 /// \param a **[in]**
 /// \param b **[in]**
 /// \return T
-template <typename T>
+template<typename T>
 __host__ __device__ T distance(const Index2<T> &a, const Index2<T> &b) {
   return fabsf(a.i - b.i) + fabsf(a.j - b.j);
 }
 // ***********************************************************************
 //                             BOOLEAN
 // ***********************************************************************
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator<=(const Index2<T> &a, const Index2<T> &b) {
   return a.i <= b.i && a.j <= b.j;
 }
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator>=(const Index2<T> &a, const Index2<T> &b) {
   return a.i >= b.i && a.j >= b.j;
 }
 ///\brief are equal? operator
 ///\param other **[in]**
 ///\return bool true if both coordinate values are equal
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator==(const Index2<T> &a, const Index2<T> &b) {
   return a.i == b.i && a.j == b.j;
 }
 /// \brief are different? operator
 ///\param other **[in]**
 ///\return bool true if any coordinate value is different
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator!=(const Index2<T> &a, const Index2<T> &b) {
   return a.i != b.i || a.j != b.j;
 }
-template <typename T, typename TT>
-__host__ __device__ bool operator<(const Index2<T> &a, const Size2<TT> &b) {
+template<typename T, typename TT>
+__host__ __device__ bool operator<(const Index2<T> &a, const Size2 <TT> &b) {
   return a.i < static_cast<T>(b.width) && a.j < static_cast<T>(b.height);
 }
-template <typename T, typename TT>
-__host__ __device__ bool operator>(const Index2<T> &a, const Size2<TT> &b) {
+template<typename T, typename TT>
+__host__ __device__ bool operator>(const Index2<T> &a, const Size2 <TT> &b) {
   return a.i > static_cast<T>(b.width) && a.j > static_cast<T>(b.height);
 }
-template <typename T, typename TT>
-__host__ __device__ bool operator>=(const Index2<T> &a, const Size2<TT> &b) {
+template<typename T, typename TT>
+__host__ __device__ bool operator>=(const Index2<T> &a, const Size2 <TT> &b) {
   return a.i >= static_cast<T>(b.width) && a.j >= static_cast<T>(b.height);
 }
 /*****************************************************************************
 **********************          INDEX2ITERATOR           *********************
 ******************************************************************************/
-template <typename T> class Index2Iterator {
+template<typename T> class Index2Iterator {
 public:
   Index2Iterator() = default;
   __host__ __device__ Index2Iterator(Index2<T> lower, Index2<T> upper)
@@ -191,7 +189,7 @@ private:
 /// Represents a closed-open range of indices [lower, upper),
 /// Can be used in a for each loop
 ///\tparam T must be an integer type
-template <typename T> class Index2Range {
+template<typename T> class Index2Range {
 public:
   ///\brief Construct a new Index2Range object
   ///\param upper_i **[in]** upper bound i
@@ -223,7 +221,7 @@ private:
 ******************************************************************************/
 /// Holds 3-dimensional index coordinates
 ///\tparam T must be an integer type
-template <typename T> struct Index3 {
+template<typename T> struct Index3 {
   static_assert(std::is_same<T, i8>::value || std::is_same<T, i16>::value ||
                     std::is_same<T, i32>::value || std::is_same<T, i64>::value,
                 "Index3 must hold an integer type!");
@@ -255,33 +253,33 @@ template <typename T> struct Index3 {
 // ***********************************************************************
 //                             BOOLEAN
 // ***********************************************************************
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator<=(const Index3<T> &a, const Index3<T> &b) {
   return a.i <= b.i && a.j <= b.j && a.k <= b.k;
 }
-template <typename T>
+template<typename T>
 __host__ __device__ bool operator<(const Index3<T> &a, const Index3<T> &b) {
   return a.i < b.i && a.j < b.j && a.k < b.k;
 }
-template <typename T, typename TT>
-__host__ __device__ bool operator<(const Index3<T> &a, const Size3<TT> &b) {
+template<typename T, typename TT>
+__host__ __device__ bool operator<(const Index3<T> &a, const Size3 <TT> &b) {
   return a.i < static_cast<T>(b.i) && a.j < static_cast<T>(b.j) &&
-         a.k < static_cast<T>(b.k);
+      a.k < static_cast<T>(b.k);
 }
-template <typename T, typename TT>
-__host__ __device__ bool operator>(const Index3<T> &a, const Size3<TT> &b) {
+template<typename T, typename TT>
+__host__ __device__ bool operator>(const Index3<T> &a, const Size3 <TT> &b) {
   return a.i > static_cast<T>(b.i) && a.j > static_cast<T>(b.j) &&
-         a.k > static_cast<T>(b.k);
+      a.k > static_cast<T>(b.k);
 }
-template <typename T, typename TT>
-__host__ __device__ bool operator>=(const Index3<T> &a, const Size3<TT> &b) {
+template<typename T, typename TT>
+__host__ __device__ bool operator>=(const Index3<T> &a, const Size3 <TT> &b) {
   return a.i >= static_cast<T>(b.i) && a.j >= static_cast<T>(b.j) &&
-         a.k >= static_cast<T>(b.k);
+      a.k >= static_cast<T>(b.k);
 }
 /*****************************************************************************
 **********************          INDEX3ITERATOR           *********************
 ******************************************************************************/
-template <typename T> class Index3Iterator {
+template<typename T> class Index3Iterator {
 public:
   ///\brief Construct a new Index3Iterator object
   ///\param lower **[in]** lower bound
@@ -329,7 +327,7 @@ private:
 /// Represents a closed-open range of indices [lower, upper),
 /// Can be used in a for each loop
 ///\tparam T must be an integer type
-template <typename T> class Index3Range {
+template<typename T> class Index3Range {
 public:
   ///\brief Construct a new Index3Range object
   ///\param upper_i **[in]** upper bound i
@@ -369,8 +367,6 @@ using index3_8 = Index3<i8>;
 using index3_16 = Index3<i16>;
 using index3_32 = Index3<i32>;
 using index3_64 = Index3<i64>;
-
-} // namespace cuda
 
 } // namespace hermes
 

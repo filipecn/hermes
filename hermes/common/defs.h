@@ -27,8 +27,6 @@
 
 namespace hermes {
 
-namespace cuda {
-
 enum class MemoryLocation { DEVICE, HOST };
 
 class Constants {
@@ -51,8 +49,6 @@ public:
     return fabsf(a - b) < 1e-8f;
   }
 };
-
-} // namespace cuda
 
 } // namespace hermes
 

@@ -2,11 +2,12 @@
 
 #include <hermes/hermes.h>
 
+using namespace hermes;
 using namespace hermes::cuda;
 
 texture<f32, cudaTextureType2D> tex2;
 
-__global__ void __copyArray(Array2Accessor<f32> dst) {
+__global__ void __copyArray(Array2Accessor <f32> dst) {
   index2 index(blockIdx.x * blockDim.x + threadIdx.x,
                blockIdx.y * blockDim.y + threadIdx.y);
   if (dst.contains(index))
@@ -16,12 +17,12 @@ __global__ void __copyArray(Array2Accessor<f32> dst) {
 TEST_CASE("Array-access", "[memory][array][access]") {
   print_cuda_devices();
   {
-    Array1<vec2> a(1000);
+    Array1 <vec2> a(1000);
     REQUIRE(a.size() == 1000u);
     // CUDA_MEMORY_USAGE;
   }
   {
-    Array1<index2> a(1000, index2(1, 3));
+    Array1 <index2> a(1000, index2(1, 3));
     auto v = a.hostData();
     for (auto vv : v)
       REQUIRE(vv == index2(1, 3));
@@ -53,10 +54,10 @@ TEST_CASE("Array-access", "[memory][array][access]") {
 TEST_CASE("Array", "[memory][array][access]") {
   SECTION("2d") {
     {
-      Array2<vec2> a(size2(10, 10));
+      Array2 <vec2> a(size2(10, 10));
       REQUIRE(a.size() == size2(10, 10));
       REQUIRE(a.memorySize() == 10 * a.pitch());
-      Array2<vec2> b = a;
+      Array2 <vec2> b = a;
       REQUIRE(b.size() == size2(10, 10));
       REQUIRE(b.memorySize() == 10 * b.pitch());
     }
@@ -72,7 +73,8 @@ TEST_CASE("Array", "[memory][array][access]") {
       REQUIRE(count == 10 * 10);
     }
     {
-      std::vector<Array2<int>> v;
+      std::vector<Array2 < int>>
+      v;
       v.emplace_back(size2(10, 10));
       v.emplace_back(size2(10, 10));
       v.emplace_back(size2(10, 10));
@@ -85,7 +87,8 @@ TEST_CASE("Array", "[memory][array][access]") {
           e.value = e.index.i * 10 + e.index.j;
         v[i] = h_v[i];
       }
-      std::vector<Array2<int>> vv;
+      std::vector<Array2 < int>>
+      vv;
       for (auto &e : v)
         vv.emplace_back(e);
       for (int i = 0; i < 3; i++) {
@@ -126,14 +129,14 @@ TEST_CASE("CuArray", "[memory][cuarray]") {
     ponos::Array2<f32> data(ponos::size2(128));
     for (auto ij : ponos::Index2Range<i32>(data.size()))
       data[ij] = ij.i * 100 + ij.j;
-    Array2<f32> d_data = data;
-    CuArray2<f32> c = d_data;
-    CuArray2<f32> c2 = data;
+    Array2 <f32> d_data = data;
+    CuArray2 <f32> c = d_data;
+    CuArray2 <f32> c2 = data;
     auto td = ThreadArrayDistributionInfo(d_data.size());
     tex2.normalized = 0;
     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<f32>();
     { // from c
-      Array2<f32> r(d_data.size());
+      Array2 <f32> r(d_data.size());
       CHECK_CUDA(cudaBindTextureToArray(tex2, c.data(), channelDesc));
       __copyArray<<<td.gridSize, td.blockSize>>>(r.accessor());
       auto h = r.hostData();
@@ -141,7 +144,7 @@ TEST_CASE("CuArray", "[memory][cuarray]") {
         REQUIRE(h[ij] == Approx(ij.i * 100 + ij.j).margin(1e-6));
     }
     { // from c2
-      Array2<f32> r(d_data.size());
+      Array2 <f32> r(d_data.size());
       CHECK_CUDA(cudaBindTextureToArray(tex2, c2.data(), channelDesc));
       __copyArray<<<td.gridSize, td.blockSize>>>(r.accessor());
       auto h = r.hostData();

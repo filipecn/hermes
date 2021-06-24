@@ -3,6 +3,7 @@
 #include <hermes/hermes.h>
 
 using namespace hermes::cuda;
+using namespace hermes;
 
 struct sum {};
 

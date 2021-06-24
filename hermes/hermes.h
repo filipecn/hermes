@@ -12,7 +12,7 @@
 #include <hermes/common/size.h>
 #include <hermes/geometry/bbox.h>
 #include <hermes/geometry/cuda_numeric.h>
-#include <hermes/geometry/cuda_point.h>
+#include <hermes/geometry/point.h>
 #include <hermes/geometry/matrix.h>
 #include <hermes/geometry/transform.h>
 #include <hermes/geometry/vector.h>
