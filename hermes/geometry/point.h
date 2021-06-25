@@ -156,12 +156,12 @@ public:
   // ***********************************************************************
   //                           CONSTRUCTORS
   // ***********************************************************************
-  __host__ __device__ Point3() {}
+  __host__ __device__ Point3() = default;
   __host__ __device__ Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
-  __host__ __device__ Point3(const Vector3<T> &v) : x(v.x), y(v.y), z(v.z) {}
-  __host__ __device__ Point3(const Point2<T> &p) : x(p.x), y(p.y), z(0) {}
-  __host__ __device__ Point3(const T *v) : x(v[0]), y(v[1]), z(v[2]) {}
-  __host__ __device__ Point3(T v) : x(v), y(v), z(v) {}
+  __host__ __device__ explicit Point3(const Vector3<T> &v) : x(v.x), y(v.y), z(v.z) {}
+  __host__ __device__ explicit Point3(const Point2<T> &p) : x(p.x), y(p.y), z(0) {}
+  __host__ __device__ explicit Point3(const T *v) : x(v[0]), y(v[1]), z(v[2]) {}
+  __host__ __device__ explicit Point3(T v) : x(v), y(v), z(v) {}
   // ***********************************************************************
   //                           ACCESS
   // ***********************************************************************
@@ -208,7 +208,10 @@ public:
   //                           DEBUG
   // ***********************************************************************
   template<typename TT>
-  friend std::ostream &operator<<(std::ostream &os, const Point3<TT> &p);
+  friend std::ostream &operator<<(std::ostream &os, const Point3<TT> &p) {
+    os << "[Point3] (" << p.x << " " << p.y << " " << p.z << ")";
+    return os;
+  }
   // ***********************************************************************
   //                           FIELDS
   // ***********************************************************************
