@@ -43,8 +43,8 @@ public:
   __host__ __device__ Vector2() { x = y = 0; }
   __host__ __device__ Vector2(T _x, T _y) : x(_x), y(_y) {}
   __host__ __device__ explicit Vector2(const Point2<T> &p) : x(p.x), y(p.y) {}
-  __host__ __device__ Vector2(T f) { x = y = f; }
-  __host__ __device__ Vector2(T *f) {
+  __host__ __device__ explicit Vector2(T f) { x = y = f; }
+  __host__ __device__ explicit Vector2(T *f) {
     x = f[0];
     y = f[1];
   }
@@ -177,14 +177,14 @@ public:
   //                           CONSTRUCTORS
   // ***********************************************************************
   __host__ __device__ Vector3() { x = y = z = 0; }
-  __host__ __device__ Vector3(T _f) : x(_f), y(_f), z(_f) {}
+  __host__ __device__ explicit Vector3(T _f) : x(_f), y(_f), z(_f) {}
   __host__ __device__ Vector3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
-  __host__ __device__ Vector3(const T *v) {
+  __host__ __device__ explicit Vector3(const T *v) {
     x = v[0];
     y = v[1];
     z = v[2];
   }
-  __host__ __device__ Vector3(const Point3<T> &p) : x(p.x), y(p.y), z(p.z) {}
+  __host__ __device__ explicit Vector3(const Point3<T> &p) : x(p.x), y(p.y), z(p.z) {}
   // ***********************************************************************
   //                           OPERATORS
   // ***********************************************************************
