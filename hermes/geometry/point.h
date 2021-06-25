@@ -31,6 +31,10 @@
 namespace hermes {
 
 template<typename T> class Point2 {
+  static_assert(std::is_same<T, f32>::value
+                    || std::is_same<T, f64>::value ||
+                    std::is_same<T, float>::value || std::is_same<T, double>::value,
+                "Point2 must hold an float type!");
 public:
   // ***********************************************************************
   //                           STATIC METHODS
@@ -146,17 +150,19 @@ template<typename T> __host__ __device__ Point2<T> floor(const Point2<T> &a) {
 }
 
 typedef Point2<float> point2;
-typedef Point2<unsigned int> point2u;
-typedef Point2<int> point2i;
 typedef Point2<float> point2f;
 typedef Point2<double> point2d;
 
 template<typename T> class Point3 {
+  static_assert(std::is_same<T, f32>::value
+                    || std::is_same<T, f64>::value ||
+                    std::is_same<T, float>::value || std::is_same<T, double>::value,
+                "Point3 must hold an float type!");
 public:
   // ***********************************************************************
   //                           CONSTRUCTORS
   // ***********************************************************************
-  __host__ __device__ Point3() = default;
+  __host__ __device__ Point3() : x{0}, y{0}, z{0} {};
   __host__ __device__ Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
   __host__ __device__ explicit Point3(const Vector3<T> &v) : x(v.x), y(v.y), z(v.z) {}
   __host__ __device__ explicit Point3(const Point2<T> &p) : x(p.x), y(p.y), z(0) {}
@@ -208,7 +214,7 @@ public:
   //                           DEBUG
   // ***********************************************************************
   template<typename TT>
-  friend std::ostream &operator<<(std::ostream &os, const Point3<TT> &p) {
+  __host__ friend std::ostream &operator<<(std::ostream &os, const Point3<TT> &p) {
     os << "[Point3] (" << p.x << " " << p.y << " " << p.z << ")";
     return os;
   }

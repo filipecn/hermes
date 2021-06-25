@@ -48,16 +48,11 @@ struct ThreadArrayDistributionInfo {
     gridSize = dim3((w + blockSize.x - 1) / blockSize.x,
                     (h + blockSize.y - 1) / blockSize.y);
   }
-  __host__ __device__ explicit ThreadArrayDistributionInfo(vec2u resolution) {
+  __host__ __device__ explicit ThreadArrayDistributionInfo(size3 resolution) {
     blockSize = dim3(16, 16);
-    gridSize = dim3((resolution.x + blockSize.x - 1) / blockSize.x,
-                    (resolution.y + blockSize.y - 1) / blockSize.y);
-  }
-  __host__ __device__ explicit ThreadArrayDistributionInfo(vec3u resolution) {
-    blockSize = dim3(16, 16);
-    gridSize = dim3((resolution.x + blockSize.x - 1) / blockSize.x,
-                    (resolution.y + blockSize.y - 1) / blockSize.y,
-                    (resolution.z + blockSize.z - 1) / blockSize.z);
+    gridSize = dim3((resolution.width + blockSize.x - 1) / blockSize.x,
+                    (resolution.height + blockSize.y - 1) / blockSize.y,
+                    (resolution.depth + blockSize.z - 1) / blockSize.z);
   }
   __host__ __device__ ThreadArrayDistributionInfo(unsigned int w,
                                                   unsigned int h,

@@ -87,7 +87,7 @@ template<typename T> class Size3 {
 public:
   __host__ __device__ Size3() {};
   __host__ Size3(T size) : width(size), height(size), depth(size) {}
-  __host__ __device__ explicit Size3(T _width, T _height, T _depth)
+  __host__ __device__ Size3(T _width, T _height, T _depth)
       : width(_width), height(_height), depth(_depth) {}
   __host__ __device__ T total() const { return width * height * depth; }
   __host__ __device__ T operator[](int i) const { return (&width)[i]; }
@@ -100,6 +100,23 @@ public:
   T height = T(0);
   T depth = T(0);
 };
+
+template<typename T>
+__host__ __device__ Size3<T> operator+(const Size3<T> &a, const Size3<T> &b) {
+  return {a.width + b.width, a.height + b.height, a.depth + b.depth};
+}
+
+template<typename T>
+__host__ __device__ Size3<T> operator-(const Size3<T> &a, const Size3<T> &b) {
+  return {a.width - b.width, a.height - b.height, a.depth - b.depth};
+}
+
+template<typename T> __host__ __device__ bool operator==(const Size3<T> &a, const Size3<T> &b) {
+  return a.width == b.width && a.height == b.height && a.depth == b.depth;
+}
+template<typename T> __host__ __device__ bool operator!=(const Size3<T> &a, const Size3<T> &b) {
+  return a.width != b.width || a.height != b.height || a.depth != b.depth;
+}
 
 using size2 = Size2<u32>;
 using size2_8 = Size2<u8>;

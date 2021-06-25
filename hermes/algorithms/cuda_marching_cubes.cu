@@ -601,7 +601,7 @@ void MarchingCubes::extractSurface(RegularGrid3Df &f, CuMemoryBlock1f &vertices,
                                    CuMemoryBlock1u &indices, float isovalue,
                                    CuMemoryBlock1f *normals) {
   // classify cubes
-  vec3u size = f.resolution() - vec3u(1);
+  size3 size = f.resolution() - size3(1);
   MemoryBlock3Duc cube_type(size);
   cube_type.allocate();
   MemoryBlock3Du d_index_offset(size);

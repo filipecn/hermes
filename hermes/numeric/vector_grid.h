@@ -408,7 +408,7 @@ public:
   /// \param resolution in number of cells
   /// \param origin (0,0,0) corner position
   /// \param dx cell size
-  VectorGridTexture3(vec3u resolution, point3f origin, float dx) {
+  VectorGridTexture3(size3 resolution, point3f origin, float dx) {
     uGrid.resize(resolution);
     uGrid.setOrigin(origin);
     uGrid.setDx(dx);
@@ -421,7 +421,7 @@ public:
   }
   /// Changes grid resolution
   /// \param res new resolution (in number of cells)
-  virtual void resize(vec3u res) {
+  virtual void resize(size3 res) {
     uGrid.resize(res);
     vGrid.resize(res);
     wGrid.resize(res);
@@ -483,7 +483,7 @@ public:
   /// \param addressMode **[default = AccessMode::NONE]** accessMode defines how
   /// outside of bounds is treated
   /// \param border * * [default = T()]** border
-  VectorGrid3Accessor(const vec3u &resolution, const vec3f &spacing,
+  VectorGrid3Accessor(const size3 &resolution, const vec3f &spacing,
                       RegularGrid3Accessor<float> u,
                       RegularGrid3Accessor<float> v,
                       RegularGrid3Accessor<float> w)
@@ -504,7 +504,7 @@ public:
   __host__ __device__ RegularGrid3Accessor<float> &vAccessor() { return v_; }
   __host__ __device__ RegularGrid3Accessor<float> &wAccessor() { return w_; }
 
-  const vec3u resolution;
+  const size3 resolution;
   const vec3f spacing;
 
 protected:
@@ -520,7 +520,7 @@ public:
   /// \param res resolution in number of cells
   /// \param o origin (0,0,0) corner position
   /// \param s spacing cell size
-  VectorGrid3(vec3u res, point3f o, vec3f s)
+  VectorGrid3(size3 res, point3f o, vec3f s)
       : resolution_(res), origin_(o), spacing_(s) {
     uGrid.resize(res);
     uGrid.setOrigin(o);
@@ -532,12 +532,12 @@ public:
     wGrid.setOrigin(o);
     wGrid.setSpacing(s);
   }
-  vec3u resolution() const { return resolution_; }
+  size3 resolution() const { return resolution_; }
   vec3f spacing() const { return spacing_; }
   point3f origin() const { return origin_; }
   /// Changes grid resolution
   /// \param res new resolution (in number of cells)
-  virtual void resize(vec3u res) {
+  virtual void resize(size3 res) {
     resolution_ = res;
     uGrid.resize(res);
     vGrid.resize(res);
@@ -582,7 +582,7 @@ public:
   }
 
 protected:
-  vec3u resolution_;
+  size3 resolution_;
   point3f origin_;
   vec3f spacing_;
   RegularGrid3<L, float> uGrid, vGrid, wGrid;

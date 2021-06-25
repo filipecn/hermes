@@ -145,7 +145,7 @@ using StaggeredGrid2H = StaggeredGrid2<MemoryLocation::HOST>;
 */
 class StaggeredGrid3Accessor : public VectorGrid3Accessor {
 public:
-  StaggeredGrid3Accessor(const vec3u &resolution, const vec3f &spacing,
+  StaggeredGrid3Accessor(const size3 &resolution, const vec3f &spacing,
                          RegularGrid3Accessor<float> u,
                          RegularGrid3Accessor<float> v,
                          RegularGrid3Accessor<float> w)
@@ -176,17 +176,17 @@ public:
   /// \param res resolution in number of cells
   /// \param o origin (0,0) corner position
   /// \param s cell size
-  StaggeredGrid3(vec3u res, point3f o, const vec3f &s) {
+  StaggeredGrid3(size3 res, point3f o, const vec3f &s) {
     this->origin_ = o;
     this->resolution_ = res;
     this->spacing_ = s;
-    this->uGrid.resize(res + vec3u(1, 0, 0));
+    this->uGrid.resize(res + size3(1, 0, 0));
     this->uGrid.setOrigin(o + s.x * vec3f(-0.5f, 0.f, 0.f));
     this->uGrid.setSpacing(s);
-    this->vGrid.resize(res + vec3u(0, 1, 0));
+    this->vGrid.resize(res + size3(0, 1, 0));
     this->vGrid.setOrigin(o + s.y * vec3f(0.f, -0.5f, 0.f));
     this->vGrid.setSpacing(s);
-    this->wGrid.resize(res + vec3u(0, 0, 1));
+    this->wGrid.resize(res + size3(0, 0, 1));
     this->wGrid.setOrigin(o + s.z * vec3f(0.f, 0.f, -0.5f));
     this->wGrid.setSpacing(s);
   }
@@ -201,11 +201,11 @@ public:
   }
   /// Changes grid resolution
   /// \param res new resolution (in number of cells)
-  void resize(vec3u res) override {
+  void resize(size3 res) override {
     this->resolution_ = res;
-    this->uGrid.resize(res + vec3u(1, 0, 0));
-    this->vGrid.resize(res + vec3u(0, 1, 0));
-    this->wGrid.resize(res + vec3u(0, 0, 1));
+    this->uGrid.resize(res + size3(1, 0, 0));
+    this->vGrid.resize(res + size3(0, 1, 0));
+    this->wGrid.resize(res + size3(0, 0, 1));
   }
   /// Changes grid origin position
   /// \param o in world space

@@ -34,6 +34,10 @@ namespace hermes {
 
 template<typename T> class Point2;
 template<typename T> class Vector2 {
+  static_assert(std::is_same<T, f32>::value
+                    || std::is_same<T, f64>::value ||
+                    std::is_same<T, float>::value || std::is_same<T, double>::value,
+                "Vector2 must hold an float type!");
 public:
   // ***********************************************************************
   //                           CONSTRUCTORS
@@ -172,6 +176,10 @@ Vector2<T> project(const Vector2<T> &a, const Vector2<T> &b);
 
 template<typename T> class Point3;
 template<typename T> class Vector3 {
+  static_assert(std::is_same<T, f32>::value
+                    || std::is_same<T, f64>::value ||
+                    std::is_same<T, float>::value || std::is_same<T, double>::value,
+                "Vector3 must hold an float type!");
 public:
   // ***********************************************************************
   //                           CONSTRUCTORS
@@ -378,13 +386,9 @@ __host__ std::ostream &operator<<(std::ostream &os, const Vector3<T> &v) {
 using vec2 = Vector2<float>;
 using vec2d = Vector2<double>;
 using vec2f = Vector2<float>;
-using vec2i = Vector2<int>;
-using vec2u = Vector2<unsigned int>;
 using vec3d = Vector3<double>;
 using vec3 = Vector3<float>;
 using vec3f = Vector3<float>;
-using vec3i = Vector3<int>;
-using vec3u = Vector3<unsigned int>;
 
 } // namespace hermes
 

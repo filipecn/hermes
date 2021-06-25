@@ -62,7 +62,7 @@ public:
 private:
   void updateTransforms() {
     to_world_ = translate(vec2f(origin_[0], origin_[1])) *
-                scale(spacing_.x, spacing_.y);
+        scale(spacing_.x, spacing_.y);
     to_grid_ = inverse(to_world_);
   }
   Transform2<float> to_grid_;
@@ -74,13 +74,13 @@ private:
 *************************            GRID2           *************************
 ******************************************************************************/
 // forward declaration of Grid2
-template <typename T> class Grid2;
+template<typename T> class Grid2;
 // forward declaration of Grid2Accessor
-template <typename T> class Grid2Accessor;
+template<typename T> class Grid2Accessor;
 /// Auxiliary class to allow c++ iteration in loops.
 /// Ex: for(auto e : grid.accessor()) {}
 /// \tparam T grid data type
-template <typename T> class Grid2Iterator {
+template<typename T> class Grid2Iterator {
 public:
   /// Represents the current grid index element being iterated
   class Element {
@@ -136,7 +136,7 @@ private:
 };
 /// Class that provides access to grid elements.
 /// \tparam T grid data type
-template <typename T> class Grid2Accessor {
+template<typename T> class Grid2Accessor {
 public:
   /// \param info
   /// \param address_mode
@@ -146,7 +146,7 @@ public:
       ponos::AddressMode address_mode = ponos::AddressMode::CLAMP_TO_EDGE,
       T border = T(0),
       ponos::InterpolationMode interpolation_mode =
-          ponos::InterpolationMode::MONOTONIC_CUBIC)
+      ponos::InterpolationMode::MONOTONIC_CUBIC)
       : info_(info), grid_(grid), address_mode_(address_mode),
         interpolation_mode_(interpolation_mode), border_(border) {}
   /// \return grid resolutio),n
@@ -212,12 +212,9 @@ public:
         return dummy_;
       }
       break;
-    case ponos::AddressMode::WRAP:
-      break;
-    case ponos::AddressMode::MIRROR:
-      break;
-    default:
-      break;
+    case ponos::AddressMode::WRAP:break;
+    case ponos::AddressMode::MIRROR:break;
+    default:break;
     }
 
     assert(grid_.contains(fij));
@@ -233,14 +230,12 @@ public:
     case ponos::InterpolationMode::LINEAR:
       return bilerp<T>(cp.x, cp.y, (*this)[ip], (*this)[ip + index2(1, 0)],
                        (*this)[ip + index2(1, 1)], (*this)[ip + index2(0, 1)]);
-    case ponos::InterpolationMode::MONOTONIC_CUBIC:
-      T f[4][4];
+    case ponos::InterpolationMode::MONOTONIC_CUBIC:T f[4][4];
       for (int dx = -1; dx <= 2; ++dx)
         for (int dy = -1; dy <= 2; ++dy)
           f[dx + 1][dy + 1] = (*this)[ip + index2(dx, dy)];
       return monotonicCubicInterpolate(f, cp);
-    default:
-      break;
+    default:break;
     }
     return T(0);
   }
@@ -269,7 +264,7 @@ private:
 /// cell (i,j) is (i + .5, j + .5). In other words, data is stored at vertex
 /// positions.
 /// \tparam T grid data type
-template <typename T> class Grid2 {
+template<typename T> class Grid2 {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, float>::value ||
                     std::is_same<T, double>::value,
@@ -389,7 +384,7 @@ public:
   accessor(ponos::AddressMode addressMode = ponos::AddressMode::CLAMP_TO_EDGE,
            T border = T(0),
            ponos::InterpolationMode interpolation_mode =
-               ponos::InterpolationMode::MONOTONIC_CUBIC) {
+           ponos::InterpolationMode::MONOTONIC_CUBIC) {
     return Grid2Accessor<T>(info_, data_.accessor(), addressMode, border,
                             interpolation_mode);
   }
@@ -404,7 +399,7 @@ public:
   // ***********************************************************************
   ///\tparam F function type
   ///\param operation **[in]**
-  template <typename F> void map(F operation) { data_.map(operation); }
+  template<typename F> void map(F operation) { data_.map(operation); }
 
 private:
   Info2 info_{};
@@ -424,7 +419,7 @@ struct Grid2Info {
 struct Grid3Info {
   Transform<float> toField;
   Transform<float> toWorld;
-  vec3u resolution;
+  size3 resolution;
   point3f origin;
   float dx;
 };
@@ -440,7 +435,7 @@ struct RegularGrid2Info {
 struct RegularGrid3Info {
   Transform<float> toGrid;
   Transform<float> toWorld;
-  vec3u resolution;
+  size3 resolution;
   point3f origin;
   vec3f spacing;
 };
@@ -452,10 +447,10 @@ public:
     __host__ __device__ Element(T &v, const vec2i &ij, RegularGrid2Info &info)
         : value(v), index_(ij), info_(info) {}
     __host__ __device__ vec2i index() const { return index_; }
-    __host__ __device__ int i() const { return index_.x; }
-    __host__ __device__ int j() const { return index_.y; }
+    __host__ __device__ int i() const { return index_.i; }
+    __host__ __device__ int j() const { return index_.j; }
     __host__ __device__ point2f worldPosition() const {
-      return info_.toWorld(point2f(index_.x, index_.y));
+      return info_.toWorld(point2f(index_.i, index_.j));
     }
 
     T &value;
@@ -472,10 +467,10 @@ public:
   __host__ __device__ size2 size() const { return size_; }
   __host__ __device__ RegularGrid2Iterator &operator++() {
     i++;
-    if (i >= size_.x) {
+    if (i >= size_.width) {
       i = 0;
       j++;
-      if (j >= size_.y) {
+      if (j >= size_.height) {
         i = j = -1;
       }
     }
@@ -517,15 +512,15 @@ public:
   __host__ __device__ T &operator()(int i, int j) {
     switch (address_mode_) {
     case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
+      i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
       break;
     case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
+      i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y) {
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height) {
         dummy_ = border_;
         return dummy_;
       }
@@ -548,15 +543,15 @@ public:
   __host__ __device__ const T &operator()(int i, int j) const {
     switch (address_mode_) {
     case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
+      i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
       break;
     case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
+      i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y)
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height)
         return border_;
       break;
     case ponos::AddressMode::WRAP:
@@ -576,7 +571,7 @@ public:
   }
   ///
   __host__ __device__ bool isIndexStored(int i, int j) {
-    return i >= 0 && i < data_.size().x && j >= 0 && j < data_.size().y;
+    return i >= 0 && i < data_.size().width && j >= 0 && j < data_.size().height;
   }
   __host__ __device__ RegularGrid2Iterator<T> begin() {
     return RegularGrid2Iterator<T>(data_, info_, vec2i(0));
@@ -614,15 +609,15 @@ public:
   __host__ __device__ float &operator()(int i, int j) {
     switch (address_mode_) {
     case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
+      i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
       break;
     case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
+      i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y) {
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height) {
         dummy_ = border_;
         return dummy_;
       }
@@ -655,15 +650,15 @@ public:
   __host__ __device__ const float &operator()(int i, int j) const {
     switch (address_mode_) {
     case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
+      i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
       break;
     case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
+      i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y)
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height)
         return border_;
       break;
     case ponos::AddressMode::WRAP:
@@ -683,7 +678,7 @@ public:
   }
   ///
   __host__ __device__ bool isIndexStored(int i, int j) {
-    return i >= 0 && i < data_.size().x && j >= 0 && j < data_.size().y;
+    return i >= 0 && i < data_.size().width && j >= 0 && j < data_.size().height;
   }
   __host__ __device__ RegularGrid2Iterator<float> begin() {
     return RegularGrid2Iterator<float>(data_, info_, vec2i(0));
@@ -710,7 +705,7 @@ public:
   RegularGrid2(const size2 &size = size2()) {
     info_.resolution = size;
     data_.resize(size);
-    if (size.x * size.y != 0)
+    if (size.width * size.height != 0)
       data_.allocate();
   }
   /// Changes grid resolution
@@ -769,49 +764,49 @@ using RegularGrid2Hf = RegularGrid2<MemoryLocation::HOST, float>;
 using RegularGrid2Huc = RegularGrid2<MemoryLocation::HOST, unsigned char>;
 using RegularGrid2Hi = RegularGrid2<MemoryLocation::HOST, int>;
 */
-template <typename T> class RegularGrid3Iterator {
+template<typename T> class RegularGrid3Iterator {
 public:
   class Element {
   public:
-    __host__ __device__ Element(T &v, const vec3i &ij, RegularGrid3Info &info)
+    __host__ __device__ Element(T &v, const index3 &ij, RegularGrid3Info &info)
         : value(v), index_(ij), info_(info) {}
-    __host__ __device__ vec3i index() const { return index_; }
-    __host__ __device__ int i() const { return index_.x; }
-    __host__ __device__ int j() const { return index_.y; }
-    __host__ __device__ int k() const { return index_.z; }
+    __host__ __device__ index3 index() const { return index_; }
+    __host__ __device__ int i() const { return index_.i; }
+    __host__ __device__ int j() const { return index_.j; }
+    __host__ __device__ int k() const { return index_.k; }
     __host__ __device__ point3f worldPosition() const {
-      return info_.toWorld(point3f(index_.x, index_.y, index_.z));
+      return info_.toWorld(point3f(index_.i, index_.j, index_.k));
     }
 
     T &value;
 
   private:
-    vec3i index_;
+    index3 index_;
     RegularGrid3Info &info_;
   };
   __host__ __device__
   RegularGrid3Iterator(MemoryBlock3Accessor<T> &dataAccessor,
-                       RegularGrid3Info &info, const vec3i &ijk)
-      : acc_(dataAccessor), info_(info), size_(info.resolution), i(ijk.x),
-        j(ijk.y), k(ijk.z) {}
-  __host__ __device__ vec3u size() const { return size_; }
+                       RegularGrid3Info &info, const index3 &ijk)
+      : acc_(dataAccessor), info_(info), size_(info.resolution), i(ijk.i),
+        j(ijk.j), k(ijk.k) {}
+  __host__ __device__ size3 size() const { return size_; }
   __host__ __device__ RegularGrid3Iterator &operator++() {
     i++;
-    if (i >= size_.x) {
+    if (i >= size_.width) {
       i = 0;
       j++;
-      if (j >= size_.y) {
+      if (j >= size_.height) {
         i = 0;
         j = 0;
         k++;
-        if (k >= size_.z)
+        if (k >= size_.depth)
           i = j = k = -1;
       }
     }
     return *this;
   }
   __host__ __device__ Element operator*() {
-    return Element(acc_(i, j, k), vec3i(i, j, k), info_);
+    return Element(acc_(i, j, k), index3(i, j, k), info_);
   }
   __host__ __device__ bool operator!=(const RegularGrid3Iterator &other) {
     return size_ != other.size_ || i != other.i || j != other.j;
@@ -821,12 +816,12 @@ private:
   MemoryBlock3Accessor<T> acc_;
   RegularGrid3Info info_;
   int i = 0, j = 0, k = 0;
-  vec3u size_;
+  size3 size_;
 };
 /// Accessor for arrays stored on the device.
 /// Indices are accessed as: i * width * height + j * height + k
 /// \tparam T data type
-template <typename T> class RegularGrid3Accessor {
+template<typename T> class RegularGrid3Accessor {
 public:
   /// \param data raw pointer to device data
   /// \param addressMode **[default = AccessMode::NONE]** accessMode defines how
@@ -837,7 +832,7 @@ public:
       ponos::AddressMode addressMode = ponos::AddressMode::CLAMP_TO_EDGE,
       T border = T(0))
       : info_(info), data_(data), address_mode_(addressMode), border_(border) {}
-  __host__ __device__ vec3u resolution() const { return data_.size(); }
+  __host__ __device__ size3 resolution() const { return data_.size(); }
   __host__ __device__ vec3f spacing() const { return info_.spacing; }
   /// \param i size[0] index
   /// \param j size[1] index
@@ -846,29 +841,24 @@ public:
   /// out of bounds index)
   __host__ __device__ T &operator()(int i, int j, int k) {
     switch (address_mode_) {
-    case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
-      k = (k < 0) ? data_.size().z - 1 - k : k % data_.size().z;
+    case ponos::AddressMode::REPEAT:i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
+      k = (k < 0) ? data_.size().depth - 1 - k : k % data_.size().depth;
       break;
-    case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
-      k = fmaxf(0, fminf(k, data_.size().z - 1));
+    case ponos::AddressMode::CLAMP_TO_EDGE:i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
+      k = fmaxf(0, fminf(k, data_.size().depth - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y ||
-          k < 0 || k >= data_.size().z) {
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height ||
+          k < 0 || k >= data_.size().depth) {
         dummy_ = border_;
         return dummy_;
       }
       break;
-    case ponos::AddressMode::WRAP:
-      break;
-    case ponos::AddressMode::MIRROR:
-      break;
-    default:
-      break;
+    case ponos::AddressMode::WRAP:break;
+    case ponos::AddressMode::MIRROR:break;
+    default:break;
     }
     return data_(i, j, k);
   }
@@ -879,27 +869,22 @@ public:
   /// of an out of bounds index)
   __host__ __device__ const T &operator()(int i, int j, int k) const {
     switch (address_mode_) {
-    case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
-      k = (k < 0) ? data_.size().z - 1 - k : k % data_.size().z;
+    case ponos::AddressMode::REPEAT:i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
+      k = (k < 0) ? data_.size().depth - 1 - k : k % data_.size().depth;
       break;
-    case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
-      k = fmaxf(0, fminf(k, data_.size().z - 1));
+    case ponos::AddressMode::CLAMP_TO_EDGE:i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
+      k = fmaxf(0, fminf(k, data_.size().depth - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y ||
-          k < 0 || k >= data_.size().z)
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height ||
+          k < 0 || k >= data_.size().depth)
         return border_;
       break;
-    case ponos::AddressMode::WRAP:
-      break;
-    case ponos::AddressMode::MIRROR:
-      break;
-    default:
-      break;
+    case ponos::AddressMode::WRAP:break;
+    case ponos::AddressMode::MIRROR:break;
+    default:break;
     }
     return data_(i, j, k);
   }
@@ -911,14 +896,14 @@ public:
   }
   ///
   __host__ __device__ bool isIndexStored(int i, int j, int k) {
-    return i >= 0 && i < data_.size().x && j >= 0 && j < data_.size().y &&
-           k >= 0 && k < data_.size().z;
+    return i >= 0 && i < data_.size().width && j >= 0 && j < data_.size().height &&
+        k >= 0 && k < data_.size().depth;
   }
   __host__ __device__ RegularGrid3Iterator<T> begin() {
-    return RegularGrid3Iterator<T>(data_, info_, vec3i(0));
+    return RegularGrid3Iterator<T>(data_, info_, index3(0));
   }
   __host__ __device__ RegularGrid3Iterator<T> end() {
-    return RegularGrid3Iterator<T>(data_, info_, vec3i(-1));
+    return RegularGrid3Iterator<T>(data_, info_, index3(-1));
   }
 
 private:
@@ -930,7 +915,7 @@ private:
   T dummy_;          //!< used as out of bounds reference variable
 };
 
-template <> class RegularGrid3Accessor<float> {
+template<> class RegularGrid3Accessor<float> {
 public:
   /// \param data raw pointer to device data
   /// \param addressMode **[default = AccessMode::NONE]** accessMode defines how
@@ -941,7 +926,7 @@ public:
       ponos::AddressMode addressMode = ponos::AddressMode::CLAMP_TO_EDGE,
       float border = 0.f)
       : info_(info), data_(data), address_mode_(addressMode), border_(border) {}
-  __host__ __device__ vec3u resolution() const { return data_.size(); }
+  __host__ __device__ size3 resolution() const { return data_.size(); }
   __host__ __device__ vec3f spacing() const { return info_.spacing; }
   /// \param i size[0] index
   /// \param j size[1] index
@@ -950,29 +935,24 @@ public:
   /// out of bounds index)
   __host__ __device__ float &operator()(int i, int j, int k) {
     switch (address_mode_) {
-    case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
-      k = (k < 0) ? data_.size().z - 1 - k : k % data_.size().z;
+    case ponos::AddressMode::REPEAT:i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
+      k = (k < 0) ? data_.size().depth - 1 - k : k % data_.size().depth;
       break;
-    case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
-      k = fmaxf(0, fminf(k, data_.size().z - 1));
+    case ponos::AddressMode::CLAMP_TO_EDGE:i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
+      k = fmaxf(0, fminf(k, data_.size().depth - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y ||
-          k < 0 || k >= data_.size().z) {
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height ||
+          k < 0 || k >= data_.size().depth) {
         dummy_ = border_;
         return dummy_;
       }
       break;
-    case ponos::AddressMode::WRAP:
-      break;
-    case ponos::AddressMode::MIRROR:
-      break;
-    default:
-      break;
+    case ponos::AddressMode::WRAP:break;
+    case ponos::AddressMode::MIRROR:break;
+    default:break;
     }
     return data_(i, j, k);
   }
@@ -1004,27 +984,22 @@ public:
   /// of an out of bounds index)
   __host__ __device__ const float &operator()(int i, int j, int k) const {
     switch (address_mode_) {
-    case ponos::AddressMode::REPEAT:
-      i = (i < 0) ? data_.size().x - 1 - i : i % data_.size().x;
-      j = (j < 0) ? data_.size().y - 1 - j : j % data_.size().y;
-      k = (k < 0) ? data_.size().z - 1 - k : k % data_.size().z;
+    case ponos::AddressMode::REPEAT:i = (i < 0) ? data_.size().width - 1 - i : i % data_.size().width;
+      j = (j < 0) ? data_.size().height - 1 - j : j % data_.size().height;
+      k = (k < 0) ? data_.size().depth - 1 - k : k % data_.size().depth;
       break;
-    case ponos::AddressMode::CLAMP_TO_EDGE:
-      i = fmaxf(0, fminf(i, data_.size().x - 1));
-      j = fmaxf(0, fminf(j, data_.size().y - 1));
-      k = fmaxf(0, fminf(k, data_.size().z - 1));
+    case ponos::AddressMode::CLAMP_TO_EDGE:i = fmaxf(0, fminf(i, data_.size().width - 1));
+      j = fmaxf(0, fminf(j, data_.size().height - 1));
+      k = fmaxf(0, fminf(k, data_.size().depth - 1));
       break;
     case ponos::AddressMode::BORDER:
-      if (i < 0 || i >= data_.size().x || j < 0 || j >= data_.size().y ||
-          k < 0 || k >= data_.size().z)
+      if (i < 0 || i >= data_.size().width || j < 0 || j >= data_.size().height ||
+          k < 0 || k >= data_.size().depth)
         return border_;
       break;
-    case ponos::AddressMode::WRAP:
-      break;
-    case ponos::AddressMode::MIRROR:
-      break;
-    default:
-      break;
+    case ponos::AddressMode::WRAP:break;
+    case ponos::AddressMode::MIRROR:break;
+    default:break;
     }
     return data_(i, j, k);
   }
@@ -1036,14 +1011,14 @@ public:
   }
   ///
   __host__ __device__ bool isIndexStored(int i, int j, int k) {
-    return i >= 0 && i < data_.size().x && j >= 0 && j < data_.size().y &&
-           k >= 0 && k < data_.size().z;
+    return i >= 0 && i < data_.size().width && j >= 0 && j < data_.size().height &&
+        k >= 0 && k < data_.size().depth;
   }
   __host__ __device__ RegularGrid3Iterator<float> begin() {
-    return RegularGrid3Iterator<float>(data_, info_, vec3i(0));
+    return RegularGrid3Iterator<float>(data_, info_, index3(0));
   }
   __host__ __device__ RegularGrid3Iterator<float> end() {
-    return RegularGrid3Iterator<float>(data_, info_, vec3i(-1));
+    return RegularGrid3Iterator<float>(data_, info_, index3(-1));
   }
 
 private:
@@ -1056,25 +1031,25 @@ private:
 };
 
 /// Represents a regular grid that can be used in numeric calculations
-template <MemoryLocation L, typename T> class RegularGrid3 {
+template<MemoryLocation L, typename T> class RegularGrid3 {
 public:
-  template <MemoryLocation LL> RegularGrid3(RegularGrid3<LL, T> &other) {
+  template<MemoryLocation LL> RegularGrid3(RegularGrid3<LL, T> &other) {
     copy(other);
   }
-  RegularGrid3(const vec3u &size = vec3u()) {
+  RegularGrid3(const size3 &size = size3()) {
     info_.resolution = size;
     data_.resize(size);
-    if (size.x * size.y * size.z != 0)
+    if (size.width * size.height * size.depth != 0)
       data_.allocate();
   }
   /// Changes grid resolution
   /// \param res new resolution (in number of cells)
-  void resize(const vec3u &res) {
+  void resize(const size3 &res) {
     info_.resolution = res;
     data_.resize(res);
     data_.allocate();
   }
-  vec3u resolution() const { return info_.resolution; }
+  size3 resolution() const { return info_.resolution; }
   vec3f spacing() const { return info_.spacing; }
   point3f origin() const { return info_.origin; }
   /// Changes grid origin position
@@ -1098,7 +1073,7 @@ public:
   MemoryBlock3<L, T> &data() { return data_; }
   const MemoryBlock3<L, T> &data() const { return data_; }
   const RegularGrid3Info &info() const { return info_; }
-  template <MemoryLocation LL> void copy(RegularGrid3<LL, T> &other) {
+  template<MemoryLocation LL> void copy(RegularGrid3<LL, T> &other) {
     info_ = other.info();
     data_.resize(other.data().size());
     data_.allocate();
@@ -1109,7 +1084,7 @@ private:
   void updateTransform() {
     info_.toWorld =
         translate(vec3f(info_.origin[0], info_.origin[1], info_.origin[2])) *
-        scale(info_.spacing.x, info_.spacing.y, info_.spacing.z);
+            scale(info_.spacing.x, info_.spacing.y, info_.spacing.z);
     info_.toGrid = inverse(info_.toWorld);
   }
 
@@ -1124,11 +1099,11 @@ using RegularGrid3Hf = RegularGrid3<MemoryLocation::HOST, float>;
 using RegularGrid3Huc = RegularGrid3<MemoryLocation::HOST, unsigned char>;
 using RegularGrid3Hi = RegularGrid3<MemoryLocation::HOST, int>;
 
-template <MemoryLocation L, typename T>
+template<MemoryLocation L, typename T>
 void fill3(RegularGrid3<L, T> &grid, const bbox3f &region, T value,
            bool overwrite = false);
 
-template <typename T>
+template<typename T>
 __global__ void __fill3(RegularGrid3Accessor<T> acc, bbox3f region, T value,
                         bool increment) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1145,7 +1120,7 @@ __global__ void __fill3(RegularGrid3Accessor<T> acc, bbox3f region, T value,
   }
 }
 
-template <typename T>
+template<typename T>
 void fill3(RegularGrid3<MemoryLocation::DEVICE, T> &grid, const bbox3f &region,
            T value, bool increment = false) {
   ThreadArrayDistributionInfo td(grid.resolution());
@@ -1170,7 +1145,7 @@ T maxValue(RegularGrid2<MemoryLocation::DEVICE, T> &grid) {
 
 // TODO: DEPRECATED
 /// Represents a texture field with position offset and scale
-template <typename T> class GridTexture2 {
+template<typename T> class GridTexture2 {
 public:
   GridTexture2() = default;
   /// \param resolution in number of cells
@@ -1229,7 +1204,7 @@ public:
 private:
   void updateTransform() {
     texGrid.setTransform(scale(dx, dx) *
-                         translate(vec2f(origin[0], origin[1])));
+        translate(vec2f(origin[0], origin[1])));
   }
   point2f origin;
   float dx = 1.f;
@@ -1238,21 +1213,21 @@ private:
 
 // TODO: DEPRECATED
 /// Represents a texture field with position offset and scale
-template <typename T> class GridTexture3 {
+template<typename T> class GridTexture3 {
 public:
   GridTexture3() = default;
   /// \param resolution in number of cells
   /// \param origin (0,0) coordinate position
   /// \param dx cell size
-  GridTexture3(vec3u resolution, point3f origin, float dx)
+  GridTexture3(size3 resolution, point3f origin, float dx)
       : origin(origin), dx(dx) {
     texGrid.resize(resolution);
     updateTransform();
   }
   /// Changes grid resolution
   /// \param res new resolution (in number of cells)
-  void resize(vec3u res) { texGrid.resize(res); }
-  vec3u resolution() const { return texGrid.resolution(); }
+  void resize(size3 res) { texGrid.resize(res); }
+  size3 resolution() const { return texGrid.resolution(); }
   /// Changes grid origin position
   /// \param o in world space
   void setOrigin(const point3f &o) {
@@ -1269,7 +1244,7 @@ public:
   /// \return Info grid info to be passed to kernels
   Grid3Info info() const {
     return {texGrid.toFieldTransform(), texGrid.toWorldTransform(),
-            vec3u(texGrid.texture().width(), texGrid.texture().height(),
+            size3(texGrid.texture().width(), texGrid.texture().height(),
                   texGrid.texture().depth()),
             origin, dx};
   }
@@ -1298,9 +1273,9 @@ public:
 private:
   void updateTransform() {
     texGrid.setTransform(scale(dx, dx, dx) *
-                         translate(vec3f(origin[0], origin[1], origin[2])));
+        translate(vec3f(origin[0], origin[1], origin[2])));
     texGrid.setTransform(translate(vec3f(origin[0], origin[1], origin[2])) *
-                         scale(dx, dx, dx));
+        scale(dx, dx, dx));
   }
   point3f origin;
   float dx = 1.f;

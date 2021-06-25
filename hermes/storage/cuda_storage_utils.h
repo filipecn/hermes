@@ -32,12 +32,12 @@
 #include <iomanip>
 #include <ponos/storage/array.h>
 #include <vector>
+#include <hermes/common/index.h>
 
-namespace hermes {
-namespace cuda {
+namespace hermes::cuda {
 
-template <typename T> cudaPitchedPtr pitchedDataFrom(ponos::Array2<T> &array) {
-  cudaPitchedPtr pd{0};
+template<typename T> cudaPitchedPtr pitchedDataFrom(ponos::Array2<T> &array) {
+  cudaPitchedPtr pd{nullptr};
   pd.ptr = array.data();
   pd.pitch = array.pitch();
   pd.xsize = array.size().width * sizeof(T);
@@ -55,48 +55,48 @@ inline cudaMemcpyKind copyDirection(MemoryLocation src, MemoryLocation dst) {
   return cudaMemcpyHostToDevice;
 }
 
-template <typename T>
+template<typename T>
 __host__ __device__ T &pitchedIndexRef(cudaPitchedPtr data, size_t i, size_t j,
                                        size_t k) {
-  return (T &)(*((char *)data.ptr + k * (data.pitch * data.ysize) +
-                 j * data.pitch + i * sizeof(T)));
+  return (T &) (*((char *) data.ptr + k * (data.pitch * data.ysize) +
+      j * data.pitch + i * sizeof(T)));
 }
 
-template <typename T>
+template<typename T>
 __host__ __device__ T *pitchedIndexPtr(cudaPitchedPtr data, size_t i, size_t j,
                                        size_t k) {
-  return (T *)((char *)data.ptr + k * (data.pitch * data.ysize) +
-               j * data.pitch + i * sizeof(T));
+  return (T *) ((char *) data.ptr + k * (data.pitch * data.ysize) +
+      j * data.pitch + i * sizeof(T));
 }
 
-template <typename T>
+template<typename T>
 __host__ __device__ size_t pitchedIndexOffset(size_t pitch, size_t w, size_t h,
                                               size_t i, size_t j, size_t k) {
   return k * (pitch * h) + j * pitch + i * sizeof(T);
 }
 
-template <typename T> void copyToHost(T *&h_data, const T *d_data, u32 size) {
+template<typename T> void copyToHost(T *&h_data, const T *d_data, u32 size) {
   CHECK_CUDA(
       cudaMemcpy(h_data, d_data, size * sizeof(T), cudaMemcpyDeviceToHost));
 }
 
-template <typename T>
+template<typename T>
 void copyLinearToLinear(T *&dst, const T *src, cudaMemcpyKind kind,
-                        vec3u size) {
-  CHECK_CUDA(cudaMemcpy(dst, src, size.x * size.y * size.z * sizeof(T), kind));
+                        size3 size) {
+  CHECK_CUDA(cudaMemcpy(dst, src, size.width * size.height * size.depth * sizeof(T), kind));
 }
 
-template <typename T>
+template<typename T>
 void copyPitchedToPitched(cudaPitchedPtr dst, cudaPitchedPtr src,
                           cudaMemcpyKind kind) {
   CHECK_CUDA(cudaMemcpy2D(dst.ptr, dst.pitch, src.ptr, src.pitch, src.xsize,
                           src.ysize, kind));
 }
 
-template <typename T>
+template<typename T>
 void copyPitchedToPitched(cudaPitchedPtr dst, cudaPitchedPtr src,
                           cudaMemcpyKind kind, unsigned int depth) {
-  cudaMemcpy3DParms p = {0};
+  cudaMemcpy3DParms p = {nullptr};
   int width = src.xsize / sizeof(T);
   p.srcPtr.ptr = src.ptr;
   p.srcPtr.pitch = src.pitch;
@@ -113,10 +113,10 @@ void copyPitchedToPitched(cudaPitchedPtr dst, cudaPitchedPtr src,
   CHECK_CUDA(cudaMemcpy3D(&p));
 }
 
-template <typename T>
+template<typename T>
 void copyPitchedToLinear(T *linearMemory, cudaPitchedPtr pitchedMemory,
                          cudaMemcpyKind kind, unsigned int depth) {
-  cudaMemcpy3DParms p = {0};
+  cudaMemcpy3DParms p = {nullptr};
   int width = pitchedMemory.xsize / sizeof(T);
   p.srcPtr.ptr = pitchedMemory.ptr;
   p.srcPtr.pitch = pitchedMemory.pitch;
@@ -133,10 +133,10 @@ void copyPitchedToLinear(T *linearMemory, cudaPitchedPtr pitchedMemory,
   CHECK_CUDA(cudaMemcpy3D(&p));
 }
 
-template <typename T>
+template<typename T>
 void copyLinearToPitched(cudaPitchedPtr pitchedMemory, T *linearMemory,
                          cudaMemcpyKind kind, unsigned int depth) {
-  cudaMemcpy3DParms p = {0};
+  cudaMemcpy3DParms p = {nullptr};
   int width = pitchedMemory.xsize / sizeof(T);
   p.dstPtr.ptr = pitchedMemory.ptr;
   p.dstPtr.pitch = pitchedMemory.pitch;
@@ -153,17 +153,17 @@ void copyLinearToPitched(cudaPitchedPtr pitchedMemory, T *linearMemory,
   CHECK_CUDA(cudaMemcpy3D(&p));
 }
 
-template <typename T>
+template<typename T>
 void copyPitchedToArray(cudaArray *dst, cudaPitchedPtr src,
                         cudaMemcpyKind kind) {
   CHECK_CUDA(cudaMemcpy2DToArray(dst, 0, 0, src.ptr, src.pitch, src.xsize,
                                  src.ysize, kind));
 }
 
-template <typename T>
+template<typename T>
 void copyPitchedToArray(cudaArray *dst, cudaPitchedPtr src, cudaMemcpyKind kind,
                         size_t depth) {
-  cudaMemcpy3DParms copyParams = {0};
+  cudaMemcpy3DParms copyParams = {nullptr};
   int width = src.xsize / sizeof(T);
   cudaExtent extent = make_cudaExtent(width, src.ysize, depth);
   copyParams.srcPtr = src;
@@ -429,120 +429,120 @@ private:
   T *data_ = nullptr;
 };
 */
-template <typename T> class MemoryBlock3Iterator {
+template<typename T> class MemoryBlock3Iterator {
 public:
   class Element {
   public:
-    __host__ __device__ Element(T &v, const vec3i &ijk)
+    __host__ __device__ Element(T &v, const index3 &ijk)
         : value(v), index_(ijk) {}
-    __host__ __device__ vec3i index() const { return index_; }
-    __host__ __device__ int i() const { return index_.x; }
-    __host__ __device__ int j() const { return index_.y; }
-    __host__ __device__ int k() const { return index_.z; }
+    [[nodiscard]] __host__ __device__ index3 index() const { return index_; }
+    [[nodiscard]] __host__ __device__ int i() const { return index_.i; }
+    [[nodiscard]] __host__ __device__ int j() const { return index_.j; }
+    [[nodiscard]] __host__ __device__ int k() const { return index_.k; }
 
     T &value;
 
   private:
-    vec3i index_;
+    index3 index_;
   };
-  __host__ __device__ MemoryBlock3Iterator(T *data, const vec3u &size,
-                                           size_t pitch, const vec3i &ijk)
-      : size_(size), data_(data), pitch_(pitch), i(ijk.x), j(ijk.y), k(ijk.z) {}
-  __host__ __device__ vec3u size() const { return size_; }
+  __host__ __device__ MemoryBlock3Iterator(T *data, const size3 &size,
+                                           size_t pitch, const index3 &ijk)
+      : size_(size), data_(data), pitch_(pitch), i(ijk.i), j(ijk.j), k(ijk.k) {}
+  [[nodiscard]] __host__ __device__ size3 size() const { return size_; }
   __host__ __device__ MemoryBlock3Iterator &operator++() {
     i++;
-    if (i >= size_.x) {
+    if (i >= size_.width) {
       i = 0;
       j++;
-      if (j >= size_.y) {
+      if (j >= size_.height) {
         i = 0;
         j = 0;
         k++;
-        if (k >= size_.z)
+        if (k >= size_.depth)
           i = j = k = -1;
       }
     }
     return *this;
   }
   __host__ __device__ Element operator*() {
-    return Element((T &)(*((char *)data_ + k * (pitch_ * size_.y) + j * pitch_ +
-                           i * sizeof(T))),
-                   vec3i(i, j, k));
+    return Element((T &) (*((char *) data_ + k * (pitch_ * size_.height) + j * pitch_ +
+                       i * sizeof(T))),
+                   index3(i, j, k));
   }
   __host__ __device__ bool operator==(const MemoryBlock3Iterator &other) {
     return size_ == other.size_ && data_ == other.data_ && i == other.i &&
-           j == other.j && k == other.k && pitch_ == other.pitch_;
+        j == other.j && k == other.k && pitch_ == other.pitch_;
   }
   __host__ __device__ bool operator!=(const MemoryBlock3Iterator &other) {
     return size_ != other.size_ || data_ != other.data_ || i != other.i ||
-           j != other.j || k != other.k || pitch_ != other.pitch_;
+        j != other.j || k != other.k || pitch_ != other.pitch_;
   }
 
 private:
   int i = 0, j = 0, k = 0;
-  vec3u size_;
+  size3 size_;
   T *data_ = nullptr;
   size_t pitch_ = 0;
 };
 
-template <typename T> class MemoryBlock3Accessor {
+template<typename T> class MemoryBlock3Accessor {
 public:
   __host__ __device__ MemoryBlock3Accessor(const MemoryBlock3Accessor &other) {
     size_ = other.size_;
     data_ = other.data_;
     pitch_ = other.pitch_;
   }
-  MemoryBlock3Accessor(T *data, const vec3u &size, size_t pitch)
+  MemoryBlock3Accessor(T *data, const size3 &size, size_t pitch)
       : size_(size), data_(data), pitch_(pitch) {}
-  __host__ __device__ vec3u size() const { return size_; }
+  [[nodiscard]] __host__ __device__ size3 size() const { return size_; }
   __host__ __device__ T &operator()(size_t i, size_t j, size_t k) {
-    return (T &)(*((char *)data_ + k * (pitch_ * size_.y) + j * pitch_ +
-                   i * sizeof(T)));
+    return (T &) (*((char *) data_ + k * (pitch_ * size_.height) + j * pitch_ +
+        i * sizeof(T)));
   }
   __host__ __device__ const T &operator()(size_t i, size_t j, size_t k) const {
-    return (T &)(*((char *)data_ + k * (pitch_ * size_.y) + j * pitch_ +
-                   i * sizeof(T)));
+    return (T &) (*((char *) data_ + k * (pitch_ * size_.height) + j * pitch_ +
+        i * sizeof(T)));
   }
-  __host__ __device__ bool isIndexValid(int i, int j, int k) const {
-    return i >= 0 && i < (int)size_.x && j >= 0 && j < (int)size_.y && k >= 0 &&
-           k < (int)size_.z;
+  [[nodiscard]] __host__ __device__ bool isIndexValid(int i, int j, int k) const {
+    return i >= 0 && i < (int) size_.width && j >= 0 && j < (int) size_.height && k >= 0 &&
+        k < (int) size_.depth;
   }
   __host__ __device__ MemoryBlock3Iterator<T> begin() {
-    return MemoryBlock3Iterator<T>(data_, size_, pitch_, vec3i(0));
+    return MemoryBlock3Iterator<T>(data_, size_, pitch_, index3(0));
   }
   __host__ __device__ MemoryBlock3Iterator<T> end() {
-    return MemoryBlock3Iterator<T>(data_, size_, pitch_, vec3i(-1));
+    return MemoryBlock3Iterator<T>(data_, size_, pitch_, index3(-1));
   }
 
 protected:
-  vec3u size_;
+  size3 size_;
   T *data_ = nullptr;
   size_t pitch_ = 0;
 };
 
-template <MemoryLocation L, typename T> class MemoryBlock3 {};
+template<MemoryLocation L, typename T> class MemoryBlock3 {};
 
-template <typename T> class MemoryBlock3<MemoryLocation::DEVICE, T> {
+template<typename T> class MemoryBlock3<MemoryLocation::DEVICE, T> {
 public:
-  MemoryBlock3(const vec3u &size = vec3u()) : size_(size) {}
-  void resize(const vec3u &size) { size_ = size; }
+  MemoryBlock3(const size3 &size = size3()) : size_(size) {}
+  void resize(const size3 &size) { size_ = size; }
   ~MemoryBlock3() {
     if (data_)
       cudaFree(data_);
   }
-  MemoryLocation location() const { return MemoryLocation::DEVICE; }
-  const vec3u &size() const { return size_; }
+  [[nodiscard]] MemoryLocation location() const { return MemoryLocation::DEVICE; }
+  [[nodiscard]] const size3 &size() const { return size_; }
   void allocate() {
     if (data_)
       cudaFree(data_);
     cudaPitchedPtr pdata;
-    cudaExtent extent = make_cudaExtent(size_.x * sizeof(T), size_.y, size_.z);
+    cudaExtent extent = make_cudaExtent(size_.width * sizeof(T), size_.height, size_.depth);
     CHECK_CUDA(cudaMalloc3D(&pdata, extent));
     pitch_ = pdata.pitch;
     data_ = reinterpret_cast<T *>(pdata.ptr);
   }
   size_t memorySize() {
-    return pitch_ * size_.x * size_.y * size_.z * sizeof(T);
+    return pitch_ * size_.width * size_.height * size_.depth * sizeof(T);
   }
   T *ptr() { return data_; }
   const T *ptr() const { return data_; }
@@ -550,53 +550,53 @@ public:
     return MemoryBlock3Accessor<T>(data_, size_, pitch_);
   }
   cudaPitchedPtr pitchedData() {
-    cudaPitchedPtr pd{0};
+    cudaPitchedPtr pd{nullptr};
     pd.ptr = data_;
     pd.pitch = pitch_;
-    pd.xsize = size_.x * sizeof(T);
-    pd.ysize = size_.y;
+    pd.xsize = size_.width * sizeof(T);
+    pd.ysize = size_.height;
     return pd;
   }
 
 private:
-  vec3u size_;
+  size3 size_;
   size_t pitch_ = 0;
   T *data_ = nullptr;
 };
 
-template <typename T> class MemoryBlock3<MemoryLocation::HOST, T> {
+template<typename T> class MemoryBlock3<MemoryLocation::HOST, T> {
 public:
-  MemoryBlock3(const vec3u &size = vec3u()) : size_(size) {}
-  void resize(const vec3u &size) { size_ = size; }
+  explicit MemoryBlock3(const size3 &size = size3()) : size_(size) {}
+  void resize(const size3 &size) { size_ = size; }
   ~MemoryBlock3() {
     if (data_)
       delete[] data_;
   }
-  MemoryLocation location() const { return MemoryLocation::HOST; }
-  const vec3u &size() const { return size_; }
+  [[nodiscard]] MemoryLocation location() const { return MemoryLocation::HOST; }
+  [[nodiscard]] const size3 &size() const { return size_; }
   void allocate() {
     if (data_)
       delete[] data_;
-    pitch_ = size_.x * sizeof(T);
-    data_ = new T[size_.x * size_.y * size_.z];
+    pitch_ = size_.width * sizeof(T);
+    data_ = new T[size_.width * size_.height * size_.depth];
   }
-  size_t memorySize() { return size_.x * size_.y * size_.z * sizeof(T); }
+  size_t memorySize() { return size_.width * size_.height * size_.depth * sizeof(T); }
   T *ptr() { return data_; }
   const T *ptr() const { return data_; }
   MemoryBlock3Accessor<T> accessor() {
     return MemoryBlock3Accessor<T>(data_, size_, pitch_);
   }
   cudaPitchedPtr pitchedData() {
-    cudaPitchedPtr pd{0};
+    cudaPitchedPtr pd{nullptr};
     pd.ptr = data_;
     pd.pitch = pitch_;
-    pd.xsize = size_.x * sizeof(T);
-    pd.ysize = size_.y;
+    pd.xsize = size_.width * sizeof(T);
+    pd.ysize = size_.height;
     return pd;
   }
 
 private:
-  vec3u size_;
+  size3 size_;
   size_t pitch_ = 0;
   T *data_ = nullptr;
 };
@@ -628,13 +628,13 @@ bool memcpy(CuArray2<T> &dst, MemoryBlock2<L, T> &hermes) {
   return true;
 }
 */
-template <MemoryLocation A, MemoryLocation B, typename T>
+template<MemoryLocation A, MemoryLocation B, typename T>
 bool memcpy(MemoryBlock3<A, T> &dst, MemoryBlock3<B, T> &src) {
   if (dst.size() != src.size())
     return false;
   auto kind = copyDirection(src.location(), dst.location());
   copyPitchedToPitched<T>(dst.pitchedData(), src.pitchedData(), kind,
-                          dst.size().z);
+                          dst.size().depth);
   return true;
 }
 
@@ -712,7 +712,7 @@ std::ostream &operator<<(std::ostream &os,
   os << host << std::endl;
   return os;
 }*/
-template <typename T>
+template<typename T>
 std::ostream &operator<<(std::ostream &os,
                          MemoryBlock3<MemoryLocation::HOST, T> &data) {
   std::cerr << "3d MemoryBlock (" << data.size().x << " x " << data.size().y
@@ -728,7 +728,7 @@ std::ostream &operator<<(std::ostream &os,
       for (int x = 0; x < data.size().x; x++)
         if (std::is_same<T, char>::value ||
             std::is_same<T, unsigned char>::value)
-          os << (int)acc(x, y, z) << "\t";
+          os << (int) acc(x, y, z) << "\t";
         else
           os << std::setprecision(6) << std::setw(10) << acc(x, y, z) << "\t";
       os << std::endl;
@@ -742,7 +742,7 @@ std::ostream &operator<<(std::ostream &os,
   return os;
 }
 
-template <typename T>
+template<typename T>
 std::ostream &operator<<(std::ostream &os,
                          MemoryBlock3<MemoryLocation::DEVICE, T> &data) {
   MemoryBlock3<MemoryLocation::HOST, T> host(data.size());
@@ -773,7 +773,7 @@ void fill2(MemoryBlock2<MemoryLocation::HOST, T> &data, T value) {
     e.value = value;
 }
 */
-template <typename T>
+template<typename T>
 __global__ void __fill3(MemoryBlock3Accessor<T> data, T value) {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -783,16 +783,16 @@ __global__ void __fill3(MemoryBlock3Accessor<T> data, T value) {
     data(x, y, z) = value;
 }
 
-template <typename T> void fill3(MemoryBlock3Accessor<T> data, T value) {
+template<typename T> void fill3(MemoryBlock3Accessor<T> data, T value) {
   ThreadArrayDistributionInfo td(data.size());
   __fill3<T><<<td.gridSize, td.blockSize>>>(data, value);
 }
-template <typename T>
+template<typename T>
 void fill3(MemoryBlock3<MemoryLocation::DEVICE, T> &data, T value) {
   ThreadArrayDistributionInfo td(data.size());
   __fill3<T><<<td.gridSize, td.blockSize>>>(data.accessor(), value);
 }
-template <typename T>
+template<typename T>
 void fill3(MemoryBlock3<MemoryLocation::HOST, T> &data, T value) {
   for (auto e : data.accessor())
     e.value = value;
@@ -823,7 +823,6 @@ using MemoryBlock3Huc = MemoryBlock3<MemoryLocation::HOST, unsigned char>;
 using MemoryBlock3Du = MemoryBlock3<MemoryLocation::DEVICE, unsigned int>;
 using MemoryBlock3Hu = MemoryBlock3<MemoryLocation::HOST, unsigned int>;
 
-} // namespace cuda
 } // namespace hermes
 
 #endif
