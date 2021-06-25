@@ -11,7 +11,7 @@
 #include <hermes/common/reduce.h>
 #include <hermes/common/size.h>
 #include <hermes/geometry/bbox.h>
-#include <hermes/geometry/numeric.h>
+#include <hermes/numeric/numeric.h>
 #include <hermes/geometry/point.h>
 #include <hermes/geometry/matrix.h>
 #include <hermes/geometry/transform.h>

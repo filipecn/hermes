@@ -22,7 +22,7 @@
  *
  */
 
-#include <hermes/geometry/numeric.h>
+#include <hermes/numeric//numeric.h>
 #include <hermes/numeric/cuda_interpolation.h>
 #include <hermes/numeric/grid.h>
 

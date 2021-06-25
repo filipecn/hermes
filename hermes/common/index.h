@@ -29,7 +29,7 @@
 #define HERMES_COMMON_INDEX_H
 
 #include <hermes/common/size.h>
-#include <hermes/geometry/numeric.h>
+#include <hermes/numeric/numeric.h>
 #include <ponos/common/index.h>
 
 namespace hermes {

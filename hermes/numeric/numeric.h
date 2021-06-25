@@ -37,28 +37,123 @@ struct Constants {
   static constexpr real_t inv_two_pi = 0.15915494309189533577;
   static constexpr real_t inv_four_pi = 0.07957747154594766788;
   static constexpr real_t machine_epsilon = std::numeric_limits<real_t>::epsilon() * .5;
-  static real_t real_infinity;
+  static constexpr real_t real_infinity = std::numeric_limits<real_t>::max();
   /// Compute conservative bounds in error
   /// \param n
   /// \return
   static constexpr real_t gamma(i32 n) {
     return (n * machine_epsilon) / (1 - n * machine_epsilon);
   }
-
-  template <typename T> __host__ __device__ static T lowest() {
+  template<typename T> __host__ __device__ static constexpr T lowest() {
     return 0xfff0000000000000;
   }
-  template <typename T> __host__ __device__ static T greatest() {
+  template<typename T> __host__ __device__ static constexpr T greatest() {
     return 0x7ff0000000000000;
   }
-  __host__ __device__ static int lowest_int() { return -2147483647; }
-  __host__ __device__ static int greatest_int() { return 2147483647; }
+  __host__ __device__ static constexpr int lowest_int() { return -2147483647; }
+  __host__ __device__ static constexpr int greatest_int() { return 2147483647; }
 };
 
 class Check {
 public:
-  template <typename T> __host__ __device__ static bool is_equal(T a, T b) {
+  template<typename T> __host__ __device__ static bool is_equal(T a, T b) {
     return fabsf(a - b) < 1e-8f;
+  }
+};
+
+class FloatingPoint {
+public:
+  /// Interprets a floating-point value into a integer type
+  /// \param f float value
+  /// \return  a 32 bit unsigned integer containing the bits of **f**
+  __host__ __device__ static inline uint32_t floatToBits(float f) {
+    uint32_t ui(0);
+    memcpy(&ui, &f, sizeof(float));
+    return ui;
+  }
+  /// Fills a float variable data
+  /// \param ui bits
+  /// \return a float built from bits of **ui**
+  __host__ __device__ static inline float bitsToFloat(uint32_t ui) {
+    float f(0.f);
+    memcpy(&f, &ui, sizeof(uint32_t));
+    return f;
+  }
+  /// Interprets a doubleing-point value into a integer type
+  /// \param d double value
+  /// \return  a 64 bit unsigned integer containing the bits of **f**
+  __host__ __device__ static inline uint64_t doubleToBits(double d) {
+    uint64_t ui(0);
+    memcpy(&ui, &d, sizeof(double));
+    return ui;
+  }
+  /// Fills a double variable data
+  /// \param ui bits
+  /// \return a double built from bits of **ui**
+  __host__ __device__ static inline double bitsToDouble(uint64_t ui) {
+    double d(0.f);
+    memcpy(&d, &ui, sizeof(uint64_t));
+    return d;
+  }
+  /// Computes the next greater representable floating-point value
+  /// \param v floating point value
+  /// \return the next greater floating point value
+  static __host__ __device__ inline float nextFloatUp(float v) {
+    if (std::isinf(v) && v > 0.)
+      return v;
+    if (v == -0.f)
+      v = 0.f;
+    uint32_t ui = floatToBits(v);
+    if (v >= 0)
+      ++ui;
+    else
+      --ui;
+    return bitsToFloat(ui);
+  }
+  /// Computes the next smaller representable floating-point value
+  /// \param v floating point value
+  /// \return the next smaller floating point value
+  __host__ __device__ static inline float nextFloatDown(float v) {
+    if (std::isinf(v) && v > 0.)
+      return v;
+    if (v == -0.f)
+      v = 0.f;
+    uint32_t ui = floatToBits(v);
+    if (v >= 0)
+      --ui;
+    else
+      ++ui;
+    return bitsToFloat(ui);
+  }
+  /// Computes the next greater representable floating-point value
+  /// \param v floating point value
+  /// \return the next greater floating point value
+  __host__ __device__ static inline double nextDoubleUp(double v) {
+    if (std::isinf(v) && v > 0.)
+      return v;
+    if (v == -0.f)
+      v = 0.f;
+    uint64_t ui = doubleToBits(v);
+    if (v >= 0)
+      ++ui;
+    else
+      --ui;
+    return bitsToDouble(ui);
+  }
+  /// Computes the next smaller representable floating-point value
+  /// \param v floating point value
+  /// \return the next smaller floating point value
+  __host__ __device__ static double nextDoubleDown(double v) {
+    if (std::isinf(v) && v > 0.)
+      return v;
+    if (v == -0.f)
+      v = 0.f;
+    uint64_t ui = doubleToBits(v);
+    if (v >= 0)
+      --ui;
+    else
+      ++ui;
+    return bitsToDouble(ui);
   }
 };
 
