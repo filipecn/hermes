@@ -25,32 +25,62 @@
 #ifndef HERMES_GEOMETRY_CUDA_NUMERIC_H
 #define HERMES_GEOMETRY_CUDA_NUMERIC_H
 
+#include <ponos/common/defs.h>
 #include <hermes/common/cuda.h>
-#include <hermes/geometry/point.h>
 
 namespace hermes {
 
-namespace cuda {
+struct Constants {
+  static constexpr real_t pi = 3.14159265358979323846;
+  static constexpr real_t two_pi = 6.28318530718;
+  static constexpr real_t inv_pi = 0.31830988618379067154;
+  static constexpr real_t inv_two_pi = 0.15915494309189533577;
+  static constexpr real_t inv_four_pi = 0.07957747154594766788;
+  static constexpr real_t machine_epsilon = std::numeric_limits<real_t>::epsilon() * .5;
+  static real_t real_infinity;
+  /// Compute conservative bounds in error
+  /// \param n
+  /// \return
+  static constexpr real_t gamma(i32 n) {
+    return (n * machine_epsilon) / (1 - n * machine_epsilon);
+  }
 
-template <typename T> __host__ __device__ T min(const T &a, const T &b) {
+  template <typename T> __host__ __device__ static T lowest() {
+    return 0xfff0000000000000;
+  }
+  template <typename T> __host__ __device__ static T greatest() {
+    return 0x7ff0000000000000;
+  }
+  __host__ __device__ static int lowest_int() { return -2147483647; }
+  __host__ __device__ static int greatest_int() { return 2147483647; }
+};
+
+class Check {
+public:
+  template <typename T> __host__ __device__ static bool is_equal(T a, T b) {
+    return fabsf(a - b) < 1e-8f;
+  }
+};
+
+template<typename T> __host__ __device__ T min(const T &a, const T &b) {
   if (a < b)
     return a;
   return b;
 }
 
-template <typename T> __host__ __device__ T max(const T &a, const T &b) {
+template<typename T> __host__ __device__ T max(const T &a, const T &b) {
   if (a > b)
     return a;
   return b;
 }
 
-template <typename T> __host__ __device__ void swap(T &a, T &b) {
+template<typename T> __host__ __device__ void swap(T &a, T &b) {
   T tmp = a;
   a = b;
   b = tmp;
 }
 
-template <typename T> __host__ __device__ int sign(T a) {
+template<typename T> __host__ __device__ int sign(T a) {
   return a >= 0 ? 1 : -1;
 }
 
@@ -58,7 +88,7 @@ template <typename T> __host__ __device__ int sign(T a) {
 /// \param a **[in]** lower bound **0**
 /// \param b **[in]** upper bound **1**
 /// \return linear interpolation between **a** and **b** at **t**.
-template <typename T = float, typename S = float>
+template<typename T = float, typename S = float>
 inline __host__ __device__ S lerp(T t, const S &a, const S &b) {
   return (1.f - t) * a + t * b;
 }
@@ -69,7 +99,7 @@ inline __host__ __device__ S lerp(T t, const S &a, const S &b) {
 /// \param f11 **[in]** function value at **(1, 1)**
 /// \param f01 **[in]** function value at **(0, 1)**
 /// \return interpolated value at **(x,y)**
-template <typename T = float, typename S = float>
+template<typename T = float, typename S = float>
 inline __host__ __device__ S bilerp(T x, T y, const S &f00, const S &f10,
                                     const S &f11, const S &f01) {
   return lerp(y, lerp(x, f00, f10), lerp(x, f01, f11));
@@ -88,7 +118,7 @@ inline __host__ __device__ S bilerp(T x, T y, const S &f00, const S &f10,
 /// \param f011
 /// \param f111
 /// \return S
-template <typename T = float, typename S = float>
+template<typename T = float, typename S = float>
 inline S trilerp(T tx, T ty, T tz, const S &f000, const S &f100, const S &f010,
                  const S &f110, const S &f001, const S &f101, const S &f011,
                  const S &f111) {
@@ -103,7 +133,7 @@ inline S trilerp(T tx, T ty, T tz, const S &f000, const S &f100, const S &f010,
 /// \param f3
 /// \param f
 /// \return S
-template <typename S, typename T>
+template<typename S, typename T>
 inline S catmullRomSpline(const S &f0, const S &f1, const S &f2, const S &f3,
                           T f) {
   S d1 = (f2 - f0) / 2;
@@ -122,7 +152,7 @@ inline S catmullRomSpline(const S &f0, const S &f1, const S &f2, const S &f3,
 /// \param a **[in]** lower bound
 /// \param b **[in]** upper bound
 /// \return interpolation between **a** and **b** at **t**.
-template <typename T = float, typename S = float>
+template<typename T = float, typename S = float>
 inline S nearest(T t, const S &a, const S &b) {
   return (t < static_cast<T>(0.5)) ? a : b;
 }
@@ -130,7 +160,7 @@ inline S nearest(T t, const S &a, const S &b) {
 /// \param l **[in]** low
 /// \param u **[in]** high
 /// \return clamp **b** to be in **[l, h]**
-template <typename T>
+template<typename T>
 __host__ __device__ T clamp(const T &n, const T &l, const T &u) {
   return fmaxf(l, fminf(n, u));
 }
@@ -139,7 +169,7 @@ __host__ __device__ T clamp(const T &n, const T &l, const T &u) {
 /// \param a **[in]** lower bound
 /// \param b **[in]** upper bound
 /// \return Hermit value between **0** and **1**
-template <typename T> T smoothStep(T v, T a, T b) {
+template<typename T> T smoothStep(T v, T a, T b) {
   float t = clamp((v - a) / (b - a), T(0), T(1));
   return t * t * (T(3) - 2 * t);
 }
@@ -189,25 +219,23 @@ __device__ __host__ inline unsigned int separateBitsBy2(unsigned int n) {
 __device__ __host__ inline unsigned int
 interleaveBits(unsigned int x, unsigned int y, unsigned int z) {
   return (separateBitsBy2(z) << 2) + (separateBitsBy2(y) << 1) +
-         separateBitsBy2(x);
+      separateBitsBy2(x);
 }
 
 __device__ __host__ inline unsigned int interleaveBits(unsigned int x,
                                                        unsigned int y) {
   return (separateBitsBy1(y) << 1) + separateBitsBy1(x);
 }
-
-template <typename T>
-__device__ __host__ unsigned int mortonCode(const Point3<T> &v) {
-  return interleaveBits(v[0], v[1], v[2]);
-}
-
-template <typename T>
-__device__ __host__ unsigned int mortonCode(const Point2<T> &v) {
-  return interleaveBits(v[0], v[1]);
-}
-
-} // namespace cuda
+//
+//template<typename T>
+//__device__ __host__ unsigned int mortonCode(const Point3 <T> &v) {
+//  return interleaveBits(v[0], v[1], v[2]);
+//}
+//
+//template<typename T>
+//__device__ __host__ unsigned int mortonCode(const Point2 <T> &v) {
+//  return interleaveBits(v[0], v[1]);
+//}
 
 } // namespace hermes
 

@@ -26,7 +26,7 @@
 #define HERMES_GEOMETRY_CUDA_VECTOR_H
 
 #include <cuda_runtime.h>
-#include <hermes/common/defs.h>
+#include <hermes/geometry/numeric.h>
 #include <iostream>
 #include <ponos/geometry/vector.h>
 

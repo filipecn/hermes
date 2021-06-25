@@ -58,7 +58,7 @@ set(HERMES_HEADERS
         hermes/geometry/bbox.h
         hermes/geometry/matrix.h
         hermes/geometry/normal.h
-        hermes/geometry/cuda_numeric.h
+        hermes/geometry/numeric.h
         hermes/geometry/transform.h
         hermes/geometry/vector.h
         hermes/geometry/point.h

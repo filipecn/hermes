@@ -29,26 +29,7 @@ namespace hermes {
 
 enum class MemoryLocation { DEVICE, HOST };
 
-class Constants {
-public:
-  __host__ __device__ static double pi() { return 3.14159265358979323846; }
-  __host__ __device__ static double two_pi() { return 6.28318530718; }
-  template <typename T> __host__ __device__ static T lowest() {
-    return 0xfff0000000000000;
-  }
-  template <typename T> __host__ __device__ static T greatest() {
-    return 0x7ff0000000000000;
-  }
-  __host__ __device__ static int lowest_int() { return -2147483647; }
-  __host__ __device__ static int greatest_int() { return 2147483647; }
-};
 
-class Check {
-public:
-  template <typename T> __host__ __device__ static bool is_equal(T a, T b) {
-    return fabsf(a - b) < 1e-8f;
-  }
-};
 
 } // namespace hermes
 

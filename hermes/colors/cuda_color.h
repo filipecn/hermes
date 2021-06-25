@@ -24,7 +24,7 @@
 #ifndef HERMES_COLORS_CUDA_COLOR_H
 #define HERMES_COLORS_CUDA_COLOR_H
 
-#include <hermes/geometry/cuda_numeric.h>
+#include <hermes/geometry/numeric.h>
 #include <hermes/geometry/vector.h>
 
 namespace hermes {
