@@ -1,32 +1,39 @@
 set(SOURCES
-        main.cu
-        blas_tests.cu
-        common_tests.cu
-        numeric_tests.cu
-        memory_tests.cu
+        main.cpp
+        #        blas_tests.cu
+        common_tests.cpp
+        geometry_tests.cpp
+        log_tests.cpp
+        numeric_tests.cpp
+        storage_tests.cu
+        random_tests.cpp
+        #        numeric_tests.cu
+        #        memory_tests.cu
         )
 
 add_executable(hermes_tests ${SOURCES})
 target_include_directories(hermes_tests PUBLIC ${CATCH2_INCLUDES})
+set_target_properties(hermes_tests PROPERTIES LINKER_LANGUAGE CXX)
 
-target_compile_options(hermes_tests PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
-        --generate-line-info
-        --use_fast_math
-        #-arch=sm_50
-        -Xcompiler -pg
-        --relocatable-device-code=true
-        #    -–extended-lambda
-        >)
-
-set_target_properties(hermes_tests PROPERTIES
-        LINKER_LANGUAGE CUDA
-        CMAKE_CUDA_SEPARABLE_COMPILATION ON
-        CUDA_RESOLVE_DEVICE_SYMBOLS ON
-        CUDA_STANDARD 17
-        CMAKE_CUDA_STANDARD_REQUIRED ON
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        )
+if (BUILD_WITH_CUDA)
+    target_compile_options(hermes_tests PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
+            --generate-line-info
+            --use_fast_math
+            #-arch=sm_50
+            -Xcompiler -pg
+            --relocatable-device-code=true
+            #    -–extended-lambda
+            >)
+    set_target_properties(hermes_tests PROPERTIES
+            LINKER_LANGUAGE CUDA
+            CMAKE_CUDA_SEPARABLE_COMPILATION ON
+            CUDA_RESOLVE_DEVICE_SYMBOLS ON
+            CUDA_STANDARD 17
+            CMAKE_CUDA_STANDARD_REQUIRED ON
+            CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
+            )
+endif (BUILD_WITH_CUDA)
 
 if (UNIX)
 

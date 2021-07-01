@@ -45,15 +45,6 @@ template<typename T> cudaPitchedPtr pitchedDataFrom(ponos::Array2<T> &array) {
   return pd;
 }
 
-inline cudaMemcpyKind copyDirection(MemoryLocation src, MemoryLocation dst) {
-  if (src == MemoryLocation::DEVICE && dst == MemoryLocation::DEVICE)
-    return cudaMemcpyDeviceToDevice;
-  if (src == MemoryLocation::DEVICE && dst == MemoryLocation::HOST)
-    return cudaMemcpyDeviceToHost;
-  if (src == MemoryLocation::HOST && dst == MemoryLocation::HOST)
-    return cudaMemcpyHostToHost;
-  return cudaMemcpyHostToDevice;
-}
 
 template<typename T>
 __host__ __device__ T &pitchedIndexRef(cudaPitchedPtr data, size_t i, size_t j,

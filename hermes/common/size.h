@@ -28,96 +28,134 @@
 #ifndef HERMES_COMMON_SIZE_H
 #define HERMES_COMMON_SIZE_H
 
-#include <ponos/common/defs.h>
-#include <ponos/common/size.h>
+#include <hermes/common/defs.h>
 #include <type_traits>
+#include <iostream>
 
 namespace hermes {
 
+// *********************************************************************************************************************
+//                                                                                                              Size2
+// *********************************************************************************************************************
 /// Holds 2-dimensional size
 ///\tparam T must be an unsigned integer type
 template<typename T> class Size2 {
-  static_assert(std::is_same<T, u8>::value || std::is_same<T, u16>::value ||
+  static_assert(std::is_same<T, u8>::value
+                    || std::is_same<T, u16>::value ||
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size2 must hold an unsigned integer type!");
 
 public:
-  __host__ __device__ Size2() {};
-  explicit Size2(const ponos::Size2<T> &ponos_size)
-      : width(ponos_size.width), height(ponos_size.height) {}
-  __host__ __device__ explicit Size2(T size) : width(size), height(size) {}
-  __host__ __device__ explicit Size2(T width, T height)
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Size2() : width{0}, height{0} {};
+  HERMES_DEVICE_CALLABLE explicit Size2(T size) : width(size), height(size) {}
+  HERMES_DEVICE_CALLABLE Size2(T width, T height)
       : width(width), height(height) {}
-  __host__ __device__ T total() const { return width * height; }
-  __host__ __device__ T operator[](int i) const { return (&width)[i]; }
-  __host__ __device__ T &operator[](int i) { return (&width)[i]; }
-  __host__ __device__ bool contains(int i, int j) const {
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&width)[i]; }
+  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&width)[i]; }
+  //                                                                                                       arithmetic
+  HERMES_DEVICE_CALLABLE Size2<T> operator+(const Size2<T> &b) const {
+    return Size2<T>(width + b.width, height + b.height);
+  }
+  //                                                                                                          boolean
+  HERMES_DEVICE_CALLABLE bool operator==(const Size2<T> &b) const {
+    return width == b.width && height == b.height;
+  }
+  HERMES_DEVICE_CALLABLE bool operator!=(const Size2<T> &b) const {
+    return width != b.width || height != b.height;
+  }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE T total() const { return width * height; }
+  HERMES_DEVICE_CALLABLE [[nodiscard]] bool contains(int i, int j) const {
     return i >= 0 && j >= 0 && i < static_cast<i64>(width) &&
         j < static_cast<i64>(height);
   }
-
-  ponos::Size2<T> ponos() const { return ponos::Size2<T>(width, height); }
-
-  T width = T(0);
-  T height = T(0);
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  T width{0};
+  T height{0};
 };
 
-template<typename T>
-__host__ __device__ Size2<T> operator+(const Size2<T> &a, const Size2<T> &b) {
-  return Size2<T>(a.width + b.width, a.height + b.height);
-}
-
-template<typename T>
-__host__ __device__ bool operator==(const Size2<T> &a, const Size2<T> &b) {
-  return a.width == b.width && a.height == b.height;
-}
-
-template<typename T>
-__host__ __device__ bool operator!=(const Size2<T> &a, const Size2<T> &b) {
-  return a.width != b.width || a.height != b.height;
-}
-
+// *********************************************************************************************************************
+//                                                                                                              Size3
+// *********************************************************************************************************************
 /// Holds 2-dimensional size
 ///\tparam T must be an unsigned integer type
 template<typename T> class Size3 {
-  static_assert(std::is_same<T, u8>::value || std::is_same<T, u16>::value ||
+  static_assert(std::is_same<T, u8>::value
+                    || std::is_same<T, u16>::value ||
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size3 must hold an unsigned integer type!");
 
 public:
-  __host__ __device__ Size3() {};
-  __host__ Size3(T size) : width(size), height(size), depth(size) {}
-  __host__ __device__ Size3(T _width, T _height, T _depth)
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Size3() : width{0}, height{0}, depth{0} {};
+  explicit Size3(T size) : width(size), height(size), depth(size) {}
+  HERMES_DEVICE_CALLABLE Size3(T _width, T _height, T _depth)
       : width(_width), height(_height), depth(_depth) {}
-  __host__ __device__ T total() const { return width * height * depth; }
-  __host__ __device__ T operator[](int i) const { return (&width)[i]; }
-  __host__ __device__ T &operator[](int i) { return (&width)[i]; }
-  __host__ __device__ Size2<T> slice(int d1 = 0, int d2 = 0) const {
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&width)[i]; }
+  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&width)[i]; }
+  //                                                                                                       arithmetic
+  HERMES_DEVICE_CALLABLE Size3<T> operator+(const Size3<T> &b) const {
+    return {width + b.width, height + b.height, depth + b.depth};
+  }
+  HERMES_DEVICE_CALLABLE Size3<T> operator-(const Size3<T> &b) const {
+    return {width - b.width, height - b.height, depth - b.depth};
+  }
+  //                                                                                                          boolean
+  HERMES_DEVICE_CALLABLE bool operator==(const Size3<T> &b) const {
+    return width == b.width && height == b.height && depth == b.depth;
+  }
+  HERMES_DEVICE_CALLABLE bool operator!=(const Size3<T> &b) const {
+    return width != b.width || height != b.height || depth != b.depth;
+  }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE T total() const { return width * height * depth; }
+  HERMES_DEVICE_CALLABLE Size2<T> slice(int d1 = 0, int d2 = 0) const {
     return Size2<T>((&width)[d1], (&width)[d2]);
   }
-
-  T width = T(0);
-  T height = T(0);
-  T depth = T(0);
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  T width{0};
+  T height{0};
+  T depth{0};
 };
 
+// *********************************************************************************************************************
+//                                                                                                                 IO
+// *********************************************************************************************************************
 template<typename T>
-__host__ __device__ Size3<T> operator+(const Size3<T> &a, const Size3<T> &b) {
-  return {a.width + b.width, a.height + b.height, a.depth + b.depth};
+std::ostream &operator<<(std::ostream &o, const Size2<T> &s) {
+  o << "Size[" << s.width << ", " << s.height << "]";
+  return o;
 }
-
 template<typename T>
-__host__ __device__ Size3<T> operator-(const Size3<T> &a, const Size3<T> &b) {
-  return {a.width - b.width, a.height - b.height, a.depth - b.depth};
+std::ostream &operator<<(std::ostream &o, const Size3<T> &s) {
+  o << "Size[" << s.width << ", " << s.height << ", " << s.depth << "]";
+  return o;
 }
 
-template<typename T> __host__ __device__ bool operator==(const Size3<T> &a, const Size3<T> &b) {
-  return a.width == b.width && a.height == b.height && a.depth == b.depth;
-}
-template<typename T> __host__ __device__ bool operator!=(const Size3<T> &a, const Size3<T> &b) {
-  return a.width != b.width || a.height != b.height || a.depth != b.depth;
-}
-
+// *********************************************************************************************************************
+//                                                                                                           TYPEDEFS
+// *********************************************************************************************************************
 using size2 = Size2<u32>;
 using size2_8 = Size2<u8>;
 using size2_16 = Size2<u16>;

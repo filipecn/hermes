@@ -28,79 +28,78 @@
 #ifndef HERMES_REDUCE_H
 #define HERMES_REDUCE_H
 
-#include <hermes/common/cuda.h>
 #include <hermes/common/defs.h>
 #include <hermes/storage/array.h>
 #include <hermes/storage/cuda_storage_utils.h>
-#include <ponos/common/defs.h>
 
 namespace hermes {
 
-namespace cuda {
-
+// *********************************************************************************************************************
+//                                                                                                   ReducePredicates
+// *********************************************************************************************************************
 /// Set of pre-built predicates to use with reduction operations
 struct ReducePredicates {
   /// \tparam T reduction input data type
-  template <typename T> struct min {
-    __host__ __device__ T operator()(const T &a) { return a; }
-    __host__ __device__ T operator()(const T &a, const T &b) {
+  template<typename T> struct min {
+    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return a; }
+    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
       return fminf(a, b);
     }
-    __host__ __device__ T reduce(const T &a, const T &b) { return fminf(a, b); }
+    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fminf(a, b); }
     T base_value = ponos::Constants::greatest<T>();
   };
   /// \tparam T reduction input data type
-  template <typename T> struct min_abs {
-    __host__ __device__ T operator()(const T &a) { return fabsf(a); }
-    __host__ __device__ T operator()(const T &a, const T &b) {
+  template<typename T> struct min_abs {
+    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return fabsf(a); }
+    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
       return fminf(fabsf(a), fabsf(b));
     }
-    __host__ __device__ T reduce(const T &a, const T &b) { return fminf(a, b); }
+    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fminf(a, b); }
     T base_value = ponos::Constants::greatest<T>();
   };
   /// \tparam T reduction input data type
-  template <typename T> struct max {
-    __host__ __device__ T operator()(const T &a) { return a; }
-    __host__ __device__ T operator()(const T &a, const T &b) {
+  template<typename T> struct max {
+    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return a; }
+    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
       return fmaxf(a, b);
     }
-    __host__ __device__ T reduce(const T &a, const T &b) { return fmaxf(a, b); }
+    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fmaxf(a, b); }
     T base_value = ponos::Constants::lowest<T>();
   };
   /// \tparam T reduction input data type
-  template <typename T> struct max_abs {
-    __host__ __device__ T operator()(const T &a) { return fabsf(a); }
-    __host__ __device__ T operator()(const T &a, const T &b) {
+  template<typename T> struct max_abs {
+    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return fabsf(a); }
+    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
       return fmaxf(fabsf(a), fabsf(b));
     }
-    __host__ __device__ T reduce(const T &a, const T &b) { return fmaxf(a, b); }
+    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fmaxf(a, b); }
     T base_value = ponos::Constants::lowest<T>();
   };
   /// \tparam T reduction input data type
-  template <typename T> struct sum {
-    __host__ __device__ T operator()(const T &a) { return a; }
-    __host__ __device__ T operator()(const T &a, const T &b) { return a + b; }
-    __host__ __device__ T reduce(const T &a, const T &b) { return a + b; }
+  template<typename T> struct sum {
+    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return a; }
+    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) { return a + b; }
+    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return a + b; }
     T base_value = 0;
   };
   /// \tparam T reduction input data type
-  template <typename T> struct is_equal_to_value {
-    __host__ __device__ is_equal_to_value(T value) : value(value) {}
-    __host__ __device__ bool operator()(const T &a) {
+  template<typename T> struct is_equal_to_value {
+    HERMES_DEVICE_CALLABLE is_equal_to_value(T value) : value(value) {}
+    HERMES_DEVICE_CALLABLE bool operator()(const T &a) {
       return Check::is_equal(a, value);
     }
-    __host__ __device__ bool reduce(const bool &a, const bool &b) {
+    HERMES_DEVICE_CALLABLE bool reduce(const bool &a, const bool &b) {
       return a && b;
     }
     T value{};
     bool base_value = true;
   };
   /// \tparam T reduction input data type
-  template <typename T> struct is_equal {
-    __host__ __device__ bool operator()(const T &a, const T &b) {
+  template<typename T> struct is_equal {
+    HERMES_DEVICE_CALLABLE bool operator()(const T &a, const T &b) {
       return Check::is_equal(a, b);
     }
-    __host__ __device__ bool reduce(const bool &a, const bool &b) {
+    HERMES_DEVICE_CALLABLE bool reduce(const bool &a, const bool &b) {
       return a && b;
     }
     T value{};
@@ -108,19 +107,22 @@ struct ReducePredicates {
   };
 };
 
+// *********************************************************************************************************************
+//                                                                                            hermes_reduce_predicate
+// *********************************************************************************************************************
 /// Auxiliary class that encapsulates a c++ lambda function into device code for
 /// reduction operations in a single array
 ///\tparam T array data type
 /// \tparam R reduction result data type
 ///\tparam F lambda function type following the signature: (index2, T&)
-template <typename T, typename R, typename F> struct hermes_reduce_predicate {
-  __host__ __device__ explicit hermes_reduce_predicate(const F &op)
+template<typename T, typename R, typename F> struct hermes_reduce_predicate {
+  HERMES_DEVICE_CALLABLE explicit hermes_reduce_predicate(const F &op)
       : predicate(op) {}
-  __host__ __device__ R operator()(const T &a) { return predicate(a); }
-  __host__ __device__ R reduce(const R &a, const R &b) {
+  HERMES_DEVICE_CALLABLE R operator()(const T &a) { return predicate(a); }
+  HERMES_DEVICE_CALLABLE R reduce(const R &a, const R &b) {
     return predicate.reduce(a, b);
   }
-  __host__ __device__ R baseValue() const { return predicate.base_value; }
+  HERMES_DEVICE_CALLABLE R baseValue() const { return predicate.base_value; }
   F predicate;
 };
 /// Auxiliary class that encapsulates a c++ lambda function into device code for
@@ -128,16 +130,16 @@ template <typename T, typename R, typename F> struct hermes_reduce_predicate {
 ///\tparam T array data type
 /// \tparam R reduction result data type
 ///\tparam F lambda function type following the signature: (index2, T&)
-template <typename T, typename R, typename F> struct hermes_reduce2_predicate {
-  __host__ __device__ explicit hermes_reduce2_predicate(const F &op)
+template<typename T, typename R, typename F> struct hermes_reduce2_predicate {
+  HERMES_DEVICE_CALLABLE explicit hermes_reduce2_predicate(const F &op)
       : predicate(op) {}
-  __host__ __device__ R operator()(const T &a, const T &b) {
+  HERMES_DEVICE_CALLABLE R operator()(const T &a, const T &b) {
     return predicate(a, b);
   }
-  __host__ __device__ R reduce(const R &a, const R &b) {
+  HERMES_DEVICE_CALLABLE R reduce(const R &a, const R &b) {
     return predicate.reduce(a, b);
   }
-  __host__ __device__ R baseValue() const { return predicate.base_value; }
+  HERMES_DEVICE_CALLABLE R baseValue() const { return predicate.base_value; }
   F predicate;
 };
 
@@ -145,8 +147,14 @@ template <typename T, typename R, typename F> struct hermes_reduce2_predicate {
 ************************     1-dimension single      *************************
 ******************************************************************************/
 
-template <typename T, typename R, typename F>
-__global__ void __reduce(Array1CAccessor<T> data, Array1Accessor<R> c,
+/*
+ *
+ *
+ *
+ *
+
+template<typename T, typename R, typename F>
+__global__ void __reduce(Array1CAccessor <T> data, Array1Accessor <R> c,
                          hermes_reduce_predicate<T, R, F> predicate) {
   __shared__ R cache[256];
 
@@ -174,7 +182,7 @@ __global__ void __reduce(Array1CAccessor<T> data, Array1Accessor<R> c,
     c[blockIdx.x] = cache[0];
 }
 
-template <typename T, typename R, typename ReducePredicate>
+template<typename T, typename R, typename ReducePredicate>
 R reduce(const Array1<T> &data, ReducePredicate reduce_predicate) {
   size_t block_size = (data.size() + 256 - 1) / 256;
   if (block_size > 32)
@@ -182,23 +190,24 @@ R reduce(const Array1<T> &data, ReducePredicate reduce_predicate) {
   hermes_reduce_predicate<T, R, ReducePredicate> hrp(reduce_predicate);
   Array1<R> d_c(block_size);
   __reduce<T, R, ReducePredicate>
-      <<<block_size, 256>>>(data.constAccessor(), d_c.accessor(), hrp);
-  CHECK_CUDA(cudaDeviceSynchronize());
+  <<<block_size, 256>>>(data.constAccessor(), d_c.accessor(), hrp);
+  HERMES_CHECK_CUDA(cudaDeviceSynchronize());
   auto h_c = d_c.hostData();
   R r = h_c[0];
   for (int i = 1; i < block_size; i++)
     r = reduce_predicate.reduce(r, h_c[i]);
   return r;
 }
+*/
 
 /*****************************************************************************
 ************************     1-dimension double      *************************
 ******************************************************************************/
 
-template <typename T, typename R, typename F>
-__global__ void __reduce(Array1CAccessor<T> data_a, Array1CAccessor<T> data_b,
-                         Array1Accessor<R> c,
-                         hermes_reduce2_predicate<T, R, F> predicate) {
+template<typename T, typename R, typename F>
+HERMES_CUDA_KERNEL(reduce)(Array1CAccessor <T> data_a, Array1CAccessor <T> data_b,
+                           Array1Accessor <R> c,
+                           hermes_reduce2_predicate<T, R, F> predicate) {
   __shared__ R cache[256];
 
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -225,7 +234,7 @@ __global__ void __reduce(Array1CAccessor<T> data_a, Array1CAccessor<T> data_b,
     c[blockIdx.x] = cache[0];
 }
 
-template <typename T, typename R, typename ReducePredicate>
+template<typename T, typename R, typename ReducePredicate>
 R reduce(const Array1<T> &a, const Array1<T> &b,
          ReducePredicate reduce_predicate) {
   size_t block_size = (a.size() + 256 - 1) / 256;
@@ -233,8 +242,9 @@ R reduce(const Array1<T> &a, const Array1<T> &b,
     block_size = 32;
   hermes_reduce2_predicate<T, R, ReducePredicate> hrp(reduce_predicate);
   Array1<R> d_c(block_size);
-  __reduce<T, R, ReducePredicate><<<block_size, 256>>>(
-      a.constAccessor(), b.constAccessor(), d_c.accessor(), hrp);
+  HERMES_CUDA_LAUNCH(block_size, 256, 0, 0, reduce_k<T, R, ReducePredicate>,
+//  __reduce<T, R, ReducePredicate><<<block_size, 256>>>(
+                     a.constAccessor(), b.constAccessor(), d_c.accessor(), hrp);
   CHECK_CUDA(cudaDeviceSynchronize());
   auto h_c = d_c.hostData();
   R r = h_c[0];
@@ -247,8 +257,14 @@ R reduce(const Array1<T> &a, const Array1<T> &b,
 *************************        2-dimension         *************************
 ******************************************************************************/
 
-template <typename T, typename R, typename F>
-__global__ void __reduce(Array2CAccessor<T> data, Array1Accessor<R> c,
+/*
+ *
+ *
+ *
+ *
+
+template<typename T, typename R, typename F>
+__global__ void __reduce(Array2CAccessor <T> data, Array1Accessor <R> c,
                          hermes_reduce_predicate<T, R, F> predicate) {
   __shared__ R cache[256];
 
@@ -278,7 +294,7 @@ __global__ void __reduce(Array2CAccessor<T> data, Array1Accessor<R> c,
     c[blockIdx.x] = cache[0];
 }
 
-template <typename T, typename R, typename ReducePredicate>
+template<typename T, typename R, typename ReducePredicate>
 R reduce(const Array2<T> &data, ReducePredicate reduce_predicate) {
   size_t block_size = (data.size().total() + 256 - 1) / 256;
   if (block_size > 32)
@@ -286,8 +302,8 @@ R reduce(const Array2<T> &data, ReducePredicate reduce_predicate) {
   hermes_reduce_predicate<T, R, ReducePredicate> hrp(reduce_predicate);
   Array1<R> d_c(block_size);
   __reduce<T, R, ReducePredicate>
-      <<<block_size, 256>>>(data.constAccessor(), d_c.accessor(), hrp);
-  CHECK_CUDA(cudaDeviceSynchronize());
+  <<<block_size, 256>>>(data.constAccessor(), d_c.accessor(), hrp);
+  HERMES_CHECK_CUDA(cudaDeviceSynchronize());
   auto h_c = d_c.hostData();
   R r = h_c[0];
   for (int i = 1; i < block_size; i++) {
@@ -295,7 +311,7 @@ R reduce(const Array2<T> &data, ReducePredicate reduce_predicate) {
   }
   return r;
 }
-
+*/
 /*
 template <unsigned int blockSize, typename T>
 __global__ void __reduceAdd(const T *data, T *rdata, unsigned int n) {
@@ -397,7 +413,13 @@ template <typename T> T reduceAdd(const T *data, unsigned int n) {
   return h_r;
 }*/
 
-template <typename T> __global__ void k__min(Array2Accessor<T> data, T *c) {
+/*
+ *
+ *
+ *
+ *
+
+template<typename T> __global__ void k__min(Array2Accessor <T> data, T *c) {
   __shared__ float cache[256];
 
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -425,13 +447,13 @@ template <typename T> __global__ void k__min(Array2Accessor<T> data, T *c) {
     c[blockIdx.x] = cache[0];
 }
 
-template <typename T> T minValue(Array2<T> &data) {
+template<typename T> T minValue(Array2<T> &data) {
   size_t blockSize = (data.size().width * data.size().height + 256 - 1) / 256;
   if (blockSize > 32)
     blockSize = 32;
   T *c = new T[blockSize];
   T *d_c;
-  cudaMalloc((void **)&d_c, blockSize * sizeof(T));
+  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
   k__min<<<blockSize, 256>>>(data.accessor(), d_c);
   cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
@@ -443,7 +465,7 @@ template <typename T> T minValue(Array2<T> &data) {
   return norm;
 }
 
-template <typename T> __global__ void k__max(Array2Accessor<T> data, T *c) {
+template<typename T> __global__ void k__max(Array2Accessor <T> data, T *c) {
   __shared__ float cache[256];
 
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -471,13 +493,13 @@ template <typename T> __global__ void k__max(Array2Accessor<T> data, T *c) {
     c[blockIdx.x] = cache[0];
 }
 
-template <typename T> T maxValue(Array2<T> &data) {
+template<typename T> T maxValue(Array2<T> &data) {
   size_t blockSize = (data.size().x * data.size().y + 256 - 1) / 256;
   if (blockSize > 32)
     blockSize = 32;
   T *c = new T[blockSize];
   T *d_c;
-  cudaMalloc((void **)&d_c, blockSize * sizeof(T));
+  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
   k__max<<<blockSize, 256>>>(data.accessor(), d_c);
   cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
@@ -488,7 +510,7 @@ template <typename T> T maxValue(Array2<T> &data) {
   return norm;
 }
 
-template <typename T> __global__ void __max_abs(Array2Accessor<T> data, T *c) {
+template<typename T> __global__ void __max_abs(Array2Accessor <T> data, T *c) {
   __shared__ float cache[256];
 
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -516,13 +538,13 @@ template <typename T> __global__ void __max_abs(Array2Accessor<T> data, T *c) {
     c[blockIdx.x] = cache[0];
 }
 
-template <typename T> T maxAbs(Array2<T> &data) {
+template<typename T> T maxAbs(Array2<T> &data) {
   size_t blockSize = (data.size().x * data.size().y + 256 - 1) / 256;
   if (blockSize > 32)
     blockSize = 32;
   T *c = new T[blockSize];
   T *d_c;
-  cudaMalloc((void **)&d_c, blockSize * sizeof(T));
+  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
   __max_abs<<<blockSize, 256>>>(data.accessor(), d_c);
   cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
@@ -533,8 +555,8 @@ template <typename T> T maxAbs(Array2<T> &data) {
   return norm;
 }
 
-template <typename T>
-__global__ void __max_abs(MemoryBlock3Accessor<T> data, T *c) {
+template<typename T>
+__global__ void __max_abs(MemoryBlock3Accessor <T> data, T *c) {
   __shared__ float cache[256];
 
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -563,14 +585,14 @@ __global__ void __max_abs(MemoryBlock3Accessor<T> data, T *c) {
     c[blockIdx.x] = cache[0];
 }
 
-template <typename T> T maxAbs(MemoryBlock3<MemoryLocation::DEVICE, T> &data) {
+template<typename T> T maxAbs(MemoryBlock3 <MemoryLocation::DEVICE, T> &data) {
   size_t blockSize =
       (data.size().x * data.size().y * data.size().z + 256 - 1) / 256;
   if (blockSize > 32)
     blockSize = 32;
   T *c = new T[blockSize];
   T *d_c;
-  cudaMalloc((void **)&d_c, blockSize * sizeof(T));
+  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
   __max_abs<<<blockSize, 256>>>(data.accessor(), d_c);
   cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
@@ -580,9 +602,7 @@ template <typename T> T maxAbs(MemoryBlock3<MemoryLocation::DEVICE, T> &data) {
   delete[] c;
   return norm;
 }
-
-} // namespace cuda
-
+*/
 } // namespace hermes
 
 #endif

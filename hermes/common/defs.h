@@ -25,11 +25,150 @@
 #ifndef HERMES_COMMON_DEFS_H
 #define HERMES_COMMON_DEFS_H
 
+// *********************************************************************************************************************
+//                                                                                                       CUDA SUPPORT
+// *********************************************************************************************************************
+#if defined(ENABLE_CUDA)
+
+#include <cuda_runtime.h>
+
+#define HERMES_HOST_FUNCTION __host__
+#define HERMES_DEVICE_CALLABLE __device__ __host__
+#define HERMES_DEVICE_CODE
+#define HERMES_CUDA_KERNEL(NAME) __global__ void NAME ## _k
+#define HERMES_CUDA_LAUNCH(GRID_DIM, BLOCK_DIM, SHARED_BYTES, STREAM_ID, NAME, ...) \
+  NAME##<<< (GRID_DIM), (BLOCK_DIM), (SHARED_BYTES), (STREAM_ID) >>> (__VA_ARGS__)
+#else
+#define HERMES_HOST_FUNCTION
+#define HERMES_DEVICE_CALLABLE
+#endif
+
+#include <cstdint>
+#include <type_traits>
+#include <string>
+// *********************************************************************************************************************
+//                                                                                                         DATA TYPES
+// *********************************************************************************************************************
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+using real_t = double;
+#else
+using real_t = float;
+#endif
+
+using f32 = float;
+using f64 = double;
+
+using i8 = int8_t;
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
+
+using u8 = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
+
+using ulong = unsigned long;
+using uint = unsigned int;
+using ushort = unsigned short;
+using uchar = unsigned char;
+
+using byte = uint8_t;
+
 namespace hermes {
+
+enum class DataType : u8 {
+  I8 = 0,
+  I16 = 1,
+  I32 = 2,
+  I64 = 3,
+  U8 = 4,
+  U16 = 5,
+  U32 = 6,
+  U64 = 7,
+  F16 = 8,
+  F32 = 9,
+  F64 = 10,
+  CUSTOM = 11
+};
+
+class DataTypes {
+public:
+  HERMES_DEVICE_CALLABLE static DataType typeFrom(u8 index) {
+#define MATCH_TYPE(Type) \
+  if((u8)DataType::Type == index) \
+    return DataType::Type;
+    MATCH_TYPE(I8)
+    MATCH_TYPE(I16)
+    MATCH_TYPE(I32)
+    MATCH_TYPE(I64)
+    MATCH_TYPE(U8)
+    MATCH_TYPE(U16)
+    MATCH_TYPE(U32)
+    MATCH_TYPE(U64)
+    MATCH_TYPE(F32)
+    MATCH_TYPE(F64)
+    return DataType::CUSTOM;
+#undef MATCH_TYPE
+  }
+  template<typename T>
+  HERMES_DEVICE_CALLABLE static DataType typeFrom() {
+#define MATCH_TYPE(Type, R) \
+  if(std::is_same_v<T, Type>) \
+    return DataType::R;
+    MATCH_TYPE(i8, I8)
+    MATCH_TYPE(i16, I16)
+    MATCH_TYPE(i32, I32)
+    MATCH_TYPE(i64, I64)
+    MATCH_TYPE(u8, U8)
+    MATCH_TYPE(u16, U16)
+    MATCH_TYPE(u32, U32)
+    MATCH_TYPE(u64, U64)
+    MATCH_TYPE(f32, F32)
+    MATCH_TYPE(f64, F64)
+    return DataType::CUSTOM;
+#undef MATCH_TYPE
+  }
+  static std::string typeName(DataType type) {
+#define DATA_TYPE_NAME(Type) \
+      if(DataType::Type == type) \
+    return #Type;
+    DATA_TYPE_NAME(I8)
+    DATA_TYPE_NAME(I16)
+    DATA_TYPE_NAME(I32)
+    DATA_TYPE_NAME(I64)
+    DATA_TYPE_NAME(U8)
+    DATA_TYPE_NAME(U16)
+    DATA_TYPE_NAME(U32)
+    DATA_TYPE_NAME(U64)
+    DATA_TYPE_NAME(F16)
+    DATA_TYPE_NAME(F32)
+    DATA_TYPE_NAME(F64)
+    DATA_TYPE_NAME(CUSTOM)
+    return "CUSTOM";
+#undef DATA_TYPE_NAME
+  }
+};
 
 enum class MemoryLocation { DEVICE, HOST };
 
+inline std::string memoryLocationName(MemoryLocation location) {
+#define ENUM_NAME(E)                  \
+    if(MemoryLocation::E == location) \
+      return #E;
+  ENUM_NAME(DEVICE)
+  ENUM_NAME(HOST)
+  return "CUSTOM";
+#undef ENUM_NAME
+}
 
+// *********************************************************************************************************************
+//                                                                                                                 IO
+// *********************************************************************************************************************
+inline std::ostream &operator<<(std::ostream &o, MemoryLocation location) {
+  o << memoryLocationName(location);
+  return o;
+}
 
 } // namespace hermes
 

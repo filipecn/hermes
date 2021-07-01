@@ -29,133 +29,184 @@
 #define HERMES_COMMON_INDEX_H
 
 #include <hermes/common/size.h>
-#include <hermes/numeric/numeric.h>
-#include <ponos/common/index.h>
+#include <hermes/common/debug.h>
 
 namespace hermes {
 
-/*****************************************************************************
-**************************          INDEX2           *************************
-******************************************************************************/
+// *********************************************************************************************************************
+//                                                                                                             Index2
+// *********************************************************************************************************************
 /// Holds 2-dimensional index coordinates
-///\tparam T must be an integer type
+///
+/// - Usually the field ``i`` is related to the **x** axis in cartesian
+/// coordinates, and the field ``j`` is related to the **y** axis.
+///\tparam T index type
+/// \verbatim embed:rst:leading-slashes
+///    .. warning::
+///       Index type must be a signed integer type.
+/// \endverbatim
 template<typename T> struct Index2 {
   static_assert(std::is_same<T, i8>::value || std::is_same<T, i16>::value ||
                     std::is_same<T, i32>::value || std::is_same<T, i64>::value,
                 "Index2 must hold an integer type!");
-
-public:
-  // ***********************************************************************
-  //                           CONSTRUCTORS
-  // ***********************************************************************
-  ///\brief Construct a new Index2 object
-  ///\param i **[in]** i coordinate value
-  ///\param j **[in]** j coordinate value
-  Index2() = default;
-  __host__ __device__ explicit Index2(T ij) : i(ij), j(ij) {}
-  __host__ __device__ explicit Index2(T i, T j) : i(i), j(j) {}
-  // ***********************************************************************
-  //                            OPERATORS
-  // ***********************************************************************
-  __host__ __device__ T operator[](int _i) const { return (&i)[_i]; }
-  __host__ __device__ T &operator[](int _i) { return (&i)[_i]; }
-  // ***********************************************************************
-  //                            METHODS
-  // ***********************************************************************
-  __host__ __device__ Index2<T> plus(T _i, T _j) const {
-    return Index2<T>(i + _i, j + _j);
+  // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  //                                                                                                       arithmetic
+  template<typename U>
+  HERMES_DEVICE_CALLABLE friend Index2<T> operator+(const Size2<U> &b, const Index2<T> &a) {
+    return Index2<T>(a.i + b.width, a.j + b.height);
   }
-  __host__ __device__ Index2<T> left() const { return Index2<T>(i - 1, j); }
-  __host__ __device__ Index2<T> right() const { return Index2<T>(i + 1, j); }
-  __host__ __device__ Index2<T> up() const { return Index2<T>(i, j + 1); }
-  __host__ __device__ Index2<T> down() const { return Index2<T>(i, j - 1); }
-  __host__ __device__ void clampTo(const size2 &s) {
-    i = max(0, min(i, static_cast<T>(s.width)));
-    j = max(0, min(j, static_cast<T>(s.height)));
+  template<typename U>
+  HERMES_DEVICE_CALLABLE friend Index2<T> operator-(const Size2<U> &b, const Index2<T> &a) {
+    return Index2<T>(b.width - a.i, b.height - a.j);
   }
-  ponos::Index2<T> ponos() const { return ponos::Index2<T>(i, j); }
-  // ***********************************************************************
-  //                            FIELDS
-  // ***********************************************************************
+  //                                                                                                         geometry
+  /// \brief Computes the manhattan distance between two indices
+  /// \tparam T
+  /// \param a **[in]**
+  /// \param b **[in]**
+  /// \return T
+  HERMES_DEVICE_CALLABLE friend T distance(const Index2<T> &a, const Index2<T> &b) {
+#ifdef HERMES_DEVICE_CODE
+    HERMES_NOT_IMPLEMENTED
+#else
+    return std::abs(a.i - b.i) + std::abs(a.j - b.j);
+#endif
+  }
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Index2() : i{0}, j{0} {};
+  /// Constructor
+  /// \param v **[in]** value assigned to both ``i`` and ``j``
+  HERMES_DEVICE_CALLABLE explicit Index2(T v) : i(v), j(v) {}
+  ///\brief Constructor
+  ///\param i **[in]** coordinate value for ``i``
+  ///\param j **[in]** coordinate value for ``j``
+  HERMES_DEVICE_CALLABLE Index2(T i, T j) : i(i), j(j) {}
+  /// \brief Constructor from a Size2 object
+  /// - ``i`` receives ``size.with`` and ``j`` receives ``size.height``
+  /// \tparam S size type
+  /// \param size **[in]**
+  template<typename S>
+  HERMES_DEVICE_CALLABLE explicit Index2(const Size2<S> &size) : i(size.width), j(size.height) {}
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                           access
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does not check if ``d`` is out of bounds.
+  /// \endverbatim
+  /// \param d **[in]** dimension number (``0`` for ``i`` and ``1`` for ``j``)
+  /// \return T coordinate value at dimension ``d``
+  HERMES_DEVICE_CALLABLE T operator[](int d) const { return (&i)[d]; }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does not check if ``d`` is out of bounds.
+  /// \endverbatim
+  /// \param d **[in]** dimension number (``0`` for ``i`` and ``1`` for ``j``)
+  /// \return T reference to coordinate value at dimension ``d``
+  HERMES_DEVICE_CALLABLE T &operator[](int d) { return (&i)[d]; }
+  //                                                                                                       arithmetic
+  HERMES_DEVICE_CALLABLE Index2<T> operator+(const Index2<T> &b) const {
+    return Index2<T>(i + b.i, j + b.j);
+  }
+  HERMES_DEVICE_CALLABLE Index2<T> operator-(const Index2<T> &b) const {
+    return Index2<T>(i - b.i, j - b.j);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE Index2<T> operator+(const Size2<U> &b) const {
+    return Index2<T>(i + b.width, j + b.height);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE Index2<T> operator-(const Size2<U> &b) const {
+    return Index2<T>(i - b.width, j - b.height);
+  }
+  //                                                                                                          boolean
+  HERMES_DEVICE_CALLABLE bool operator<=(const Index2<T> &b) const {
+    return i <= b.i && j <= b.j;
+  }
+  ///\brief are equal? operator
+  ///\param other **[in]**
+  ///\return bool true if both coordinate values are equal
+  HERMES_DEVICE_CALLABLE bool operator==(const Index2<T> &b) const {
+    return i == b.i && j == b.j;
+  }
+  /// \brief are different? operator
+  ///\param other **[in]**
+  ///\return bool true if any coordinate value is different
+  HERMES_DEVICE_CALLABLE bool operator!=(const Index2<T> &b) const {
+    return i != b.i || j != b.j;
+  }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  /// Generates an index with incremented values
+  /// \param _i **[in]** value incremented to ``i``
+  /// \param _j **[in]** value incremented to ``j``
+  /// \return Index2<T> resulting index coordinates
+  HERMES_DEVICE_CALLABLE Index2<T> plus(T _i, T _j) const { return Index2<T>(i + _i, j + _j); }
+  /// Generates a copy with ``i`` decremented by ``d``
+  /// \param d **[in | default = 1]** decrement value
+  /// \return Index2<T> resulting index coordinates (``i-d``, ``j``)
+  HERMES_DEVICE_CALLABLE Index2<T> left(T d = T(1)) const { return Index2<T>(i - d, j); }
+  /// Generates a copy with ``i`` incremented by ``d``
+  /// \param d **[in | default = 1]** increment value
+  /// \return Index2<T> resulting index coordinates (``i+d``, ``j``)
+  HERMES_DEVICE_CALLABLE Index2<T> right(T d = T(1)) const { return Index2<T>(i + d, j); }
+  /// Generates a copy with ``j`` decremented by ``d``
+  /// \param d **[in | default = 1]** decrement value
+  /// \return Index2<T> resulting index coordinates (``i``, ``j-d``)
+  HERMES_DEVICE_CALLABLE Index2<T> down(T d = T(1)) const { return Index2<T>(i, j - d); }
+  /// Generates a copy with ``j`` incremented by ``d``
+  /// \param d **[in | default = 1]** increment value
+  /// \return Index2<T> resulting index coordinates (``i``, ``j+d``)
+  HERMES_DEVICE_CALLABLE Index2<T> up(T d = T(1)) const { return Index2<T>(i, j + d); }
+  /// Clamps to the inclusive range ``[0, size]``
+  /// \param s **[in]** upper bound
+  HERMES_DEVICE_CALLABLE void clampTo(const size2 &s) {
+#ifdef HERMES_DEVICE_CODE
+    HERMES_UNUSED_VARIABLE(s);
+#else
+    i = std::max(0, std::min(i, static_cast<T>(s.width)));
+    j = std::max(0, std::min(j, static_cast<T>(s.height)));
+#endif
+  }
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  /// 0-th coordinate value
   T i = T(0);
+  /// 1-th coordinate value
   T j = T(0);
 };
-// ***********************************************************************
-//                             ARITHMETIC
-// ***********************************************************************
-template<typename T>
-__host__ __device__ Index2<T> operator+(const Index2<T> &a,
-                                        const Index2<T> &b) {
-  return Index2<T>(a.i + b.i, a.j + b.j);
-}
-template<typename T>
-__host__ __device__ Index2<T> operator-(const Index2<T> &a,
-                                        const Index2<T> &b) {
-  return Index2<T>(a.i - b.i, a.j - b.j);
-}
-/// \brief Computes the manhattan distance between two indices
+
+// *********************************************************************************************************************
+//                                                                                                     Index2Iterator
+// *********************************************************************************************************************
 /// \tparam T
-/// \param a **[in]**
-/// \param b **[in]**
-/// \return T
-template<typename T>
-__host__ __device__ T distance(const Index2<T> &a, const Index2<T> &b) {
-  return fabsf(a.i - b.i) + fabsf(a.j - b.j);
-}
-// ***********************************************************************
-//                             BOOLEAN
-// ***********************************************************************
-template<typename T>
-__host__ __device__ bool operator<=(const Index2<T> &a, const Index2<T> &b) {
-  return a.i <= b.i && a.j <= b.j;
-}
-template<typename T>
-__host__ __device__ bool operator>=(const Index2<T> &a, const Index2<T> &b) {
-  return a.i >= b.i && a.j >= b.j;
-}
-///\brief are equal? operator
-///\param other **[in]**
-///\return bool true if both coordinate values are equal
-template<typename T>
-__host__ __device__ bool operator==(const Index2<T> &a, const Index2<T> &b) {
-  return a.i == b.i && a.j == b.j;
-}
-/// \brief are different? operator
-///\param other **[in]**
-///\return bool true if any coordinate value is different
-template<typename T>
-__host__ __device__ bool operator!=(const Index2<T> &a, const Index2<T> &b) {
-  return a.i != b.i || a.j != b.j;
-}
-template<typename T, typename TT>
-__host__ __device__ bool operator<(const Index2<T> &a, const Size2 <TT> &b) {
-  return a.i < static_cast<T>(b.width) && a.j < static_cast<T>(b.height);
-}
-template<typename T, typename TT>
-__host__ __device__ bool operator>(const Index2<T> &a, const Size2 <TT> &b) {
-  return a.i > static_cast<T>(b.width) && a.j > static_cast<T>(b.height);
-}
-template<typename T, typename TT>
-__host__ __device__ bool operator>=(const Index2<T> &a, const Size2 <TT> &b) {
-  return a.i >= static_cast<T>(b.width) && a.j >= static_cast<T>(b.height);
-}
-/*****************************************************************************
-**********************          INDEX2ITERATOR           *********************
-******************************************************************************/
 template<typename T> class Index2Iterator {
 public:
-  Index2Iterator() = default;
-  __host__ __device__ Index2Iterator(Index2<T> lower, Index2<T> upper)
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Index2Iterator() {}
+  HERMES_DEVICE_CALLABLE Index2Iterator(Index2<T> lower, Index2<T> upper)
       : index_(lower), lower_(lower), upper_(upper) {}
   ///\brief Construct a new Index2Iterator object
   ///\param lower **[in]** lower bound
   ///\param upper **[in]** upper bound
   ///\param start **[in]** starting coordinate
-  __host__ __device__ Index2Iterator(Index2<T> lower, Index2<T> upper,
-                                     Index2<T> start)
+  HERMES_DEVICE_CALLABLE Index2Iterator(Index2<T> lower, Index2<T> upper, Index2<T> start)
       : index_(start), lower_(lower), upper_(upper) {}
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       arithmetic
   ///\return Index2Iterator&
-  __host__ __device__ Index2Iterator &operator++() {
+  HERMES_DEVICE_CALLABLE Index2Iterator &operator++() {
     index_.i++;
     if (index_.i >= upper_.i) {
       index_.i = lower_.i;
@@ -165,131 +216,192 @@ public:
     }
     return *this;
   }
+  //                                                                                                           access
   ///\return const Index2<T>& current index coordinate
-  __host__ __device__ const Index2<T> &operator*() const { return index_; }
+  HERMES_DEVICE_CALLABLE const Index2<T> &operator*() const { return index_; }
+  //                                                                                                          boolean
   ///\brief are equal? operator
   ///\param other **[in]**
   ///\return bool true if current indices are equal
-  __host__ __device__ bool operator==(const Index2Iterator<T> &other) const {
+  HERMES_DEVICE_CALLABLE bool operator==(const Index2Iterator<T> &other) const {
     return index_ == other.index_;
   }
   ///\brief are different? operator
   ///\param other **[in]**
   ///\return bool true if current indices are different
-  __host__ __device__ bool operator!=(const Index2Iterator<T> &other) const {
+  HERMES_DEVICE_CALLABLE bool operator!=(const Index2Iterator<T> &other) const {
     return index_ != other.index_;
   }
 
 private:
   Index2<T> index_, lower_, upper_;
 };
-/*****************************************************************************
-***********************          INDEX2RANGE           ***********************
-******************************************************************************/
-/// Represents a closed-open range of indices [lower, upper),
-/// Can be used in a for each loop
+
+// *********************************************************************************************************************
+//                                                                                                        Index2Range
+// *********************************************************************************************************************
+/// Represents a closed-open range of indices ``[lower, upper)``
+///
+/// Can be used in a for each loop that iterates over all indices in the range:
+/// \verbatim embed:rst:leading-slashes
+///    .. code-block:: cpp
+///
+///       ponos::size2 size(10,10);
+///       for(auto ij : ponos::Index2Range<int>(size)) {
+///         *ij; // index coordinates
+///       }
+/// \endverbatim
 ///\tparam T must be an integer type
 template<typename T> class Index2Range {
 public:
-  ///\brief Construct a new Index2Range object
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  ///\brief Constructs an index range ``[0, {upper_i,upper_j})``
   ///\param upper_i **[in]** upper bound i
   ///\param upper_j **[in]** upper bound j
-  __host__ __device__ Index2Range(T upper_i, T upper_j)
+  HERMES_DEVICE_CALLABLE Index2Range(T upper_i, T upper_j)
       : lower_(Index2<T>()), upper_(Index2<T>(upper_i, upper_j)) {}
-  ///\brief Construct a new Index2Range object
+  ///\brief Constructs an index range ``[lower, upper)``
   ///\param lower **[in]** lower bound
-  ///\param upper **[in]** upper bound
-  __host__ __device__ explicit Index2Range(Index2<T> lower,
-                                           Index2<T> upper = Index2<T>())
+  ///\param upper **[in | default = Index2<T>()]** upper bound
+  HERMES_DEVICE_CALLABLE explicit Index2Range(Index2<T> lower, Index2<T> upper = Index2<T>())
       : lower_(lower), upper_(upper) {}
-  __host__ __device__ explicit Index2Range(size2 upper)
+  /// \brief Constructs an index range ``[0, upper)``
+  /// \param upper **[in]** upper bound
+  HERMES_DEVICE_CALLABLE explicit Index2Range(size2 upper)
       : lower_(Index2<T>()), upper_(Index2<T>(upper.width, upper.height)) {}
-  ///\return Index2Iterator<T>
-  __host__ __device__ Index2Iterator<T> begin() const {
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Index2Iterator<T> begin() const {
     return Index2Iterator<T>(lower_, upper_, lower_);
   }
-  ///\return Index2Iterator<T>
-  __host__ __device__ Index2Iterator<T> end() const {
+  HERMES_DEVICE_CALLABLE Index2Iterator<T> end() const {
     return Index2Iterator<T>(lower_, upper_, upper_);
   }
 
 private:
   Index2<T> lower_, upper_;
 };
-/*****************************************************************************
-**************************          INDEX3           *************************
-******************************************************************************/
+
+// *********************************************************************************************************************
+//                                                                                                             Index2
+// *********************************************************************************************************************
 /// Holds 3-dimensional index coordinates
 ///\tparam T must be an integer type
 template<typename T> struct Index3 {
   static_assert(std::is_same<T, i8>::value || std::is_same<T, i16>::value ||
                     std::is_same<T, i32>::value || std::is_same<T, i64>::value,
                 "Index3 must hold an integer type!");
+  // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  //                                                                                                       arithmetic
+  template<typename U>
+  HERMES_DEVICE_CALLABLE friend Index3<T> operator-(const Size3<U> &b, const Index3<T> &a) {
+    return Index3<T>(b.width - a.i, b.height - a.j, b.depth - a.k);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE friend Index3<T> operator+(const Size3<U> &b, const Index3<T> &a) {
+    return Index3<T>(a.i + b.width, a.j + b.height, a.k + b.depth);
+  }
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Index3() : i(0), j(0), k(0) {}
+  HERMES_DEVICE_CALLABLE explicit Index3(T v) : i(v), j(v), k(v) {}
   ///\brief Construct a new Index2 object
   ///\param i **[in]** i coordinate value
   ///\param j **[in]** j coordinate value
   ///\param k **[in]** k coordinate value
-  __host__ __device__ explicit Index3(T i = T(0), T j = T(0), T k = T(0))
-      : i(i), j(j), k(k) {}
-  __host__ __device__ T operator[](int _i) const { return (&i)[_i]; }
-  __host__ __device__ T &operator[](int _i) { return (&i)[_i]; }
+  HERMES_DEVICE_CALLABLE explicit Index3(T i, T j, T k) : i(i), j(j), k(k) {}
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE T operator[](int _i) const { return (&i)[_i]; }
+  HERMES_DEVICE_CALLABLE T &operator[](int _i) { return (&i)[_i]; }
+  //                                                                                                       arithmetic
+  HERMES_DEVICE_CALLABLE Index3<T> operator+(const Index3<T> &b) const {
+    return Index3<T>(i + b.i, j + b.j, k + b.k);
+  }
+  HERMES_DEVICE_CALLABLE Index3<T> operator-(const Index3<T> &b) const {
+    return Index3<T>(i - b.i, j - b.j, k - b.k);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE Index3<T> operator+(const Size3<U> &b) const {
+    return Index3<T>(i + b.width, j + b.height, k + b.depth);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE Index3<T> operator-(const Size3<U> &b) const {
+    return Index3<T>(i - b.width, j - b.height, k - b.depth);
+  }
   ///\brief are equal? operator
   ///\param other **[in]**
   ///\return bool true if both coordinate values are equal
-  __host__ __device__ bool operator==(const Index3<T> &other) const {
+  HERMES_DEVICE_CALLABLE bool operator==(const Index3<T> &other) const {
     return i == other.i && j == other.j && k == other.k;
   }
   /// \brief are different? operator
   ///\param other **[in]**
   ///\return bool true if any coordinate value is different
-  __host__ __device__ bool operator!=(const Index3<T> &other) const {
+  HERMES_DEVICE_CALLABLE bool operator!=(const Index3<T> &other) const {
     return i != other.i || j != other.j || k != other.k;
   }
-
-  T i;
-  T j;
-  T k;
+  HERMES_DEVICE_CALLABLE bool operator<=(const Index3<T> &b) const {
+    return i <= b.i && j <= b.j && k <= b.k;
+  }
+  HERMES_DEVICE_CALLABLE bool operator<(const Index3<T> &b) const {
+    return i < b.i && j < b.j && k < b.k;
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator<(const Size3<U> &b) const {
+    return i < static_cast<T>(b.i) && j < static_cast<T>(b.j) &&
+        k < static_cast<T>(b.k);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator>(const Size3<U> &b) const {
+    return i > static_cast<T>(b.i) && j > static_cast<T>(b.j) &&
+        k > static_cast<T>(b.k);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator>=(const Size3<U> &b) const {
+    return i >= static_cast<T>(b.i) && j >= static_cast<T>(b.j) &&
+        k >= static_cast<T>(b.k);
+  }
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  T i{0};
+  T j{0};
+  T k{0};
 };
-// ***********************************************************************
-//                             BOOLEAN
-// ***********************************************************************
-template<typename T>
-__host__ __device__ bool operator<=(const Index3<T> &a, const Index3<T> &b) {
-  return a.i <= b.i && a.j <= b.j && a.k <= b.k;
-}
-template<typename T>
-__host__ __device__ bool operator<(const Index3<T> &a, const Index3<T> &b) {
-  return a.i < b.i && a.j < b.j && a.k < b.k;
-}
-template<typename T, typename TT>
-__host__ __device__ bool operator<(const Index3<T> &a, const Size3 <TT> &b) {
-  return a.i < static_cast<T>(b.i) && a.j < static_cast<T>(b.j) &&
-      a.k < static_cast<T>(b.k);
-}
-template<typename T, typename TT>
-__host__ __device__ bool operator>(const Index3<T> &a, const Size3 <TT> &b) {
-  return a.i > static_cast<T>(b.i) && a.j > static_cast<T>(b.j) &&
-      a.k > static_cast<T>(b.k);
-}
-template<typename T, typename TT>
-__host__ __device__ bool operator>=(const Index3<T> &a, const Size3 <TT> &b) {
-  return a.i >= static_cast<T>(b.i) && a.j >= static_cast<T>(b.j) &&
-      a.k >= static_cast<T>(b.k);
-}
-/*****************************************************************************
-**********************          INDEX3ITERATOR           *********************
-******************************************************************************/
+
+// *********************************************************************************************************************
+//                                                                                                     Index3Iterator
+// *********************************************************************************************************************
+/// \tparam T
 template<typename T> class Index3Iterator {
 public:
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
   ///\brief Construct a new Index3Iterator object
   ///\param lower **[in]** lower bound
   ///\param upper **[in]** upper bound
   ///\param start **[in]** starting coordinate
-  __host__ __device__ Index3Iterator(Index3<T> lower, Index3<T> upper,
-                                     Index3<T> start)
+  HERMES_DEVICE_CALLABLE Index3Iterator(Index3<T> lower, Index3<T> upper, Index3<T> start)
       : index_(start), lower_(lower), upper_(upper) {}
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                           access
+  ///\return const Index3<T>& current index coordinate
+  HERMES_DEVICE_CALLABLE const Index3<T> &operator*() const { return index_; }
+  //                                                                                                       arithmetic
   ///\return Index3Iterator&
-  __host__ __device__ Index3Iterator &operator++() {
+  HERMES_DEVICE_CALLABLE Index3Iterator &operator++() {
     index_.i++;
     if (index_.i >= upper_.i) {
       index_.i = lower_.i;
@@ -303,60 +415,98 @@ public:
     }
     return *this;
   }
-  ///\return const Index3<T>& current index coordinate
-  __host__ __device__ const Index3<T> &operator*() const { return index_; }
+  //                                                                                                          boolean
   ///\brief are equal? operator
   ///\param other **[in]**
   ///\return bool true if current indices are equal
-  __host__ __device__ bool operator==(const Index3Iterator<T> &other) const {
+  HERMES_DEVICE_CALLABLE bool operator==(const Index3Iterator<T> &other) const {
     return index_ == other.index_;
   }
   ///\brief are different? operator
   ///\param other **[in]**
   ///\return bool true if current indices are different
-  __host__ __device__ bool operator!=(const Index3Iterator<T> &other) const {
+  HERMES_DEVICE_CALLABLE bool operator!=(const Index3Iterator<T> &other) const {
     return index_ != other.index_;
   }
 
 private:
   Index3<T> index_, lower_, upper_;
 };
-/*****************************************************************************
-***********************          INDEX3RANGE           ***********************
-******************************************************************************/
+
+// *********************************************************************************************************************
+//                                                                                                        Index3Range
+// *********************************************************************************************************************
 /// Represents a closed-open range of indices [lower, upper),
 /// Can be used in a for each loop
 ///\tparam T must be an integer type
 template<typename T> class Index3Range {
 public:
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
   ///\brief Construct a new Index3Range object
   ///\param upper_i **[in]** upper bound i
   ///\param upper_j **[in]** upper bound j
   ///\param upper_k **[in]** upper bound k
-  __host__ __device__ Index3Range(T upper_i, T upper_j, T upper_k)
+  HERMES_DEVICE_CALLABLE Index3Range(T upper_i, T upper_j, T upper_k)
       : lower_(Index3<T>()), upper_(Index3<T>(upper_i, upper_j, upper_k)) {}
   ///\brief Construct a new Index3Range object
   ///\param upper **[in]** upper bound
   ///\param lower **[in]** lower bound
-  __host__ __device__ explicit Index3Range(Index3<T> upper,
-                                           Index3<T> lower = Index3<T>())
-      : lower_(lower), upper_(upper) {}
-  __host__ __device__ explicit Index3Range(size3 upper)
+  HERMES_DEVICE_CALLABLE explicit Index3Range(Index3<T> upper)
+      : upper_(upper) {}
+  /// \param upper
+  HERMES_DEVICE_CALLABLE explicit Index3Range(size3 upper)
       : lower_(Index3<T>()),
         upper_(Index3<T>(upper.width, upper.height, upper.depth)) {}
+  /// \param lower
+  /// \param upper
+  HERMES_DEVICE_CALLABLE explicit Index3Range(Index3<T> lower, Index3<T> upper)
+      : lower_(lower), upper_(upper) {}
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
   ///\return Index3Iterator<T>
-  __host__ __device__ Index3Iterator<T> begin() const {
+  HERMES_DEVICE_CALLABLE Index3Iterator<T> begin() const {
     return Index3Iterator<T>(lower_, upper_, lower_);
   }
   ///\return Index3Iterator<T>
-  __host__ __device__ Index3Iterator<T> end() const {
+  HERMES_DEVICE_CALLABLE Index3Iterator<T> end() const {
     return Index3Iterator<T>(lower_, upper_, upper_);
+  }
+  HERMES_DEVICE_CALLABLE [[nodiscard]] size3 size() const {
+#ifdef HERMES_DEVICE_CODE
+    return size3(std::abs(upper_[0] - lower_[0]),
+                 std::abs(upper_[1] - lower_[1]),
+                 std::abs(upper_[2] - lower_[2]));
+#else
+    return size3(std::abs(upper_[0] - lower_[0]),
+                 std::abs(upper_[1] - lower_[1]),
+                 std::abs(upper_[2] - lower_[2]));
+#endif
   }
 
 private:
   Index3<T> lower_, upper_;
 };
 
+// *********************************************************************************************************************
+//                                                                                                                 IO
+// *********************************************************************************************************************
+template<typename T>
+std::ostream &operator<<(std::ostream &o, const Index2<T> &ij) {
+  o << "Index[" << ij.i << ", " << ij.j << "]";
+  return o;
+}
+template<typename T>
+std::ostream &operator<<(std::ostream &o, const Index3<T> &ijk) {
+  o << "Index[" << ijk.i << ", " << ijk.j << ", " << ijk.k << "]";
+  return o;
+}
+
+// *********************************************************************************************************************
+//                                                                                                           TYPEDEFS
+// *********************************************************************************************************************
 using index2 = Index2<i32>;
 using index2_8 = Index2<i8>;
 using index2_16 = Index2<i16>;

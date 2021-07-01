@@ -22,50 +22,30 @@
  *
  */
 
-#ifndef HERMES_COMMON_RANDOM_H
-#define HERMES_COMMON_RANDOM_H
+#include <hermes/geometry/utils.h>
+#include <hermes/numeric/numeric.h>
 
-#include <hermes/common/cuda.h>
+namespace hermes::coordinate_systems {
 
-namespace hermes {
+vec3f sphericalDirection(real_t sinTheta, real_t cosTheta,
+                                   real_t phi) {
+  return vec3f(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
+}
 
-namespace cuda {
+vec3f sphericalDirection(real_t sinTheta, real_t cosTheta, real_t phi,
+                                   const vec3f &x, const vec3f &y,
+                                   const vec3f &z) {
+  return sinTheta * std::cos(phi) * x + sinTheta * std::sin(phi) * y +
+         cosTheta * z;
+}
 
-/** \brief Random Number Generator
- * Implements the "Halton Sequence".
- */
-class HaltonSequence {
-public:
-  /// Default constructor.
-  __host__ __device__ HaltonSequence() : base(2), ind(1) {}
-  /// \param b base ( > 1)
-  __host__ __device__ explicit HaltonSequence(unsigned int b) : base(b), ind(1) {}
-  /// \param b base ( > 1)
-  __host__ __device__ void setBase(unsigned int b) {
-    base = b;
-    ind = 1;
-  }
-  __host__ __device__ void setIndex(unsigned int i) { ind = i; }
-  /// pseudo-random floating-point number.
-  /// \return a float in the range [0, 1)
-  __host__ __device__ float randomFloat() {
-    float result = 0.f;
-    float f = 1.f;
-    unsigned int i = ind++;
-    while (i > 0) {
-      f /= base;
-      result += f * (i % base);
-      i /= base;
-    }
-    return result;
-  }
+real_t sphericalTheta(const vec3f &v) {
+  return std::acos(Numbers::clamp(v.z, -1.f, 1.f));
+}
 
-private:
-  unsigned int base, ind;
-};
-
-} // namespace cuda
+real_t sphericalPhi(const vec3f &v) {
+  real_t p = std::atan2(v.y, v.x);
+  return (p < 0) ? (p + 2 * Constants::pi) : p;
+}
 
 } // namespace hermes
-
-#endif

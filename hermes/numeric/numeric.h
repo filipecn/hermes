@@ -25,12 +25,22 @@
 #ifndef HERMES_GEOMETRY_CUDA_NUMERIC_H
 #define HERMES_GEOMETRY_CUDA_NUMERIC_H
 
-#include <ponos/common/defs.h>
-#include <hermes/common/cuda.h>
+#include <hermes/common/defs.h>
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <vector>
+#include <cstring>
 
 namespace hermes {
 
+// *********************************************************************************************************************
+//                                                                                                          Constants
+// *********************************************************************************************************************
 struct Constants {
+  // *******************************************************************************************************************
+  //                                                                                                    STATIC FIELDS
+  // *******************************************************************************************************************
   static constexpr real_t pi = 3.14159265358979323846;
   static constexpr real_t two_pi = 6.28318530718;
   static constexpr real_t inv_pi = 0.31830988618379067154;
@@ -38,67 +48,179 @@ struct Constants {
   static constexpr real_t inv_four_pi = 0.07957747154594766788;
   static constexpr real_t machine_epsilon = std::numeric_limits<real_t>::epsilon() * .5;
   static constexpr real_t real_infinity = std::numeric_limits<real_t>::max();
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
   /// Compute conservative bounds in error
   /// \param n
   /// \return
   static constexpr real_t gamma(i32 n) {
     return (n * machine_epsilon) / (1 - n * machine_epsilon);
   }
-  template<typename T> __host__ __device__ static constexpr T lowest() {
+  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
     return 0xfff0000000000000;
   }
-  template<typename T> __host__ __device__ static constexpr T greatest() {
+  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
     return 0x7ff0000000000000;
   }
-  __host__ __device__ static constexpr int lowest_int() { return -2147483647; }
-  __host__ __device__ static constexpr int greatest_int() { return 2147483647; }
+  HERMES_DEVICE_CALLABLE static constexpr int lowest_int() { return -2147483647; }
+  HERMES_DEVICE_CALLABLE static constexpr int greatest_int() { return 2147483647; }
 };
 
-class Check {
-public:
-  template<typename T> __host__ __device__ static bool is_equal(T a, T b) {
-    return fabsf(a - b) < 1e-8f;
+// *********************************************************************************************************************
+//                                                                                                       Trigonometry
+// *********************************************************************************************************************
+struct Trigonometry {
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE static constexpr real_t radians2degrees(real_t a) {
+    return a * 180.f / Constants::pi;
+  }
+  HERMES_DEVICE_CALLABLE static constexpr real_t degrees2radians(real_t a) {
+    return a * Constants::pi / 180.f;
   }
 };
 
-class FloatingPoint {
-public:
-  /// Interprets a floating-point value into a integer type
-  /// \param f float value
+// *********************************************************************************************************************
+//                                                                                                            Numbers
+// *********************************************************************************************************************
+struct Numbers {
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  template<typename T> HERMES_DEVICE_CALLABLE T min(const T &a, const T &b) {
+    if (a < b)
+      return a;
+    return b;
+  }
+
+  template<typename T> HERMES_DEVICE_CALLABLE T max(const T &a, const T &b) {
+    if (a > b)
+      return a;
+    return b;
+  }
+
+  template<typename T> HERMES_DEVICE_CALLABLE void swap(T &a, T &b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+  }
+  /// \brief round
+  /// \param f **[in]**
+  /// \return ceil of **f**
+  static inline int ceil2Int(float f) { return static_cast<int>(f + 0.5f); }
+  /// \brief round
+  /// \param f **[in]**
+  /// \return floor of **f**
+  static inline int floor2Int(float f) { return static_cast<int>(f); }
+  /// \brief round
+  /// \param f **[in]**
+  /// \return next integer greater or equal to **f**
+  static inline int round2Int(float f) { return f + .5f; }
+  /// \brief modulus
+  /// \param a **[in]**
+  /// \param b **[in]**
+  /// \return the remainder of a / b
+  static inline float mod(int a, int b) {
+    int n = a / b;
+    a -= n * b;
+    if (a < 0)
+      a += b;
+    return a;
+  }
+  /// \param n **[in]** value
+  /// \param l **[in]** low
+  /// \param u **[in]** high
+  /// \return clamp **b** to be in **[l, h]**
+  template<typename T>
+  HERMES_DEVICE_CALLABLE static T clamp(const T &n, const T &l, const T &u) {
+    return fmaxf(l, fminf(n, u));
+  }
+  /// \param x **[in]** value
+  /// \return base-2 logarithm of **x**
+  HERMES_DEVICE_CALLABLE static inline f32 log2(f32 x) {
+#ifndef HERMES_DEVICE_CODE
+    static f32 invLog2 = 1.f / logf(2.f);
+#else
+    f32 invLog2 = 1.f / logf(2.f);
+#endif
+    return logf(x) * invLog2;
+  }
+  /// \param v **[in]** value
+  /// \return **true** if **v** is power of 2
+  HERMES_DEVICE_CALLABLE static inline bool isPowerOf2(int v) { return (v & (v - 1)) == 0; }
+  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T sqr(T a) { return a * a; }
+  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T cube(T a) { return a * a * a; }
+  template<typename T> HERMES_DEVICE_CALLABLE static int sign(T a) {
+    return a >= 0 ? 1 : -1;
+  }
+  HERMES_DEVICE_CALLABLE static inline u8 countDigits(u64 t, u8 base = 10) {
+    u8 count{0};
+    while (t) {
+      count++;
+      t /= base;
+    }
+    return count;
+  }
+  HERMES_DEVICE_CALLABLE static inline u32 separateBitsBy1(u32 n) {
+    n = (n ^ (n << 8)) & 0x00ff00ff;
+    n = (n ^ (n << 4)) & 0x0f0f0f0f;
+    n = (n ^ (n << 2)) & 0x33333333;
+    n = (n ^ (n << 1)) & 0x55555555;
+    return n;
+  }
+  HERMES_DEVICE_CALLABLE static inline u32 separateBitsBy2(u32 n) {
+    n = (n ^ (n << 16)) & 0xff0000ff;
+    n = (n ^ (n << 8)) & 0x0300f00f;
+    n = (n ^ (n << 4)) & 0x030c30c3;
+    n = (n ^ (n << 2)) & 0x09249249;
+    return n;
+  }
+  HERMES_DEVICE_CALLABLE static inline u32 interleaveBits(u32 x, u32 y, u32 z) {
+    return (separateBitsBy2(z) << 2) + (separateBitsBy2(y) << 1) +
+        separateBitsBy2(x);
+  }
+  HERMES_DEVICE_CALLABLE static inline u32 interleaveBits(u32 x, u32 y) {
+    return (separateBitsBy1(y) << 1) + separateBitsBy1(x);
+  }
+  //                                                                                                   floating point
+  /// Interprets a f32ing-point value into a integer type
+  /// \param f f32 value
   /// \return  a 32 bit unsigned integer containing the bits of **f**
-  __host__ __device__ static inline uint32_t floatToBits(float f) {
+  HERMES_DEVICE_CALLABLE static inline uint32_t floatToBits(f32 f) {
     uint32_t ui(0);
-    memcpy(&ui, &f, sizeof(float));
+    std::memcpy(&ui, &f, sizeof(f32));
     return ui;
   }
-  /// Fills a float variable data
+  /// Fills a f32 variable data
   /// \param ui bits
-  /// \return a float built from bits of **ui**
-  __host__ __device__ static inline float bitsToFloat(uint32_t ui) {
-    float f(0.f);
-    memcpy(&f, &ui, sizeof(uint32_t));
+  /// \return a f32 built from bits of **ui**
+  HERMES_DEVICE_CALLABLE static inline f32 bitsToFloat(uint32_t ui) {
+    f32 f(0.f);
+    std::memcpy(&f, &ui, sizeof(uint32_t));
     return f;
   }
-  /// Interprets a doubleing-point value into a integer type
-  /// \param d double value
+  /// Interprets a f64-point value into a integer type
+  /// \param d f64 value
   /// \return  a 64 bit unsigned integer containing the bits of **f**
-  __host__ __device__ static inline uint64_t doubleToBits(double d) {
+  HERMES_DEVICE_CALLABLE static inline uint64_t floatToBits(f64 d) {
     uint64_t ui(0);
-    memcpy(&ui, &d, sizeof(double));
+    std::memcpy(&ui, &d, sizeof(f64));
     return ui;
   }
-  /// Fills a double variable data
+  /// Fills a f64 variable data
   /// \param ui bits
-  /// \return a double built from bits of **ui**
-  __host__ __device__ static inline double bitsToDouble(uint64_t ui) {
-    double d(0.f);
-    memcpy(&d, &ui, sizeof(uint64_t));
+  /// \return a f64 built from bits of **ui**
+  HERMES_DEVICE_CALLABLE static inline f64 bitsToDouble(uint64_t ui) {
+    f64 d(0.f);
+    std::memcpy(&d, &ui, sizeof(uint64_t));
     return d;
   }
-  /// Computes the next greater representable floating-point value
-  /// \param v floating point value
-  /// \return the next greater floating point value
-  static __host__ __device__ inline float nextFloatUp(float v) {
+  /// Computes the next greater representable f32ing-point value
+  /// \param v f32ing point value
+  /// \return the next greater f32ing point value
+  static HERMES_DEVICE_CALLABLE inline f32 nextFloatUp(f32 v) {
     if (std::isinf(v) && v > 0.)
       return v;
     if (v == -0.f)
@@ -110,10 +232,10 @@ public:
       --ui;
     return bitsToFloat(ui);
   }
-  /// Computes the next smaller representable floating-point value
-  /// \param v floating point value
-  /// \return the next smaller floating point value
-  __host__ __device__ static inline float nextFloatDown(float v) {
+  /// Computes the next smaller representable f32ing-point value
+  /// \param v f32ing point value
+  /// \return the next smaller f32ing point value
+  HERMES_DEVICE_CALLABLE static inline f32 nextFloatDown(f32 v) {
     if (std::isinf(v) && v > 0.)
       return v;
     if (v == -0.f)
@@ -125,30 +247,30 @@ public:
       ++ui;
     return bitsToFloat(ui);
   }
-  /// Computes the next greater representable floating-point value
-  /// \param v floating point value
-  /// \return the next greater floating point value
-  __host__ __device__ static inline double nextDoubleUp(double v) {
+  /// Computes the next greater representable f32ing-point value
+  /// \param v f32ing point value
+  /// \return the next greater f32ing point value
+  HERMES_DEVICE_CALLABLE static inline f64 nextDoubleUp(f64 v) {
     if (std::isinf(v) && v > 0.)
       return v;
     if (v == -0.f)
       v = 0.f;
-    uint64_t ui = doubleToBits(v);
+    uint64_t ui = floatToBits(v);
     if (v >= 0)
       ++ui;
     else
       --ui;
     return bitsToDouble(ui);
   }
-  /// Computes the next smaller representable floating-point value
-  /// \param v floating point value
-  /// \return the next smaller floating point value
-  __host__ __device__ static double nextDoubleDown(double v) {
+  /// Computes the next smaller representable f32ing-point value
+  /// \param v f32ing point value
+  /// \return the next smaller f32ing point value
+  HERMES_DEVICE_CALLABLE static f64 nextDoubleDown(f64 v) {
     if (std::isinf(v) && v > 0.)
       return v;
     if (v == -0.f)
       v = 0.f;
-    uint64_t ui = doubleToBits(v);
+    uint64_t ui = floatToBits(v);
     if (v >= 0)
       --ui;
     else
@@ -157,170 +279,64 @@ public:
   }
 };
 
-template<typename T> __host__ __device__ T min(const T &a, const T &b) {
-  if (a < b)
-    return a;
-  return b;
-}
+// *********************************************************************************************************************
+//                                                                                                              Check
+// *********************************************************************************************************************
+struct Check {
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  ///\brief
+  ///
+  ///\tparam T
+  ///\param a **[in]**
+  ///\return constexpr bool
+  template<typename T> static constexpr bool is_zero(T a) {
+    return std::fabs(a) < 1e-8;
+  }
+  ///\brief
+  ///
+  ///\tparam T
+  ///\param a **[in]**
+  ///\param b **[in]**
+  ///\return constexpr bool
+  template<typename T>
+  HERMES_DEVICE_CALLABLE static constexpr bool is_equal(T a, T b) {
+    return fabs(a - b) < 1e-8;
+  }
+  ///\brief
+  ///
+  ///\tparam T
+  ///\param a **[in]**
+  ///\param b **[in]**
+  ///\param e **[in]**
+  ///\return constexpr bool
+  template<typename T>
+  HERMES_DEVICE_CALLABLE static constexpr bool is_equal(T a, T b, T e) {
+    return fabs(a - b) < e;
+  }
+  ///\brief
+  ///
+  ///\tparam T
+  ///\param x **[in]**
+  ///\param a **[in]**
+  ///\param b **[in]**
+  ///\return constexpr bool
+  template<typename T> static constexpr bool is_between(T x, T a, T b) {
+    return x > a && x < b;
+  }
+  ///\brief
+  ///
+  ///\tparam T
+  ///\param x **[in]**
+  ///\param a **[in]**
+  ///\param b **[in]**
+  ///\return constexpr bool
+  template<typename T> static constexpr bool is_between_closed(T x, T a, T b) {
+    return x >= a && x <= b;
+  }
+};
 
-template<typename T> __host__ __device__ T max(const T &a, const T &b) {
-  if (a > b)
-    return a;
-  return b;
-}
-
-template<typename T> __host__ __device__ void swap(T &a, T &b) {
-  T tmp = a;
-  a = b;
-  b = tmp;
-}
-
-template<typename T> __host__ __device__ int sign(T a) {
-  return a >= 0 ? 1 : -1;
-}
-
-/// \param t **[in]** parametric coordinate
-/// \param a **[in]** lower bound **0**
-/// \param b **[in]** upper bound **1**
-/// \return linear interpolation between **a** and **b** at **t**.
-template<typename T = float, typename S = float>
-inline __host__ __device__ S lerp(T t, const S &a, const S &b) {
-  return (1.f - t) * a + t * b;
-}
-/// \param x **[in]** parametric coordinate in x
-/// \param y **[in]** parametric coordinate in y
-/// \param f00 **[in]** function value at **(0, 0)**
-/// \param f10 **[in]** function value at **(1, 0)**
-/// \param f11 **[in]** function value at **(1, 1)**
-/// \param f01 **[in]** function value at **(0, 1)**
-/// \return interpolated value at **(x,y)**
-template<typename T = float, typename S = float>
-inline __host__ __device__ S bilerp(T x, T y, const S &f00, const S &f10,
-                                    const S &f11, const S &f01) {
-  return lerp(y, lerp(x, f00, f10), lerp(x, f01, f11));
-}
-/// \tparam float
-/// \tparam float
-/// \param tx
-/// \param ty
-/// \param tz
-/// \param f000
-/// \param f100
-/// \param f010
-/// \param f110
-/// \param f001
-/// \param f101
-/// \param f011
-/// \param f111
-/// \return S
-template<typename T = float, typename S = float>
-inline S trilerp(T tx, T ty, T tz, const S &f000, const S &f100, const S &f010,
-                 const S &f110, const S &f001, const S &f101, const S &f011,
-                 const S &f111) {
-  return lerp(bilerp(f000, f100, f010, f110, tx, ty),
-              bilerp(f001, f101, f011, f111, tx, ty), tz);
-}
-/// \tparam S
-/// \tparam T
-/// \param f0
-/// \param f1
-/// \param f2
-/// \param f3
-/// \param f
-/// \return S
-template<typename S, typename T>
-inline S catmullRomSpline(const S &f0, const S &f1, const S &f2, const S &f3,
-                          T f) {
-  S d1 = (f2 - f0) / 2;
-  S d2 = (f3 - f1) / 2;
-  S D1 = f2 - f1;
-
-  S a3 = d1 + d2 - 2 * D1;
-  S a2 = 3 * D1 - 2 * d1 - d2;
-  S a1 = d1;
-  S a0 = f1;
-
-  return a3 * CUBE(f) + a2 * SQR(f) + a1 * f + a0;
-}
-/// interpolates to the nearest value
-/// \param t **[in]** parametric coordinate
-/// \param a **[in]** lower bound
-/// \param b **[in]** upper bound
-/// \return interpolation between **a** and **b** at **t**.
-template<typename T = float, typename S = float>
-inline S nearest(T t, const S &a, const S &b) {
-  return (t < static_cast<T>(0.5)) ? a : b;
-}
-/// \param n **[in]** value
-/// \param l **[in]** low
-/// \param u **[in]** high
-/// \return clamp **b** to be in **[l, h]**
-template<typename T>
-__host__ __device__ T clamp(const T &n, const T &l, const T &u) {
-  return fmaxf(l, fminf(n, u));
-}
-///  smooth Hermit interpolation when **a** < **v** < **b**
-/// \param v **[in]** coordinate
-/// \param a **[in]** lower bound
-/// \param b **[in]** upper bound
-/// \return Hermit value between **0** and **1**
-template<typename T> T smoothStep(T v, T a, T b) {
-  float t = clamp((v - a) / (b - a), T(0), T(1));
-  return t * t * (T(3) - 2 * t);
-}
-/// \param v **[in]** coordinate
-/// \param a **[in]** lower bound
-/// \param b **[in]** upper bound
-/// \return linear value between **0** and **1**
-inline float linearStep(float v, float a, float b) {
-  return clamp((v - a) / (b - a), 0.f, 1.f);
-}
-/// \param x **[in]** value
-/// \return base-2 logarithm of **x**
-inline float log2(float x) {
-  static float invLog2 = 1.f / logf(2.f);
-  return logf(x) * invLog2;
-}
-/// \param v **[in]** value
-/// \return **true** if **v** is power of 2
-inline bool isPowerOf2(int v) { return (v & (v - 1)) == 0; }
-/// \param a
-/// \param b
-/// \return float
-inline float smooth(float a, float b) { return fmaxf(0.f, 1.f - a / (b * b)); }
-/// \param r2
-/// \param h
-/// \return float
-inline float sharpen(const float &r2, const float &h) {
-  return fmaxf(h * h / fmaxf(r2, static_cast<float>(1.0e-5)) - 1.0f, 0.0f);
-}
-
-__device__ __host__ inline unsigned int separateBitsBy1(unsigned int n) {
-  n = (n ^ (n << 8)) & 0x00ff00ff;
-  n = (n ^ (n << 4)) & 0x0f0f0f0f;
-  n = (n ^ (n << 2)) & 0x33333333;
-  n = (n ^ (n << 1)) & 0x55555555;
-  return n;
-}
-
-__device__ __host__ inline unsigned int separateBitsBy2(unsigned int n) {
-  n = (n ^ (n << 16)) & 0xff0000ff;
-  n = (n ^ (n << 8)) & 0x0300f00f;
-  n = (n ^ (n << 4)) & 0x030c30c3;
-  n = (n ^ (n << 2)) & 0x09249249;
-  return n;
-}
-
-__device__ __host__ inline unsigned int
-interleaveBits(unsigned int x, unsigned int y, unsigned int z) {
-  return (separateBitsBy2(z) << 2) + (separateBitsBy2(y) << 1) +
-      separateBitsBy2(x);
-}
-
-__device__ __host__ inline unsigned int interleaveBits(unsigned int x,
-                                                       unsigned int y) {
-  return (separateBitsBy1(y) << 1) + separateBitsBy1(x);
-}
 //
 //template<typename T>
 //__device__ __host__ unsigned int mortonCode(const Point3 <T> &v) {

@@ -21,298 +21,219 @@
 ///
 ///\file array.h
 ///\author FilipeCN (filipedecn@gmail.com)
-///\date 2020-01-28
+///\date 2020-01-29
 ///
 ///\brief
 
 #ifndef HERMES_STORAGE_ARRAY_H
 #define HERMES_STORAGE_ARRAY_H
 
+#include <hermes/storage/array_view.h>
 #include <hermes/common/index.h>
-#include <hermes/storage/cuda_storage_utils.h>
-#include <ponos/storage/array.h>
+#include <hermes/common/size.h>
+#include <hermes/common/str.h>
+#include <iomanip>    // std::setw
+#include <ios>        // std::left
 
 namespace hermes {
 
-namespace cuda {
-
-/*****************************************************************************
-*******************           ARRAY1  ACCESSOR            ********************
-******************************************************************************/
-///\brief
+// *********************************************************************************************************************
+//                                                                                                             Array1
+// *********************************************************************************************************************
+/// Holds a linear memory area representing a 1-dimensional array of
+/// ``size`` elements_.
+/// - Array1 provides a convenient way to access its elements_:
+/// \verbatim embed:rst:leading-slashes
+///    .. code-block:: cpp
 ///
-///\tparam T
-template <typename T> class Array1Accessor {
-public:
-  Array1Accessor(T *data, size_t size) : size_(size), data_(data) {}
-  __host__ __device__ size_t size() const { return size_; }
-  __device__ T &operator[](size_t i) { return data_[i]; }
-  __device__ const T &operator[](size_t i) const { return data_[i]; }
-  __device__ bool contains(int i) const { return i >= 0 && i < (int)size_; }
-
-protected:
-  size_t size_;
-  T *data_ = nullptr;
-};
-/*****************************************************************************
-*******************       ARRAY1 CONST ACCESSOR           ********************
-******************************************************************************/
-template <typename T> class Array1CAccessor {
-public:
-  Array1CAccessor(const T *data, size_t size) : size_(size), data_(data) {}
-  __host__ __device__ size_t size() const { return size_; }
-  __device__ const T &operator[](size_t i) const { return data_[i]; }
-  __device__ bool contains(int i) const { return i >= 0 && i < (int)size_; }
-
-protected:
-  size_t size_;
-  const T *data_ = nullptr;
-};
-/*****************************************************************************
-**************************      ARRAY1 KERNELS       *************************
-******************************************************************************/
-template <typename T> __global__ void __fill(Array1Accessor<T> array, T value) {
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  if (array.contains(x))
-    array[x] = value;
-}
-
-template <typename T> void fill(Array1Accessor<T> array, T value) {
-  ThreadArrayDistributionInfo td(array.size());
-  __fill<T><<<td.gridSize, td.blockSize>>>(array, value);
-}
-/*****************************************************************************
-**************************           ARRAY1          *************************
-******************************************************************************/
-/// Holds a linear memory area representing a 1-dimensional array.
+///       for(auto e : my_array1) {
+///         e.value = 0; // element value access
+///         e.index; // element index
+///       }
+/// \endverbatim
 /// \tparam T data type
-template <typename T> class Array1 {
-  static_assert(!std::is_same<T, bool>::value,
-                "Array1 can't hold booleans, use char instead!");
-
+template<class T> class Array1 {
 public:
-  // ***********************************************************************
-  //                           CONSTRUCTORS
-  // ***********************************************************************
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
   Array1() = default;
-  Array1(size_t size) : size_(size) { resize(size); }
-  Array1(size_t size, T value) : size_(size) {
+  /// \param size dimensions (in elements_ count)
+  explicit Array1(u64 size) {
     resize(size);
-    auto acc = Array1Accessor<T>((T *)data_, size_);
-    fill(acc, value);
   }
-  Array1(const Array1 &other) : Array1(other.size_) {
-    CHECK_CUDA(cudaMemcpy(data_, other.data_, size_ * sizeof(T),
-                          cudaMemcpyDeviceToDevice));
+  /// Copy constructor
+  /// \param other **[in]** const reference to other Array1 object
+  Array1(const Array1 &other) {
+    resize(other.size_);
+    std::memcpy(data_, other.data_, memorySize());
   }
   Array1(const Array1 &&other) = delete;
-  Array1(Array1 &&other) noexcept : size_(other.size_), data_(other.data_) {
-    other.size_ = 0;
+  /// Assign constructor
+  /// \param other **[in]** temporary Array2 object
+  Array1(Array1 &&other) noexcept: data_(other.data_) {
     other.data_ = nullptr;
   }
-  Array1(const std::vector<T> &data) {
-    resize(data.size());
-    CHECK_CUDA(
-        cudaMemcpy(data_, &data[0], size_ * sizeof(T), cudaMemcpyHostToDevice));
+  /// Constructs an Array1 from a std vector
+  /// \param std_vector **[in]** data
+  Array1(const std::vector<T> &std_vector) {
+    resize(std_vector.size());
+    std::memcpy(data_, std_vector.data(), size_ * sizeof(T));
   }
-  ~Array1() { clear(); }
-  // ***********************************************************************
-  //                            OPERATORS
-  // ***********************************************************************
-  ///\param other **[in]**
-  ///\return Array1<T>&
+  /// Initialization list constructor
+  /// \param list **[in]** data list
+  /// \verbatim embed:rst:leading-slashes
+  ///    **Example**::
+  ///
+  ///       hermes::Array1<i32> a = {1,2,3,4};
+  /// \endverbatim
+  Array1(std::initializer_list<T> list) {
+    resize(list.size());
+    for (u64 i = 0; i < size_; ++i)
+      (*this)[i] = list.begin()[i];
+  }
+  ///
+  virtual ~Array1() {
+    delete[] reinterpret_cast<char *>(data_);
+  }
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       assignment
+  /// Assign operator from raw data
+  /// \param std_vector **[in]** data
+  /// \return Array1<T>&
+  Array1<T> &operator=(const std::vector<T> &std_vector) {
+    data_ = std_vector;
+  }
+  /// Assign operator
+  /// \param other **[in]** const reference to other Array1 object
+  /// \return Array1<T>&
   Array1<T> &operator=(const Array1<T> &other) {
-    resize(other.size_);
-    CHECK_CUDA(cudaMemcpy(data_, other.data_, size_ * sizeof(T),
-                          cudaMemcpyDeviceToDevice));
+    data_ = other.data_;
     return *this;
   }
-  ///\param data **[in]**
-  ///\return Array1<T>&
-  Array1<T> &operator=(const std::vector<T> &data) {
-    resize(data.size());
-    CHECK_CUDA(
-        cudaMemcpy(data_, &data[0], size_ * sizeof(T), cudaMemcpyHostToDevice));
+  /// Assign operator
+  /// \param other **[in]** temporary Array1 object
+  /// \return Array2<T>&
+  Array1<T> &operator=(Array1<T> &&other) noexcept {
+    data_ = other.data_;
     return *this;
   }
-  Array1<T> &operator=(T value) {
-    fill(Array1Accessor<T>((T *)data_, size_), value);
+  /// Assign ``value`` to all elements_
+  /// \param value assign value
+  /// \return *this
+  Array1 &operator=(T value) {
+    for (size_t i = 0; i < size_; ++i)
+      reinterpret_cast<T *>(data_)[i] = value;
     return *this;
   }
-  // ***********************************************************************
-  //                         GETTERS & SETTERS
-  // ***********************************************************************
-  /// frees any previous data and allocates a new block
-  ///\param new_size **[in]** new element count
-  void resize(size_t new_size) {
-    if (data_)
-      clear();
+  //                                                                                                           access
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``i`` is out of bounds.
+  /// \endverbatim
+  /// \param i element index
+  /// \return reference to element at ``i`` position
+  T &operator[](u64 i) {
+    return reinterpret_cast<T *>(data_)[i];
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``ij`` is out of bounds.
+  /// \endverbatim
+  /// \param i element index
+  /// \return const reference to element at ``i`` position
+  const T &operator[](u64 i) const {
+    return reinterpret_cast<T *>(data_)[i];
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``i`` is out of bounds.
+  /// \endverbatim
+  /// \param i **[in]** index
+  /// \return T& reference to element in position ``i``
+  T &operator()(u64 i) {
+    return reinterpret_cast<T *>(data_)[i];
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``i`` is out of bounds.
+  /// \endverbatim
+  /// \param i **[in]** index
+  /// \return const reference to element at ``i`` position
+  const T &operator()(u64 i) const {
+    return reinterpret_cast<T *>(data_)[i];
+  }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  //                                                                                                             size
+  /// Changes the dimensions
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. note::
+  ///       All previous data is erased.
+  /// \endverbatim
+  /// \param new_size new row and column counts
+  void resize(u64 new_size) {
+    delete[](char *) data_;
     size_ = new_size;
-    CHECK_CUDA(cudaMalloc(&data_, size_ * sizeof(T)));
+    data_ = new T[size_];
   }
-  ///\return size_t memory block size in elements
-  size_t size() const { return size_; }
-  ///\return size_t memory block size in bytes
-  size_t memorySize() const { return size_ * sizeof(T); }
-  ///\return const T* device pointer
-  const T *data() const { return (const T *)data_; }
-  ///\return  T* device pointer
-  T *data() { return (T *)data_; }
-  /// copies data to host side
-  ///\return std::vector<T> data in host side
-  std::vector<T> hostData() const {
-    std::vector<T> h_data(size_);
-    CHECK_CUDA(cudaMemcpy(&h_data[0], data_, size_ * sizeof(T),
-                          cudaMemcpyDeviceToHost));
-    return h_data;
+  /// Computes actual memory usage
+  /// \return memory usage (in bytes)
+  [[nodiscard]] u64 memorySize() const { return size_ * sizeof(T); }
+  /// \return dimensions (in elements_ count)
+  [[nodiscard]] u64 size() const { return size_; }
+  //                                                                                                           access
+  /// \return const pointer to raw data (**row major**)
+  const T *data() const { return data_; }
+  /// \return pointer to raw data (**row major**)
+  T *data() { return data_; }
+  /// Copies data from another Array1
+  ///
+  /// - This gets resized if necessary.
+  /// \param other **[in]**
+  void copy(const Array1 &other) {
+    data_ = other.data();
   }
-  Array1Accessor<T> accessor() { return Array1Accessor<T>((T *)data_, size_); }
-  Array1CAccessor<T> constAccessor() const {
-    return Array1CAccessor<T>((const T *)data_, size_);
+  /// Checks if ``i`` is not out of bounds
+  /// \param ij position index
+  /// \return ``true`` if position can be accessed
+  [[nodiscard]] bool stores(i32 i) const {
+    return i >= 0 && static_cast<i64>(i) < size_;
   }
-  // ***********************************************************************
-  //                            METHODS
-  // ***********************************************************************
-  /// frees memory and set size to zero
-  void clear() {
-    if (data_)
-      CHECK_CUDA(cudaFree(data_));
-    data_ = nullptr;
-    size_ = 0;
+  //                                                                                                        iterators
+  Array1Iterator<T> begin() {
+    return Array1Iterator<T>(reinterpret_cast<T *>( data_), size_, 0);
+  }
+  Array1Iterator<T> end() {
+    return Array1Iterator<T>(reinterpret_cast<T *>( data_), size_, -1);
+  }
+  ConstArray1Iterator<T> begin() const {
+    return ConstArray1Iterator<T>(reinterpret_cast<const T *>( data_), size_, 0);
+  }
+  ConstArray1Iterator<T> end() const {
+    return ConstArray1Iterator<T>(reinterpret_cast<const T *>( data_), size_, -1);
   }
 
 private:
-  u32 size_{0};
-  void *data_{nullptr};
+  size_t size_{0};
+  T *data_ = nullptr;
 };
 
-using array1d = Array1<f64>;
-using array1f = Array1<f32>;
-using array1i = Array1<i32>;
-using array1u = Array1<u32>;
-
-/*****************************************************************************
-*************************       ARRAY2 ACCESSOR      *************************
-******************************************************************************/
-///\tparam T array data type
-template <typename T> class Array2Accessor {
-public:
-  Array2Accessor(void *data, size2 size, size_t pitch)
-      : size_(size), pitch_(pitch), data_(data) {}
-  __host__ __device__ size2 size() const { return size_; }
-  __device__ T &operator[](index2 ij) {
-    return (T &)(*((char *)data_ + ij.j * pitch_ + ij.i * sizeof(T)));
-  }
-  __device__ bool contains(index2 ij) const {
-    return ij >= index2() && ij < size_;
-  }
-
-protected:
-  size2 size_;
-  size_t pitch_;
-  void *data_ = nullptr;
-};
-/*****************************************************************************
-*********************     ARRAY2 CONST ACCESSOR      *************************
-******************************************************************************/
-///\tparam T array data type
-template <typename T> class Array2CAccessor {
-public:
-  Array2CAccessor(const void *data, size2 size, size_t pitch)
-      : size_(size), pitch_(pitch), data_(data) {}
-  __host__ __device__ size2 size() const { return size_; }
-  __device__ T operator[](index2 ij) const {
-    return (T &)*((char *)data_ + ij.j * pitch_ + ij.i * sizeof(T));
-  }
-  __device__ bool contains(index2 ij) const {
-    return ij >= index2() && ij < size_;
-  }
-
-protected:
-  size2 size_;
-  size_t pitch_;
-  const void *data_ = nullptr;
-};
-/*****************************************************************************
-**************************      ARRAY2 KERNELS       *************************
-******************************************************************************/
-template <typename T> __global__ void __fill(Array2Accessor<T> array, T value) {
-  index2 index(blockIdx.x * blockDim.x + threadIdx.x,
-               blockIdx.y * blockDim.y + threadIdx.y);
-  if (array.contains(index))
-    array[index] = value;
-}
-/// Ste all values of the array2 to **value**
-///\tparam T array data type
-///\param array **[in]**
-///\param value **[in]**
-template <typename T> void fill(Array2Accessor<T> array, T value) {
-  ThreadArrayDistributionInfo td(array.size());
-  __fill<T><<<td.gridSize, td.blockSize>>>(array, value);
-}
-/// \tparam T
-/// \param destination **[in]**
-/// \param source **[in]**
-template <typename T>
-__global__ void __copy(Array2Accessor<T> destination,
-                       Array2CAccessor<T> source) {
-  index2 index(blockIdx.x * blockDim.x + threadIdx.x,
-               blockIdx.y * blockDim.y + threadIdx.y);
-  if (destination.contains(index) && source.contains(index))
-    destination[index] = source[index];
-}
-/// \tparam T
-/// \param destination **[in]**
-/// \param source **[in]**
-template <typename T>
-void copy(Array2Accessor<T> destination, Array2CAccessor<T> source) {
-  ThreadArrayDistributionInfo td(destination.size());
-  __copy<T><<<td.gridSize, td.blockSize>>>(destination, source);
-}
-/// Auxiliary class that encapsulates a c++ lambda function into device code
-///\tparam T array data type
-///\tparam F lambda function type following the signature: (index2, T&)
-template <typename T, typename F> struct map_operation {
-  __host__ __device__ explicit map_operation(const F &op) : operation(op) {}
-  __host__ __device__ void operator()(index2 index, T &value) {
-    operation(index, value);
-  }
-  F operation;
-};
-///\tparam T
-///\tparam F
-///\param array **[in]**
-///\param operation **[in]**
-template <typename T, typename F>
-__global__ void __map(Array2Accessor<T> array, map_operation<T, F> operation) {
-  index2 index(blockIdx.x * blockDim.x + threadIdx.x,
-               blockIdx.y * blockDim.y + threadIdx.y);
-  if (array.contains(index))
-    operation(index, array[index]);
-}
-/// Apply **operation** to all elements of **array**
-///\tparam T array data type
-///\tparam F lambda function type
-///\param array **[in]**
-///\param operation **[in]** lambda function with the following signature:
-///(index2, T&)
-template <typename T, typename F>
-void __host__ __device__ mapArray(Array2Accessor<T> array,
-                                  map_operation<T, F> operation) {
-  ThreadArrayDistributionInfo td(array.size());
-  __map<T, F><<<td.gridSize, td.blockSize>>>(array, operation);
-}
-/*****************************************************************************
-*************************           ARRAY2           *************************
-******************************************************************************/
+// *********************************************************************************************************************
+//                                                                                                             Array2
+// *********************************************************************************************************************
 /// Holds a linear memory area representing a 2-dimensional array of
-/// ``size.width`` * ``size.height`` elements.
+/// ``size.width`` * ``size.height`` elements_.
 ///
-/// - Considering ``size.height`` rows of ``size.width`` elements, data is
+/// - Considering ``size.height`` rows of ``size.width`` elements_, data is
 /// laid out in memory in **row major** fashion.
 ///
-/// - Elements must be accessed through an Array2Accessor object, **in device
-/// code**.
+/// - It is also possible to set _row level_ memory alignment via a custom size
+/// of allocated memory per row, called pitch size. The minimal size of pitch is
+/// ``size.width``*``sizeof(T)``.
 ///
 /// - The methods use the convention of ``i`` and ``j`` indices, representing
 /// _column_ and _row_ indices respectively. ``i`` accesses the first
@@ -321,202 +242,313 @@ void __host__ __device__ mapArray(Array2Accessor<T> array,
 /// \verbatim embed:rst:leading-slashes"
 ///   .. note::
 ///     This index convention is the **opposite** of some mathematical forms
-///     where matrix elements are indexed by the i-th row and j-th column.
-///   .. note::
-///     This class is the equivalent of ponos's Array2. They can be user
-///     interchangeably to work with data in host and device.
+///     where matrix elements_ are indexed by the i-th row and j-th column.
+/// \endverbatim
+/// - Array2 provides a convenient way to access its elements_:
+/// \verbatim embed:rst:leading-slashes
+///    .. code-block:: cpp
+///
+///       for(auto e : my_array2) {
+///         e.value = 0; // element value access
+///         e.index; // element index
+///       }
 /// \endverbatim
 /// \tparam T data type
-template <typename T> class Array2 {
+template<class T> class Array2 {
 public:
-  // ***********************************************************************
-  //                           CONSTRUCTORS
-  // ***********************************************************************
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
   Array2() = default;
-  ///\param size **[in]** dimensions (in elements count)
-  Array2(size2 size) : size_(size) { resize(size); }
-  /// Constructor
-  ///\param size **[in]** dimensions (in elements count)
-  ///\param value **[in]** initial value of all elements
-  Array2(size2 size, T value) : size_(size) {
-    resize(size);
-    auto acc = Array2Accessor<T>((T *)data_, size_, pitch_);
-    fill(acc, value);
+  /// pitch is set to ``size.width`` * ``sizeof(T)``
+  /// \param size dimensions (in elements_ count)
+  explicit Array2(const size2 &size) : pitch_(size.width * sizeof(T)), size_(size) {
+    data_ = new char[pitch_ * size.height];
+  }
+  /// \param size dimensions (in elements_ count)
+  /// \param pitch memory size occupied by a single row (in bytes)
+  explicit Array2(const size2 &size, size_t pitch)
+      : pitch_(pitch), size_(size) {
+    data_ = new char[pitch_ * size.height];
   }
   /// Copy constructor
-  ///\param other **[in]** const reference to other Array2 object
-  Array2(const Array2<T> &other) {
-    resize(other.size_);
-    copyPitchedToPitched<T>(pitchedData(), other.pitchedData(),
-                            cudaMemcpyDeviceToDevice);
+  /// \param other **[in]** const reference to other Array2 object
+  Array2(const Array2 &other) : Array2(other.size_, other.pitch_) {
+    memcpy(data_, other.data_, memorySize());
+  }
+  Array2(const Array2 &&other) = delete;
+  /// Copy constructor
+  /// \param other **[in]** reference to other Array2 object
+  Array2(Array2 &other) : Array2(other.size_, other.pitch_) {
+    memcpy(data_, other.data_, memorySize());
   }
   /// Assign constructor
-  ///\param other **[in]** temporary Array2 object
+  /// \param other **[in]** temporary Array2 object
   Array2(Array2 &&other) noexcept
-      : size_(other.size_), data_(other.data_), pitch_(other.pitch_) {
-    other.size_ = size2(0, 0);
-    other.pitch_ = 0;
+      : pitch_(other.pitch_), size_(other.size_), data_(other.data_) {
     other.data_ = nullptr;
   }
-  Array2(const ponos::Array2<T> &data) = delete;
-  /// Constructor from host data
-  ///\param data **[in]** reference to host Array2 object
-  Array2(ponos::Array2<T> &data) {
-    resize(size2(data.size()));
-    copyPitchedToPitched<T>(pitchedData(), pitchedDataFrom(data),
-                            cudaMemcpyHostToDevice);
+  /// Constructs an Array2 from a std vector matrix
+  /// \param linear_vector **[in]** data matrix
+  Array2(const std::vector<std::vector<T>> &linear_vector) {
+    resize(size2(linear_vector[0].size(), linear_vector.size()));
+    for (auto ij : Index2Range<i32>(size_))
+      (*this)[ij] = linear_vector[ij.j][ij.i];
   }
-  ~Array2() { clear(); }
-  // ***********************************************************************
-  //                            OPERATORS
-  // ***********************************************************************
-  /// Assign operator
-  /// \verbatim embed:rst:leading-slashes"
-  ///   .. warning::
-  ///     Copying from const objects is currently done using kernels.
+  /// Initialization list constructor
+  /// - Inner lists represent rows.
+  /// \param list **[in]** data list
+  /// \verbatim embed:rst:leading-slashes
+  ///    **Example**::
+  ///
+  ///       hermes::Array2<i32> a = {{1,2},{3,4}};
   /// \endverbatim
-  ///\param other **[in]** const reference to other Array2 object
-  ///\return Array2<T>&
+  Array2(std::initializer_list<std::initializer_list<T>> list) {
+    resize(size2(list.begin()[0].size(), list.size()));
+    for (auto ij : Index2Range<i32>(size_))
+      (*this)[ij] = list.begin()[ij.j].begin()[ij.i];
+  }
+  ///
+  virtual ~Array2() {
+    delete[](char *) data_;
+  }
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       assignment
+  /// Assign operator from raw data
+  /// - Inner vectors represent rows.
+  /// \param linear_vector **[in]** data matrix
+  /// \return Array2<T>&
+  Array2<T> &operator=(const std::vector<std::vector<T>> &linear_vector) {
+    resize(size2(linear_vector[0].size(), linear_vector.size()));
+    for (auto ij : Index2Range<i32>(size_))
+      (*this)[ij] = linear_vector[ij.j][ij.i];
+  }
+  /// Assign operator
+  /// \param other **[in]** const reference to other Array2 object
+  /// \return Array2<T>&
   Array2<T> &operator=(const Array2<T> &other) {
-    resize(other.size());
-    if (size_.total() > 0)
-      copy((*this).accessor(), other.constAccessor());
+    size_ = other.size_;
+    pitch_ = other.pitch_;
+    resize(size_);
+    memcpy(data_, other.data_, other.memorySize());
     return *this;
   }
   /// Assign operator
-  ///\param other **[in]** reference to other Array 2 object
-  ///\return Array1<T>&
-  Array2<T> &operator=(Array2<T> &other) {
-    resize(other.size_);
-    if (size_.total() > 0)
-      copyPitchedToPitched<T>(pitchedData(), other.pitchedData(),
-                              cudaMemcpyDeviceToDevice);
-    return *this;
-  }
-  Array2<T> &operator=(const ponos::Array2<T> &data) = delete;
-  Array2<T> &operator=(const ponos::Array2<T> &&data) = delete;
-  /// Assign operator from host data
-  ///\param data **[in]** host data
-  ///\return Array1<T>&
-  Array2<T> &operator=(ponos::Array2<T> &data) {
-    resize(size2(data.size().width, data.size().height));
-    if (data.size().total() > 0)
-      copyPitchedToPitched<T>(pitchedData(), pitchedDataFrom(data),
-                              cudaMemcpyHostToDevice);
-    return *this;
-  }
-  /// Assign operator from host data
-  /// \param data **[in]** host data temporary object
+  /// \param other **[in]** temporary Array2 object
   /// \return Array2<T>&
-  Array2<T> &operator=(ponos::Array2<T> &&data) {
-    resize(size2(data.size().width, data.size().height));
-    if (size_.total() > 0)
-      copyPitchedToPitched<T>(pitchedData(), pitchedData(data),
-                              cudaMemcpyHostToDevice);
+  Array2<T> &operator=(Array2<T> &&other) noexcept {
+    size_ = other.size_;
+    pitch_ = other.pitch_;
+    data_ = other.data_;
+    other.data_ = nullptr;
     return *this;
   }
-  /// Assigns ``value`` to all elements
-  /// \param value **[in]**
-  /// \return Array2<T>&
-  Array2<T> &operator=(T value) {
-    if (size_.total() > 0)
-      fill(Array2Accessor<T>((T *)data_, size_, pitch_), value);
+  /// Assign ``value`` to all elements_
+  /// \param value assign value
+  /// \return *this
+  Array2 &operator=(T value) {
+    if (!data_)
+      data_ = new char[pitch_ * size_.height];
+    for (index2 ij : Index2Range<i32>(size_))
+      (*this)[ij] = value;
     return *this;
   }
-  // ***********************************************************************
-  //                         GETTERS & SETTERS
-  // ***********************************************************************
-  /// \verbatim embed:rst:leading-slashes"
-  ///   .. warning::
-  ///     This method frees any previous data and allocates a new block.
+  //                                                                                                           access
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``ij`` is out of bounds.
   /// \endverbatim
-  ///\param new_size **[in]** new dimensions (in elements count)
-  void resize(size2 new_size) {
-    if (data_)
-      clear();
+  /// \param ij ``ij.i`` for column and ``ij.j`` for row
+  /// \return reference to element at ``ij`` position
+  T &operator[](index2 ij) {
+    return (T &) (*((char *) data_ + ij.j * pitch_ + ij.i * sizeof(T)));
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``ij`` is out of bounds.
+  /// \endverbatim
+  /// \param ij ``ij.i`` for column and ``ij.j`` for row
+  /// \return const reference to element at ``ij`` position
+  const T &operator[](index2 ij) const {
+    return (T &) (*((char *) data_ + ij.j * pitch_ + ij.i * sizeof(T)));
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``ij`` is out of bounds.
+  /// \endverbatim
+  /// \param ij expected to be constructed from j * width + i
+  /// \return reference to element at ``ij`` position
+  T &operator[](u64 ij) {
+    auto j = ij / size_.width;
+    auto i = ij % size_.width;
+    return (T &) (*((char *) data_ + j * pitch_ + i * sizeof(T)));
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``ij`` is out of bounds.
+  /// \endverbatim
+  /// \param ij expected to be constructed from j * width + i
+  /// \return reference to element at ``ij`` position
+  const T &operator[](u64 ij) const {
+    auto j = ij / size_.width;
+    auto i = ij % size_.width;
+    return (T &) (*((char *) data_ + j * pitch_ + i * sizeof(T)));
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``i`` or ``j`` are out of bounds.
+  /// \endverbatim
+  /// \param i **[in]** column index
+  /// \param j **[in]** row index
+  /// \return T& reference to element in row ``i`` and column ``j``
+  T &operator()(u32 i, u32 j) {
+    return (T &) (*((char *) data_ + j * pitch_ + i * sizeof(T)));
+  }
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. warning::
+  ///       This method does **not** check if ``i`` or ``j`` are out of bounds.
+  /// \endverbatim
+  /// \param i **[in]** column index
+  /// \param j **[in]** row index
+  /// \return const reference to element at ``ij`` position
+  const T &operator()(u32 i, u32 j) const {
+    return (T &) (*((char *) data_ + j * pitch_ + i * sizeof(T)));
+  }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  //                                                                                                             size
+  /// Changes the dimensions
+  /// \verbatim embed:rst:leading-slashes
+  ///    .. note::
+  ///       All previous data is erased.
+  /// \endverbatim
+  /// \param new_size new row and column counts
+  void resize(const size2 &new_size) {
+    delete[](char *) data_;
+    pitch_ = std::max(pitch_, sizeof(T) * new_size.width);
     size_ = new_size;
-    if (size_.total() == 0) {
-      clear();
-      return;
-    }
-    void *pdata = nullptr;
-    CHECK_CUDA(cudaMallocPitch(&pdata, &pitch_, size_.width * sizeof(T),
-                               size_.height));
-    data_ = reinterpret_cast<T *>(pdata);
+    data_ = new char[pitch_ * new_size.height];
   }
-  ///\return size_t memory block size in elements
-  size2 size() const { return size_; }
-  ///\return u32 pitch size (in bytes)
-  size_t pitch() const { return pitch_; }
-  ///\return size_t memory block size in bytes
-  size_t memorySize() const { return pitch_ * size_.height; }
-  ///\return const T* raw device pointer
-  const T *data() const { return (const T *)data_; }
-  ///\return  T* raw device pointer
-  T *data() { return (T *)data_; }
-  ///\return cudaPitchedPtr
-  cudaPitchedPtr pitchedData() const {
-    cudaPitchedPtr pd{0};
-    pd.ptr = data_;
-    pd.pitch = pitch_;
-    pd.xsize = size_.width * sizeof(T);
-    pd.ysize = size_.height;
-    return pd;
+  /// Computes actual memory usage
+  /// \return memory usage (in bytes)
+  [[nodiscard]] u64 memorySize() const { return size_.height * pitch_; }
+  /// \return dimensions (in elements_ count)
+  [[nodiscard]] size2 size() const { return size_; }
+  /// \return pitch size (in bytes)
+  [[nodiscard]] u64 pitch() const { return pitch_; }
+  //                                                                                                           access
+  /// \return const pointer to raw data (**row major**)
+  const T *data() const { return (const T *) data_; }
+  /// \return pointer to raw data (**row major**)
+  T *data() { return (T *) data_; }
+  /// Copies data from another Array2
+  ///
+  /// - This gets resized if necessary.
+  /// \param other **[in]**
+  void copy(const Array2 &other) {
+    pitch_ = other.pitch_;
+    size_ = other.size_;
+    resize(size_);
+    memcpy(data_, other.data_, memorySize());
   }
-  /// copies data to host side
-  ///\return std::vector<T> data in host side
-  ponos::Array2<T> hostData() {
-    ponos::Array2<T> data(ponos::size2(size_.width, size_.height), pitch_);
-    copyPitchedToPitched<T>(pitchedDataFrom(data), pitchedData(),
-                            cudaMemcpyDeviceToHost);
-    return data;
+  /// Checks if ``ij`` is not out of bounds
+  /// \param ij position index
+  /// \return ``true`` if position can be accessed
+  [[nodiscard]] bool stores(const index2 &ij) const {
+    return ij.i >= 0 &&
+        static_cast<i64>(ij.i) < static_cast<i64>(size_.width) &&
+        ij.j >= 0 && static_cast<i64>(ij.j) < static_cast<i64>(size_.height);
   }
-  /// \return Array2Accessor<T>
-  Array2Accessor<T> accessor() {
-    return Array2Accessor<T>(data_, size_, pitch_);
+  //                                                                                                        iterators
+  Array2Iterator<T> begin() {
+    return Array2Iterator<T>((T *) data_, size_, pitch_, index2(0, 0));
   }
-  /// \return Array2CAccessor<T>
-  Array2CAccessor<T> constAccessor() const {
-    return Array2CAccessor<T>(data_, size_, pitch_);
+  Array2Iterator<T> end() {
+    return Array2Iterator<T>((T *) data_, size_, pitch_, index2(-1, -1));
   }
-  // ***********************************************************************
-  //                            METHODS
-  // ***********************************************************************
-  /// frees memory and set size to zero
-  void clear() {
-    if (data_)
-      CHECK_CUDA(cudaFree(data_));
-    data_ = (T *)nullptr;
-    size_ = size2(0, 0);
+  ConstArray2Iterator<T> begin() const {
+    return ConstArray2Iterator<T>((T *) data_, size_, pitch_, index2(0, 0));
   }
-  /// Applies ``operation`` to all elements
-  ///\tparam F function type with an ``operator()`` following the signature:
-  ///``(index2, T&)``
-  ///\param operation **[in]**
-  template <typename F> void map(F operation) {
-    mapArray<T, F>(Array2Accessor<T>((T *)data_, size_, pitch_),
-                   map_operation<T, F>(operation));
+  ConstArray2Iterator<T> end() const {
+    return ConstArray2Iterator<T>((T *) data_, size_, pitch_, index2(-1, -1));
   }
 
 private:
-  size2 size_{0};
-  size_t pitch_ = 0;
-  void *data_{nullptr};
+  size_t pitch_{0};
+  size2 size_{};
+  void *data_ = nullptr;
 };
 
-template <typename T>
-std::ostream &operator<<(std::ostream &os, Array2<T> &array) {
-  auto h_array = array.hostData();
-  os << h_array;
+// *********************************************************************************************************************
+//                                                                                                                 IO
+// *********************************************************************************************************************
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const Array1<T> &array) {
+  os << "Array1[" << array.size() << "]\n\t";
+  // compute text width
+  int w = 12;
+  if (std::is_same_v<T, u8> || std::is_same_v<T, i8>)
+    w = 4;
+  for (u32 i = 0; i < array.size(); ++i)
+    os << std::setw(w) << std::right << (Str() << "[" << i << "]");
+  os << std::endl << '\t';
+  for (u32 i = 0; i < array.size(); ++i) {
+    os << std::setw(w) << std::right;
+    if (std::is_same<T, u8>())
+      os << (int) array[i];
+    else if (std::is_same_v<T, f32> || std::is_same_v<T, f64>)
+      os << std::setprecision(8) << array[i];
+    else
+      os << array[i];
+  }
+  os << std::endl;
+  return os;
+}
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const Array2<T> &array) {
+  os << "Array2[" << array.size() << "]\n\t\t";
+  int w = 12;
+  if (std::is_same_v<T, u8> || std::is_same_v<T, i8>)
+    w = 4;
+  for (u32 i = 0; i < array.size().width; ++i)
+    os << std::setw(w) << std::right << (Str() << "[" << i << "]");
+  os << std::endl;
+  for (u32 j = 0; j < array.size().height; ++j) {
+    os << "\t[," << j << "]";
+    for (u32 i = 0; i < array.size().width; ++i) {
+      os << std::setw(w) << std::right;
+      if (std::is_same<T, u8>() || std::is_same_v<T, i8>)
+        os << (int) array[index2(i, j)];
+      else if (std::is_same_v<T, f32> || std::is_same_v<T, f64>)
+        os << std::setprecision(8) << array[index2(i, j)];
+      else
+        os << array[index2(i, j)];
+    }
+    os << " [," << j << "]";
+    os << std::endl;
+  }
+  os << "\t\t";
+  for (u32 i = 0; i < array.size().width; ++i)
+    os << std::setw(w) << std::right << (Str() << "[" << i << "]");
+  os << std::endl;
   return os;
 }
 
+// *********************************************************************************************************************
+//                                                                                                           TYPEDEFS
+// *********************************************************************************************************************
+using array1d = Array1<f64>;
+using array1f = Array1<f32>;
+using array1i = Array1<i32>;
+using array1u = Array1<u32>;
 using array2d = Array2<f64>;
 using array2f = Array2<f32>;
 using array2i = Array2<i32>;
 using array2u = Array2<u32>;
-} // namespace cuda
 
 } // namespace hermes
 
-#endif
+#endif // HERMES_STORAGE_ARRAY_H

@@ -26,7 +26,6 @@
 #define HERMES_COMMON_PARALLEL_H
 
 #include <hermes/common/size.h>
-#include <hermes/geometry/vector.h>
 
 namespace hermes {
 

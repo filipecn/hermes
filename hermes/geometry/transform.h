@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 FilipeCN
+ * Copyright (c) 2018 FilipeCN
  *
  * The MIT License (MIT)
  *
@@ -22,283 +22,351 @@
  *
  */
 
-#ifndef HERMES_GEOMETRY_CUDA_TRANSFORM_H
-#define HERMES_GEOMETRY_CUDA_TRANSFORM_H
+#ifndef HERMES_GEOMETRY_TRANSFORM_H
+#define HERMES_GEOMETRY_TRANSFORM_H
 
-#include <cmath>
 #include <hermes/geometry/bbox.h>
 #include <hermes/geometry/matrix.h>
-#include <hermes/geometry/vector.h>
+#include <hermes/geometry/normal.h>
+#include <hermes/geometry/point.h>
+#include <hermes/geometry/ray.h>
+#include <hermes/common/debug.h>
+#include <hermes/common/bitmask_operators.h>
 
 namespace hermes {
 
-template <typename T> class Transform2 {
+enum class transform_options {
+  none = 0x0,
+  x_right = 0x1,
+  y_right = 0x2,
+  z_right = 0x4,
+  left_handed = 0x8,
+  x_left = 0x10,
+  y_left = 0x20,
+  z_left = 0x40,
+  right_handed = 0x80,
+  x_up = 0x100,
+  y_up = 0x200,
+  z_up = 0x400,
+  zero_to_one = 0x800,
+  x_down = 0x1000,
+  y_down = 0x2000,
+  z_down = 0x4000,
+  transpose = 0x8000,
+  flip_x = 0x10000,
+  flip_y = 0x20000,
+  flip_z = 0x40000,
+};
+HERMES_ENABLE_BITMASK_OPERATORS(transform_options);
+
+// *********************************************************************************************************************
+//                                                                                                         Transform2
+// *********************************************************************************************************************
+class Transform2 {
 public:
-  __host__ __device__ Transform2() {
-    m.setIdentity();
-    m_inv.setIdentity();
-  }
-  __host__ __device__ Transform2(const Matrix3x3<T> &mat,
-                                 const Matrix3x3<T> inv_mat)
-      : m(mat), m_inv(inv_mat) {}
-  [[maybe_unused]] __host__ __device__ explicit Transform2(const BBox2<T> &bbox) {
-    m.m[0][0] = bbox.upper[0] - bbox.lower[0];
-    m.m[1][1] = bbox.upper[1] - bbox.lower[1];
-    m.m[0][2] = bbox.lower[0];
-    m.m[1][2] = bbox.lower[1];
-    m_inv = inverse(m);
-  }
-  __host__ __device__ void reset() { m.setIdentity(); }
-  __host__ __device__ void translate(const Vector2<T> &d) {
-    // TODO update inverse and make a better implementarion
-    UNUSED_VARIABLE(d);
-  }
-  __host__ __device__ void scale(T x, T y) {
-    // TODO update inverse and make a better implementarion
-    UNUSED_VARIABLE(x);
-    UNUSED_VARIABLE(y);
-  }
-  __host__ __device__ void rotate(T angle) {
-    T sin_a = sinf(TO_RADIANS(angle));
-    T cos_a = cosf(TO_RADIANS(angle));
-    Matrix3x3<T> M(cos_a, -sin_a, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 1.f);
-    Vector2<T> t = getTranslate();
-    m.m[0][2] = m.m[1][2] = 0;
-    m = m * M;
-    m.m[0][2] = t.x;
-    m.m[1][2] = t.y;
-    // TODO update inverse and make a better implementation
-    m_inv = inverse(m);
-  }
-  template <typename S>
-  friend __host__ __device__ Transform2<S> inverse(const Transform2<S> &t);
-  __host__ __device__ void operator()(const Point2<T> &p, Point2<T> *r) const {
-    T x = p.x, y = p.y;
-    r->x = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2];
-    r->y = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2];
-    T wp = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2];
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE static Transform2 scale(const vec2 &s);
+  HERMES_DEVICE_CALLABLE static Transform2 rotate(real_t angle);
+  HERMES_DEVICE_CALLABLE static Transform2 translate(const vec2 &v);
+  // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  //                                                                                                          algebra
+  friend Transform2 inverse(const Transform2 &t);
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Transform2();
+  HERMES_DEVICE_CALLABLE Transform2(const mat3 &mat);
+  HERMES_DEVICE_CALLABLE Transform2(const bbox2 &bbox);
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                        transform
+  HERMES_DEVICE_CALLABLE void operator()(const point2 &p, point2 *r) const {
+    real_t x = p.x, y = p.y;
+    r->x = m[0][0] * x + m[0][1] * y + m[0][2];
+    r->y = m[1][0] * x + m[1][1] * y + m[1][2];
+    real_t wp = m[2][0] * x + m[2][1] * y + m[2][2];
     if (wp != 1.f)
       *r /= wp;
   }
-  __host__ __device__ void operator()(const Vector2<T> &v,
-                                      Vector2<T> *r) const {
-    T x = v.x, y = v.y;
-    r->x = m.m[0][0] * x + m.m[0][1] * y;
-    r->y = m.m[1][0] * x + m.m[1][1] * y;
+  HERMES_DEVICE_CALLABLE void operator()(const vec2 &v, vec2 *r) const {
+    real_t x = v.x, y = v.y;
+    r->x = m[0][0] * x + m[0][1] * y;
+    r->y = m[1][0] * x + m[1][1] * y;
   }
-  __host__ __device__ Vector2<T> operator()(const Vector2<T> &v) const {
-    T x = v.x, y = v.y;
-    return Vector2<T>(m.m[0][0] * x + m.m[0][1] * y,
-                      m.m[1][0] * x + m.m[1][1] * y);
+  HERMES_DEVICE_CALLABLE vec2 operator()(const vec2 &v) const {
+    real_t x = v.x, y = v.y;
+    return vec2(m[0][0] * x + m[0][1] * y, m[1][0] * x + m[1][1] * y);
   }
-  __host__ __device__ Point2<T> operator()(const Point2<T> &p) const {
-    T x = p.x, y = p.y;
-    T xp = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2];
-    T yp = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2];
-    T wp = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2];
+  HERMES_DEVICE_CALLABLE point2 operator()(const point2 &p) const {
+    real_t x = p.x, y = p.y;
+    real_t xp = m[0][0] * x + m[0][1] * y + m[0][2];
+    real_t yp = m[1][0] * x + m[1][1] * y + m[1][2];
+    real_t wp = m[2][0] * x + m[2][1] * y + m[2][2];
     if (wp == 1.f)
-      return Point2<T>(xp, yp);
-    return Point2<T>(xp / wp, yp / wp);
+      return point2(xp, yp);
+    return point2(xp / wp, yp / wp);
   }
-  __host__ __device__ BBox2<T> operator()(const BBox2<T> &b) const {
+  HERMES_DEVICE_CALLABLE bbox2 operator()(const bbox2 &b) const {
     const Transform2 &M = *this;
-    BBox2<T> ret;
-    ret = make_union(ret, M(Point2<T>(b.lower.x, b.lower.y)));
-    ret = make_union(ret, M(Point2<T>(b.upper.x, b.lower.y)));
-    ret = make_union(ret, M(Point2<T>(b.upper.x, b.upper.y)));
-    ret = make_union(ret, M(Point2<T>(b.lower.x, b.upper.y)));
+    bbox2 ret;
+    ret = make_union(ret, M(point2(b.lower.x, b.lower.y)));
+    ret = make_union(ret, M(point2(b.upper.x, b.lower.y)));
+    ret = make_union(ret, M(point2(b.upper.x, b.upper.y)));
+    ret = make_union(ret, M(point2(b.lower.x, b.upper.y)));
     return ret;
   }
-  __host__ __device__ Transform2 operator*(const Transform2 &t) const {
-    Matrix3x3<T> m1 = Matrix3x3<T>::mul(m, t.m);
-    Matrix3x3<T> m1_inv = Matrix3x3<T>::mul(t.m_inv, m_inv);
-    return Transform2(m1, m1_inv);
+  HERMES_DEVICE_CALLABLE Ray2 operator()(const Ray2 &r) {
+    Ray2 ret = r;
+    (*this)(ret.o, &ret.o);
+    (*this)(ret.d, &ret.d);
+    return ret;
   }
-  __host__ __device__ Vector2<T> getTranslate() const {
-    return Vector2<T>(m.m[0][2], m.m[1][2]);
+  //                                                                                                       arithmetic
+  HERMES_DEVICE_CALLABLE Transform2 operator*(const Transform2 &t) const {
+    return m * t.m;
   }
-  __host__ __device__ Vector2<T> getScale() const { return s; }
-  __host__ __device__ void computeInverse() { m_inv = inverse(m); }
-  __host__ __device__ Matrix3x3<T> getMatrix() const { return m; }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE void reset();
+  HERMES_DEVICE_CALLABLE [[nodiscard]] vec2 getTranslate() const { return vec2(m[0][2], m[1][2]); }
+  HERMES_DEVICE_CALLABLE [[nodiscard]] vec2 getScale() const { return {0, 0}; }
+  HERMES_DEVICE_CALLABLE [[nodiscard]] mat3 getMatrix() const { return m; }
+  // *******************************************************************************************************************
+  //                                                                                                           ACCESS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE const real_t *operator[](u32 row_index) const { return m[row_index]; }
+  HERMES_DEVICE_CALLABLE real_t *operator[](u32 row_index) { return m[row_index]; }
 
 private:
-  Matrix3x3<T> m, m_inv;
-  Vector2<T> s;
+  mat3 m;
 };
 
-template <typename T> __host__ __device__ Transform2<T> rotate(T angle) {
-  T sin_a = sinf(TO_RADIANS(angle));
-  T cos_a = cosf(TO_RADIANS(angle));
-  Matrix3x3<T> m(cos_a, -sin_a, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 1.f);
-  return Transform2<T>(m, transpose(m));
-}
-template <typename T>
-__host__ __device__ Transform2<T> translate(const Vector2<T> &v) {
-  Matrix3x3<T> m(1.f, 0.f, v.x, 0.f, 1.f, v.y, 0.f, 0.f, 1.f);
-  Matrix3x3<T> m_inv(1.f, 0.f, -v.x, 0.f, 1.f, -v.y, 0.f, 0.f, 1.f);
-  return Transform2<T>(m, m_inv);
-}
-template <typename T>
-__host__ __device__ Transform2<T> inverse(const Transform2<T> &t) {
-  return Transform2<T>(t.m_inv, t.m);
-}
-template <typename T> __host__ __device__ Transform2<T> scale(T x, T y) {
-  Matrix3x3<T> m(x, 0, 0, 0, y, 0, 0, 0, 1);
-  Matrix3x3<T> inv(1.f / x, 0, 0, 0, 1.f / y, 0, 0, 0, 1);
-  return Transform2<T>(m, inv);
-}
-template <typename T>
-__host__ __device__ Transform2<T> scale(const Vector2<T> &v) {
-  Matrix3x3<T> m(v.x, 0, 0, 0, v.y, 0, 0, 0, 1);
-  Matrix3x3<T> inv(1.f / v.x, 0, 0, 0, 1.f / v.y, 0, 0, 0, 1);
-  return Transform2<T>(m, inv);
-}
+Transform2 inverse(const Transform2 &t);
 
-template <typename T> class Transform {
+// *********************************************************************************************************************
+//                                                                                                          Transform
+// *********************************************************************************************************************
+class Transform {
 public:
-  __host__ __device__ Transform() {
-    m.setIdentity();
-    m_inv.setIdentity();
-  }
-  __host__ __device__ explicit Transform(const Matrix4x4<T> &mat)
-      : m(mat), m_inv(inverse(mat)) {}
-  __host__ __device__ Transform(const Matrix4x4<T> &mat,
-                                const Matrix4x4<T> &inv_mat)
-      : m(mat), m_inv(inv_mat) {}
-  __host__ __device__ explicit Transform(const T mat[4][4]) {
-    m = Matrix4x4<T>(mat[0][0], mat[0][1], mat[0][2], mat[0][3], mat[1][0],
-                     mat[1][1], mat[1][2], mat[1][3], mat[2][0], mat[2][1],
-                     mat[2][2], mat[2][3], mat[3][0], mat[3][1], mat[3][2],
-                     mat[3][3]);
-    m_inv = inverse(m);
-  }
-  __host__ __device__ explicit Transform(const bbox3 &bbox) {
-    m.m[0][0] = bbox.upper[0] - bbox.lower[0];
-    m.m[1][1] = bbox.upper[1] - bbox.lower[1];
-    m.m[2][2] = bbox.upper[2] - bbox.lower[2];
-    m.m[0][3] = bbox.lower[0];
-    m.m[1][3] = bbox.lower[1];
-    m.m[2][3] = bbox.lower[2];
-    m_inv = inverse(m);
-  }
-  __host__ __device__ void reset() { m.setIdentity(); }
-  __host__ __device__ void translate(const Vector3<T> &d) {
-    // TODO update inverse and make a better implementarion
-    UNUSED_VARIABLE(d);
-  }
-  __host__ __device__ void scale(T x, T y, T z) {
-    // TODO update inverse and make a better implementarion
-    UNUSED_VARIABLE(x);
-    UNUSED_VARIABLE(y);
-    UNUSED_VARIABLE(z);
-  }
-  template <typename S>
-  friend __host__ __device__ Transform<S> inverse(const Transform<S> &t);
-  __host__ __device__ bbox3 operator()(const bbox3 &b) const {
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  //                                                                                                      projections
+  /// Look At Transform
+  /// \note This transform is commonly used (in graphics) to orient a camera so
+  /// it looks at a certain **target** position from its **eye** position.
+  /// Given an **up** vector to define the camera orientation, a new coordinate
+  /// basis consisting of three vectors {r, u, v} is defined. Where
+  /// v = (eye - target) / ||eye - target||
+  /// r = -(v x up) / ||(v x up)||
+  /// u = v x r
+  /// \note The transform is then composed of a translation (to camera **eye**
+  /// position) and a basis transform to align r with (1,0,0), u with (0,1,0)
+  /// and v with (0,0,1). The final matrix is
+  ///     rx  ry  rz  -dot(t, r)
+  ///     rx  ry  rz  -dot(t, u)
+  ///     rx  ry  rz  -dot(t, v)
+  ///      0   0   0      1
+  /// \note Note that this transform is built on a left handed coordinate system.
+  /// \param eye camera position
+  /// \param target camera target
+  /// \param up orientation vector
+  /// \param left_handed
+  /// \return
+  HERMES_DEVICE_CALLABLE static Transform lookAt(const point3 &eye, const point3 &target = {0, 0, 0},
+                                                 const vec3 &up = {0, 1, 0},
+                                                 transform_options options = transform_options::left_handed);
+  /// Orthographic Projection
+  /// \note In an orthographic projection, parallel lines remain parallel and objects
+  /// maintain the same size regardless the distance.
+  /// \note This transform projects points into the cube (-1,-1,-1) x (1, 1, 1). It is
+  /// also possible to choose to project to (-1,-1, 0) x (1, 1, 1) with the
+  /// zero_to_one option.
+  /// \note The matrix takes the form:
+  ///     2 / (r - l)       0             0         -(r + l) / (r - l)
+  ///         0         2 / (t - b)       0         -(t + b) / (t - b)
+  ///         0             0         2 / (f - n)   -(f + n) / (f - n)
+  ///         0             0             0                  1
+  /// \note In the case of zero_to_one == true, the matrix becomes:
+  ///     2 / (r - l)       0             0         -(r + l) / (r - l)
+  ///         0         2 / (t - b)       0         -(t + b) / (t - b)
+  ///         0             0         1 / (f - n)          n / (f - n)
+  ///         0             0             0                  1
+  /// \note - Note that n > f. This function negates the values of near and
+  /// far in case the given values are f > n. Because by default, this
+  /// transform uses a left-handed coordinate system.
+  /// \param left
+  /// \param right
+  /// \param bottom
+  /// \param top
+  /// \param near
+  /// \param far
+  /// \param left_handed
+  /// \param zero_to_one
+  /// \return
+  HERMES_DEVICE_CALLABLE static Transform ortho(real_t left, real_t right, real_t bottom, real_t top,
+                                                real_t near, real_t far,
+                                                transform_options options = transform_options::left_handed);
+  /// Perspective Projection
+  /// \note The perspective projection transforms the view frustrum (a pyramid
+  /// truncated by a near plane and a far plane, both orthogonal to the view
+  /// direction) into the cube (-1,-1,-1) x (1, 1, 1).
+  /// \note In a right-handed coordinate system when x points to the right, z
+  /// points forward if y points downward and z points backwards if y points
+  /// upwards.
+  /// \note In a left-handed coordinate system when x points to the right, z
+  /// points forwards if y points upward and z points backward if y points
+  /// downwards.
+  ///
+  /// \note It is also possible to choose to project to (-1,-1, 0) x (1, 1, 1)
+  /// with the zero_to_one option.
+  /// \param fovy
+  /// \param aspect_ratio
+  /// \param near
+  /// \param far
+  /// \param left_handed
+  /// \param zero_to_one
+  /// \return
+  HERMES_DEVICE_CALLABLE static Transform perspective(real_t fovy_in_degrees,
+                                                      real_t aspect_ratio,
+                                                      real_t near,
+                                                      real_t far,
+                                                      transform_options options = transform_options::left_handed);
+  //                                                                                                        transform
+  HERMES_DEVICE_CALLABLE static Transform segmentToSegmentTransform(point3 a, point3 b, point3 c, point3 d);
+  HERMES_DEVICE_CALLABLE static Transform scale(real_t x, real_t y, real_t z);
+  HERMES_DEVICE_CALLABLE static Transform translate(const vec3 &d);
+  HERMES_DEVICE_CALLABLE static Transform rotateX(real_t angle);
+  HERMES_DEVICE_CALLABLE static Transform rotateY(real_t angle);
+  HERMES_DEVICE_CALLABLE static Transform rotateZ(real_t angle);
+  HERMES_DEVICE_CALLABLE static Transform rotate(real_t angle, const vec3 &axis);
+  // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  //                                                                                                          algebra
+  HERMES_DEVICE_CALLABLE friend Transform inverse(const Transform &t);
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Transform();
+  HERMES_DEVICE_CALLABLE Transform(const mat4 &mat);
+  HERMES_DEVICE_CALLABLE explicit Transform(const real_t mat[4][4]);
+  HERMES_DEVICE_CALLABLE Transform(const bbox3 &bbox);
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                        transform
+  bbox3 operator()(const bbox3 &b) const {
     const Transform &M = *this;
-    bbox3 ret(M(Point3<T>(b.lower.x, b.lower.y, b.lower.z)));
-    ret = make_union(ret, M(Point3<T>(b.upper.x, b.lower.y, b.lower.z)));
-    ret = make_union(ret, M(Point3<T>(b.lower.x, b.upper.y, b.lower.z)));
-    ret = make_union(ret, M(Point3<T>(b.lower.x, b.lower.y, b.upper.z)));
-    ret = make_union(ret, M(Point3<T>(b.lower.x, b.upper.y, b.upper.z)));
-    ret = make_union(ret, M(Point3<T>(b.upper.x, b.upper.y, b.lower.z)));
-    ret = make_union(ret, M(Point3<T>(b.upper.x, b.lower.y, b.upper.z)));
-    ret = make_union(ret, M(Point3<T>(b.lower.x, b.upper.y, b.upper.z)));
+    bbox3 ret(M(point3(b.lower.x, b.lower.y, b.lower.z)));
+    ret = make_union(ret, M(point3(b.upper.x, b.lower.y, b.lower.z)));
+    ret = make_union(ret, M(point3(b.lower.x, b.upper.y, b.lower.z)));
+    ret = make_union(ret, M(point3(b.lower.x, b.lower.y, b.upper.z)));
+    ret = make_union(ret, M(point3(b.lower.x, b.upper.y, b.upper.z)));
+    ret = make_union(ret, M(point3(b.upper.x, b.upper.y, b.lower.z)));
+    ret = make_union(ret, M(point3(b.upper.x, b.lower.y, b.upper.z)));
+    ret = make_union(ret, M(point3(b.lower.x, b.upper.y, b.upper.z)));
     return ret;
   }
-  __host__ __device__ Point3<T> operator()(const Point2<T> &p) const {
-    T x = p.x, y = p.y, z = 0.f;
-    T xp = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z + m.m[0][3];
-    T yp = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z + m.m[1][3];
-    T zp = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z + m.m[2][3];
-    T wp = m.m[3][0] * x + m.m[3][1] * y + m.m[3][2] * z + m.m[3][3];
+  point3 operator()(const point2 &p) const {
+    real_t x = p.x, y = p.y, z = 0.f;
+    real_t xp = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
+    real_t yp = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
+    real_t zp = m[2][0] * x + m[2][1] * y + m[2][2] * z + m[2][3];
+    real_t wp = m[3][0] * x + m[3][1] * y + m[3][2] * z + m[3][3];
     if (wp == 1.f)
-      return Point3<T>(xp, yp, zp);
-    return Point3<T>(xp, yp, zp) / wp;
+      return point3(xp, yp, zp);
+    return point3(xp, yp, zp) / wp;
   }
-  __host__ __device__ Point3<T> operator()(const Point3<T> &p) const {
-    T x = p.x, y = p.y, z = p.z;
-    T xp = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z + m.m[0][3];
-    T yp = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z + m.m[1][3];
-    T zp = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z + m.m[2][3];
-    T wp = m.m[3][0] * x + m.m[3][1] * y + m.m[3][2] * z + m.m[3][3];
+  point3 operator()(const point3 &p) const {
+    real_t x = p.x, y = p.y, z = p.z;
+    real_t xp = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
+    real_t yp = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
+    real_t zp = m[2][0] * x + m[2][1] * y + m[2][2] * z + m[2][3];
+    real_t wp = m[3][0] * x + m[3][1] * y + m[3][2] * z + m[3][3];
     if (wp == 1.f)
-      return Point3<T>(xp, yp, zp);
-    return Point3<T>(xp, yp, zp) / wp;
+      return point3(xp, yp, zp);
+    return point3(xp, yp, zp) / wp;
   }
-  __host__ __device__ void operator()(const Point3<T> &p, Point3<T> *r) const {
-    T x = p.x, y = p.y, z = p.z;
-    r->x = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z + m.m[0][3];
-    r->y = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z + m.m[1][3];
-    r->z = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z + m.m[2][3];
-    T wp = m.m[3][0] * x + m.m[3][1] * y + m.m[3][2] * z + m.m[3][3];
+  void operator()(const point3 &p, point3 *r) const {
+    real_t x = p.x, y = p.y, z = p.z;
+    r->x = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
+    r->y = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
+    r->z = m[2][0] * x + m[2][1] * y + m[2][2] * z + m[2][3];
+    real_t wp = m[3][0] * x + m[3][1] * y + m[3][2] * z + m[3][3];
     if (wp != 1.f)
       *r /= wp;
   }
-  __host__ __device__ Vector3<T> operator()(const Vector3<T> &v) const {
-    T x = v.x, y = v.y, z = v.z;
-    return Vector3<T>(m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z,
-                      m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z,
-                      m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z);
+  vec3 operator()(const vec3 &v) const {
+    real_t x = v.x, y = v.y, z = v.z;
+    return vec3(m[0][0] * x + m[0][1] * y + m[0][2] * z,
+                m[1][0] * x + m[1][1] * y + m[1][2] * z,
+                m[2][0] * x + m[2][1] * y + m[2][2] * z);
   }
-  __host__ __device__ Transform &operator=(const Transform2<T> &t) {
+  normal3 operator()(const normal3 &n) const {
+    real_t x = n.x, y = n.y, z = n.z;
+    auto m_inv = inverse(*this);
+    return normal3(m_inv[0][0] * x + m_inv[1][0] * y + m_inv[2][0] * z,
+                   m_inv[0][1] * x + m_inv[1][1] * y + m_inv[2][1] * z,
+                   m_inv[0][2] * x + m_inv[1][2] * y + m_inv[2][2] * z);
+  }
+  Ray3 operator()(const Ray3 &r) {
+    Ray3 ret = r;
+    (*this)(ret.o, &ret.o);
+    ret.d = (*this)(ret.d);
+    return ret;
+  }
+  void operator()(const Ray3 &r, Ray3 *ret) const {
+    (*this)(r.o, &ret->o);
+    ret->d = (*this)(ret->d);
+  }
+  //                                                                                                       arithmetic
+  Transform &operator=(const Transform2 &t) {
     m.setIdentity();
-    Matrix3x3<T> m3 = t.getMatrix();
-    m.m[0][0] = m3.m[0][0];
-    m.m[0][1] = m3.m[0][1];
-    m.m[0][3] = m3.m[0][2];
+    mat3 m3 = t.getMatrix();
+    m[0][0] = m3[0][0];
+    m[0][1] = m3[0][1];
+    m[0][3] = m3[0][2];
 
-    m.m[1][0] = m3.m[1][0];
-    m.m[1][1] = m3.m[1][1];
-    m.m[1][3] = m3.m[1][2];
-
-    m_inv = inverse(m);
+    m[1][0] = m3[1][0];
+    m[1][1] = m3[1][1];
+    m[1][3] = m3[1][2];
     return *this;
   }
-  __host__ __device__ Transform operator*(const Transform &t) const {
-    Matrix4x4<T> m1 = Matrix4x4<T>::mul(m, t.m);
-    Matrix4x4<T> m1_inv = Matrix4x4<T>::mul(t.m_inv, m_inv);
-    return Transform(m1, m1_inv);
+  Transform operator*(const Transform &t) const {
+    mat4 m1 = m * t.m;
+    return {m1};
   }
-  __host__ __device__ Point3<T> operator*(const Point3<T> &p) const {
-    return (*this)(p);
-  }
-  __host__ __device__ bool operator==(const Transform &t) const {
-    return t.m == m;
-  }
-  __host__ __device__ bool operator!=(const Transform &t) const {
-    return t.m != m;
-  }
+  point3 operator*(const point3 &p) const { return (*this)(p); }
+  //                                                                                                          boolean
+  bool operator==(const Transform &t) const { return t.m == m; }
+  bool operator!=(const Transform &t) const { return t.m != m; }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  void reset();
   /// \return true if this transformation changes the coordinate system
   /// handedness
-  __host__ __device__ bool swapsHandedness() const {
-    T det = (m.m[0][0] * (m.m[1][1] * m.m[2][2] - m.m[1][2] * m.m[2][1])) -
-            (m.m[0][1] * (m.m[1][0] * m.m[2][2] - m.m[1][2] * m.m[2][0])) +
-            (m.m[0][2] * (m.m[1][0] * m.m[2][1] - m.m[1][1] * m.m[2][0]));
-    return det < 0;
-  }
-  __host__ __device__ const T *c_matrix() const { return &m.m[0][0]; }
-  __host__ __device__ const Matrix4x4<T> &matrix() const { return m; }
-  __host__ __device__ Matrix3x3<T> upperLeftMatrix() const {
-    return Matrix3x3<T>(m.m[0][0], m.m[0][1], m.m[0][2], m.m[1][0], m.m[1][1],
-                        m.m[1][2], m.m[2][0], m.m[2][1], m.m[2][2]);
-  }
-  __host__ __device__ Vector3<T> getTranslate() const {
-    return Vector3<T>(m.m[0][3], m.m[1][3], m.m[2][3]);
-  }
-  __host__ __device__ void computeInverse() { m_inv = inverse(m); }
-  __host__ __device__ bool isIdentity() { return m.isIdentity(); }
-  __host__ __device__ void applyToPoint(const T *p, T *r, size_t d = 3) const {
-    T x = p[0], y = p[1], z = 0.f;
+  HERMES_DEVICE_CALLABLE [[nodiscard]] bool swapsHandedness() const;
+  HERMES_DEVICE_CALLABLE [[nodiscard]] vec3 getTranslate() const { return vec3(m[0][3], m[1][3], m[2][3]); }
+  HERMES_DEVICE_CALLABLE bool isIdentity() { return m.isIdentity(); }
+  HERMES_DEVICE_CALLABLE void applyToPoint(const real_t *p, real_t *r, size_t d = 3) const {
+    real_t x = p[0], y = p[1], z = 0.f;
     if (d == 3)
       z = p[2];
-    r[0] = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z + m.m[0][3];
-    r[1] = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z + m.m[1][3];
+    r[0] = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
+    r[1] = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
     if (d == 3)
-      r[2] = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z + m.m[2][3];
-    T wp = m.m[3][0] * x + m.m[3][1] * y + m.m[3][2] * z + m.m[3][3];
+      r[2] = m[2][0] * x + m[2][1] * y + m[2][2] * z + m[2][3];
+    real_t wp = m[3][0] * x + m[3][1] * y + m[3][2] * z + m[3][3];
     if (wp != 1.f) {
-      T invwp = 1.f / wp;
+      real_t invwp = 1.f / wp;
       r[0] *= invwp;
       r[1] *= invwp;
       if (d == 3)
@@ -306,97 +374,43 @@ public:
     }
   }
 
+  // *******************************************************************************************************************
+  //                                                                                                           ACCESS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE [[nodiscard]] const real_t *c_matrix() const { return &m[0][0]; }
+  HERMES_DEVICE_CALLABLE [[nodiscard]] const mat4 &matrix() const { return m; }
+  HERMES_DEVICE_CALLABLE [[nodiscard]] mat3 upperLeftMatrix() const {
+    return mat3(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1],
+                m[1][2], m[2][0], m[2][1], m[2][2]);
+  }
+  HERMES_DEVICE_CALLABLE const real_t *operator[](u32 row_index) const { return m[row_index]; }
+  HERMES_DEVICE_CALLABLE real_t *operator[](u32 row_index) { return m[row_index]; }
 protected:
-  Matrix4x4<T> m, m_inv;
+  mat4 m;
 };
 
-template <typename T>
-__host__ __device__ Transform<T>
-segmentToSegmentTransform(Point3<T> a, Point3<T> b, Point3<T> c, Point3<T> d) {
-  // Consider two bases a b e f and c d g h
-  // TODO implement
-  return Transform<T>();
+// *********************************************************************************************************************
+//                                                                                                                 IO
+// *********************************************************************************************************************
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const Transform2 &m) {
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++)
+      os << m[i][j] << " ";
+    os << std::endl;
+  }
+  return os;
 }
-
-template <typename T>
-__host__ __device__ Transform<T> inverse(const Transform<T> &t) {
-  return Transform<T>(t.m_inv, t.m);
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const Transform &m) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++)
+      os << m[i][j] << " ";
+    os << std::endl;
+  }
+  return os;
 }
-
-template <typename T>
-__host__ __device__ Transform<T> translate(const Vector3<T> &d) {
-  Matrix4x4<T> m(1.f, 0.f, 0.f, d.x, 0.f, 1.f, 0.f, d.y, 0.f, 0.f, 1.f, d.z,
-                 0.f, 0.f, 0.f, 1.f);
-  Matrix4x4<T> m_inv(1.f, 0.f, 0.f, -d.x, 0.f, 1.f, 0.f, -d.y, 0.f, 0.f, 1.f,
-                     -d.z, 0.f, 0.f, 0.f, 1.f);
-  return Transform<T>(m, m_inv);
-}
-
-template <typename T> __host__ __device__ Transform<T> scale(T x, T y, T z) {
-  Matrix4x4<T> m(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
-  Matrix4x4<T> inv(1.f / x, 0, 0, 0, 0, 1.f / y, 0, 0, 0, 0, 1.f / z, 0, 0, 0,
-                   0, 1);
-  return Transform<T>(m, inv);
-}
-
-template <typename T> __host__ __device__ Transform<T> rotateX(T angle) {
-  T sin_a = sinf(TO_RADIANS(angle));
-  T cos_a = cosf(TO_RADIANS(angle));
-  Matrix4x4<T> m(1.f, 0.f, 0.f, 0.f, 0.f, cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a,
-                 0.f, 0.f, 0.f, 0.f, 1.f);
-  return Transform<T>(m, transpose(m));
-}
-
-template <typename T> __host__ __device__ Transform<T> rotateY(T angle) {
-  T sin_a = sinf(TO_RADIANS(angle));
-  T cos_a = cosf(TO_RADIANS(angle));
-  Matrix4x4<T> m(cos_a, 0.f, sin_a, 0.f, 0.f, 1.f, 0.f, 0.f, -sin_a, 0.f, cos_a,
-                 0.f, 0.f, 0.f, 0.f, 1.f);
-  return Transform<T>(m, transpose(m));
-}
-
-template <typename T> __host__ __device__ Transform<T> rotateZ(T angle) {
-  T sin_a = sinf(TO_RADIANS(angle));
-  T cos_a = cosf(TO_RADIANS(angle));
-  Matrix4x4<T> m(cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 0.f, 1.f,
-                 0.f, 0.f, 0.f, 0.f, 1.f);
-  return Transform<T>(m, transpose(m));
-}
-
-template <typename T>
-__host__ __device__ Transform<T> rotate(T angle, const Vector3<T> &axis) {
-  Vector3<T> a = normalize(axis);
-  T s = sinf(TO_RADIANS(angle));
-  T c = cosf(TO_RADIANS(angle));
-  T m[4][4];
-
-  m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
-  m[0][1] = a.x * a.y * (1.f - c) - a.z * s;
-  m[0][2] = a.x * a.z * (1.f - c) + a.y * s;
-  m[0][3] = 0;
-
-  m[1][0] = a.x * a.y * (1.f - c) + a.z * s;
-  m[1][1] = a.y * a.y + (1.f - a.y * a.y) * c;
-  m[1][2] = a.y * a.z * (1.f - c) - a.x * s;
-  m[1][3] = 0;
-
-  m[2][0] = a.x * a.z * (1.f - c) - a.y * s;
-  m[2][1] = a.y * a.z * (1.f - c) + a.x * s;
-  m[2][2] = a.z * a.z + (1.f - a.z * a.z) * c;
-  m[2][3] = 0;
-
-  m[3][0] = 0;
-  m[3][1] = 0;
-  m[3][2] = 0;
-  m[3][3] = 1;
-
-  Matrix4x4<T> mat(m);
-  return Transform<T>(mat, transpose(mat));
-}
-
-using Transform2f = Transform2<float>;
-using Transform3f = Transform<float>;
 
 } // namespace hermes
 
-#endif // HERMES_GEOMETRY_CUDA_TRANSFORM_H
+#endif
