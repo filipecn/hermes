@@ -58,8 +58,8 @@ public:
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE BBox1() {
-    lower = Constants::greatest<T>();
-    upper = Constants::lowest<T>();
+    lower = Numbers::greatest<T>();
+    upper = Numbers::lowest<T>();
   }
   HERMES_DEVICE_CALLABLE explicit BBox1(const T &p) : lower(p), upper(p) {}
   HERMES_DEVICE_CALLABLE BBox1(const T &p1, const T &p2) : lower(std::min(p1, p2)),
@@ -121,8 +121,8 @@ public:
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE BBox2() {
-    lower = Point2<T>(Constants::greatest<T>());
-    upper = Point2<T>(Constants::lowest<T>());
+    lower = Point2<T>(Numbers::greatest<T>());
+    upper = Point2<T>(Numbers::lowest<T>());
   }
   HERMES_DEVICE_CALLABLE explicit BBox2(const Point2 <T> &p) : lower(p), upper(p) {}
   BBox2(const Point2 <T> &p1, const Point2 <T> &p2) {
@@ -240,8 +240,8 @@ public:
   // *******************************************************************************************************************
   /// Creates an empty bounding box
   HERMES_DEVICE_CALLABLE BBox3() {
-    lower = Point3<T>(Constants::greatest<T>());
-    upper = Point3<T>(Constants::lowest<T>());
+    lower = Point3<T>(Numbers::greatest<T>());
+    upper = Point3<T>(Numbers::lowest<T>());
   }
   /// Creates a bounding enclosing a single point
   /// \param p point

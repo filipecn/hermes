@@ -69,7 +69,9 @@ set(HERMES_HEADERS
         hermes/logging/console_colors.h
         hermes/logging/logging.h
         hermes/logging/memory_dump.h
+        hermes/numeric/e_float.h
         hermes/numeric/interpolation.h
+        hermes/numeric/interval.h
         #        hermes/numeric/cuda_field.h
         #        hermes/numeric/cuda_interpolation.h
         #        hermes/numeric/numeric.h
@@ -102,6 +104,7 @@ file(GLOB HERMES_SOURCES
         hermes/common/*.cpp
         hermes/geometry/*.cpp
         hermes/logging/*.cpp
+        hermes/numeric/*.cpp
         hermes/random/*.cpp
         hermes/storage/*.cpp
         )

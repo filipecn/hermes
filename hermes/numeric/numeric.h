@@ -48,23 +48,6 @@ struct Constants {
   static constexpr real_t inv_four_pi = 0.07957747154594766788;
   static constexpr real_t machine_epsilon = std::numeric_limits<real_t>::epsilon() * .5;
   static constexpr real_t real_infinity = std::numeric_limits<real_t>::max();
-  // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
-  /// Compute conservative bounds in error
-  /// \param n
-  /// \return
-  static constexpr real_t gamma(i32 n) {
-    return (n * machine_epsilon) / (1 - n * machine_epsilon);
-  }
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
-    return 0xfff0000000000000;
-  }
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
-    return 0x7ff0000000000000;
-  }
-  HERMES_DEVICE_CALLABLE static constexpr int lowest_int() { return -2147483647; }
-  HERMES_DEVICE_CALLABLE static constexpr int greatest_int() { return 2147483647; }
 };
 
 // *********************************************************************************************************************
@@ -89,6 +72,20 @@ struct Numbers {
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
+  /// Compute conservative bounds in error
+  /// \param n
+  /// \return
+  static constexpr real_t gamma(i32 n) {
+    return (n * Constants::machine_epsilon) / (1 - n * Constants::machine_epsilon);
+  }
+  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
+    return 0xfff0000000000000;
+  }
+  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
+    return 0x7ff0000000000000;
+  }
+  HERMES_DEVICE_CALLABLE static constexpr int lowest_int() { return -2147483647; }
+  HERMES_DEVICE_CALLABLE static constexpr int greatest_int() { return 2147483647; }
   template<typename T> HERMES_DEVICE_CALLABLE T min(const T &a, const T &b) {
     if (a < b)
       return a;
@@ -220,7 +217,7 @@ struct Numbers {
   /// Computes the next greater representable f32ing-point value
   /// \param v f32ing point value
   /// \return the next greater f32ing point value
-  static HERMES_DEVICE_CALLABLE inline f32 nextFloatUp(f32 v) {
+  HERMES_DEVICE_CALLABLE static inline f32 nextFloatUp(f32 v) {
     if (std::isinf(v) && v > 0.)
       return v;
     if (v == -0.f)

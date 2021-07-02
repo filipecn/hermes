@@ -6,6 +6,14 @@
 
 using namespace hermes;
 
+TEST_CASE("Interval") {
+  HERMES_NOT_IMPLEMENTED
+}
+
+TEST_CASE("EFloat") {
+  HERMES_NOT_IMPLEMENTED
+}
+
 TEST_CASE("Interpolation", "[numeric][interpolation]") {
   SECTION("linear") {
     { // 1D

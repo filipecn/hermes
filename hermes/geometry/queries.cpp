@@ -161,18 +161,18 @@ std::optional<real_t> GeometricPredicates::intersect(const point3 &p1,
   // ensure that computed triangle t is conservatively greater than zero
   //    compute dz term for triangle t error bounds
   real_t max_z_t = abs(vec3(p0t.z, p1t.z, p2t.z)).maxDimension();
-  real_t delta_z = Constants::gamma(3) * max_z_t;
+  real_t delta_z = Numbers::gamma(3) * max_z_t;
   //    compute dx and dy terms for triangle t error bounds
   real_t max_x_t = abs(vec3(p0t.x, p1t.x, p2t.x)).maxDimension();
   real_t max_y_t = abs(vec3(p0t.y, p1t.y, p2t.y)).maxDimension();
-  real_t delta_x = Constants::gamma(5) * (max_x_t + max_z_t);
-  real_t delta_y = Constants::gamma(5) * (max_y_t + max_z_t);
+  real_t delta_x = Numbers::gamma(5) * (max_x_t + max_z_t);
+  real_t delta_y = Numbers::gamma(5) * (max_y_t + max_z_t);
   //    compute de term for triangle error bounds
-  real_t delta_e = 2 * (Constants::gamma(2) * max_x_t * max_y_t + delta_y * max_x_t + delta_x * max_y_t);
+  real_t delta_e = 2 * (Numbers::gamma(2) * max_x_t * max_y_t + delta_y * max_x_t + delta_x * max_y_t);
   //    compute dt term for triangle t error bounds and check t
   real_t max_e = abs(vec3(e0, e1, e2)).maxDimension();
   real_t
-      delta_t = 3 * (Constants::gamma(3) * max_e * max_z_t + delta_e * max_z_t + delta_z * max_e) * std::abs(inv_det);
+      delta_t = 3 * (Numbers::gamma(3) * max_e * max_z_t + delta_e * max_z_t + delta_z * max_e) * std::abs(inv_det);
   if (t <= delta_t)
     return std::nullopt;
   return std::optional<real_t>(t);
