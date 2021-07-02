@@ -45,6 +45,8 @@ EFloat::EFloat(f32 v, f32 e) : v(v) {
 
 EFloat::operator float() const { return v; }
 
+EFloat::operator double() const { return v; }
+
 float EFloat::absoluteError() const { return err.high - err.low; }
 
 float EFloat::upperBound() const { return err.high; }

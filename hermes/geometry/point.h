@@ -144,10 +144,10 @@ public:
   // *******************************************************************************************************************
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE real_t distance(const Point3<T> &a, const Point3<T> &b) {
+  HERMES_DEVICE_CALLABLE friend real_t distance(const Point3<T> &a, const Point3<T> &b) {
     return (a - b).length();
   }
-  HERMES_DEVICE_CALLABLE real_t distance2(const Point3<T> &a, const Point3<T> &b) {
+  HERMES_DEVICE_CALLABLE friend real_t distance2(const Point3<T> &a, const Point3<T> &b) {
     return (a - b).length2();
   }
   // *******************************************************************************************************************

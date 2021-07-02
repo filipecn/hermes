@@ -64,6 +64,7 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          casting
   explicit operator float() const;
+  explicit operator double() const;
   //                                                                                                       assignment
   //                                                                                                       arithmetic
   EFloat operator+(EFloat f) const;
