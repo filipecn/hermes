@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 #include <cmath>
 
+#include <hermes/numeric/numeric.h>
 #include <hermes/numeric/e_float.h>
 #include <hermes/numeric/interval.h>
 #include <hermes/numeric/interpolation.h>

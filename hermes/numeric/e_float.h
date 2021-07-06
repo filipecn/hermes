@@ -72,7 +72,7 @@ public:
   HERMES_DEVICE_CALLABLE EFloat operator*(EFloat f) const;
   HERMES_DEVICE_CALLABLE EFloat operator/(EFloat f) const;
   //                                                                                                          boolean
-  bool operator==(EFloat f) const;
+  HERMES_DEVICE_CALLABLE bool operator==(EFloat f) const;
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************

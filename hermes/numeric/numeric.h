@@ -75,7 +75,7 @@ struct Numbers {
   /// Compute conservative bounds in error
   /// \param n
   /// \return
-  static constexpr real_t gamma(i32 n) {
+  HERMES_DEVICE_CALLABLE static constexpr real_t gamma(i32 n) {
     return (n * Constants::machine_epsilon) / (1 - n * Constants::machine_epsilon);
   }
   template<typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
@@ -106,20 +106,20 @@ struct Numbers {
   /// \brief round
   /// \param f **[in]**
   /// \return ceil of **f**
-  static inline int ceil2Int(float f) { return static_cast<int>(f + 0.5f); }
+  HERMES_DEVICE_CALLABLE static inline int ceil2Int(float f) { return static_cast<int>(f + 0.5f); }
   /// \brief round
   /// \param f **[in]**
   /// \return floor of **f**
-  static inline int floor2Int(float f) { return static_cast<int>(f); }
+  HERMES_DEVICE_CALLABLE static inline int floor2Int(float f) { return static_cast<int>(f); }
   /// \brief round
   /// \param f **[in]**
   /// \return next integer greater or equal to **f**
-  static inline int round2Int(float f) { return f + .5f; }
+  HERMES_DEVICE_CALLABLE static inline int round2Int(float f) { return f + .5f; }
   /// \brief modulus
   /// \param a **[in]**
   /// \param b **[in]**
   /// \return the remainder of a / b
-  static inline float mod(int a, int b) {
+  HERMES_DEVICE_CALLABLE static inline float mod(int a, int b) {
     int n = a / b;
     a -= n * b;
     if (a < 0)
