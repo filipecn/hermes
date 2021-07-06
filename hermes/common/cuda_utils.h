@@ -28,7 +28,7 @@
 #ifndef HERMES_COMMON_CUDA_UTILS_H
 #define HERMES_COMMON_CUDA_UTILS_H
 
-#include <hermes/common/defs.h>
+#include <hermes/common/size.h>
 
 namespace hermes::cuda_utils {
 
