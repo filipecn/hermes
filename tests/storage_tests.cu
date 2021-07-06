@@ -176,6 +176,20 @@ TEST_CASE("Array", "[storage][array]") {
     REQUIRE(a3.dimensions() == 3);
   }//
   SECTION("Operators") {
+    SECTION("assignment") {
+      HostArray<i32> a(10);
+      for (int i = 0; i < 10; ++i)
+        a[i] = i;
+      DeviceArray<i32> dda(a);
+      REQUIRE(dda.size() == size3(10, 1, 1));
+      REQUIRE(dda.sizeInBytes() == 10 * sizeof(i32));
+      auto da = a.copyTo<MemoryLocation::DEVICE>();
+      REQUIRE(da.size() == size3(10, 1, 1));
+      REQUIRE(da.sizeInBytes() == 10 * sizeof(i32));
+      HostArray<i32> ha = da;
+      for (int i = 0; i < 10; ++i)
+        REQUIRE(a[i] == i);
+    }//
     SECTION("access") {
       HostArray<u32> a1(10);
       for (u32 i = 0; i < 10; ++i) {

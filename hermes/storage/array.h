@@ -56,6 +56,8 @@ public:
   // *******************************************************************************************************************
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
+  template<typename TT, MemoryLocation LL>
+  friend class Array;
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
@@ -65,6 +67,8 @@ public:
   Array(size_t size_in_elements) { resize(size_in_elements); }
   Array(size2 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
   Array(size3 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
+  Array(const Array<T, MemoryLocation::HOST> &other) { *this = other; }
+  Array(const Array<T, MemoryLocation::DEVICE> &other) { *this = other; }
   //                                                                                                       assignment
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
@@ -72,16 +76,12 @@ public:
   //                                                                                                       assignment
   template<MemoryLocation LL>
   Array &operator=(const Array<T, LL> &other) {
-    if (*this == other)
-      return *this;
     data_ = other.data_;
     size_ = other.size_;
     return *this;
   }
   template<MemoryLocation LL>
   Array &operator=(Array<T, LL> &&other) {
-    if (*this == other)
-      return *this;
     data_ = std::move(other.data_);
     size_ = other.size_;
     return *this;
@@ -169,6 +169,13 @@ public:
   //                                                                                                           access
   const T *data() const { return reinterpret_cast<T *>( data_.ptr()); }
   T *data() { return reinterpret_cast<T *>(data_.ptr()); }
+  //                                                                                                             copy
+  template<MemoryLocation LL>
+  Array<T, LL> copyTo() const {
+//    Array<T
+//    return {size_, data_};
+    return {};
+  }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
@@ -743,6 +750,10 @@ std::ostream &operator<<(std::ostream &os, const Array2<T> &array) {
 // *********************************************************************************************************************
 template<typename T>
 using HostArray = Array<T, MemoryLocation::HOST>;
+template<typename T>
+using DeviceArray = Array<T, MemoryLocation::DEVICE>;
+template<typename T>
+using UnifiedArray = Array<T, MemoryLocation::UNIFIED>;
 using array1d = Array1<f64>;
 using array1f = Array1<f32>;
 using array1i = Array1<i32>;
