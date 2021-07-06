@@ -218,6 +218,7 @@ public:
   //                                                                                                             size
   /// \return total size in bytes
   [[nodiscard]] size_t sizeInBytes() const;
+  [[nodiscard]] size_t pitch() const;
   /// \param new_size_in_bytes
   void resize(size_t new_size_in_bytes);
   ///

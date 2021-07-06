@@ -77,8 +77,6 @@
 // *********************************************************************************************************************
 #ifdef INFO_ENABLED
 
-#define HERMES_PUTS(M) std::cout << (M) << std::endl;
-
 #ifndef HERMES_PING
 #define HERMES_PING hermes::Log::info("[{}][{}][{}]", __FILE__, __LINE__, __FUNCTION__);
 #endif

@@ -107,10 +107,17 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE friend inline BBox2<T> make_union(const BBox2<T> &b, const Point2 <T> &p) {
     BBox2<T> ret = b;
+#ifdef HERMES_DEVICE_CODE
+    ret.lower.x = fminf(b.lower.x, p.x);
+    ret.lower.y = fminf(b.lower.y, p.y);
+    ret.upper.x = fmaxf(b.upper.x, p.x);
+    ret.upper.y = fmaxf(b.upper.y, p.y);
+#else
     ret.lower.x = std::min(b.lower.x, p.x);
     ret.lower.y = std::min(b.lower.y, p.y);
     ret.upper.x = std::max(b.upper.x, p.x);
     ret.upper.y = std::max(b.upper.y, p.y);
+#endif
     return ret;
   }
   HERMES_DEVICE_CALLABLE friend inline BBox2<T> make_union(const BBox2<T> &a, const BBox2<T> &b) {
@@ -208,12 +215,21 @@ public:
   /// \return a new bounding box that encompasses **b** and **p**
   HERMES_DEVICE_CALLABLE friend BBox3<T> make_union(const BBox3<T> &b, const Point3 <T> &p) {
     BBox3<T> ret = b;
+#ifdef HERMES_DEVICE_CODE
+    ret.lower.x = fminf(b.lower.x, p.x);
+    ret.lower.y = fminf(b.lower.y, p.y);
+    ret.lower.z = fminf(b.lower.z, p.z);
+    ret.upper.x = fmaxf(b.upper.x, p.x);
+    ret.upper.y = fmaxf(b.upper.y, p.y);
+    ret.upper.z = fmaxf(b.upper.z, p.z);
+#else
     ret.lower.x = std::min(b.lower.x, p.x);
     ret.lower.y = std::min(b.lower.y, p.y);
     ret.lower.z = std::min(b.lower.z, p.z);
     ret.upper.x = std::max(b.upper.x, p.x);
     ret.upper.y = std::max(b.upper.y, p.y);
     ret.upper.z = std::max(b.upper.z, p.z);
+#endif
     return ret;
   }
   /// \tparam T coordinates type
@@ -257,10 +273,17 @@ public:
   /// \param p1 first point
   /// \param p2 second point
   HERMES_DEVICE_CALLABLE BBox3(const Point3 <T> &p1, const Point3 <T> &p2) {
+#ifdef HERMES_DEVICE_CODE
+    lower = Point3<T>(fminf(p1.x, p2.x), fminf(p1.y, p2.y),
+                      fminf(p1.z, p2.z));
+    upper = Point3<T>(fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y),
+                      fmaxf(p1.z, p2.z));
+#else
     lower = Point3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
                       std::min(p1.z, p2.z));
     upper = Point3<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y),
                       std::max(p1.z, p2.z));
+#endif
   }
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
@@ -341,7 +364,7 @@ public:
     * |   0 |   1 |
     * | 4   | 5   |
     * ------------ */
-  HERMES_DEVICE_CALLABLE [[nodiscard]] std::vector<BBox3> splitBy8() const {
+  [[nodiscard]] std::vector<BBox3> splitBy8() const {
     auto mid = center();
     std::vector<BBox3<T>> children;
     children.emplace_back(lower, mid);

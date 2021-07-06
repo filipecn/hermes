@@ -694,6 +694,61 @@ std::ostream &operator<<(std::ostream &os, const Array<T, MemoryLocation::HOST> 
   return os;
 }
 template<typename T>
+std::ostream &operator<<(std::ostream &os, const Array<T, MemoryLocation::UNIFIED> &array) {
+  // print name
+  os << "Array";
+  for (auto i = 0; i < array.dimensions(); ++i)
+    os << "[" << array.size()[i] << "]";
+  os << "\n";
+
+  // exit if empty
+  if (array.empty())
+    return os;
+
+  // compute text width
+  int w = 12;
+  if (std::is_same_v<T, u8> || std::is_same_v<T, i8>)
+    w = 4;
+
+  // header
+  if (array.dimensions() < 3)
+    for (u32 i = 0; i < array.size().width; ++i)
+      os << std::setw(w) << std::right << (Str() << "[" << i << "]");
+
+  // data
+  auto formated_str = [&](T data) {
+    os << std::setw(w) << std::right;
+    if (std::is_same<T, u8>())
+      os << (int) data;
+    else if (std::is_same_v<T, f32> || std::is_same_v<T, f64>)
+      os << std::setprecision(8) << data;
+    else
+      os << data;
+  };
+  if (array.dimensions() == 1) {
+    os << "\n";
+    for (u32 i = 0; i < array.size().width; ++i)
+      formated_str(array[i]);
+    os << "\n";
+  } else if (array.dimensions() == 2) {
+    os << "\n";
+    for (i32 j = 0; j < array.size().height; ++j) {
+      os << "[," << j << "]";
+      for (i32 i = 0; i < array.size().width; ++i)
+        formated_str(array[{i, j}]);
+      os << " [," << j << "]\n";
+    }
+  }
+
+  // footer
+  if (array.dimensions() == 2)
+    for (u32 i = 0; i < array.size().width; ++i)
+      os << std::setw(w) << std::right << (Str() << "[" << i << "]");
+  os << "\n";
+
+  return os;
+}
+template<typename T>
 std::ostream &operator<<(std::ostream &os, const Array1<T> &array) {
   os << "Array1[" << array.size() << "]\n\t";
   // compute text width

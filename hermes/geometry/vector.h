@@ -145,6 +145,9 @@ public:
   HERMES_DEVICE_CALLABLE bool operator==(const Vector2<T> &b) const {
     return Check::is_equal(x, b.x) && Check::is_equal(y, b.y);
   }
+  HERMES_DEVICE_CALLABLE bool operator!=(const Vector2<T> &b) const {
+    return !Check::is_equal(x, b.x) || !Check::is_equal(y, b.y);
+  }
   // *******************************************************************************************************************
   //                                                                                                GETTERS & SETTERS
   // *******************************************************************************************************************

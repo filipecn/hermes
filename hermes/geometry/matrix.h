@@ -385,14 +385,14 @@ public:
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   ///
-  void setIdentity() {
+  HERMES_DEVICE_CALLABLE void setIdentity() {
     std::memset(m_, 0, sizeof(m_));
     for (int i = 0; i < 4; i++)
       m_[i][i] = 1.f;
   }
   ///
   /// \param a
-  void row_major(T *a) const {
+  HERMES_DEVICE_CALLABLE void row_major(T *a) const {
     int k = 0;
     for (auto &i : m_)
       for (int j = 0; j < 4; j++)
@@ -400,7 +400,7 @@ public:
   }
   ///
   /// \param a
-  void column_major(T *a) const {
+  HERMES_DEVICE_CALLABLE void column_major(T *a) const {
     int k = 0;
     for (int i = 0; i < 4; i++)
       for (auto &j : m_)
@@ -408,7 +408,7 @@ public:
   }
   ///
   /// \return
-  [[nodiscard]] bool isIdentity() const {
+  HERMES_DEVICE_CALLABLE [[nodiscard]] bool isIdentity() const {
     for (int i = 0; i < 4; i++)
       for (int j = 0; j < 4; j++)
         if ((i != j && !Check::is_equal(m_[i][j], 0.f)) ||
@@ -419,8 +419,8 @@ public:
   // *******************************************************************************************************************
   //                                                                                                            ACCESS
   // *******************************************************************************************************************
-  T *operator[](u32 row_index) { return m_[row_index]; }
-  const T *operator[](u32 row_index) const { return m_[row_index]; }
+  HERMES_DEVICE_CALLABLE T *operator[](u32 row_index) { return m_[row_index]; }
+  HERMES_DEVICE_CALLABLE const T *operator[](u32 row_index) const { return m_[row_index]; }
 
 private:
   T m_[4][4];

@@ -1,5 +1,7 @@
 #include <catch2/catch.hpp>
 
+#include <hermes/common/cuda_utils.h>
+#include <hermes/storage/array.h>
 #include <hermes/geometry/vector.h>
 #include <hermes/geometry/point.h>
 #include <hermes/geometry/bbox.h>
@@ -8,7 +10,25 @@
 
 using namespace hermes;
 
+#ifdef HERMES_DEVICE_CODE
+HERMES_CUDA_KERNEL(testPoint)(int *result) {
+  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  result[0] = 0;
+  {
+    point2 a(1, 2);
+    point2 b(1, 1);
+    if (a - b != vec2(0, 1))
+      result[0] = 1;
+  }
+}
+#endif
+
 TEST_CASE("Point", "[geometry][point]") {
+  HERMES_CUDA_CODE(
+      UnifiedArray<int> results(1);
+      HERMES_CUDA_LAUNCH_AND_SYNC((1), testPoint_k, results.data())
+      REQUIRE(results[0] == 0);
+  )
   SECTION("Point2") {
     SECTION("hash") {
       point2 a(0.00001, 0.1);
@@ -17,7 +37,8 @@ TEST_CASE("Point", "[geometry][point]") {
       REQUIRE(std::hash<point2>()(a) == std::hash<point2>()(b));
       REQUIRE(std::hash<point2>()(a) != std::hash<point2>()(c));
     }
-  }SECTION("Point3") {
+  }//
+  SECTION("Point3") {
     SECTION("hash") {
       point3 a(0.00001, 0.1, 0.000000001);
       point3 b(0.00001, 0.1, 0.000000001);
@@ -25,7 +46,7 @@ TEST_CASE("Point", "[geometry][point]") {
       REQUIRE(std::hash<point3>()(a) == std::hash<point3>()(b));
       REQUIRE(std::hash<point3>()(a) != std::hash<point3>()(c));
     }
-  }
+  } //
 }
 
 TEST_CASE("Vector", "[geometry][vector]") {
@@ -42,7 +63,7 @@ TEST_CASE("Vector", "[geometry][vector]") {
       vec2 b(3, 4);
       REQUIRE(Check::is_equal(dot(a, b), 11.f));
       REQUIRE(normalize(b) == vec2(3 / 5., 4 / 5.));
-      REQUIRE(orthonormal(b) == vec2(-4 / 5., 3 / 5.));
+      REQUIRE(orthonormal(b, true) == vec2(-4 / 5., 3 / 5.));
       REQUIRE(orthonormal(b, false) == vec2(4 / 5., -3 / 5.));
     }//
   } //

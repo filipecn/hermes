@@ -37,11 +37,10 @@ using namespace hermes;
 
 #ifdef ENABLE_CUDA
 HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, u32 n, u32 m) {
-  u32 i = threadIdx.x + blockIdx.x * blockDim.x;
-  u32 j = threadIdx.y + blockIdx.y * blockDim.y;
-  if ((i >= n) || (j >= m))
+  HERMES_CUDA_THREAD_INDEX2_IJ
+  if ((ij.i >= n) || (ij.j >= m))
     return;
-  u32 matrix_index = j * n + i;
+  u32 matrix_index = ij.j * n + ij.i;
   data[matrix_index] = matrix_index;
 }
 #endif

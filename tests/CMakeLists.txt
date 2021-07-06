@@ -2,7 +2,7 @@ set(SOURCES
         main.cpp
         #        blas_tests.cu
         common_tests.cpp
-        geometry_tests.cpp
+        geometry_tests.cu
         log_tests.cpp
         numeric_tests.cpp
         storage_tests.cu

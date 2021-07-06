@@ -329,6 +329,10 @@ size3 MemoryBlock<MemoryLocation::DEVICE>::size() const {
   return size_;
 }
 
+size_t MemoryBlock<MemoryLocation::DEVICE>::pitch() const {
+  return pitch_;
+}
+
 // *********************************************************************************************************************
 //                                                                                                UNIFIED MemoryBlock
 // *********************************************************************************************************************
@@ -354,6 +358,10 @@ MemoryBlock<MemoryLocation::UNIFIED>::MemoryBlock(MemoryBlock<MemoryLocation::UN
 }
 
 size_t MemoryBlock<MemoryLocation::UNIFIED>::sizeInBytes() const { return pitch_ * size_.height * size_.depth; }
+
+size_t MemoryBlock<MemoryLocation::UNIFIED>::pitch() const {
+  return pitch_;
+}
 
 void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
   size3 new_size(new_size_in_bytes, 1, 1);

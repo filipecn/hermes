@@ -47,7 +47,7 @@ struct LaunchInfo {
   LaunchInfo(u32 n, size_t shared_memory_size_in_bytes = 0, cudaStream_t stream = {}) :
       shared_memory_size{shared_memory_size_in_bytes},
       stream_id{stream} {
-    block_size.x = GPU_BLOCK_SIZE;
+    block_size.x = std::min((u32) GPU_BLOCK_SIZE, n);
     grid_size.x = n / block_size.x + 1;
   }
   /// \param s grid size (blocks)
@@ -106,6 +106,8 @@ inline cudaMemcpyKind copyDirection(MemoryLocation src, MemoryLocation dst) {
 
 } // namespace hermes::cuda_utils
 
+#define HERMES_CUDA_DEVICE_SYNCHRONIZE HERMES_CHECK_CUDA(cudaDeviceSynchronize())
+
 #define HERMES_CUDA_LAUNCH(LAUNCH_INFO, NAME, ...)                                                                  \
 {                                                                                                                   \
   auto _hli_ = hermes::cuda_utils::LaunchInfo LAUNCH_INFO;                                                          \
@@ -113,6 +115,30 @@ inline cudaMemcpyKind copyDirection(MemoryLocation src, MemoryLocation dst) {
   HERMES_CHECK_LAST_CUDA                                                                                            \
 }
 
-#define HERMES_CUDA_DEVICE_SYNCHRONIZE HERMES_CHECK_CUDA(cudaDeviceSynchronize())
+#define HERMES_CUDA_LAUNCH_AND_SYNC(LAUNCH_INFO, NAME, ...)                                                         \
+{                                                                                                                   \
+  auto _hli_ = hermes::cuda_utils::LaunchInfo LAUNCH_INFO;                                                          \
+  NAME<<< _hli_.grid_size, _hli_.block_size, _hli_.shared_memory_size, _hli_.stream_id >>> (__VA_ARGS__);           \
+  HERMES_CHECK_LAST_CUDA                                                                                            \
+  HERMES_CUDA_DEVICE_SYNCHRONIZE                                                                                    \
+}
+
+#define HERMES_CUDA_THREAD_INDEX_I                                                                                  \
+  u32 i = threadIdx.x + blockIdx.x * blockDim.x;
+
+#define HERMES_CUDA_THREAD_INDEX2_IJ                                                                                \
+  hermes::index2 ij(threadIdx.x + blockIdx.x * blockDim.x,                                                          \
+                    threadIdx.y + blockIdx.y * blockDim.y);
+
+#define HERMES_CUDA_THREAD_INDEX3_IJK                                                                               \
+  hermes::index3 ijk(threadIdx.x + blockIdx.x * blockDim.x,                                                         \
+                     threadIdx.y + blockIdx.y * blockDim.y,                                                         \
+                     threadIdx.z + blockIdx.z * blockDim.z);
+
+#define HERMES_CUDA_RETURN_IF_NOT_THREAD_0                                                                          \
+{ HERMES_CUDA_THREAD_INDEX3_IJK                                                                                     \
+  if(ijk != hermes::index3(0,0,0))                                                                                  \
+    return;                                                                                                         \
+}
 
 #endif // HERMES_COMMON_CUDA_UTILS_H
