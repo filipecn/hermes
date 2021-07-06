@@ -31,8 +31,20 @@
 #include <hermes/storage/array_of_structures.h>
 #include <hermes/geometry/vector.h>
 #include <hermes/storage/memory_block.h>
+#include <hermes/common/cuda_utils.h>
 
 using namespace hermes;
+
+#ifdef ENABLE_CUDA
+HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, u32 n, u32 m) {
+  u32 i = threadIdx.x + blockIdx.x * blockDim.x;
+  u32 j = threadIdx.y + blockIdx.y * blockDim.y;
+  if ((i >= n) || (j >= m))
+    return;
+  u32 matrix_index = j * n + i;
+  data[matrix_index] = matrix_index;
+}
+#endif
 
 TEST_CASE("MemoryBlock", "[storage]") {
   auto writeHostMemory = [](HostMemory &hm) {
@@ -129,6 +141,59 @@ TEST_CASE("MemoryBlock", "[storage]") {
       REQUIRE(hm.sizeInBytes() == 256);
       writeHostMemory(hm);
       REQUIRE(checkHostMemory(hm));
+    }//
+  }//
+  SECTION("unified") {
+    UnifiedMemory um(64 * 128 * 4);
+    u32 *data = reinterpret_cast<u32 *>( um.ptr());
+    HERMES_CUDA_LAUNCH(({ 64, 128 }, {8, 8}), writeMatrixIndex_k, data, 64, 128)
+    HERMES_CUDA_DEVICE_SYNCHRONIZE
+    for (u32 j = 0; j < 128; ++j)
+      for (u32 i = 0; i < 64; ++i) {
+        u32 ind = j * 64 + i;
+        REQUIRE(data[ind] == ind);
+      }
+  }
+}
+
+TEST_CASE("Array", "[storage][array]") {
+  SECTION("Constructors") {
+    HostArray<int> a0;
+    REQUIRE(a0.size() == size3(0, 0, 0));
+    REQUIRE(a0.sizeInBytes() == 0 * sizeof(int));
+    REQUIRE(a0.dimensions() == 0);
+    HostArray<int> a1(10);
+    REQUIRE(a1.size() == size3(10, 1, 1));
+    REQUIRE(a1.sizeInBytes() == 10 * sizeof(int));
+    REQUIRE(a1.dimensions() == 1);
+    HostArray<int> a2({10, 20});
+    REQUIRE(a2.size() == size3(10, 20, 1));
+    REQUIRE(a2.sizeInBytes() == 10 * 20 * sizeof(int));
+    REQUIRE(a2.dimensions() == 2);
+    HostArray<int> a3({10, 20, 30});
+    REQUIRE(a3.size() == size3(10, 20, 30));
+    REQUIRE(a3.sizeInBytes() == 10 * 20 * 30 * sizeof(int));
+    REQUIRE(a3.dimensions() == 3);
+  }//
+  SECTION("Operators") {
+    SECTION("access") {
+      HostArray<u32> a1(10);
+      for (u32 i = 0; i < 10; ++i) {
+        a1[i] = i;
+        REQUIRE(a1[i] == i);
+      }
+      HERMES_LOG_VARIABLE(a1)
+      HostArray<i32> a2({10, 2});
+      for (index2 ij : Index2Range<i32>(a2.size().slice(0, 1))) {
+        a2[ij] = ij.j * 10 + ij.i;
+        REQUIRE(a2[ij] == ij.j * 10 + ij.i);
+      }
+      HERMES_LOG_VARIABLE(a2)
+      HostArray<i32> a3({10, 2, 3});
+      for (index3 ijk : Index3Range<i32>(a3.size())) {
+        a3[ijk] = ijk.k * 20 + ijk.j * 10 + ijk.i;
+        REQUIRE(a3[ijk] == ijk.k * 20 + ijk.j * 10 + ijk.i);
+      }
     }//
   }//
 }

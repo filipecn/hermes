@@ -77,6 +77,8 @@
 // *********************************************************************************************************************
 #ifdef INFO_ENABLED
 
+#define HERMES_PUTS(M) std::cout << (M) << std::endl;
+
 #ifndef HERMES_PING
 #define HERMES_PING hermes::Log::info("[{}][{}][{}]", __FILE__, __LINE__, __FUNCTION__);
 #endif
@@ -180,7 +182,11 @@
 #define HERMES_CHECK_CUDA(err) \
   if((err) != cudaSuccess)  { \
       HERMES_LOG_CRITICAL(cudaGetErrorString(err)) \
+      cudaDeviceReset();\
+      exit(99);\
   }
+
+#define HERMES_CHECK_LAST_CUDA HERMES_CHECK_CUDA(cudaGetLastError())
 
 inline void hermes_print_cuda_devices() {
   int nDevices;

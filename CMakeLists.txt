@@ -45,7 +45,6 @@ set(HERMES_HEADERS
         #        hermes/blas/blas.h
         #        hermes/blas/vector.h
         #        hermes/common/cuda.h
-        #        hermes/common/cuda_parallel.h
         hermes/common/arg_parser.h
         hermes/common/bitmask_operators.h
         hermes/common/cuda_utils.h

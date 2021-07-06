@@ -45,17 +45,14 @@
 
 namespace hermes {
 
-template<typename E>
-constexpr bool testMaskBit(E mask, E bit) {
-  return (mask & bit) == bit;
-}
-
-#define HERMES_ENABLE_BITMASK_OPERATORS(x)  \
+#define HERMES_ENABLE_BITMASK_OPERATORS(x) \
 template<>                           \
 struct EnableBitMaskOperators<x>     \
 {                                    \
     static const bool enable = true; \
 }
+
+#define HERMES_MASK_BIT(MASK, BIT) ((MASK) & (BIT)) == (BIT)
 
 template<typename Enum>
 struct EnableBitMaskOperators {
@@ -99,6 +96,11 @@ operator~(Enum rhs) {
   return static_cast<Enum> (
       ~static_cast<underlying>(rhs)
   );
+}
+
+template<typename E>
+constexpr bool testMaskBit(E mask, E bit) {
+  return (mask & bit) == bit;
 }
 
 }

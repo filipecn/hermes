@@ -148,6 +148,7 @@ TEST_CASE("bitmask operators") {
   REQUIRE(static_cast<unsigned>(Test::a1 ^ Test::a2) == 0x3);
   REQUIRE(static_cast<unsigned>(Test::a1 & Test::a2) == 0x0);
   REQUIRE(static_cast<unsigned>(~Test::a1) == 0xfffffffe);
+  REQUIRE(HERMES_MASK_BIT(Test::a1 | Test::a2, Test::a1));
 }
 
 TEST_CASE("Str", "[common]") {

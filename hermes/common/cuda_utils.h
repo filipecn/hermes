@@ -34,6 +34,58 @@ namespace hermes::cuda_utils {
 
 #ifdef ENABLE_CUDA
 
+#define GPU_BLOCK_SIZE 1024
+
+struct LaunchInfo {
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  /// \param s grid size (blocks)
+  /// \param b block size (threads per block)
+  /// \param shared_memory_size_in_bytes (per block)
+  /// \param stream stream id
+  LaunchInfo(u32 n, size_t shared_memory_size_in_bytes = 0, cudaStream_t stream = {}) :
+      shared_memory_size{shared_memory_size_in_bytes},
+      stream_id{stream} {
+    block_size.x = GPU_BLOCK_SIZE;
+    grid_size.x = n / block_size.x + 1;
+  }
+  /// \param s grid size (blocks)
+  /// \param b block size (threads per block)
+  /// \param shared_memory_size_in_bytes per (per block)
+  /// \param stream stream id
+  LaunchInfo(size2 s, size2 b = {16, 16},
+             size_t shared_memory_size_in_bytes = 0,
+             cudaStream_t stream = {}) :
+      shared_memory_size{shared_memory_size_in_bytes},
+      stream_id{stream} {
+    block_size = dim3(b.width, b.height);
+    grid_size = dim3((s.width + block_size.x - 1) / block_size.x,
+                     (s.height + block_size.y - 1) / block_size.y);
+  }
+  /// \param s grid size (blocks)
+  /// \param b block size (threads per block)
+  /// \param shared_memory_size_in_bytes (per block)
+  /// \param stream stream id
+  LaunchInfo(size3 s, size3 b = {16, 16, 16},
+             size_t shared_memory_size_in_bytes = 0,
+             cudaStream_t stream = {}) :
+      shared_memory_size{shared_memory_size_in_bytes},
+      stream_id{stream} {
+    block_size = dim3(b.width, b.height, b.depth);
+    grid_size = dim3((s.width + block_size.x - 1) / block_size.x,
+                     (s.height + block_size.y - 1) / block_size.y,
+                     (s.depth + block_size.z - 1) / block_size.z);
+  }
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  dim3 grid_size;
+  dim3 block_size;
+  size_t shared_memory_size{0};
+  cudaStream_t stream_id{};
+};
+
 // *********************************************************************************************************************
 //                                                                                                             MEMORY
 // *********************************************************************************************************************
@@ -53,5 +105,14 @@ inline cudaMemcpyKind copyDirection(MemoryLocation src, MemoryLocation dst) {
 #endif
 
 } // namespace hermes::cuda_utils
+
+#define HERMES_CUDA_LAUNCH(LAUNCH_INFO, NAME, ...)                                                                  \
+{                                                                                                                   \
+  auto _hli_ = hermes::cuda_utils::LaunchInfo LAUNCH_INFO;                                                          \
+  NAME<<< _hli_.grid_size, _hli_.block_size, _hli_.shared_memory_size, _hli_.stream_id >>> (__VA_ARGS__);           \
+  HERMES_CHECK_LAST_CUDA                                                                                            \
+}
+
+#define HERMES_CUDA_DEVICE_SYNCHRONIZE HERMES_CHECK_CUDA(cudaDeviceSynchronize())
 
 #endif // HERMES_COMMON_CUDA_UTILS_H

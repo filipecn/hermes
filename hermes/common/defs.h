@@ -36,8 +36,9 @@
 #define HERMES_DEVICE_CALLABLE __device__ __host__
 #define HERMES_DEVICE_CODE
 #define HERMES_CUDA_KERNEL(NAME) __global__ void NAME ## _k
-#define HERMES_CUDA_LAUNCH(GRID_DIM, BLOCK_DIM, SHARED_BYTES, STREAM_ID, NAME, ...) \
-  NAME##<<< (GRID_DIM), (BLOCK_DIM), (SHARED_BYTES), (STREAM_ID) >>> (__VA_ARGS__)
+// HERMES_CUDA_LAUNCH(GRID_DIM, BLOCK_DIM, SHARED_BYTES, STREAM_ID, NAME, ...)
+//  NAME##<<< (GRID_DIM), (BLOCK_DIM), (SHARED_BYTES), (STREAM_ID) >>> (__VA_ARGS__)
+
 #else
 #define HERMES_HOST_FUNCTION
 #define HERMES_DEVICE_CALLABLE
@@ -150,7 +151,7 @@ public:
   }
 };
 
-enum class MemoryLocation { DEVICE, HOST };
+enum class MemoryLocation { DEVICE, HOST, UNIFIED };
 
 inline std::string memoryLocationName(MemoryLocation location) {
 #define ENUM_NAME(E)                  \
@@ -158,6 +159,7 @@ inline std::string memoryLocationName(MemoryLocation location) {
       return #E;
   ENUM_NAME(DEVICE)
   ENUM_NAME(HOST)
+  ENUM_NAME(UNIFIED)
   return "CUSTOM";
 #undef ENUM_NAME
 }

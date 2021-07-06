@@ -28,6 +28,7 @@
 #ifndef HERMES_STORAGE_ARRAY_H
 #define HERMES_STORAGE_ARRAY_H
 
+#include <hermes/storage/memory_block.h>
 #include <hermes/storage/array_view.h>
 #include <hermes/common/index.h>
 #include <hermes/common/size.h>
@@ -36,6 +37,148 @@
 #include <ios>        // std::left
 
 namespace hermes {
+
+// *********************************************************************************************************************
+//                                                                                                              Array
+// *********************************************************************************************************************
+/// Holds a linear memory area that can be accessed as a 1-dimensional, 2-dimensional or a 3-dimensional array
+/// of elements. The memory can live in host memory or device memory, as set by the template.
+/// \note Elements in the array can be conveniently iterated by a foreach loop.
+/// \note Elements are stored in first-dimension major
+/// \tparam T data type
+/// \tparam L memory space
+template<typename T, MemoryLocation L>
+class Array {
+public:
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  //                                                                                                              new
+  Array() = default;
+  ~Array() = default;
+  Array(size_t size_in_elements) { resize(size_in_elements); }
+  Array(size2 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
+  Array(size3 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
+  //                                                                                                       assignment
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       assignment
+  template<MemoryLocation LL>
+  Array &operator=(const Array<T, LL> &other) {
+    if (*this == other)
+      return *this;
+    data_ = other.data_;
+    size_ = other.size_;
+    return *this;
+  }
+  template<MemoryLocation LL>
+  Array &operator=(Array<T, LL> &&other) {
+    if (*this == other)
+      return *this;
+    data_ = std::move(other.data_);
+    size_ = other.size_;
+    return *this;
+  }
+  //                                                                                                         1-access
+  /// Access as a 1-dimensional array
+  /// \param i 1-dimensional index
+  /// \return (data ptr)[i]
+  const T &operator[](size_t i) const {
+    return reinterpret_cast<const T *>(data_.ptr())[i];
+  }
+  /// Access as a 1-dimensional array
+  /// \param i 1-dimensional index
+  /// \return (data ptr)[i]
+  T &operator[](size_t i) {
+    return reinterpret_cast<T *>(data_.ptr())[i];
+  }
+  //                                                                                                         2-access
+  /// Access as a 2-dimensional array
+  /// \param ij 2-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  const T &operator[](index2 ij) const {
+    return reinterpret_cast<const T * >(data_.ptr() + ij.j * data_.pitch() + ij.i * sizeof(T))[0];
+  }
+  /// Access as a 2-dimensional array
+  /// \param ij 2-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  T &operator[](index2 ij) {
+    return reinterpret_cast<T * >(data_.ptr() + ij.j * data_.pitch() + ij.i * sizeof(T))[0];
+  }
+  //                                                                                                         3-access
+  /// Access as a 3-dimensional array
+  /// \param ijk 3-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  const T &operator[](index3 ijk) const {
+    return reinterpret_cast<const T *>( data_.ptr() + ijk.k * data_.pitch() * size_.height + ijk.j * data_.pitch()
+        + ijk.i * sizeof(T))[0];
+  }
+  /// Access as a 3-dimensional array
+  /// \param ijk 3-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  T &operator[](index3 ijk) {
+    return reinterpret_cast<T *>( data_.ptr() + ijk.k * data_.pitch() * size_.height + ijk.j * data_.pitch()
+        + ijk.i * sizeof(T))[0];
+  }
+  //                                                                                                       arithmetic
+  //                                                                                                          boolean
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  //                                                                                                             size
+  /// \return
+  [[nodiscard]] bool empty() const { return size_.total() == 0; }
+  /// \return
+  [[nodiscard]] u32 dimensions() const {
+    if (size_.total() == 0)
+      return 0;
+    if (size_.depth == 1)
+      return size_.height > 1 ? 2 : 1;
+    return 3;
+  }
+  /// \return total allocated memory in bytes
+  [[nodiscard]] size_t sizeInBytes() const { return data_.sizeInBytes(); }
+  /// \return array size in elements
+  [[nodiscard]] size3 size() const { return size_; }
+  /// \param new_size_in_bytes
+  void resize(size_t new_size) {
+    size_ = {static_cast<u32>( new_size), 1, 1};
+    data_.resize(new_size * sizeof(T));
+  }
+  /// \param new_size width in elements
+  void resize(size2 new_size, size_t new_pitch = 0) {
+    size_ = {new_size.width, new_size.height, 1};
+    data_.resize(size2(size_.width * sizeof(T), size_.height), new_pitch);
+  }
+  /// \param new_size width in elements
+  void resize(size3 new_size, size_t new_pitch = 0) {
+    size_ = new_size;
+    data_.resize(size3(size_.width * sizeof(T), size_.height, size_.depth), new_pitch);
+  }
+  void clear() {
+    size_ = {0, 0, 0};
+    data_.clear();
+  }
+  //                                                                                                           access
+  const T *data() const { return reinterpret_cast<T *>( data_.ptr()); }
+  T *data() { return reinterpret_cast<T *>(data_.ptr()); }
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  const MemoryLocation location{L};
+private:
+  size3 size_;
+  MemoryBlock<L> data_;
+};
+
+
 
 // *********************************************************************************************************************
 //                                                                                                             Array1
@@ -52,6 +195,9 @@ namespace hermes {
 ///       }
 /// \endverbatim
 /// \tparam T data type
+
+///
+
 template<class T> class Array1 {
 public:
   // *******************************************************************************************************************
@@ -486,6 +632,61 @@ private:
 //                                                                                                                 IO
 // *********************************************************************************************************************
 template<typename T>
+std::ostream &operator<<(std::ostream &os, const Array<T, MemoryLocation::HOST> &array) {
+  // print name
+  os << "Array";
+  for (auto i = 0; i < array.dimensions(); ++i)
+    os << "[" << array.size()[i] << "]";
+  os << "\n";
+
+  // exit if empty
+  if (array.empty())
+    return os;
+
+  // compute text width
+  int w = 12;
+  if (std::is_same_v<T, u8> || std::is_same_v<T, i8>)
+    w = 4;
+
+  // header
+  if (array.dimensions() < 3)
+    for (u32 i = 0; i < array.size().width; ++i)
+      os << std::setw(w) << std::right << (Str() << "[" << i << "]");
+
+  // data
+  auto formated_str = [&](T data) {
+    os << std::setw(w) << std::right;
+    if (std::is_same<T, u8>())
+      os << (int) data;
+    else if (std::is_same_v<T, f32> || std::is_same_v<T, f64>)
+      os << std::setprecision(8) << data;
+    else
+      os << data;
+  };
+  if (array.dimensions() == 1) {
+    os << "\n";
+    for (u32 i = 0; i < array.size().width; ++i)
+      formated_str(array[i]);
+    os << "\n";
+  } else if (array.dimensions() == 2) {
+    os << "\n";
+    for (i32 j = 0; j < array.size().height; ++j) {
+      os << "[," << j << "]";
+      for (i32 i = 0; i < array.size().width; ++i)
+        formated_str(array[{i, j}]);
+      os << " [," << j << "]\n";
+    }
+  }
+
+  // footer
+  if (array.dimensions() == 2)
+    for (u32 i = 0; i < array.size().width; ++i)
+      os << std::setw(w) << std::right << (Str() << "[" << i << "]");
+  os << "\n";
+
+  return os;
+}
+template<typename T>
 std::ostream &operator<<(std::ostream &os, const Array1<T> &array) {
   os << "Array1[" << array.size() << "]\n\t";
   // compute text width
@@ -540,6 +741,8 @@ std::ostream &operator<<(std::ostream &os, const Array2<T> &array) {
 // *********************************************************************************************************************
 //                                                                                                           TYPEDEFS
 // *********************************************************************************************************************
+template<typename T>
+using HostArray = Array<T, MemoryLocation::HOST>;
 using array1d = Array1<f64>;
 using array1f = Array1<f32>;
 using array1i = Array1<i32>;

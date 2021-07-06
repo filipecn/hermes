@@ -313,92 +313,92 @@ R reduce(const Array2<T> &data, ReducePredicate reduce_predicate) {
 }
 */
 /*
-template <unsigned int blockSize, typename T>
+template <unsigned int block_size, typename T>
 __global__ void __reduceAdd(const T *data, T *rdata, unsigned int n) {
   extern __shared__ T sdata[];
   unsigned int threadId = threadIdx.x;
-  unsigned int i = blockIdx.x * (blockSize * 2) + threadId;
-  unsigned int gridSize = blockSize * 2 * gridDim.x;
+  unsigned int i = blockIdx.x * (block_size * 2) + threadId;
+  unsigned int grid_size = block_size * 2 * gridDim.x;
   sdata[threadId] = 0;
   while (i < n) {
-    sdata[threadId] += data[i] + data[i + blockSize];
-    i += gridSize;
+    sdata[threadId] += data[i] + data[i + block_size];
+    i += grid_size;
   }
   __syncthreads();
 
-  if (blockSize >= 512) {
+  if (block_size >= 512) {
     if (threadId < 256)
       sdata[threadId] += sdata[threadId + 256];
     __syncthreads();
   }
-  if (blockSize >= 256) {
+  if (block_size >= 256) {
     if (threadId < 128)
       sdata[threadId] += sdata[threadId + 128];
     __syncthreads();
   }
-  if (blockSize >= 128) {
+  if (block_size >= 128) {
     if (threadId < 64)
       sdata[threadId] += sdata[threadId + 64];
     __syncthreads();
   }
   if (threadId < 32) {
-    if (blockSize >= 64)
+    if (block_size >= 64)
       sdata[threadId] += sdata[threadId + 32];
-    if (blockSize >= 32)
+    if (block_size >= 32)
       sdata[threadId] += sdata[threadId + 16];
-    if (blockSize >= 16)
+    if (block_size >= 16)
       sdata[threadId] += sdata[threadId + 8];
-    if (blockSize >= 8)
+    if (block_size >= 8)
       sdata[threadId] += sdata[threadId + 4];
-    if (blockSize >= 4)
+    if (block_size >= 4)
       sdata[threadId] += sdata[threadId + 2];
-    if (blockSize >= 2)
+    if (block_size >= 2)
       sdata[threadId] += sdata[threadId + 1];
   }
   if (threadId == 0)
     rdata[blockIdx.x] = sdata[0];
 }
 
-template <unsigned int blockSize, typename T>
+template <unsigned int block_size, typename T>
 __global__ void __reduceMin(const T *data, T *rdata, unsigned int n) {
   extern __shared__ T sdata[];
   unsigned int threadId = threadIdx.x;
-  unsigned int i = blockIdx.x * (blockSize * 2) + threadId;
-  unsigned int gridSize = blockSize * 2 * gridDim.x;
+  unsigned int i = blockIdx.x * (block_size * 2) + threadId;
+  unsigned int grid_size = block_size * 2 * gridDim.x;
   sdata[threadId] = Constants::lowest<T>();
   while (i < n) {
-    sdata[threadId] = fminf(data[i], data[i + blockSize]);
-    i += gridSize;
+    sdata[threadId] = fminf(data[i], data[i + block_size]);
+    i += grid_size;
   }
   __syncthreads();
 
-  if (blockSize >= 512) {
+  if (block_size >= 512) {
     if (threadId < 256)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 256]);
     __syncthreads();
   }
-  if (blockSize >= 256) {
+  if (block_size >= 256) {
     if (threadId < 128)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 128]);
     __syncthreads();
   }
-  if (blockSize >= 128) {
+  if (block_size >= 128) {
     if (threadId < 64)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 64]);
     __syncthreads();
   }
   if (threadId < 32) {
-    if (blockSize >= 64)
+    if (block_size >= 64)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 32]);
-    if (blockSize >= 32)
+    if (block_size >= 32)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 16]);
-    if (blockSize >= 16)
+    if (block_size >= 16)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 8]);
-    if (blockSize >= 8)
+    if (block_size >= 8)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 4]);
-    if (blockSize >= 4)
+    if (block_size >= 4)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 2]);
-    if (blockSize >= 2)
+    if (block_size >= 2)
       sdata[threadId] = fminf(sdata[threadId], sdata[threadId + 1]);
   }
   if (threadId == 0)
@@ -406,10 +406,10 @@ __global__ void __reduceMin(const T *data, T *rdata, unsigned int n) {
 }
 
 template <typename T> T reduceAdd(const T *data, unsigned int n) {
-  unsigned int blockSize = 128;
-  unsigned int gridSize = 2;
+  unsigned int block_size = 128;
+  unsigned int grid_size = 2;
   T h_r = 0;
-  // __reduceAdd<blockSize, T><<<gridSize, blockSize>>>(data, r, n);
+  // __reduceAdd<block_size, T><<<grid_size, block_size>>>(data, r, n);
   return h_r;
 }*/
 
@@ -448,16 +448,16 @@ template<typename T> __global__ void k__min(Array2Accessor <T> data, T *c) {
 }
 
 template<typename T> T minValue(Array2<T> &data) {
-  size_t blockSize = (data.size().width * data.size().height + 256 - 1) / 256;
-  if (blockSize > 32)
-    blockSize = 32;
-  T *c = new T[blockSize];
+  size_t block_size = (data.size().width * data.size().height + 256 - 1) / 256;
+  if (block_size > 32)
+    block_size = 32;
+  T *c = new T[block_size];
   T *d_c;
-  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
-  k__min<<<blockSize, 256>>>(data.accessor(), d_c);
-  cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
+  cudaMalloc((void **) &d_c, block_size * sizeof(T));
+  k__min<<<block_size, 256>>>(data.accessor(), d_c);
+  cudaMemcpy(c, d_c, block_size * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
-  for (int i = 0; i < blockSize; i++) {
+  for (int i = 0; i < block_size; i++) {
     norm = fmin(norm, c[i]);
   }
   cudaFree(d_c);
@@ -494,16 +494,16 @@ template<typename T> __global__ void k__max(Array2Accessor <T> data, T *c) {
 }
 
 template<typename T> T maxValue(Array2<T> &data) {
-  size_t blockSize = (data.size().x * data.size().y + 256 - 1) / 256;
-  if (blockSize > 32)
-    blockSize = 32;
-  T *c = new T[blockSize];
+  size_t block_size = (data.size().x * data.size().y + 256 - 1) / 256;
+  if (block_size > 32)
+    block_size = 32;
+  T *c = new T[block_size];
   T *d_c;
-  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
-  k__max<<<blockSize, 256>>>(data.accessor(), d_c);
-  cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
+  cudaMalloc((void **) &d_c, block_size * sizeof(T));
+  k__max<<<block_size, 256>>>(data.accessor(), d_c);
+  cudaMemcpy(c, d_c, block_size * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
-  for (int i = 0; i < blockSize; i++)
+  for (int i = 0; i < block_size; i++)
     norm = fmax(norm, c[i]);
   cudaFree(d_c);
   delete[] c;
@@ -539,16 +539,16 @@ template<typename T> __global__ void __max_abs(Array2Accessor <T> data, T *c) {
 }
 
 template<typename T> T maxAbs(Array2<T> &data) {
-  size_t blockSize = (data.size().x * data.size().y + 256 - 1) / 256;
-  if (blockSize > 32)
-    blockSize = 32;
-  T *c = new T[blockSize];
+  size_t block_size = (data.size().x * data.size().y + 256 - 1) / 256;
+  if (block_size > 32)
+    block_size = 32;
+  T *c = new T[block_size];
   T *d_c;
-  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
-  __max_abs<<<blockSize, 256>>>(data.accessor(), d_c);
-  cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
+  cudaMalloc((void **) &d_c, block_size * sizeof(T));
+  __max_abs<<<block_size, 256>>>(data.accessor(), d_c);
+  cudaMemcpy(c, d_c, block_size * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
-  for (int i = 0; i < blockSize; i++)
+  for (int i = 0; i < block_size; i++)
     norm = fmax(norm, c[i]);
   cudaFree(d_c);
   delete[] c;
@@ -586,17 +586,17 @@ __global__ void __max_abs(MemoryBlock3Accessor <T> data, T *c) {
 }
 
 template<typename T> T maxAbs(MemoryBlock3 <MemoryLocation::DEVICE, T> &data) {
-  size_t blockSize =
+  size_t block_size =
       (data.size().x * data.size().y * data.size().z + 256 - 1) / 256;
-  if (blockSize > 32)
-    blockSize = 32;
-  T *c = new T[blockSize];
+  if (block_size > 32)
+    block_size = 32;
+  T *c = new T[block_size];
   T *d_c;
-  cudaMalloc((void **) &d_c, blockSize * sizeof(T));
-  __max_abs<<<blockSize, 256>>>(data.accessor(), d_c);
-  cudaMemcpy(c, d_c, blockSize * sizeof(T), cudaMemcpyDeviceToHost);
+  cudaMalloc((void **) &d_c, block_size * sizeof(T));
+  __max_abs<<<block_size, 256>>>(data.accessor(), d_c);
+  cudaMemcpy(c, d_c, block_size * sizeof(T), cudaMemcpyDeviceToHost);
   T norm = 0;
-  for (int i = 0; i < blockSize; i++)
+  for (int i = 0; i < block_size; i++)
     norm = fmax(norm, c[i]);
   cudaFree(d_c);
   delete[] c;

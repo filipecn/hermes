@@ -37,8 +37,6 @@ namespace hermes {
 //                                                                                                   HOST MemoryBlock
 // *********************************************************************************************************************
 
-#ifdef ENABLE_CUDA
-
 MemoryBlock<MemoryLocation::HOST>::MemoryBlock() = default;
 
 MemoryBlock<MemoryLocation::HOST>::MemoryBlock(size_t size_in_bytes) {
@@ -104,7 +102,7 @@ MemoryBlock<MemoryLocation::HOST>::operator=(const MemoryBlock<MemoryLocation::H
 }
 
 size_t MemoryBlock<MemoryLocation::HOST>::sizeInBytes() const {
-  return size_.total();
+  return pitch_ * size_.height * size_.depth;
 }
 
 size_t MemoryBlock<MemoryLocation::HOST>::pitch() const {
@@ -149,19 +147,21 @@ void MemoryBlock<MemoryLocation::HOST>::resize(size3 new_size, size_t new_pitch)
 
 void MemoryBlock<MemoryLocation::HOST>::clear() {
   if (data_)
-    delete[] reinterpret_cast<u8 *>(data_);
+    delete[] data_;
   size_ = {0, 0, 0};
   pitch_ = 0;
   data_ = nullptr;
 }
 
-void *MemoryBlock<MemoryLocation::HOST>::ptr() {
+byte *MemoryBlock<MemoryLocation::HOST>::ptr() {
   return data_;
 }
 
-const void *MemoryBlock<MemoryLocation::HOST>::ptr() const {
+const byte *MemoryBlock<MemoryLocation::HOST>::ptr() const {
   return data_;
 }
+
+#ifdef ENABLE_CUDA
 
 // *********************************************************************************************************************
 //                                                                                                 DEVICE MemoryBlock
@@ -265,11 +265,11 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
   return *this;
 }
 
-void *MemoryBlock<MemoryLocation::DEVICE>::ptr() {
+byte *MemoryBlock<MemoryLocation::DEVICE>::ptr() {
   return data_;
 }
 
-const void *MemoryBlock<MemoryLocation::DEVICE>::ptr() const {
+const byte *MemoryBlock<MemoryLocation::DEVICE>::ptr() const {
   return data_;
 }
 
@@ -315,7 +315,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size) {
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::clear() {
-  cudaFree(data_);
+  HERMES_CHECK_CUDA(cudaFree(data_))
   size_ = {0, 0, 0};
   pitch_ = 0;
   data_ = nullptr;
@@ -327,6 +327,90 @@ size_t MemoryBlock<MemoryLocation::DEVICE>::sizeInBytes() const {
 
 size3 MemoryBlock<MemoryLocation::DEVICE>::size() const {
   return size_;
+}
+
+// *********************************************************************************************************************
+//                                                                                                UNIFIED MemoryBlock
+// *********************************************************************************************************************
+
+MemoryBlock<MemoryLocation::UNIFIED>::MemoryBlock() = default;
+
+MemoryBlock<MemoryLocation::UNIFIED>::~MemoryBlock() { clear(); }
+
+MemoryBlock<MemoryLocation::UNIFIED>::MemoryBlock(size_t size_in_bytes) {
+  resize(size_in_bytes);
+}
+
+MemoryBlock<MemoryLocation::UNIFIED>::MemoryBlock(const MemoryBlock<MemoryLocation::HOST> &other) {
+  *this = other;
+}
+
+MemoryBlock<MemoryLocation::UNIFIED>::MemoryBlock(const MemoryBlock<MemoryLocation::DEVICE> &other) {
+  *this = other;
+}
+
+MemoryBlock<MemoryLocation::UNIFIED>::MemoryBlock(MemoryBlock<MemoryLocation::UNIFIED> &&other) noexcept {
+  *this = std::move(other);
+}
+
+size_t MemoryBlock<MemoryLocation::UNIFIED>::sizeInBytes() const { return pitch_ * size_.height * size_.depth; }
+
+void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
+  size3 new_size(new_size_in_bytes, 1, 1);
+  if (size_ == new_size)
+    return;
+  clear();
+  size_ = {static_cast<u32>(new_size_in_bytes), 1, 1};
+  pitch_ = new_size_in_bytes;
+  HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+}
+
+void MemoryBlock<MemoryLocation::UNIFIED>::clear() {
+  HERMES_CHECK_CUDA(cudaFree(data_))
+  size_ = {0, 0, 0};
+  data_ = nullptr;
+}
+
+MemoryBlock<MemoryLocation::UNIFIED> &
+MemoryBlock<MemoryLocation::UNIFIED>::operator=(const MemoryBlock<MemoryLocation::DEVICE> &other) {
+  HERMES_NOT_IMPLEMENTED
+  return *this;
+}
+
+MemoryBlock<MemoryLocation::UNIFIED> &
+MemoryBlock<MemoryLocation::UNIFIED>::operator=(const MemoryBlock<MemoryLocation::HOST> &other) {
+  HERMES_NOT_IMPLEMENTED
+  return *this;
+}
+
+MemoryBlock<MemoryLocation::UNIFIED> &
+MemoryBlock<MemoryLocation::UNIFIED>::operator=(const MemoryBlock<MemoryLocation::UNIFIED> &other) {
+  if (this == &other)
+    return *this;
+  HERMES_NOT_IMPLEMENTED
+  return *this;
+}
+
+MemoryBlock<MemoryLocation::UNIFIED> &
+MemoryBlock<MemoryLocation::UNIFIED>::operator=(MemoryBlock<MemoryLocation::UNIFIED> &&other) noexcept {
+  if (this == &other)
+    return *this;
+  clear();
+  size_ = other.size_;
+  pitch_ = other.pitch_;
+  data_ = other.data_;
+  other.data_ = nullptr;
+  other.size_ = {0, 0, 0};
+  other.pitch_ = 0;
+  return *this;
+}
+
+byte *MemoryBlock<MemoryLocation::UNIFIED>::ptr() {
+  return data_;
+}
+
+const byte *MemoryBlock<MemoryLocation::UNIFIED>::ptr() const {
+  return data_;
 }
 
 #endif

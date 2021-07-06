@@ -52,11 +52,11 @@ public:
   //                                                                                                   FRIEND STRUCTS
   // *******************************************************************************************************************
   friend MemoryBlock<MemoryLocation::DEVICE>;
+  friend MemoryBlock<MemoryLocation::UNIFIED>;
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   //                                                                                                              new
-  /// \param pitch in bytes
   MemoryBlock();
   /// \param size_in_bytes
   explicit MemoryBlock(size_t size_in_bytes);
@@ -96,9 +96,9 @@ public:
   void clear();
   //                                                                                                           access
   ///
-  void *ptr();
+  byte *ptr();
   ///
-  [[nodiscard]] const void *ptr() const;
+  [[nodiscard]] const byte *ptr() const;
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
@@ -106,13 +106,13 @@ public:
 private:
   size3 size_;
   size_t pitch_{0};
-  mutable void *data_{nullptr};
+  mutable byte *data_{nullptr};
 };
 
-// *********************************************************************************************************************
-//                                                                                                        MemoryBlock
-// *********************************************************************************************************************
 #ifdef ENABLE_CUDA
+// *********************************************************************************************************************
+//                                                                                                 DEVICE MemoryBlock
+// *********************************************************************************************************************
 template<>
 class MemoryBlock<MemoryLocation::DEVICE> {
 public:
@@ -124,7 +124,6 @@ public:
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   //                                                                                                              new
-  /// \param pitch in bytes
   MemoryBlock();
   /// \param size_in_bytes
   explicit MemoryBlock(size_t size_in_bytes);
@@ -149,6 +148,7 @@ public:
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   //                                                                                                             size
+  /// \return total size in bytes
   [[nodiscard]] size_t sizeInBytes() const;
   [[nodiscard]] size_t pitch() const;
   size3 size() const;
@@ -162,9 +162,9 @@ public:
   void clear();
   //                                                                                                           access
   ///
-  void *ptr();
+  byte *ptr();
   /// \return
-  [[nodiscard]] const void *ptr() const;
+  [[nodiscard]] const byte *ptr() const;
 
   /// \return
   cudaPitchedPtr pitchedData() {
@@ -183,10 +183,57 @@ public:
 private:
   size3 size_;
   size_t pitch_{0};
-  mutable void *data_{nullptr};
+  mutable byte *data_{nullptr};
 };
-#endif
 
+// *********************************************************************************************************************
+//                                                                                                UNIFIED MemoryBlock
+// *********************************************************************************************************************
+template<>
+class MemoryBlock<MemoryLocation::UNIFIED> {
+public:
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  //                                                                                                              new
+  MemoryBlock();
+  ~MemoryBlock();
+  /// \param size_in_bytes
+  explicit MemoryBlock(size_t size_in_bytes);
+  //                                                                                                       assignment
+  MemoryBlock(const MemoryBlock<MemoryLocation::HOST> &other);
+  MemoryBlock(const MemoryBlock<MemoryLocation::DEVICE> &other);
+  MemoryBlock(MemoryBlock<MemoryLocation::UNIFIED> &&other) noexcept;
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       assignment
+  MemoryBlock &operator=(const MemoryBlock<MemoryLocation::HOST> &other);
+  MemoryBlock &operator=(const MemoryBlock<MemoryLocation::DEVICE> &other);
+  MemoryBlock &operator=(const MemoryBlock<MemoryLocation::UNIFIED> &other);
+  MemoryBlock &operator=(MemoryBlock<MemoryLocation::UNIFIED> &&other) noexcept;
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  //                                                                                                             size
+  /// \return total size in bytes
+  [[nodiscard]] size_t sizeInBytes() const;
+  /// \param new_size_in_bytes
+  void resize(size_t new_size_in_bytes);
+  ///
+  void clear();
+  //                                                                                                           access
+  ///
+  byte *ptr();
+  ///
+  [[nodiscard]] const byte *ptr() const;
+private:
+  size3 size_;
+  size_t pitch_{0};
+  mutable byte *data_{nullptr};
+};
+
+#endif
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************
@@ -203,6 +250,8 @@ std::ostream &operator<<(std::ostream &o, const MemoryBlock<L> &m) {
 // *********************************************************************************************************************
 using HostMemory = MemoryBlock<MemoryLocation::HOST>;
 using DeviceMemory = MemoryBlock<MemoryLocation::DEVICE>;
+using UnifiedMemory = MemoryBlock<MemoryLocation::UNIFIED>;
+
 }
 
 #endif //HERMES_HERMES_STORAGE_MEMORY_BLOCK_H

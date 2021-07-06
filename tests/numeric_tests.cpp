@@ -683,7 +683,7 @@ TEST_CASE("FDMatrix", "[numeric][fdmatrix]") {
       //  S S S S  - - - -
       size2 size(4);
       FDMatrix2<f32> A(size);
-      REQUIRE(A.gridSize() == size);
+      REQUIRE(A.grid_size() == size);
       REQUIRE(A.size() == 4u * 4u);
       auto &indices = A.indexData();
       int curIndex = 0;
@@ -721,9 +721,9 @@ TEST_CASE("FDMatrix", "[numeric][fdmatrix]") {
       // 0 5 4 3  3     22
       FDMatrix2<f32> A(size2(2));
       int index = 0;
-      for (index2 ij : Index2Range<i32>(A.gridSize()))
+      for (index2 ij : Index2Range<i32>(A.grid_size()))
         A.indexData()[ij] = index++;
-      for (index2 ij : Index2Range<i32>(A.gridSize())) {
+      for (index2 ij : Index2Range<i32>(A.grid_size())) {
         A(ij, ij) = 3;
         A(ij, ij.right()) = 4;
         A(ij, ij.up()) = 5;
@@ -734,7 +734,7 @@ TEST_CASE("FDMatrix", "[numeric][fdmatrix]") {
       int idx = 0;
       float ans[4] = {14, 18, 18, 22};
       auto iacc = A.indexData();
-      for (index2 ij : Index2Range<i32>(A.gridSize())) {
+      for (index2 ij : Index2Range<i32>(A.grid_size())) {
         REQUIRE(
             ans[idx] ==
                 (iacc.stores(ij.left()) ? iacc[ij.left()] : 0) * A(ij, ij.left()) +
