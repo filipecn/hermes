@@ -6,15 +6,9 @@ set_target_properties(hermes PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(hermes PROPERTIES
         OUTPUT_NAME "hermes"
         FOLDER "HERMES")
-target_include_directories(hermes PUBLIC
+target_include_directories(hermes PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         )
-
-#target_compile_options(hermes PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
-#target_include_directories(hermes PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${PONOS_INCLUDES})
-#target_link_libraries(hermes PUBLIC ${PONOS_LIBRARIES})
-#add_dependencies(hermes ponos)
-
 ##########################################
 ##                CUDA                  ##
 ##########################################
@@ -28,9 +22,9 @@ if (BUILD_WITH_CUDA)
             CMAKE_CUDA_STANDARD_REQUIRED ON
             CXX_STANDARD 17
             CXX_STANDARD_REQUIRED ON
-            CUDA_RESOLVE_DEVICE_SYMBOLS ON
-            CMAKE_CUDA_SEPARABLE_COMPILATION ON
-            POSITION_INDEPENDENT_CODE OFF
+            CUDA_RESOLVE_DEVICE_SYMBOLS OFF
+            CUDA_SEPARABLE_COMPILATION ON
+            POSITION_INDEPENDENT_CODE ON
             OUTPUT_NAME "hermes"
             FOLDER "HERMES")
     target_compile_options(hermes PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
@@ -38,11 +32,17 @@ if (BUILD_WITH_CUDA)
             --use_fast_math
             -Xcompiler -pg
             --relocatable-device-code=true
-            #  -arch=sm_50
+            #            -arch=sm_50
             #  -–exp-extended-lambda
             >)
-    target_include_directories(hermes PUBLIC
+    target_include_directories(hermes
+            PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
+            PUBLIC
             ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+            INTERFACE
+            $<INSTALL_INTERFACE:include/hermes>
             )
+
+    set_source_files_properties(hermes/geometry/transform.cpp PROPERTIES LANGUAGE CUDA)
 endif (BUILD_WITH_CUDA)

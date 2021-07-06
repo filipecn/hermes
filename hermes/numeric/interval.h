@@ -85,8 +85,13 @@ public:
   HERMES_DEVICE_CALLABLE Interval operator*(const Interval &i) const {
     Interval r;
     T prod[4] = {low * i.low, high * i.low, low * i.high, high * i.high};
+#ifdef HERMES_DEVICE_CODE
+    r.low = fminf(fminf(prod[0], prod[1]), fminf(prod[2], prod[3]));
+    r.high = fmaxf(fmaxf(prod[0], prod[1]), fmaxf(prod[2], prod[3]));
+#else
     r.low = std::min(std::min(prod[0], prod[1]), std::min(prod[2], prod[3]));
     r.high = std::max(std::max(prod[0], prod[1]), std::max(prod[2], prod[3]));
+#endif
     return r;
   }
   HERMES_DEVICE_CALLABLE Interval operator/(const Interval &i) const {
@@ -96,8 +101,13 @@ public:
       r.high = Numbers::greatest<T>();
     } else {
       T div[4] = {low / r.low, high / r.low, low / r.high, high / r.high};
+#ifdef HERMES_DEVICE_CODE
+      r.low = fminf(fminf(div[0], div[1]), fminf(div[2], div[3]));
+      r.high = fmaxf(fmaxf(div[0], div[1]), fmaxf(div[2], div[3]));
+#else
       r.low = std::min(std::min(div[0], div[1]), std::min(div[2], div[3]));
       r.high = std::max(std::max(div[0], div[1]), std::max(div[2], div[3]));
+#endif
     }
     return r;
   }

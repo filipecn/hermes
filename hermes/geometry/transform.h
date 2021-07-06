@@ -74,7 +74,7 @@ public:
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
   //                                                                                                          algebra
-  friend Transform2 inverse(const Transform2 &t);
+  friend Transform2 inverse(const Transform2 &t) { return inverse(t.m); }
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
@@ -134,9 +134,9 @@ public:
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE void reset();
-  HERMES_DEVICE_CALLABLE [[nodiscard]] vec2 getTranslate() const { return vec2(m[0][2], m[1][2]); }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] vec2 getScale() const { return {0, 0}; }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] mat3 getMatrix() const { return m; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE  vec2 getTranslate() const { return vec2(m[0][2], m[1][2]); }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE  vec2 getScale() const { return {0, 0}; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE  mat3 getMatrix() const { return m; }
   // *******************************************************************************************************************
   //                                                                                                           ACCESS
   // *******************************************************************************************************************
@@ -262,7 +262,7 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                        transform
-  bbox3 operator()(const bbox3 &b) const {
+  HERMES_DEVICE_CALLABLE bbox3 operator()(const bbox3 &b) const {
     const Transform &M = *this;
     bbox3 ret(M(point3(b.lower.x, b.lower.y, b.lower.z)));
     ret = make_union(ret, M(point3(b.upper.x, b.lower.y, b.lower.z)));
@@ -274,7 +274,7 @@ public:
     ret = make_union(ret, M(point3(b.lower.x, b.upper.y, b.upper.z)));
     return ret;
   }
-  point3 operator()(const point2 &p) const {
+  HERMES_DEVICE_CALLABLE point3 operator()(const point2 &p) const {
     real_t x = p.x, y = p.y, z = 0.f;
     real_t xp = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
     real_t yp = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
@@ -284,7 +284,7 @@ public:
       return point3(xp, yp, zp);
     return point3(xp, yp, zp) / wp;
   }
-  point3 operator()(const point3 &p) const {
+  HERMES_DEVICE_CALLABLE point3 operator()(const point3 &p) const {
     real_t x = p.x, y = p.y, z = p.z;
     real_t xp = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
     real_t yp = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
@@ -294,7 +294,7 @@ public:
       return point3(xp, yp, zp);
     return point3(xp, yp, zp) / wp;
   }
-  void operator()(const point3 &p, point3 *r) const {
+  HERMES_DEVICE_CALLABLE void operator()(const point3 &p, point3 *r) const {
     real_t x = p.x, y = p.y, z = p.z;
     r->x = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
     r->y = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
@@ -303,31 +303,31 @@ public:
     if (wp != 1.f)
       *r /= wp;
   }
-  vec3 operator()(const vec3 &v) const {
+  HERMES_DEVICE_CALLABLE vec3 operator()(const vec3 &v) const {
     real_t x = v.x, y = v.y, z = v.z;
     return vec3(m[0][0] * x + m[0][1] * y + m[0][2] * z,
                 m[1][0] * x + m[1][1] * y + m[1][2] * z,
                 m[2][0] * x + m[2][1] * y + m[2][2] * z);
   }
-  normal3 operator()(const normal3 &n) const {
+  HERMES_DEVICE_CALLABLE normal3 operator()(const normal3 &n) const {
     real_t x = n.x, y = n.y, z = n.z;
     auto m_inv = inverse(*this);
     return normal3(m_inv[0][0] * x + m_inv[1][0] * y + m_inv[2][0] * z,
                    m_inv[0][1] * x + m_inv[1][1] * y + m_inv[2][1] * z,
                    m_inv[0][2] * x + m_inv[1][2] * y + m_inv[2][2] * z);
   }
-  Ray3 operator()(const Ray3 &r) {
+  HERMES_DEVICE_CALLABLE Ray3 operator()(const Ray3 &r) {
     Ray3 ret = r;
     (*this)(ret.o, &ret.o);
     ret.d = (*this)(ret.d);
     return ret;
   }
-  void operator()(const Ray3 &r, Ray3 *ret) const {
+  HERMES_DEVICE_CALLABLE void operator()(const Ray3 &r, Ray3 *ret) const {
     (*this)(r.o, &ret->o);
     ret->d = (*this)(ret->d);
   }
   //                                                                                                       arithmetic
-  Transform &operator=(const Transform2 &t) {
+  HERMES_DEVICE_CALLABLE Transform &operator=(const Transform2 &t) {
     m.setIdentity();
     mat3 m3 = t.getMatrix();
     m[0][0] = m3[0][0];
@@ -339,22 +339,22 @@ public:
     m[1][3] = m3[1][2];
     return *this;
   }
-  Transform operator*(const Transform &t) const {
+  HERMES_DEVICE_CALLABLE Transform operator*(const Transform &t) const {
     mat4 m1 = m * t.m;
     return {m1};
   }
-  point3 operator*(const point3 &p) const { return (*this)(p); }
+  HERMES_DEVICE_CALLABLE point3 operator*(const point3 &p) const { return (*this)(p); }
   //                                                                                                          boolean
-  bool operator==(const Transform &t) const { return t.m == m; }
-  bool operator!=(const Transform &t) const { return t.m != m; }
+  HERMES_DEVICE_CALLABLE bool operator==(const Transform &t) const { return t.m == m; }
+  HERMES_DEVICE_CALLABLE bool operator!=(const Transform &t) const { return t.m != m; }
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
-  void reset();
+  HERMES_DEVICE_CALLABLE void reset();
   /// \return true if this transformation changes the coordinate system
   /// handedness
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool swapsHandedness() const;
-  HERMES_DEVICE_CALLABLE [[nodiscard]] vec3 getTranslate() const { return vec3(m[0][3], m[1][3], m[2][3]); }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool swapsHandedness() const;
+  [[nodiscard]] HERMES_DEVICE_CALLABLE vec3 getTranslate() const { return vec3(m[0][3], m[1][3], m[2][3]); }
   HERMES_DEVICE_CALLABLE bool isIdentity() { return m.isIdentity(); }
   HERMES_DEVICE_CALLABLE void applyToPoint(const real_t *p, real_t *r, size_t d = 3) const {
     real_t x = p[0], y = p[1], z = 0.f;
@@ -377,9 +377,9 @@ public:
   // *******************************************************************************************************************
   //                                                                                                           ACCESS
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE [[nodiscard]] const real_t *c_matrix() const { return &m[0][0]; }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] const mat4 &matrix() const { return m; }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] mat3 upperLeftMatrix() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE const real_t *c_matrix() const { return &m[0][0]; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE const mat4 &matrix() const { return m; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE mat3 upperLeftMatrix() const {
     return mat3(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1],
                 m[1][2], m[2][0], m[2][1], m[2][2]);
   }

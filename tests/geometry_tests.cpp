@@ -13,6 +13,7 @@ using namespace hermes;
 #ifdef HERMES_DEVICE_CODE
 HERMES_CUDA_KERNEL(testPoint)(int *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  Transform t;
   result[0] = 0;
   {
     point2 a(1, 2);
@@ -122,6 +123,7 @@ TEST_CASE("Transform", "[geometry]") {
   SECTION("Sanity") {
     Transform t;
     REQUIRE(t.matrix().isIdentity());
+    HERMES_LOG_VARIABLE(t.matrix())
   }//
   SECTION("orthographic projection") {
     SECTION("left handed") {

@@ -169,13 +169,6 @@ public:
   //                                                                                                           access
   const T *data() const { return reinterpret_cast<T *>( data_.ptr()); }
   T *data() { return reinterpret_cast<T *>(data_.ptr()); }
-  //                                                                                                             copy
-  template<MemoryLocation LL>
-  Array<T, LL> copyTo() const {
-//    Array<T
-//    return {size_, data_};
-    return {};
-  }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************

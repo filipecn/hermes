@@ -6,8 +6,16 @@
 #include <hermes/numeric/interval.h>
 #include <hermes/numeric/interpolation.h>
 #include <hermes/random/rng.h>
+#include <hermes/common/cuda_utils.h>
 
 using namespace hermes;
+
+#ifdef HERMES_DEVICE_CODE
+HERMES_CUDA_KERNEL(testEFloat)(bool *result) {
+  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  EFloat ef;
+}
+#endif
 
 TEST_CASE("Interval") {
   HERMES_NOT_IMPLEMENTED

@@ -60,6 +60,7 @@ struct EnableBitMaskOperators {
 };
 
 template<typename Enum>
+HERMES_DEVICE_CALLABLE
 typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator|(Enum lhs, Enum rhs) {
   using underlying = typename std::underlying_type<Enum>::type;
@@ -70,6 +71,7 @@ operator|(Enum lhs, Enum rhs) {
 }
 
 template<typename Enum>
+HERMES_DEVICE_CALLABLE
 typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator&(Enum lhs, Enum rhs) {
   using underlying = typename std::underlying_type<Enum>::type;
@@ -80,6 +82,7 @@ operator&(Enum lhs, Enum rhs) {
 }
 
 template<typename Enum>
+HERMES_DEVICE_CALLABLE
 typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator^(Enum lhs, Enum rhs) {
   using underlying = typename std::underlying_type<Enum>::type;
@@ -90,17 +93,13 @@ operator^(Enum lhs, Enum rhs) {
 }
 
 template<typename Enum>
+HERMES_DEVICE_CALLABLE
 typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
 operator~(Enum rhs) {
   using underlying = typename std::underlying_type<Enum>::type;
   return static_cast<Enum> (
       ~static_cast<underlying>(rhs)
   );
-}
-
-template<typename E>
-constexpr bool testMaskBit(E mask, E bit) {
-  return (mask & bit) == bit;
 }
 
 }

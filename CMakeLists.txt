@@ -1,3 +1,8 @@
+##########################################
+##                cmake                 ##
+##########################################
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 # avoid policy warning message
 cmake_policy(SET CMP0104 NEW)
 ##########################################
@@ -12,14 +17,11 @@ option(BUILD_DOCS "build library documentation" OFF)
 ##########################################
 ##                project               ##
 ##########################################
-set(LANGUAGES CXX)
+project(HERMES CXX)
+set(CMAKE_CUDA_COMPILER /usr/local/cuda-11.0/bin/nvcc)
 if (BUILD_WITH_CUDA)
-    set(LANGUAGES CXX CUDA)
-    set(CMAKE_CUDA_COMPILER /usr/local/cuda-11.0/bin/nvcc)
+    enable_language(CUDA)
 endif (BUILD_WITH_CUDA)
-project(HERMES ${LANGUAGES})
-cmake_minimum_required(VERSION 3.18)
-set(CMAKE_VERBOSE_MAKEFILE ON)
 ##########################################
 ##            compilation               ##
 ##########################################
@@ -103,10 +105,52 @@ file(GLOB HERMES_SOURCES
         hermes/common/*.cpp
         hermes/geometry/*.cpp
         hermes/logging/*.cpp
-        hermes/numeric/*.cpp
+        #        hermes/numeric/*.cpp
+        #        hermes/numeric/e_float.cpp
         hermes/random/*.cpp
         hermes/storage/*.cpp
         )
+
+#add_library(gtc_compiler_flags INTERFACE)
+#target_compile_features(gtc_compiler_flags INTERFACE cxx_std_11)
+#
+#add_library(gtc_lib STATIC)
+#target_sources(gtc_lib PRIVATE ${HERMES_SOURCES} ${HERMES_HEADERS})
+#set_source_files_properties(hermes/geometry/transform.cpp PROPERTIES LANGUAGE CUDA)
+#set_target_properties(gtc_lib PROPERTIES
+#        LINKER_LANGUAGE CUDA
+#        CUDA_STANDARD 17
+#        CMAKE_CUDA_STANDARD_REQUIRED ON
+#        CXX_STANDARD 17
+#        CXX_STANDARD_REQUIRED ON
+#        CUDA_RESOLVE_DEVICE_SYMBOLS OFF
+#        CUDA_SEPARABLE_COMPILATION ON
+#        POSITION_INDEPENDENT_CODE ON
+#        OUTPUT_NAME "gtc_lib"
+#        FOLDER "GTC_LIB")
+#target_link_libraries(gtc_lib PUBLIC gtc_compiler_flags)
+#target_include_directories(gtc_lib PRIVATE
+#        ${CMAKE_CURRENT_SOURCE_DIR}
+#        ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+#        INTERFACE$<INSTALL_INTERFACE:include/hermes>)
+#
+#add_executable(gtc)
+#target_sources(gtc PRIVATE main.cu)
+#target_link_libraries(gtc PRIVATE gtc_lib)
+#target_include_directories(gtc PRIVATE
+#        ${CMAKE_CURRENT_SOURCE_DIR})
+#
+#set_target_properties(gtc PROPERTIES
+#        LINKER_LANGUAGE CUDA
+#        CUDA_STANDARD 17
+#        CMAKE_CUDA_STANDARD_REQUIRED ON
+#        CXX_STANDARD 17
+#        CXX_STANDARD_REQUIRED ON
+#        CUDA_RESOLVE_DEVICE_SYMBOLS ON
+#        CUDA_SEPARABLE_COMPILATION ON
+#        POSITION_INDEPENDENT_CODE ON)
+
+
 ##########################################
 ##           hermes target              ##
 ##########################################

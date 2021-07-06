@@ -182,7 +182,7 @@ TEST_CASE("Array", "[storage][array]") {
       DeviceArray<i32> dda(a);
       REQUIRE(dda.size() == size3(10, 1, 1));
       REQUIRE(dda.sizeInBytes() == 10 * sizeof(i32));
-      auto da = a.copyTo<MemoryLocation::DEVICE>();
+      DeviceArray<i32> da = a;
       REQUIRE(da.size() == size3(10, 1, 1));
       REQUIRE(da.sizeInBytes() == 10 * sizeof(i32));
       HostArray<i32> ha = da;

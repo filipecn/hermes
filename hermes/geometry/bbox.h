@@ -74,7 +74,7 @@ public:
   // *******************************************************************************************************************
   //                                                                                                         GEOMETRY
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE [[nodiscard]] real_t size() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE real_t size() const {
     return upper - lower;
   }
   HERMES_DEVICE_CALLABLE T extends() const { return upper - lower; }
@@ -147,14 +147,14 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          QUERIES
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool contains(const Point2 <T> &p) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(const Point2 <T> &p) const {
     return (p.x >= lower.x && p.x <= upper.x && p.y >= lower.y
         && p.y <= upper.y);
   }
   // *******************************************************************************************************************
   //                                                                                                         GEOMETRY
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE [[nodiscard]] real_t size(int d) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE real_t size(int d) const {
 #ifdef HERMES_DEVICE_CODE
     d = fmaxf(0, fminf(1, d));
 #else
@@ -162,16 +162,16 @@ public:
 #endif
     return upper[d] - lower[d];
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Vector2 <T> extends() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Vector2 <T> extends() const {
     return upper - lower;
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Point2 <T> center() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Point2 <T> center() const {
     return lower + (upper - lower) * .5f;
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Point2 <T> centroid() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Point2 <T> centroid() const {
     return lower * .5f + vec2(upper * .5f);
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] int maxExtent() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE int maxExtent() const {
     Vector2<T> diag = upper - lower;
     if (diag.x > diag.y)
       return 0;
@@ -302,19 +302,19 @@ public:
   // *******************************************************************************************************************
   /// \param p
   /// \return true if this bounding box encloses **p**
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool contains(const Point3 <T> &p) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(const Point3 <T> &p) const {
     return (p.x >= lower.x && p.x <= upper.x && p.y >= lower.y &&
         p.y <= upper.y && p.z >= lower.z && p.z <= upper.z);
   }
   /// \param b bbox
   /// \return true if bbox is fully inside
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool contains(const BBox3 &b) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(const BBox3 &b) const {
     return contains(b.lower) && contains(b.upper);
   }
   /// Doesn't consider points on the upper boundary to be inside the bbox
   /// \param p point
   /// \return true if contains exclusive
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool containsExclusive(const Point3 <T> &p) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool containsExclusive(const Point3 <T> &p) const {
     return (p.x >= lower.x && p.x < upper.x && p.y >= lower.y && p.y < upper.y
         && p.z >= lower.z && p.z < upper.z);
   }
@@ -328,11 +328,11 @@ public:
     upper += Vector3<T>(delta, delta, delta);
   }
   /// \return vector along the diagonal upper - lower
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Vector3 <T> diagonal() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Vector3 <T> diagonal() const {
     return upper - lower;
   }
   /// \return index of longest axis
-  HERMES_DEVICE_CALLABLE [[nodiscard]] int maxExtent() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE int maxExtent() const {
     Vector3<T> diag = upper - lower;
     if (diag.x > diag.y && diag.x > diag.z)
       return 0;
@@ -343,7 +343,7 @@ public:
   /// \param p point
   /// \return position of **p** relative to the corners where lower has offset
   /// (0,0,0) and upper (1,1,1)
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Vector3 <T> offset(const Point3 <T> &p) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Vector3 <T> offset(const Point3 <T> &p) const {
     hermes::Vector3<T> o = p - lower;
     if (upper.x > lower.x)
       o.x /= upper.x - lower.x;
@@ -354,12 +354,12 @@ public:
     return o;
   }
   /// \return surface area of the six faces
-  HERMES_DEVICE_CALLABLE [[nodiscard]] T surfaceArea() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE T surfaceArea() const {
     Vector3<T> d = upper - lower;
     return 2 * (d.x * d.y + d.x * d.z + d.y * d.z);
   }
   /// \return volume inside the bounds
-  HERMES_DEVICE_CALLABLE [[nodiscard]] T volume() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE T volume() const {
     Vector3<T> d = upper - lower;
     return d.x * d.y * d.z;
   }
@@ -393,13 +393,13 @@ public:
                           Point3<T>(upper.x, upper.y, upper.z));
     return children;
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Point3 <T> center() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Point3 <T> center() const {
     return lower + (upper - lower) * .5f;
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Point3 <T> centroid() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Point3 <T> centroid() const {
     return lower * .5f + vec3(upper * .5f);
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] T size(u32 d) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE T size(u32 d) const {
     return upper[d] - lower[d];
   }
   // *******************************************************************************************************************
@@ -417,17 +417,17 @@ public:
   }
   /// \param c corner index
   /// \return corner point
-  HERMES_DEVICE_CALLABLE [[nodiscard]] Point3 <T> corner(int c) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE Point3 <T> corner(int c) const {
     return Point3<T>((*this)[(c & 1)].x, (*this)[(c & 2) ? 1 : 0].y,
                      (*this)[(c & 4) ? 1 : 0].z);
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] BBox2<T> xy() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE BBox2<T> xy() const {
     return BBox2<T>(lower.xy(), upper.xy());
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] BBox2<T> yz() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE BBox2<T> yz() const {
     return BBox2<T>(lower.yz(), upper.yz());
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] BBox2<T> xz() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE BBox2<T> xz() const {
     return BBox2<T>(lower.xz(), upper.xz());
   }
   // *******************************************************************************************************************

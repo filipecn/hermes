@@ -29,9 +29,9 @@
 
 namespace hermes {
 
-EFloat::EFloat() {}
+HERMES_DEVICE_CALLABLE EFloat::EFloat() {}
 
-EFloat::EFloat(f32 v, f32 e) : v(v) {
+HERMES_DEVICE_CALLABLE EFloat::EFloat(f32 v, f32 e) : v(v) {
 #ifdef NDEBUG
   ld = v;
 #endif
@@ -43,17 +43,17 @@ EFloat::EFloat(f32 v, f32 e) : v(v) {
   }
 }
 
-EFloat::operator float() const { return v; }
+HERMES_DEVICE_CALLABLE EFloat::operator float() const { return v; }
 
-EFloat::operator double() const { return v; }
+HERMES_DEVICE_CALLABLE EFloat::operator double() const { return v; }
 
-float EFloat::absoluteError() const { return err.high - err.low; }
+HERMES_DEVICE_CALLABLE float EFloat::absoluteError() const { return err.high - err.low; }
 
-float EFloat::upperBound() const { return err.high; }
+HERMES_DEVICE_CALLABLE float EFloat::upperBound() const { return err.high; }
 
-float EFloat::lowerBound() const { return err.low; }
+HERMES_DEVICE_CALLABLE float EFloat::lowerBound() const { return err.low; }
 
-EFloat EFloat::operator+(EFloat f) const {
+HERMES_DEVICE_CALLABLE EFloat EFloat::operator+(EFloat f) const {
   EFloat r;
   r.v = v + f.v;
 #ifdef NDEBUG
@@ -65,7 +65,7 @@ EFloat EFloat::operator+(EFloat f) const {
   return r;
 }
 
-EFloat EFloat::operator*(EFloat f) const {
+HERMES_DEVICE_CALLABLE EFloat EFloat::operator*(EFloat f) const {
   EFloat r;
   r.v = v * f.v;
 #ifdef NDEBUG
@@ -77,7 +77,7 @@ EFloat EFloat::operator*(EFloat f) const {
   return r;
 }
 
-EFloat EFloat::operator/(EFloat f) const {
+HERMES_DEVICE_CALLABLE EFloat EFloat::operator/(EFloat f) const {
   EFloat r;
   r.v = v / f.v;
 #ifdef NDEBUG
@@ -89,7 +89,7 @@ EFloat EFloat::operator/(EFloat f) const {
   return r;
 }
 
-EFloat EFloat::operator-(EFloat f) const {
+HERMES_DEVICE_CALLABLE EFloat EFloat::operator-(EFloat f) const {
   EFloat r;
   r.v = v - f.v;
 #ifdef NDEBUG
@@ -101,6 +101,6 @@ EFloat EFloat::operator-(EFloat f) const {
   return r;
 }
 
-bool EFloat::operator==(EFloat f) const { return v == f.v; }
+HERMES_DEVICE_CALLABLE bool EFloat::operator==(EFloat f) const { return v == f.v; }
 
 }
