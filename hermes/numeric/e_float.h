@@ -63,25 +63,25 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                          casting
-  explicit operator float() const;
-  explicit operator double() const;
+  HERMES_DEVICE_CALLABLE explicit operator float() const;
+  HERMES_DEVICE_CALLABLE explicit operator double() const;
   //                                                                                                       assignment
   //                                                                                                       arithmetic
-  EFloat operator+(EFloat f) const;
-  EFloat operator-(EFloat f) const;
-  EFloat operator*(EFloat f) const;
-  EFloat operator/(EFloat f) const;
+  HERMES_DEVICE_CALLABLE EFloat operator+(EFloat f) const;
+  HERMES_DEVICE_CALLABLE EFloat operator-(EFloat f) const;
+  HERMES_DEVICE_CALLABLE EFloat operator*(EFloat f) const;
+  HERMES_DEVICE_CALLABLE EFloat operator/(EFloat f) const;
   //                                                                                                          boolean
   bool operator==(EFloat f) const;
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   /// \return a bound for the absolute error
-  [[nodiscard]] f32 absoluteError() const;
+  HERMES_DEVICE_CALLABLE [[nodiscard]] f32 absoluteError() const;
   /// \return lower error interval bound
-  [[nodiscard]] f32 upperBound() const;
+  HERMES_DEVICE_CALLABLE [[nodiscard]] f32 upperBound() const;
   /// \return upper error interval bound
-  [[nodiscard]] f32 lowerBound() const;
+  HERMES_DEVICE_CALLABLE [[nodiscard]] f32 lowerBound() const;
 #ifdef NDEBUG
   /// \return relative error
   f64 relativeError() const;

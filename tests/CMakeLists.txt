@@ -4,10 +4,9 @@ set(SOURCES
         common_tests.cpp
         geometry_tests.cu
         log_tests.cpp
-        numeric_tests.cpp
+        numeric_tests.cu
         storage_tests.cu
         random_tests.cpp
-        #        numeric_tests.cu
         #        memory_tests.cu
         )
 

@@ -228,16 +228,16 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
-  Vector3 <T> asVector3() const { return Vector3<T>(x, y, z); }
-  static uint dimension() { return 3; }
+  HERMES_DEVICE_CALLABLE Vector3 <T> asVector3() const { return Vector3<T>(x, y, z); }
+  HERMES_DEVICE_CALLABLE static uint dimension() { return 3; }
   // *******************************************************************************************************************
   //                                                                                                GETTERS & SETTERS
   // *******************************************************************************************************************
-  T operator[](int i) const { return (&x)[i]; }
-  T &operator[](int i) { return (&x)[i]; }
-  Point2<T> xy() const { return Point2<T>(x, y); }
-  Point2<T> yz() const { return Point2<T>(y, z); }
-  Point2<T> xz() const { return Point2<T>(x, z); }
+  HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&x)[i]; }
+  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&x)[i]; }
+  HERMES_DEVICE_CALLABLE Point2<T> xy() const { return Point2<T>(x, y); }
+  HERMES_DEVICE_CALLABLE Point2<T> yz() const { return Point2<T>(y, z); }
+  HERMES_DEVICE_CALLABLE Point2<T> xz() const { return Point2<T>(x, z); }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************

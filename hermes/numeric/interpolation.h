@@ -157,9 +157,15 @@ struct Interpolation {
     double a2 = 3 * Dk - 2 * dk - dkp1;
     double a3 = dk + dkp1 - 2 * Dk;
     T ans = a3 * tmtk * tmtk * tmtk + a2 * tmtk * tmtk + a1 * tmtk + a0;
+#ifdef HERMES_DEVICE_CODE
+    T m = fminf(fkm1, fminf(fk, fminf(fkp1, fkp2)));
+    T M = fmaxf(fkm1, fmaxf(fk, fmaxf(fkp1, fkp2)));
+    return fminf(M, fmaxf(m, ans));
+#else
     T m = std::min(fkm1, std::min(fk, std::min(fkp1, fkp2)));
     T M = std::max(fkm1, std::max(fk, std::max(fkp1, fkp2)));
     return std::min(M, std::max(m, ans));
+#endif
   }
   /// Performs a 2-dimensional interpolation using the monotonic cubic
   /// interpolation considering overshoot, clamps the resulting value.

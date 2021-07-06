@@ -132,9 +132,14 @@ public:
     upper = Point2<T>(Numbers::lowest<T>());
   }
   HERMES_DEVICE_CALLABLE explicit BBox2(const Point2 <T> &p) : lower(p), upper(p) {}
-  BBox2(const Point2 <T> &p1, const Point2 <T> &p2) {
+  HERMES_DEVICE_CALLABLE BBox2(const Point2 <T> &p1, const Point2 <T> &p2) {
+#ifdef HERMES_DEVICE_CODE
+    lower = Point2<T>(fminf(p1.x, p2.x), fminf(p1.y, p2.y));
+    upper = Point2<T>(fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y));
+#else
     lower = Point2<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y));
     upper = Point2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
+#endif
   }
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
@@ -150,7 +155,11 @@ public:
   //                                                                                                         GEOMETRY
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE [[nodiscard]] real_t size(int d) const {
+#ifdef HERMES_DEVICE_CODE
+    d = fmaxf(0, fminf(1, d));
+#else
     d = std::max(0, std::min(1, d));
+#endif
     return upper[d] - lower[d];
   }
   HERMES_DEVICE_CALLABLE [[nodiscard]] Vector2 <T> extends() const {
