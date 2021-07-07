@@ -140,6 +140,22 @@ template<typename T> struct Index2 {
   HERMES_DEVICE_CALLABLE bool operator!=(const Index2<T> &b) const {
     return i != b.i || j != b.j;
   }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator<(const Size2<U> &b) const {
+    return i < static_cast<T>(b.width) && j < static_cast<T>(b.height);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator>(const Size2<U> &b) const {
+    return i > static_cast<T>(b.width) && j > static_cast<T>(b.height);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator>=(const Size2<U> &b) const {
+    return i >= static_cast<T>(b.width) && j >= static_cast<T>(b.height);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator<=(const Size2<U> &b) const {
+    return i <= static_cast<T>(b.width) && j <= static_cast<T>(b.height);
+  }
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
@@ -315,7 +331,7 @@ template<typename T> struct Index3 {
   ///\param i **[in]** i coordinate value
   ///\param j **[in]** j coordinate value
   ///\param k **[in]** k coordinate value
-  HERMES_DEVICE_CALLABLE explicit Index3(T i, T j, T k) : i(i), j(j), k(k) {}
+  HERMES_DEVICE_CALLABLE Index3(T i, T j, T k) : i(i), j(j), k(k) {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
@@ -357,18 +373,23 @@ template<typename T> struct Index3 {
   }
   template<typename U>
   HERMES_DEVICE_CALLABLE bool operator<(const Size3<U> &b) const {
-    return i < static_cast<T>(b.i) && j < static_cast<T>(b.j) &&
-        k < static_cast<T>(b.k);
+    return i < static_cast<T>(b.width) && j < static_cast<T>(b.height) &&
+        k < static_cast<T>(b.depth);
   }
   template<typename U>
   HERMES_DEVICE_CALLABLE bool operator>(const Size3<U> &b) const {
-    return i > static_cast<T>(b.i) && j > static_cast<T>(b.j) &&
-        k > static_cast<T>(b.k);
+    return i > static_cast<T>(b.width) && j > static_cast<T>(b.height) &&
+        k > static_cast<T>(b.depth);
   }
   template<typename U>
   HERMES_DEVICE_CALLABLE bool operator>=(const Size3<U> &b) const {
-    return i >= static_cast<T>(b.i) && j >= static_cast<T>(b.j) &&
-        k >= static_cast<T>(b.k);
+    return i >= static_cast<T>(b.width) && j >= static_cast<T>(b.height) &&
+        k >= static_cast<T>(b.depth);
+  }
+  template<typename U>
+  HERMES_DEVICE_CALLABLE bool operator<=(const Size3<U> &b) const {
+    return i <= static_cast<T>(b.width) && j <= static_cast<T>(b.height) &&
+        k <= static_cast<T>(b.depth);
   }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
@@ -474,7 +495,7 @@ public:
   HERMES_DEVICE_CALLABLE Index3Iterator<T> end() const {
     return Index3Iterator<T>(lower_, upper_, upper_);
   }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] size3 size() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE size3 size() const {
 #ifdef HERMES_DEVICE_CODE
     return size3(std::abs(upper_[0] - lower_[0]),
                  std::abs(upper_[1] - lower_[1]),

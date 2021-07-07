@@ -155,9 +155,9 @@ public:
   /// \param new_size_in_bytes
   void resize(size_t new_size_in_bytes);
   /// \param new_size width in bytes
-  void resize(size2 new_size);
+  void resize(size2 new_size, size_t new_pitch = 0);
   /// \param new_size width in bytes
-  void resize(size3 new_size);
+  void resize(size3 new_size, size_t new_pitch = 0);
   ///
   void clear();
   //                                                                                                           access
@@ -221,6 +221,10 @@ public:
   [[nodiscard]] size_t pitch() const;
   /// \param new_size_in_bytes
   void resize(size_t new_size_in_bytes);
+  /// \param new_size width in bytes
+  void resize(size2 new_size, size_t new_pitch = 0);
+  /// \param new_size width in bytes
+  void resize(size3 new_size, size_t new_pitch = 0);
   ///
   void clear();
   //                                                                                                           access

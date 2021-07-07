@@ -283,7 +283,8 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size_t new_size_in_bytes) {
   HERMES_CHECK_CUDA(cudaMalloc(&data_, size_.total()));
 }
 
-void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size) {
+void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size, size_t new_pitch) {
+  HERMES_UNUSED_VARIABLE(new_pitch);
   if (size_ == size3(new_size.width, new_size.height, 1))
     return;
   if (new_size.height == 1) {
@@ -295,7 +296,8 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size) {
   HERMES_CHECK_CUDA(cudaMallocPitch(&data_, &pitch_, size_.width, size_.height));
 }
 
-void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size) {
+void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size, size_t new_pitch) {
+  HERMES_UNUSED_VARIABLE(new_pitch);
   if (size_ == new_size)
     return;
   if (new_size.height == 1 && new_size.depth == 1) {
@@ -370,6 +372,28 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
   clear();
   size_ = {static_cast<u32>(new_size_in_bytes), 1, 1};
   pitch_ = new_size_in_bytes;
+  HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+}
+
+void MemoryBlock<MemoryLocation::UNIFIED>::resize(size2 new_size, size_t new_pitch) {
+  if (size_ == size3(new_size.width, new_size.height, 1) && pitch_ == new_pitch)
+    return;
+  clear();
+  pitch_ = new_pitch;
+  size_ = {new_size.width, new_size.height, 1};
+  if (pitch_ == 0)
+    pitch_ = size_.width;
+  HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+}
+
+void MemoryBlock<MemoryLocation::UNIFIED>::resize(size3 new_size, size_t new_pitch) {
+  if (size_ == new_size && pitch_ == new_pitch)
+    return;
+  clear();
+  pitch_ = new_pitch;
+  size_ = new_size;
+  if (pitch_ == 0)
+    pitch_ = size_.width;
   HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
 }
 

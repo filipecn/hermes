@@ -40,11 +40,130 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                               FORWARD DECLARATIONS
 // *********************************************************************************************************************
+template<typename T, MemoryLocation L> class Array;
 /// forward declaration of Array1
 template<typename T> class Array1;
 /// forward declaration of Array2
 template<typename T> class Array2;
 
+// *********************************************************************************************************************
+//                                                                                                         ARRAY VIEW
+// *********************************************************************************************************************
+template<typename T>
+class ArrayView {
+public:
+  // *******************************************************************************************************************
+  //                                                                                                   FRIEND STRUCTS
+  // *******************************************************************************************************************
+  friend class Array<T, MemoryLocation::HOST>;
+  friend class Array<T, MemoryLocation::DEVICE>;
+  friend class Array<T, MemoryLocation::UNIFIED>;
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  //                                                                                                              new
+  HERMES_DEVICE_CALLABLE ~ArrayView() {};
+  HERMES_DEVICE_CALLABLE ArrayView(const ArrayView<T> &other) : size{other.size}, data_{other.data_},
+                                                                pitch_{other.pitch_} {}
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                         1-access
+  /// Access as a 1-dimensional array
+  /// \param i 1-dimensional index
+  /// \return (data ptr)[i]
+  HERMES_DEVICE_CALLABLE const T &operator[](size_t i) const {
+    return reinterpret_cast<const T *>(data_)[i];
+  }
+  /// Access as a 1-dimensional array
+  /// \param i 1-dimensional index
+  /// \return (data ptr)[i]
+  HERMES_DEVICE_CALLABLE T &operator[](size_t i) {
+    return reinterpret_cast<T *>(data_)[i];
+  }
+  //                                                                                                         2-access
+  /// Access as a 2-dimensional array
+  /// \param ij 2-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  HERMES_DEVICE_CALLABLE const T &operator[](index2 ij) const {
+    return reinterpret_cast<const T * >(data_ + ij.j * pitch_ + ij.i * sizeof(T))[0];
+  }
+  /// Access as a 2-dimensional array
+  /// \param ij 2-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  HERMES_DEVICE_CALLABLE T &operator[](index2 ij) {
+    return reinterpret_cast<T * >(data_ + ij.j * pitch_ + ij.i * sizeof(T))[0];
+  }
+  //                                                                                                         3-access
+  /// Access as a 3-dimensional array
+  /// \param ijk 3-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  HERMES_DEVICE_CALLABLE const T &operator[](index3 ijk) const {
+    return reinterpret_cast<const T *>( data_ + ijk.k * pitch_ * size.height + ijk.j * pitch_
+        + ijk.i * sizeof(T))[0];
+  }
+  /// Access as a 3-dimensional array
+  /// \param ijk 3-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  HERMES_DEVICE_CALLABLE T &operator[](index3 ijk) {
+    return reinterpret_cast<T *>( data_ + ijk.k * pitch_ * size.height + ijk.j * pitch_
+        + ijk.i * sizeof(T))[0];
+  }
+  const size3 size;
+private:
+  ArrayView(byte *data, size3 size, size_t pitch) : data_{data}, size{size}, pitch_{pitch} {}
+  byte *data_{nullptr};
+  size_t pitch_{0};
+};
+
+// *********************************************************************************************************************
+//                                                                                                   CONST ARRAY VIEW
+// *********************************************************************************************************************
+template<typename T>
+class ConstArrayView {
+public:
+  // *******************************************************************************************************************
+  //                                                                                                   FRIEND STRUCTS
+  // *******************************************************************************************************************
+  friend class Array<T, MemoryLocation::HOST>;
+  friend class Array<T, MemoryLocation::DEVICE>;
+  friend class Array<T, MemoryLocation::UNIFIED>;
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  //                                                                                                              new
+  ~ConstArrayView() = default;
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                         1-access
+  /// Access as a 1-dimensional array
+  /// \param i 1-dimensional index
+  /// \return (data ptr)[i]
+  HERMES_DEVICE_CALLABLE const T &operator[](size_t i) const {
+    return reinterpret_cast<const T *>(data_)[i];
+  }
+  //                                                                                                         2-access
+  /// Access as a 2-dimensional array
+  /// \param ij 2-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  HERMES_DEVICE_CALLABLE const T &operator[](index2 ij) const {
+    return reinterpret_cast<const T * >(data_ + ij.j * pitch_ + ij.i * sizeof(T))[0];
+  }
+  //                                                                                                         3-access
+  /// Access as a 3-dimensional array
+  /// \param ijk 3-dimensional index
+  /// \return (data ptr) + j * pitch + i
+  HERMES_DEVICE_CALLABLE const T &operator[](index3 ijk) const {
+    return reinterpret_cast<const T *>( data_ + ijk.k * pitch_ * size.height + ijk.j * pitch_
+        + ijk.i * sizeof(T))[0];
+  }
+  const size3 size;
+private:
+  ConstArrayView(const byte *data, size3 size, size_t pitch) : data_{data}, size{size}, pitch_{pitch} {}
+  const byte *data_{nullptr};
+  size_t pitch_{0};
+};
 // *********************************************************************************************************************
 //                                                                                                     Array1Iterator
 // *********************************************************************************************************************
@@ -307,8 +426,6 @@ private:
   size_t pitch_ = 0;
   int i = 0, j = 0;
 };
-
-
 
 }
 

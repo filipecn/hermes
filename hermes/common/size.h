@@ -128,7 +128,7 @@ public:
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE T total() const { return width * height * depth; }
-  HERMES_DEVICE_CALLABLE Size2<T> slice(int d1 = 0, int d2 = 0) const {
+  HERMES_DEVICE_CALLABLE Size2<T> slice(int d1 = 0, int d2 = 1) const {
     return Size2<T>((&width)[d1], (&width)[d2]);
   }
   // *******************************************************************************************************************

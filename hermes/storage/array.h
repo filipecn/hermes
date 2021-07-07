@@ -169,6 +169,8 @@ public:
   //                                                                                                           access
   const T *data() const { return reinterpret_cast<T *>( data_.ptr()); }
   T *data() { return reinterpret_cast<T *>(data_.ptr()); }
+  ArrayView<T> view() { return ArrayView<T>(data_.ptr(), size_, data_.pitch()); }
+  ConstArrayView<T> view() const { return ConstArrayView<T>(data_.ptr(), size_, data_.pitch()); }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************

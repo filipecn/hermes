@@ -43,6 +43,12 @@ HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, u32 n, u32 m) {
   u32 matrix_index = ij.j * n + ij.i;
   data[matrix_index] = matrix_index;
 }
+
+HERMES_CUDA_KERNEL(testArrayView)(ArrayView<int> array) {
+  HERMES_CUDA_THREAD_INDEX2_IJ
+  if (ij < array.size.slice())
+    array[ij] = ij.j * array.size.width + ij.i;
+}
 #endif
 
 TEST_CASE("MemoryBlock", "[storage]") {
@@ -208,6 +214,12 @@ TEST_CASE("Array", "[storage][array]") {
         REQUIRE(a3[ijk] == ijk.k * 20 + ijk.j * 10 + ijk.i);
       }
     }//
+  }//
+  SECTION("View") {
+    DeviceArray<int> a({10, 10});
+    HERMES_CUDA_LAUNCH_AND_SYNC((a.size()), testArrayView_k, a.view())
+    HostArray<int> b = a;
+    HERMES_LOG_VARIABLE(b)
   }//
 }
 

@@ -73,7 +73,9 @@ struct LaunchInfo {
              cudaStream_t stream = {}) :
       shared_memory_size{shared_memory_size_in_bytes},
       stream_id{stream} {
-    block_size = dim3(b.width, b.height, b.depth);
+    block_size = dim3(std::min(s.width, b.width),
+                      std::min(s.height, b.height),
+                      std::min(s.depth, b.depth));
     grid_size = dim3((s.width + block_size.x - 1) / block_size.x,
                      (s.height + block_size.y - 1) / block_size.y,
                      (s.depth + block_size.z - 1) / block_size.z);
