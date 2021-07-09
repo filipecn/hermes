@@ -246,6 +246,7 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Index2Range() {}
   ///\brief Constructs an index range ``[0, {upper_i,upper_j})``
   ///\param upper_i **[in]** upper bound i
   ///\param upper_j **[in]** upper bound j
@@ -264,6 +265,13 @@ public:
     return ij >= lower_ && ij < upper_;
   }
   // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       relational
+  HERMES_DEVICE_CALLABLE bool operator==(const Index2Range<T> &r) const {
+    return lower_ == r.lower_ && upper_ == r.upper_;
+  }
+  // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Index2Iterator<T> begin() const {
@@ -274,6 +282,10 @@ public:
   }
   [[nodiscard]] HERMES_DEVICE_CALLABLE const Index2<T> &lower() const { return lower_; }
   [[nodiscard]] HERMES_DEVICE_CALLABLE const Index2<T> &upper() const { return upper_; }
+  HERMES_DEVICE_CALLABLE T area() const {
+    auto d = upper_ - lower_;
+    return d.i * d.j;
+  }
 
 private:
   Index2<T> lower_, upper_;

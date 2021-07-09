@@ -34,13 +34,21 @@ TEST_CASE("Point", "[geometry][point]") {
     SECTION("index cast") {
       point2 p = index2(3, 4);
       REQUIRE(p == point2(3, 4));
-    }SECTION("hash") {
+      REQUIRE(static_cast<index2>(p) == index2(3, 4));
+    }//
+    SECTION("math ops") {
+      point2 p = {0.5, -0.5};
+      REQUIRE(floor(p) == point2(0, -1));
+      REQUIRE(ceil(p) == point2(1, 0));
+      REQUIRE(abs(p) == point2(0.5, 0.5));
+    }//
+    SECTION("hash") {
       point2 a(0.00001, 0.1);
       point2 b(0.00001, 0.1);
       point2 c(0.0000000001, 0.1);
       REQUIRE(std::hash<point2>()(a) == std::hash<point2>()(b));
       REQUIRE(std::hash<point2>()(a) != std::hash<point2>()(c));
-    }
+    }//
   }//
   SECTION("Point3") {
     SECTION("hash") {
@@ -87,6 +95,7 @@ TEST_CASE("BBox", "[geometry][bbox]") {
     SECTION("range") {
       bbox2 b = range2({1, 1}, {10, 10});
       REQUIRE(b == bbox2({1, 1}, {9, 9}));
+      REQUIRE(static_cast<range2>(b) == range2({1, 1}, {10, 10}));
     }
   }//
 

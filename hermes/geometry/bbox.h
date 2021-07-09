@@ -154,6 +154,11 @@ public:
     upper = range.upper();
     return *this;
   }
+  //                                                                                                          casting
+  template<typename U>
+  HERMES_DEVICE_CALLABLE explicit operator Index2Range<U>() const {
+    return Index2Range<U>(lower, Index2<U>(upper.x + 1, upper.y + 1));
+  }
   //                                                                                                           access
   HERMES_DEVICE_CALLABLE const Point2 <T> &operator[](int i) const {
     return (i == 0) ? lower : upper;
@@ -392,8 +397,8 @@ public:
     * ------------ */
   [[nodiscard]] std::vector<BBox3> splitBy8() const {
     auto mid = center();
-    std::vector<BBox3 < T>>
-    children;
+    std::vector<BBox3<T>>
+        children;
     children.emplace_back(lower, mid);
     children.emplace_back(Point3<T>(mid.x, lower.y, lower.z),
                           Point3<T>(upper.x, mid.y, mid.z));

@@ -57,6 +57,19 @@ public:
   HERMES_DEVICE_CALLABLE friend real_t distance2(const Point2<T> &a, const Point2<T> &b) {
     return (a - b).length2();
   }
+#define MATH_OP(NAME, OP)                                                                                           \
+  HERMES_DEVICE_CALLABLE friend Point2<T> NAME(const Point2<T>& p) {                                                \
+    return {OP(p.x), OP(p.y)};  }
+#ifdef HERMES_DEVICE_CODE
+  MATH_OP(floor, floor)
+  MATH_OP(ceil, ceil)
+  MATH_OP(abs, abs)
+#else
+  MATH_OP(floor, std::floor)
+  MATH_OP(ceil, std::ceil)
+  MATH_OP(abs, std::abs)
+#endif
+#undef MATH_OP
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
@@ -68,6 +81,11 @@ public:
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
+  //                                                                                                          casting
+  template<typename U>
+  HERMES_DEVICE_CALLABLE operator Index2<U>() const {
+    return Index2<U>(x, y);
+  }
   //                                                                                                       assignment
   template<typename U>
   HERMES_DEVICE_CALLABLE Point2 &operator=(const Index2 <U> &index) {

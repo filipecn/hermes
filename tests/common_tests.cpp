@@ -431,6 +431,7 @@ TEST_CASE("index", "[common]") {
     REQUIRE(r.contains({1, 2}));
     REQUIRE(!r.contains({0, 0}));
     REQUIRE(!r.contains({3, 3}));
+    REQUIRE(r.area() == 4);
 
     int cur = 0;
     range2 range(10, 10);
