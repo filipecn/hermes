@@ -244,36 +244,52 @@ private:
 template<typename T> class Index2Range {
 public:
   // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE friend Index2Range<T> intersect(const Index2Range<T> &a, const Index2Range<T> &b) {
+#ifdef HERMES_DEVICE_CODE
+    return {Index2<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.i, b.lower_.j)),
+            Index2<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.i, b.upper_.j))};
+#else
+    return {{std::max(a.lower_.i, b.lower_.i), std::max(a.lower_.i, b.lower_.j)},
+            {std::min(a.upper_.i, b.upper_.i), std::min(a.upper_.i, b.upper_.j)}};
+#endif
+  }
+  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Index2Range() {}
-  ///\brief Constructs an index range ``[0, {upper_i,upper_j})``
-  ///\param upper_i **[in]** upper bound i
-  ///\param upper_j **[in]** upper bound j
-  HERMES_DEVICE_CALLABLE Index2Range(T upper_i, T upper_j)
-      : lower_(Index2<T>()), upper_(Index2<T>(upper_i, upper_j)) {}
-  ///\brief Constructs an index range ``[lower, upper)``
-  ///\param lower **[in]** lower bound
-  ///\param upper **[in | default = Index2<T>()]** upper bound
-  HERMES_DEVICE_CALLABLE explicit Index2Range(Index2<T> lower, Index2<T> upper)
-      : lower_(lower), upper_(upper) {}
-  /// \brief Constructs an index range ``[0, upper)``
-  /// \param upper **[in]** upper bound
-  HERMES_DEVICE_CALLABLE explicit Index2Range(size2 upper)
-      : lower_(Index2<T>()), upper_(Index2<T>(upper.width, upper.height)) {}
+///\brief Constructs an index range ``[0, {upper_i,upper_j})``
+///\param upper_i **[in]** upper bound i
+///\param upper_j **[in]** upper bound j
+  HERMES_DEVICE_CALLABLE Index2Range(T
+                                     upper_i,
+                                     T upper_j
+  )
+      :
+      lower_(Index2<T>()), upper_(Index2<T>(upper_i, upper_j)) {}
+///\brief Constructs an index range ``[lower, upper)``
+///\param lower **[in]** lower bound
+///\param upper **[in | default = Index2<T>()]** upper bound
+  HERMES_DEVICE_CALLABLE Index2Range(Index2<T> lower, Index2<T> upper) :
+      lower_(lower), upper_(upper) {}
+/// \brief Constructs an index range ``[0, upper)``
+/// \param upper **[in]** upper bound
+  HERMES_DEVICE_CALLABLE explicit Index2Range(size2 upper) :
+      lower_(Index2<T>()), upper_(Index2<T>(upper.width, upper.height)) {}
   HERMES_DEVICE_CALLABLE bool contains(const Index2<T> &ij) const {
     return ij >= lower_ && ij < upper_;
   }
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  //                                                                                                       relational
+// *******************************************************************************************************************
+//                                                                                                        OPERATORS
+// *******************************************************************************************************************
+//                                                                                                       relational
   HERMES_DEVICE_CALLABLE bool operator==(const Index2Range<T> &r) const {
     return lower_ == r.lower_ && upper_ == r.upper_;
   }
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
+// *******************************************************************************************************************
+//                                                                                                          METHODS
+// *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Index2Iterator<T> begin() const {
     return Index2Iterator<T>(lower_, upper_, lower_);
   }
@@ -434,6 +450,22 @@ private:
 template<typename T> class Index3Range {
 public:
   // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE friend Index3Range<T> intersect(const Index3Range<T> &a, const Index3Range<T> &b) {
+#ifdef HERMES_DEVICE_CODE
+    return {Index3<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.i, b.lower_.j),
+                      max(a.lower_.k, b.lower_.k)),
+            Index3<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.i, b.upper_.j),
+                      min(a.upper_.k, b.upper_.k))};
+#else
+    return {{std::max(a.lower_.i, b.lower_.i), std::max(a.lower_.i, b.lower_.j),
+             std::max(a.lower_.k, b.lower_.k)},
+            {std::min(a.upper_.i, b.upper_.i), std::min(a.upper_.i, b.upper_.j),
+             std::min(a.upper_.k, b.upper_.k)}};
+#endif
+  }
+  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   ///\brief Construct a new Index3Range object
@@ -453,7 +485,7 @@ public:
         upper_(Index3<T>(upper.width, upper.height, upper.depth)) {}
   /// \param lower
   /// \param upper
-  HERMES_DEVICE_CALLABLE explicit Index3Range(Index3<T> lower, Index3<T> upper)
+  HERMES_DEVICE_CALLABLE Index3Range(Index3<T> lower, Index3<T> upper)
       : lower_(lower), upper_(upper) {}
   // *******************************************************************************************************************
   //                                                                                                          METHODS

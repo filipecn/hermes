@@ -442,6 +442,11 @@ TEST_CASE("index", "[common]") {
       cur++;
     }
     REQUIRE(cur == 10 * 10);
+    SECTION("intersection") {
+      range2 a({0, 0}, {10, 10});
+      range2 b({5, -5}, {7, 70});
+      REQUIRE(intersect(a, b) == range2({5, 0}, {7, 10}));
+    }//
   }//
   SECTION("Index3 arithmetic") {
     index3 ij(1, -3, 0);

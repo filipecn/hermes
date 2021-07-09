@@ -276,11 +276,19 @@ public:
   /// \param b bounding box
   /// \return a new bbox resulting from the intersection of **a** and **b**
   HERMES_DEVICE_CALLABLE friend BBox3<T> intersect(const BBox3<T> &a, const BBox3<T> &b) {
+#ifdef HERMES_DEVICE_CODE
+    return BBox3<T>(
+        Point3<T>(max(a.lower.x, b.lower.x), max(a.lower.x, b.lower.y),
+                  max(a.lower.z, b.lower.z)),
+        Point3<T>(min(a.upper.x, b.upper.x), min(a.upper.x, b.upper.y),
+                  min(a.upper.z, b.upper.z)));
+#else
     return BBox3<T>(
         Point3<T>(std::max(a.lower.x, b.lower.x), std::max(a.lower.x, b.lower.y),
                   std::max(a.lower.z, b.lower.z)),
-        Point3<T>(std::min(a.lower.x, b.lower.x), std::min(a.lower.x, b.lower.y),
-                  std::min(a.lower.z, b.lower.z)));
+        Point3<T>(std::min(a.upper.x, b.upper.x), std::min(a.upper.x, b.upper.y),
+                  std::min(a.upper.z, b.upper.z)));
+#endif
   }
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
