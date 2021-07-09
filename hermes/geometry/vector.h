@@ -31,6 +31,7 @@
 #include <hermes/geometry/normal.h>
 #include <hermes/numeric/numeric.h>
 #include <hermes/common/debug.h>
+#include <hermes/common/index.h>
 
 #include <cstring>
 #include <initializer_list>
@@ -52,9 +53,6 @@ template<typename T> class Vector2 : public MathElement<T, 2u> {
                 "Vector2 must hold an float type!");
 
 public:
-  // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
   // *******************************************************************************************************************
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
@@ -83,7 +81,6 @@ public:
   }
 
   //                                                                                                       arithmetic
-
   HERMES_DEVICE_CALLABLE friend Vector2<T> operator*(T f, const Vector2<T> &v) {
     return v * f;
   }
@@ -105,54 +102,38 @@ public:
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE T operator[](size_t i) const { return (&x)[i]; }
+  HERMES_DEVICE_CALLABLE T &operator[](size_t i) { return (&x)[i]; }
   //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE Vector2<T> operator+(const Vector2<T> &b) const {
-    return Vector2<T>(x + b.x, y + b.y);
-  }
-  HERMES_DEVICE_CALLABLE Vector2<T> operator-(const Vector2<T> &b) const {
-    return Vector2<T>(x - b.x, y - b.y);
-  }
-  HERMES_DEVICE_CALLABLE Vector2<T> operator*(T f) const {
-    return Vector2<T>(x * f, y * f);
-  }
-  HERMES_DEVICE_CALLABLE Vector2<T> operator/(T f) const {
-    T inv = 1.f / f;
-    return Vector2<T>(x * inv, y * inv);
-  }
-  HERMES_DEVICE_CALLABLE Vector2 &operator+=(const Vector2 &v) {
-    x += v.x;
-    y += v.y;
-    return *this;
-  }
-  HERMES_DEVICE_CALLABLE Vector2 &operator-=(const Vector2 &v) {
-    x -= v.x;
-    y -= v.y;
-    return *this;
-  }
-  HERMES_DEVICE_CALLABLE Vector2 &operator*=(T f) {
-    x *= f;
-    y *= f;
-    return *this;
-  }
-  HERMES_DEVICE_CALLABLE Vector2 &operator/=(T f) {
-    T inv = 1.f / f;
-    x *= inv;
-    y *= inv;
-    return *this;
-  }
+#define ARITHMETIC_OP(OP)                                                                                           \
+  HERMES_DEVICE_CALLABLE Vector2 &operator  OP##= (const Vector2 &v) {                                              \
+    x OP##= v.x; y OP##= v.y; return *this;  }                                                                      \
+  HERMES_DEVICE_CALLABLE Vector2 &operator  OP##= (real_t f) {                                                      \
+    x OP##= f; y OP##= f; return *this;  }                                                                          \
+  HERMES_DEVICE_CALLABLE Vector2 operator OP (const Vector2<T> &b) const {                                          \
+    return {x OP b.x, y OP b.y}; }                                                                                  \
+  HERMES_DEVICE_CALLABLE Vector2 operator OP (real_t f) const {                                                     \
+    return {x OP f, y OP f}; }
+  ARITHMETIC_OP(+)
+  ARITHMETIC_OP(-)
+  ARITHMETIC_OP(*)
+  ARITHMETIC_OP(/)
+#undef ARITHMETIC_OP
   HERMES_DEVICE_CALLABLE Vector2 operator-() const { return Vector2(-x, -y); }
-  //                                                                                                          boolean
+  //                                                                                                       relational
+#define RELATIONAL_OP(OP, CO)                                                                                       \
+  HERMES_DEVICE_CALLABLE bool operator OP (const Vector2 &b) const {                                                \
+    return x OP b.x CO y OP b.y; }
+  RELATIONAL_OP(<, &&)
+  RELATIONAL_OP(>, &&)
+  RELATIONAL_OP(<=, &&)
+  RELATIONAL_OP(>=, &&)
+  RELATIONAL_OP(!=, ||)
+#undef RELATIONAL_OP
   HERMES_DEVICE_CALLABLE bool operator==(const Vector2<T> &b) const {
     return Check::is_equal(x, b.x) && Check::is_equal(y, b.y);
   }
-  HERMES_DEVICE_CALLABLE bool operator!=(const Vector2<T> &b) const {
-    return !Check::is_equal(x, b.x) || !Check::is_equal(y, b.y);
-  }
-  // *******************************************************************************************************************
-  //                                                                                                GETTERS & SETTERS
-  // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE T operator[](size_t i) const { return (&x)[i]; }
-  HERMES_DEVICE_CALLABLE T &operator[](size_t i) { return (&x)[i]; }
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
@@ -220,8 +201,8 @@ public:
   /// \param c **[out]** second tangent
   HERMES_DEVICE_CALLABLE friend void tangential(const Vector3<T> &a, Vector3<T> &b, Vector3<T> &c) {
     b = hermes::normalize(cross(a, ((std::abs(a.y) > 0.f || std::abs(a.z) > 0.f)
-                            ? Vector3<T>(1, 0, 0)
-                            : Vector3<T>(0, 1, 1))));
+                                    ? Vector3<T>(1, 0, 0)
+                                    : Vector3<T>(0, 1, 1))));
     c = hermes::normalize(cross(a, b));
   }
   /// \note b * dot(a,b) / ||b||
@@ -257,24 +238,19 @@ public:
     return *this;
   }
   //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE Vector3<T> &operator+=(const Vector3<T> &v) {
-    x += v.x;
-    y += v.y;
-    z += v.z;
-    return *this;
-  }
-  HERMES_DEVICE_CALLABLE Vector3<T> &operator-=(const Vector3<T> &v) {
-    x -= v.x;
-    y -= v.y;
-    z -= v.z;
-    return *this;
-  }
-  HERMES_DEVICE_CALLABLE Vector3<T> &operator*=(T f) {
-    x *= f;
-    y *= f;
-    z *= f;
-    return *this;
-  }
+#define ARITHMETIC_OP(OP)                                                                                           \
+  HERMES_DEVICE_CALLABLE Vector3 &operator  OP##= (const Vector3 &v) {                                              \
+    x OP##= v.x; y OP##= v.y; z OP##= v.z; return *this;  }                                                         \
+  HERMES_DEVICE_CALLABLE Vector3 &operator  OP##= (real_t f) {                                                      \
+    x OP##= f; y OP##= f; z OP##= f; return *this;  }                                                               \
+  HERMES_DEVICE_CALLABLE Vector3 operator OP (const Vector3<T> &b) const {                                          \
+    return {x OP b.x, y OP b.y, z OP b.z}; }                                                                        \
+  HERMES_DEVICE_CALLABLE Vector3 operator OP (real_t f) const {                                                     \
+    return {x OP f, y OP f, z OP f}; }
+  ARITHMETIC_OP(+)
+  ARITHMETIC_OP(-)
+  ARITHMETIC_OP(*)
+#undef ARITHMETIC_OP
   HERMES_DEVICE_CALLABLE Vector3<T> &operator/=(T f) {
     HERMES_CHECK_EXP(Check::is_zero(f))
     T inv = 1.f / f;
@@ -289,24 +265,12 @@ public:
     z /= v.z;
     return *this;
   }
-  HERMES_DEVICE_CALLABLE Vector3<T> operator-() const { return Vector3(-x, -y, -z); }
-  HERMES_DEVICE_CALLABLE Vector3<T> operator+(const Vector3<T> &b) const {
-    return Vector3<T>(x + b.x, y + b.y, z + b.z);
-  }
-  HERMES_DEVICE_CALLABLE Vector3<T> operator-(const Vector3<T> &b) const {
-    return Vector3<T>(x - b.x, y - b.y, z - b.z);
-  }
-  HERMES_DEVICE_CALLABLE Vector3<T> operator*(const Vector3<T> &b) const {
-    return Vector3<T>(x * b.x, y * b.y, z * b.z);
-  }
-  HERMES_DEVICE_CALLABLE Vector3<T> operator*(const T &f) const {
-    return Vector3<T>(x * f, y * f, z * f);
-  }
   HERMES_DEVICE_CALLABLE Vector3<T> operator/(const T &f) const {
     T inv = 1.f / f;
     return Vector3<T>(x * inv, y * inv, z * inv);
   }
-  //                                                                                                           boolean
+  HERMES_DEVICE_CALLABLE Vector3<T> operator-() const { return Vector3(-x, -y, -z); }
+  //                                                                                                       relational
   HERMES_DEVICE_CALLABLE bool operator==(const Vector3<T> &b) const {
     return Check::is_equal(x, b.x) && Check::is_equal(y, b.y) &&
         Check::is_equal(z, b.z);
@@ -375,7 +339,7 @@ public:
   }
   /// \note Defined as argmax_i v_i
   /// \return Index of component with greatest value
-  HERMES_DEVICE_CALLABLE [[nodiscard]] int maxDimension() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE int maxDimension() const {
     if (x > y && x > z)
       return 0;
     if (y > x && y > z)
@@ -384,7 +348,7 @@ public:
   }
   /// \note Defined as argmax_i |v_i|
   /// \return Index of dimension with greatest value
-  HERMES_DEVICE_CALLABLE [[nodiscard]] int maxAbsDimension() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE int maxAbsDimension() const {
     if (std::abs(x) > std::abs(y) && std::abs(x) > std::abs(z))
       return 0;
     if (std::abs(y) > std::abs(x) && std::abs(y) > std::abs(z))

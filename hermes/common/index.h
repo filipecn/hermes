@@ -53,14 +53,15 @@ template<typename T> struct Index2 {
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
   //                                                                                                       arithmetic
-  template<typename U>
-  HERMES_DEVICE_CALLABLE friend Index2<T> operator+(const Size2<U> &b, const Index2<T> &a) {
-    return Index2<T>(a.i + b.width, a.j + b.height);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE friend Index2<T> operator-(const Size2<U> &b, const Index2<T> &a) {
-    return Index2<T>(b.width - a.i, b.height - a.j);
-  }
+#define ARITHMETIC_OP(OP)                                                                                           \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE friend Index2<T> operator OP (const Size2<U> &b, const Index2<T> &a) {                     \
+    return Index2<T>(b.width OP a.i, b.height OP a.j);  }
+  ARITHMETIC_OP(+)
+  ARITHMETIC_OP(-)
+  ARITHMETIC_OP(*)
+  ARITHMETIC_OP(/)
+#undef ARITHMETIC_OP
   //                                                                                                         geometry
   /// \brief Computes the manhattan distance between two indices
   /// \tparam T
@@ -95,67 +96,39 @@ template<typename T> struct Index2 {
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                           access
-  /// \verbatim embed:rst:leading-slashes
-  ///    .. warning::
-  ///       This method does not check if ``d`` is out of bounds.
-  /// \endverbatim
-  /// \param d **[in]** dimension number (``0`` for ``i`` and ``1`` for ``j``)
-  /// \return T coordinate value at dimension ``d``
   HERMES_DEVICE_CALLABLE T operator[](int d) const { return (&i)[d]; }
-  /// \verbatim embed:rst:leading-slashes
-  ///    .. warning::
-  ///       This method does not check if ``d`` is out of bounds.
-  /// \endverbatim
-  /// \param d **[in]** dimension number (``0`` for ``i`` and ``1`` for ``j``)
-  /// \return T reference to coordinate value at dimension ``d``
   HERMES_DEVICE_CALLABLE T &operator[](int d) { return (&i)[d]; }
   //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE Index2<T> operator+(const Index2<T> &b) const {
-    return Index2<T>(i + b.i, j + b.j);
-  }
-  HERMES_DEVICE_CALLABLE Index2<T> operator-(const Index2<T> &b) const {
-    return Index2<T>(i - b.i, j - b.j);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE Index2<T> operator+(const Size2<U> &b) const {
-    return Index2<T>(i + b.width, j + b.height);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE Index2<T> operator-(const Size2<U> &b) const {
-    return Index2<T>(i - b.width, j - b.height);
-  }
-  //                                                                                                          boolean
-  HERMES_DEVICE_CALLABLE bool operator<=(const Index2<T> &b) const {
-    return i <= b.i && j <= b.j;
-  }
-  ///\brief are equal? operator
-  ///\param other **[in]**
-  ///\return bool true if both coordinate values are equal
-  HERMES_DEVICE_CALLABLE bool operator==(const Index2<T> &b) const {
-    return i == b.i && j == b.j;
-  }
-  /// \brief are different? operator
-  ///\param other **[in]**
-  ///\return bool true if any coordinate value is different
-  HERMES_DEVICE_CALLABLE bool operator!=(const Index2<T> &b) const {
-    return i != b.i || j != b.j;
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator<(const Size2<U> &b) const {
-    return i < static_cast<T>(b.width) && j < static_cast<T>(b.height);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator>(const Size2<U> &b) const {
-    return i > static_cast<T>(b.width) && j > static_cast<T>(b.height);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator>=(const Size2<U> &b) const {
-    return i >= static_cast<T>(b.width) && j >= static_cast<T>(b.height);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator<=(const Size2<U> &b) const {
-    return i <= static_cast<T>(b.width) && j <= static_cast<T>(b.height);
-  }
+#define ARITHMETIC_OP(OP)                                                                                           \
+  HERMES_DEVICE_CALLABLE Index2<T>& operator OP##= (const Index2<T> &b) {                                           \
+    i OP##= b.i; j OP##= b.j; return *this; }                                                                      \
+  HERMES_DEVICE_CALLABLE Index2<T> operator OP (const Index2<T>& b) const {                                         \
+    return {i OP b.i, j OP b.j}; }                                                                                  \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE Index2<T>& operator OP##= (const Size2<U> &b) {                                            \
+    i OP##= static_cast<T>(b.width); j OP##= static_cast<T>(b.height); return *this; }                                                             \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE Index2<T> operator OP (const Size2<U>& b) const {                                          \
+    return {i OP static_cast<T>(b.width), j OP static_cast<T>(b.height)}; }
+  ARITHMETIC_OP(+)
+  ARITHMETIC_OP(-)
+  ARITHMETIC_OP(*)
+  ARITHMETIC_OP(/)
+#undef ARITHMETIC_OP
+  //                                                                                                       relational
+#define RELATIONAL_OP(OP, CO)                                                                                       \
+  HERMES_DEVICE_CALLABLE bool operator OP (const Index2<T> &b) const {                                              \
+    return i OP b.i CO j OP b.j; }                                                                                  \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE bool operator OP (const Size2<U>& b)  const {                                              \
+    return i OP static_cast<T>(b.width) CO j OP static_cast<T>(b.height); }
+  RELATIONAL_OP(==, &&)
+  RELATIONAL_OP(!=, ||)
+  RELATIONAL_OP(>=, &&)
+  RELATIONAL_OP(<=, &&)
+  RELATIONAL_OP(<, &&)
+  RELATIONAL_OP(>, &&)
+#undef RELATIONAL_OP
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
@@ -281,12 +254,15 @@ public:
   ///\brief Constructs an index range ``[lower, upper)``
   ///\param lower **[in]** lower bound
   ///\param upper **[in | default = Index2<T>()]** upper bound
-  HERMES_DEVICE_CALLABLE explicit Index2Range(Index2<T> lower, Index2<T> upper = Index2<T>())
+  HERMES_DEVICE_CALLABLE explicit Index2Range(Index2<T> lower, Index2<T> upper)
       : lower_(lower), upper_(upper) {}
   /// \brief Constructs an index range ``[0, upper)``
   /// \param upper **[in]** upper bound
   HERMES_DEVICE_CALLABLE explicit Index2Range(size2 upper)
       : lower_(Index2<T>()), upper_(Index2<T>(upper.width, upper.height)) {}
+  HERMES_DEVICE_CALLABLE bool contains(const Index2<T> &ij) const {
+    return ij >= lower_ && ij < upper_;
+  }
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
@@ -296,6 +272,8 @@ public:
   HERMES_DEVICE_CALLABLE Index2Iterator<T> end() const {
     return Index2Iterator<T>(lower_, upper_, upper_);
   }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE const Index2<T> &lower() const { return lower_; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE const Index2<T> &upper() const { return upper_; }
 
 private:
   Index2<T> lower_, upper_;
@@ -314,14 +292,15 @@ template<typename T> struct Index3 {
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
   //                                                                                                       arithmetic
-  template<typename U>
-  HERMES_DEVICE_CALLABLE friend Index3<T> operator-(const Size3<U> &b, const Index3<T> &a) {
-    return Index3<T>(b.width - a.i, b.height - a.j, b.depth - a.k);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE friend Index3<T> operator+(const Size3<U> &b, const Index3<T> &a) {
-    return Index3<T>(a.i + b.width, a.j + b.height, a.k + b.depth);
-  }
+#define ARITHMETIC_OP(OP)                                                                                           \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE friend Index3<T> operator OP (const Size3<U> &b, const Index3<T> &a) {                     \
+    return Index3<T>(b.width OP a.i, b.height OP a.j, b.depth OP a.k);  }
+  ARITHMETIC_OP(+)
+  ARITHMETIC_OP(-)
+  ARITHMETIC_OP(*)
+  ARITHMETIC_OP(/)
+#undef ARITHMETIC_OP
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
@@ -339,58 +318,38 @@ template<typename T> struct Index3 {
   HERMES_DEVICE_CALLABLE T operator[](int _i) const { return (&i)[_i]; }
   HERMES_DEVICE_CALLABLE T &operator[](int _i) { return (&i)[_i]; }
   //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE Index3<T> operator+(const Index3<T> &b) const {
-    return Index3<T>(i + b.i, j + b.j, k + b.k);
-  }
-  HERMES_DEVICE_CALLABLE Index3<T> operator-(const Index3<T> &b) const {
-    return Index3<T>(i - b.i, j - b.j, k - b.k);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE Index3<T> operator+(const Size3<U> &b) const {
-    return Index3<T>(i + b.width, j + b.height, k + b.depth);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE Index3<T> operator-(const Size3<U> &b) const {
-    return Index3<T>(i - b.width, j - b.height, k - b.depth);
-  }
-  ///\brief are equal? operator
-  ///\param other **[in]**
-  ///\return bool true if both coordinate values are equal
-  HERMES_DEVICE_CALLABLE bool operator==(const Index3<T> &other) const {
-    return i == other.i && j == other.j && k == other.k;
-  }
-  /// \brief are different? operator
-  ///\param other **[in]**
-  ///\return bool true if any coordinate value is different
-  HERMES_DEVICE_CALLABLE bool operator!=(const Index3<T> &other) const {
-    return i != other.i || j != other.j || k != other.k;
-  }
-  HERMES_DEVICE_CALLABLE bool operator<=(const Index3<T> &b) const {
-    return i <= b.i && j <= b.j && k <= b.k;
-  }
-  HERMES_DEVICE_CALLABLE bool operator<(const Index3<T> &b) const {
-    return i < b.i && j < b.j && k < b.k;
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator<(const Size3<U> &b) const {
-    return i < static_cast<T>(b.width) && j < static_cast<T>(b.height) &&
-        k < static_cast<T>(b.depth);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator>(const Size3<U> &b) const {
-    return i > static_cast<T>(b.width) && j > static_cast<T>(b.height) &&
-        k > static_cast<T>(b.depth);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator>=(const Size3<U> &b) const {
-    return i >= static_cast<T>(b.width) && j >= static_cast<T>(b.height) &&
-        k >= static_cast<T>(b.depth);
-  }
-  template<typename U>
-  HERMES_DEVICE_CALLABLE bool operator<=(const Size3<U> &b) const {
-    return i <= static_cast<T>(b.width) && j <= static_cast<T>(b.height) &&
-        k <= static_cast<T>(b.depth);
-  }
+#define ARITHMETIC_OP(OP)                                                                                           \
+  HERMES_DEVICE_CALLABLE Index3<T>& operator OP##= (const Index3<T> &b) {                                           \
+    i OP##= b.i; j OP##= b.j; k OP##= b.k; return *this; }                                                          \
+  HERMES_DEVICE_CALLABLE Index3<T> operator OP (const Index3<T>& b) const {                                         \
+    return {i OP b.i, j OP b.j, k OP b.k}; }                                                                        \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE Index3<T>& operator OP##= (const Size3<U> &b) {                                            \
+    i OP##= b.width; j OP##= b.height; k OP##= b.depth; return *this; }                                             \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE Index3<T> operator OP (const Size3<U>& b) const {                                          \
+    return {i OP static_cast<T>(b.width), j OP static_cast<T>(b.height),                                            \
+    k OP static_cast<T>(b.depth)}; }
+  ARITHMETIC_OP(+)
+  ARITHMETIC_OP(-)
+  ARITHMETIC_OP(*)
+  ARITHMETIC_OP(/)
+#undef ARITHMETIC_OP
+  //                                                                                                       relational
+#define RELATIONAL_OP(OP, CO)                                                                                       \
+  HERMES_DEVICE_CALLABLE bool operator OP (const Index3<T> &b) const {                                              \
+    return i OP b.i CO j OP b.j CO k OP b.k; }                                                                      \
+  template<typename U>                                                                                              \
+  HERMES_DEVICE_CALLABLE bool operator OP (const Size3<U>& b)  const {                                              \
+    return i OP static_cast<T>(b.width) CO                                                                          \
+           j OP static_cast<T>(b.height) CO k OP static_cast<T>(b.depth); }
+  RELATIONAL_OP(==, &&)
+  RELATIONAL_OP(!=, ||)
+  RELATIONAL_OP(>=, &&)
+  RELATIONAL_OP(<=, &&)
+  RELATIONAL_OP(<, &&)
+  RELATIONAL_OP(>, &&)
+#undef RELATIONAL_OP
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
@@ -528,6 +487,8 @@ std::ostream &operator<<(std::ostream &o, const Index3<T> &ijk) {
 // *********************************************************************************************************************
 //                                                                                                           TYPEDEFS
 // *********************************************************************************************************************
+using range2 = Index2Range<i32>;
+using range3 = Index3Range<i32>;
 using index2 = Index2<i32>;
 using index2_8 = Index2<i8>;
 using index2_16 = Index2<i16>;

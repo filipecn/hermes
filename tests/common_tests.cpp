@@ -426,10 +426,18 @@ TEST_CASE("index", "[common]") {
     REQUIRE(a != b);
   }//
   SECTION("Index2Range") {
+    range2 r({1, 1}, {3, 3});
+    REQUIRE(r.contains({1, 1}));
+    REQUIRE(r.contains({1, 2}));
+    REQUIRE(!r.contains({0, 0}));
+    REQUIRE(!r.contains({3, 3}));
+
     int cur = 0;
-    for (auto index : Index2Range<i32>(10, 10)) {
+    range2 range(10, 10);
+    for (auto index : range) {
       REQUIRE(cur % 10 == index.i);
       REQUIRE(cur / 10 == index.j);
+      REQUIRE(range.contains(index));
       cur++;
     }
     REQUIRE(cur == 10 * 10);
@@ -459,7 +467,7 @@ TEST_CASE("index", "[common]") {
       cur++;
     }
     REQUIRE(cur == 10 * 10 * 10);
-    Index3Range <i32> range(index3(-5, -5, -5), index3(5, 5, 5));
+    Index3Range<i32> range(index3(-5, -5, -5), index3(5, 5, 5));
     REQUIRE(range.size().total() == 10 * 10 * 10);
     cur = 0;
     for (auto index : range) {

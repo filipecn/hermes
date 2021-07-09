@@ -31,7 +31,10 @@ TEST_CASE("Point", "[geometry][point]") {
       REQUIRE(results[0] == 0);
   )
   SECTION("Point2") {
-    SECTION("hash") {
+    SECTION("index cast") {
+      point2 p = index2(3, 4);
+      REQUIRE(p == point2(3, 4));
+    }SECTION("hash") {
       point2 a(0.00001, 0.1);
       point2 b(0.00001, 0.1);
       point2 c(0.0000000001, 0.1);
@@ -79,7 +82,14 @@ TEST_CASE("Vector", "[geometry][vector]") {
   }
 }
 
-TEST_CASE("BBox3", "[geometry][bbox]") {
+TEST_CASE("BBox", "[geometry][bbox]") {
+  SECTION("bbox2") {
+    SECTION("range") {
+      bbox2 b = range2({1, 1}, {10, 10});
+      REQUIRE(b == bbox2({1, 1}, {9, 9}));
+    }
+  }//
+
   SECTION("union") {
     bbox3 a(point3(), point3(1));
     bbox3 b(point3(-1), point3());
@@ -87,7 +97,8 @@ TEST_CASE("BBox3", "[geometry][bbox]") {
     point3 l(-1), u(1);
     REQUIRE(c.lower == l);
     REQUIRE(c.upper == u);
-  }SECTION("access") {
+  }//
+  SECTION("access") {
     auto l = point3(0, 1, 2);
     auto u = point3(3, 4, 3);
     bbox3 b(l, u);

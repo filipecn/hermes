@@ -141,19 +141,45 @@ public:
     upper = Point2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
 #endif
   }
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                          QUERIES
-  // *******************************************************************************************************************
+  template<typename U>
+  HERMES_DEVICE_CALLABLE BBox2(const Index2Range <U> &range) :
+      lower{range.lower()}, upper{range.upper() - Index2<U>(1, 1)} {}
+// *******************************************************************************************************************
+//                                                                                                        OPERATORS
+// *******************************************************************************************************************
+  //                                                                                                       assignment
+  template<typename U>
+  HERMES_DEVICE_CALLABLE BBox2 &operator=(const Index2Range <U> &range) {
+    lower = range.lower();
+    upper = range.upper();
+    return *this;
+  }
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE const Point2 <T> &operator[](int i) const {
+    return (i == 0) ? lower : upper;
+  }
+  HERMES_DEVICE_CALLABLE Point2 <T> &operator[](int i) { return (i == 0) ? lower : upper; }
+  //                                                                                                       arithmetic
+#define ARITHMETIC_OP(OP, O)                                                                                        \
+  HERMES_DEVICE_CALLABLE BBox2& operator OP##= (const O& o) { *this = make_union(*this, o); return *this; }         \
+  HERMES_DEVICE_CALLABLE BBox2 operator OP (const O& o) { return make_union(*this, o); }
+  ARITHMETIC_OP(+, BBox2)
+  ARITHMETIC_OP(+, Point2 < T >)
+#undef ARITHMETIC_OP
+  //                                                                                                       relational
+  HERMES_DEVICE_CALLABLE bool operator==(const BBox2 &b) const {
+    return lower == b.lower && upper == b.upper;
+  }
+// *******************************************************************************************************************
+//                                                                                                          QUERIES
+// *******************************************************************************************************************
   [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(const Point2 <T> &p) const {
     return (p.x >= lower.x && p.x <= upper.x && p.y >= lower.y
         && p.y <= upper.y);
   }
-  // *******************************************************************************************************************
-  //                                                                                                         GEOMETRY
-  // *******************************************************************************************************************
+// *******************************************************************************************************************
+//                                                                                                         GEOMETRY
+// *******************************************************************************************************************
   [[nodiscard]] HERMES_DEVICE_CALLABLE real_t size(int d) const {
 #ifdef HERMES_DEVICE_CODE
     d = fmaxf(0, fminf(1, d));
@@ -177,18 +203,9 @@ public:
       return 0;
     return 1;
   }
-  // *******************************************************************************************************************
-  //                                                                                                           ACCESS
-  // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE const Point2 <T> &operator[](int i) const {
-    return (i == 0) ? lower : upper;
-  }
-  HERMES_DEVICE_CALLABLE Point2 <T> &operator[](int i) {
-    return (i == 0) ? lower : upper;
-  }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
+// *******************************************************************************************************************
+//                                                                                                    PUBLIC FIELDS
+// *******************************************************************************************************************
   Point2 <T> lower, upper;
 };
 
@@ -223,7 +240,7 @@ public:
   /// \param p point
   /// \return a new bounding box that encompasses **b** and **p**
   HERMES_DEVICE_CALLABLE friend BBox3<T> make_union(const BBox3<T> &b, const Point3 <T> &p) {
-    BBox3<T> ret = b;
+    BBox3 <T> ret = b;
 #ifdef HERMES_DEVICE_CODE
     ret.lower.x = fminf(b.lower.x, p.x);
     ret.lower.y = fminf(b.lower.y, p.y);
@@ -246,7 +263,7 @@ public:
   /// \param b bounding box
   /// \return a new bounding box that encompasses **a** and **b**
   HERMES_DEVICE_CALLABLE friend inline BBox3<T> make_union(const BBox3<T> &a, const BBox3<T> &b) {
-    BBox3<T> ret = make_union(a, b.lower);
+    BBox3 <T> ret = make_union(a, b.lower);
     return make_union(ret, b.upper);
   }
   /// \tparam T coordinates type
@@ -375,7 +392,8 @@ public:
     * ------------ */
   [[nodiscard]] std::vector<BBox3> splitBy8() const {
     auto mid = center();
-    std::vector<BBox3<T>> children;
+    std::vector<BBox3 < T>>
+    children;
     children.emplace_back(lower, mid);
     children.emplace_back(Point3<T>(mid.x, lower.y, lower.z),
                           Point3<T>(upper.x, mid.y, mid.z));

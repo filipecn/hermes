@@ -1,7 +1,7 @@
 set(SOURCES
         main.cu
         #        blas_tests.cu
-        #        common_tests.cpp
+        common_tests.cpp
         geometry_tests.cpp
         #        log_tests.cpp
         numeric_tests.cpp
@@ -15,6 +15,9 @@ target_include_directories(hermes_tests PUBLIC ${CATCH2_INCLUDES} ${CMAKE_SOURCE
 set_target_properties(hermes_tests PROPERTIES LINKER_LANGUAGE CXX)
 
 if (BUILD_WITH_CUDA)
+
+    set_source_files_properties(common_tests.cpp PROPERTIES LANGUAGE CUDA)
+
     add_definitions(
             -DENABLE_CUDA=1
             -D__CUDA_INCLUDE_COMPILER_INTERNAL_HEADERS__=1)
