@@ -77,7 +77,7 @@ template<typename T> struct Index2 {
   }
 #define MATH_OP(NAME, OP)                                                                                           \
   HERMES_DEVICE_CALLABLE friend Index2<T> NAME(const Index2<T>& a, const Index2<T>& b) {                            \
-    return {OP(a.i, b.i), OP(a.j, b.j)};  }
+    return Index2<T>(OP(a.i, b.i), OP(a.j, b.j));  }
 #ifdef HERMES_DEVICE_CODE
   MATH_OP(max, max)
   MATH_OP(min, min)
