@@ -425,6 +425,12 @@ TEST_CASE("index", "[common]") {
     b.j = 1;
     REQUIRE(a != b);
   }//
+  SECTION("index2 friends") {
+    index2 a(-1, 2);
+    index2 b(4, 1);
+    REQUIRE(max(a,b) == index2(4,2));
+    REQUIRE(min(a,b) == index2(-1,1));
+  }//
   SECTION("Index2Range") {
     range2 r({1, 1}, {3, 3});
     REQUIRE(r.contains({1, 1}));
