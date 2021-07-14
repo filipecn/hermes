@@ -29,10 +29,29 @@
 
 #include <hermes/random/rng.h>
 #include <hermes/random/noise.h>
+#include <hermes/storage/array.h>
 
 using namespace hermes;
 
-TEST_CASE("Perlin", "[noise][random]") {
-SECTION("2d") {
+#ifdef HERMES_DEVICE_CODE
+#include <hermes/common/cuda_utils.h>
+HERMES_CUDA_KERNEL(pcg)(int *result) {
+  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  PCGRNG rng(1);
+  rng.uniformU32();
+  *result = 0;
 }
+#endif
+
+TEST_CASE("PCG", "[random]") {
+  HERMES_CUDA_CODE(
+      UnifiedArray<int> results(1);
+      HERMES_CUDA_LAUNCH_AND_SYNC((1), pcg_k, results.data())
+      REQUIRE(results[0] == 0);
+  )
+}
+
+TEST_CASE("Perlin", "[noise][random]") {
+  SECTION("2d") {
+  }
 }

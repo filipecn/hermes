@@ -48,6 +48,13 @@ struct Constants {
   static constexpr real_t inv_four_pi = 0.07957747154594766788;
   static constexpr real_t machine_epsilon = std::numeric_limits<real_t>::epsilon() * .5;
   static constexpr real_t real_infinity = std::numeric_limits<real_t>::max();
+  static constexpr f64 f64_one_minus_epsilon = 0x1.fffffffffffffp-1;
+  static constexpr f32 f32_one_minus_epsilon = 0x1.fffffep-1;
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+  static constexpr real_t one_minus_epsilon = f64_one_minus_epsilon;
+#else
+  static constexpr real_t one_minus_epsilon = f32_one_minus_epsilon;
+#endif
 };
 
 // *********************************************************************************************************************

@@ -5,8 +5,8 @@ set(SOURCES
         geometry_tests.cpp
         #        log_tests.cpp
         numeric_tests.cpp
+        random_tests.cpp
         storage_tests.cpp
-        #        random_tests.cpp
         #        memory_tests.cu
         )
 
@@ -16,7 +16,9 @@ set_target_properties(hermes_tests PROPERTIES LINKER_LANGUAGE CXX)
 
 if (BUILD_WITH_CUDA)
 
-    set_source_files_properties(common_tests.cpp PROPERTIES LANGUAGE CUDA)
+    set_source_files_properties(common_tests.cpp
+                                random_tests.cpp
+            PROPERTIES LANGUAGE CUDA)
 
     add_definitions(
             -DENABLE_CUDA=1
