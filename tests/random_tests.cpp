@@ -33,7 +33,7 @@
 
 using namespace hermes;
 
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
 #include <hermes/common/cuda_utils.h>
 HERMES_CUDA_KERNEL(pcg)(int *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0

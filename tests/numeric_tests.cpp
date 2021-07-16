@@ -10,7 +10,7 @@
 
 using namespace hermes;
 
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
 HERMES_CUDA_KERNEL(testEFloat)(bool *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
   EFloat ef;

@@ -60,7 +60,7 @@ public:
 #define MATH_OP(NAME, OP)                                                                                           \
   HERMES_DEVICE_CALLABLE friend Point2<T> NAME(const Point2<T>& p) {                                                \
     return Point2<T>(OP(p.x), OP(p.y));  }
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   MATH_OP(floor, floor)
   MATH_OP(ceil, ceil)
   MATH_OP(abs, abs)

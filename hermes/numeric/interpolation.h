@@ -157,7 +157,7 @@ struct Interpolation {
     double a2 = 3 * Dk - 2 * dk - dkp1;
     double a3 = dk + dkp1 - 2 * Dk;
     T ans = a3 * tmtk * tmtk * tmtk + a2 * tmtk * tmtk + a1 * tmtk + a0;
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     T m = fminf(fkm1, fminf(fk, fminf(fkp1, fkp2)));
     T M = fmaxf(fkm1, fmaxf(fk, fmaxf(fkp1, fkp2)));
     return fminf(M, fmaxf(m, ans));

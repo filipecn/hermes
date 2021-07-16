@@ -69,7 +69,7 @@ template<typename T> struct Index2 {
   /// \param b **[in]**
   /// \return T
   HERMES_DEVICE_CALLABLE friend T distance(const Index2<T> &a, const Index2<T> &b) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     HERMES_NOT_IMPLEMENTED
 #else
     return std::abs(a.i - b.i) + std::abs(a.j - b.j);
@@ -78,7 +78,7 @@ template<typename T> struct Index2 {
 #define MATH_OP(NAME, OP)                                                                                           \
   HERMES_DEVICE_CALLABLE friend Index2<T> NAME(const Index2<T>& a, const Index2<T>& b) {                            \
     return Index2<T>(OP(a.i, b.i), OP(a.j, b.j));  }
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   MATH_OP(max, max)
   MATH_OP(min, min)
 #else
@@ -167,7 +167,7 @@ template<typename T> struct Index2 {
   /// Clamps to the inclusive range ``[0, size]``
   /// \param s **[in]** upper bound
   HERMES_DEVICE_CALLABLE void clampTo(const size2 &s) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     HERMES_UNUSED_VARIABLE(s);
 #else
     i = std::max(0, std::min(i, static_cast<T>(s.width)));
@@ -258,7 +258,7 @@ public:
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE friend Index2Range<T> intersect(const Index2Range<T> &a, const Index2Range<T> &b) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     return Index2Range<T>(Index2<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.i, b.lower_.j)),
                           Index2<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.i, b.upper_.j)));
 #else
@@ -460,7 +460,7 @@ public:
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE friend Index3Range<T> intersect(const Index3Range<T> &a, const Index3Range<T> &b) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     return {Index3<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.i, b.lower_.j),
                       max(a.lower_.k, b.lower_.k)),
             Index3<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.i, b.upper_.j),
@@ -506,7 +506,7 @@ public:
     return Index3Iterator<T>(lower_, upper_, upper_);
   }
   [[nodiscard]] HERMES_DEVICE_CALLABLE size3 size() const {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     return size3(std::abs(upper_[0] - lower_[0]),
                  std::abs(upper_[1] - lower_[1]),
                  std::abs(upper_[2] - lower_[2]));

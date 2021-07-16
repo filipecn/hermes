@@ -161,28 +161,28 @@ TEST_CASE("MemoryBlock", "[storage]") {
   }
 }
 
-TEST_CASE("Array", "[storage][array]") {
+TEST_CASE("DataArray", "[storage][array]") {
   SECTION("Constructors") {
-    HostArray<int> a0;
+    Array<int> a0;
     REQUIRE(a0.size() == size3(0, 0, 0));
     REQUIRE(a0.sizeInBytes() == 0 * sizeof(int));
     REQUIRE(a0.dimensions() == 0);
-    HostArray<int> a1(10);
+    Array<int> a1(10);
     REQUIRE(a1.size() == size3(10, 1, 1));
     REQUIRE(a1.sizeInBytes() == 10 * sizeof(int));
     REQUIRE(a1.dimensions() == 1);
-    HostArray<int> a2({10, 20});
+    Array<int> a2({10, 20});
     REQUIRE(a2.size() == size3(10, 20, 1));
     REQUIRE(a2.sizeInBytes() == 10 * 20 * sizeof(int));
     REQUIRE(a2.dimensions() == 2);
-    HostArray<int> a3({10, 20, 30});
+    Array<int> a3({10, 20, 30});
     REQUIRE(a3.size() == size3(10, 20, 30));
     REQUIRE(a3.sizeInBytes() == 10 * 20 * 30 * sizeof(int));
     REQUIRE(a3.dimensions() == 3);
   }//
   SECTION("Operators") {
     SECTION("assignment") {
-      HostArray<i32> a(10);
+      Array<i32> a(10);
       for (int i = 0; i < 10; ++i)
         a[i] = i;
       DeviceArray<i32> dda(a);
@@ -191,24 +191,24 @@ TEST_CASE("Array", "[storage][array]") {
       DeviceArray<i32> da = a;
       REQUIRE(da.size() == size3(10, 1, 1));
       REQUIRE(da.sizeInBytes() == 10 * sizeof(i32));
-      HostArray<i32> ha = da;
+      Array<i32> ha = da;
       for (int i = 0; i < 10; ++i)
         REQUIRE(a[i] == i);
     }//
     SECTION("access") {
-      HostArray<u32> a1(10);
+      Array<u32> a1(10);
       for (u32 i = 0; i < 10; ++i) {
         a1[i] = i;
         REQUIRE(a1[i] == i);
       }
       HERMES_LOG_VARIABLE(a1)
-      HostArray<i32> a2({10, 2});
+      Array<i32> a2({10, 2});
       for (index2 ij : Index2Range<i32>(a2.size().slice(0, 1))) {
         a2[ij] = ij.j * 10 + ij.i;
         REQUIRE(a2[ij] == ij.j * 10 + ij.i);
       }
       HERMES_LOG_VARIABLE(a2)
-      HostArray<i32> a3({10, 2, 3});
+      Array<i32> a3({10, 2, 3});
       for (index3 ijk : Index3Range<i32>(a3.size())) {
         a3[ijk] = ijk.k * 20 + ijk.j * 10 + ijk.i;
         REQUIRE(a3[ijk] == ijk.k * 20 + ijk.j * 10 + ijk.i);
@@ -218,7 +218,7 @@ TEST_CASE("Array", "[storage][array]") {
   SECTION("View") {
     DeviceArray<int> a({10, 10});
     HERMES_CUDA_LAUNCH_AND_SYNC((a.size()), testArrayView_k, a.view())
-    HostArray<int> b = a;
+    Array<int> b = a;
     HERMES_LOG_VARIABLE(b)
   }//
 }
@@ -401,6 +401,21 @@ TEST_CASE("Array2", "[storage][array]") {
   }//
 }
 
+#ifdef HERMES_DEVICE_ENABLED
+HERMES_CUDA_KERNEL(aos_view)(AoSView aos, int *result) {
+  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  if (aos.size() != 5)
+    *result = 1;
+  for (int i = 0; i < aos.size(); ++i) {
+    if (aos.valueAt<index2>(0, i) != index2(i, i + 1))
+      *result = (i + 1) * 10;
+    if (aos.valueAt<i32>(1, i) != -(i + 1))
+      *result = -(i + 1);
+  }
+}
+
+#endif
+
 TEST_CASE("AOS", "[storage][aos]") {
   SECTION("Struct Descriptor") {
     StructDescriptor sd;
@@ -434,7 +449,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(sd.offsetOf("vec3") == 0);
     REQUIRE(sd.offsetOf("f32") == sizeof(vec3));
     REQUIRE(sd.offsetOf("int") == sizeof(vec3) + sizeof(f32));
-    std::cerr << sd << std::endl;
+    HERMES_LOG_VARIABLE(sd)
     { // valueAt
       AoS aos;
       aos.pushField<size2>("size2");
@@ -513,7 +528,7 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(aos.valueAt<f32>(1, i) == Approx(1.f * i));
       REQUIRE(aos.valueAt<int>(2, i) == i + 1);
     }
-    std::cerr << aos << std::endl;
+    HERMES_LOG_VARIABLE(aos)
   }//
   SECTION("Access") {
     AoS aos;
@@ -547,7 +562,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos.pushField<f32>("f32");
     aos.pushField<int>("int");
     aos.resize(4);
-    auto acc = aos.accessor();
+    auto acc = aos.view();
     for (int i = 0; i < 4; ++i) {
       acc.valueAt<vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       acc.valueAt<f32>(1, i) = 1.f * i;
@@ -558,7 +573,7 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(acc.valueAt<f32>(1, i) == Approx(1.f * i));
       REQUIRE(acc.valueAt<int>(2, i) == i + 1);
     }
-    auto cacc = aos.constAccessor();
+    auto cacc = aos.constView();
     for (int i = 0; i < 4; ++i) {
       REQUIRE(cacc.valueAt<vec3>(0, i) == vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE(cacc.valueAt<f32>(1, i) == Approx(1.f * i));
@@ -606,7 +621,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos.pushField<f32>("f32");
     aos.pushField<int>("int");
     aos.resize(4);
-    auto acc = aos.accessor();
+    auto acc = aos.view();
     for (int i = 0; i < 4; ++i) {
       acc.valueAt<vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       acc.valueAt<f32>(1, i) = 1.f * i;
@@ -622,7 +637,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.size() == aos2.size());
     REQUIRE(aos.memorySizeInBytes() == aos2.memorySizeInBytes());
     REQUIRE(aos.stride() == aos2.stride());
-    auto acc2 = aos2.accessor();
+    auto acc2 = aos2.view();
     for (int i = 0; i < 4; ++i) {
       REQUIRE(acc2.valueAt<vec3>(0, i).x == Approx(acc.valueAt<vec3>(0, i).x));
       REQUIRE(acc2.valueAt<vec3>(0, i).y == Approx(acc.valueAt<vec3>(0, i).y));
@@ -636,5 +651,29 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(aos2.structDescriptor().contains(f.name));
       REQUIRE(aos.structDescriptor().fieldId(f.name) == aos2.structDescriptor().fieldId(f.name));
     }
-  }
+  } //
+#ifdef HERMES_DEVICE_ENABLED
+  SECTION("Device") {
+    AoS aos;
+    aos.pushField<size2>();
+    aos.pushField<i32>();
+    aos.resize(5);
+    auto sizes_field = aos.field<size2>(0) = {
+        {0, 1},
+        {1, 2},
+        {2, 3},
+        {3, 4},
+        {4, 5},
+    };
+    auto i32_field = aos.field<i32>(1) = {-1, -2, -3, -4, -5};
+    DeviceAoS d_aos = aos;
+    REQUIRE(d_aos.size() == aos.size());
+    REQUIRE(d_aos.structDescriptor().fields().size() == aos.structDescriptor().fields().size());
+    REQUIRE(d_aos.structDescriptor().sizeInBytes() == aos.structDescriptor().sizeInBytes());
+
+    UnifiedArray<int> results(1);
+    HERMES_CUDA_LAUNCH_AND_SYNC((1), aos_view_k, d_aos.view(), results.data())
+    REQUIRE(results[0] == 0);
+  }//
+#endif
 }

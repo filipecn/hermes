@@ -91,8 +91,10 @@ set(HERMES_HEADERS
         #        hermes/storage/array_of_structures.h
         hermes/storage/array.h
         hermes/storage/array_of_structures.h
+        hermes/storage/array_of_structures_view.h
         hermes/storage/array_view.h
         hermes/storage/memory_block.h
+        hermes/storage/struct_descriptor.h
         #        hermes/storage/device_array.h
         #        hermes/storage/cu_array.h
         #        hermes/storage/cuda_memory_block.h

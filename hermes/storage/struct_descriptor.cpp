@@ -1,4 +1,4 @@
-/// Copyright (c) 2020, FilipeCN.
+/// Copyright (c) 2021, FilipeCN.
 ///
 /// The MIT License (MIT)
 ///
@@ -19,16 +19,35 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 /// IN THE SOFTWARE.
 ///
-///\file array_of_structures.cpp
+///\file struct_descriptor_.cpp
 ///\author FilipeCN (filipedecn@gmail.com)
-///\date 2020-12-10
+///\date 2021-07-14
 ///
 ///\brief
 
-
-#include <hermes/storage/array_of_structures.h>
+#include <hermes/storage/struct_descriptor.h>
+#include <hermes/common/debug.h>
 
 namespace hermes {
+
+StructDescriptorView::StructDescriptorView(const StructDescriptor &descriptor) :
+    struct_size{descriptor.struct_size_} {
+  HERMES_CHECK_EXP(descriptor.fields_.size() < HERMES_STRUCT_DESCRIPTOR_VIEW_MAX_FIELD_COUNT);
+  for (size_t i = 0; i < descriptor.fields_.size() && i < HERMES_STRUCT_DESCRIPTOR_VIEW_MAX_FIELD_COUNT; ++i) {
+    fields_[i].size = descriptor.fields_[i].size;
+    fields_[i].offset = descriptor.fields_[i].offset;
+    fields_[i].component_count = descriptor.fields_[i].component_count;
+    fields_[i].type = descriptor.fields_[i].type;
+  }
+}
+
+HERMES_DEVICE_CALLABLE u64 StructDescriptorView::offsetOf(u64 field_id) const {
+  return fields_[field_id].offset;
+}
+
+HERMES_DEVICE_CALLABLE u64 StructDescriptorView::sizeOf(u64 field_id) const {
+  return fields_[field_id].size;
+}
 
 u64 StructDescriptor::offsetOf(const std::string &field_name) const {
   auto it = field_id_map_.find(field_name);
@@ -56,50 +75,5 @@ u64 StructDescriptor::sizeOf(u64 field_id) const {
   return fields_[field_id].size;
 }
 
-AoS::ConstAccessor::ConstAccessor(const AoS &aos) : struct_descriptor_{aos.structDescriptor()}, data_{aos.data_},
-                                                    size_{aos.size_} {}
-
-AoS::Accessor::Accessor(AoS &aos) : struct_descriptor_{aos.structDescriptor()}, data_{aos.data_},
-                                    size_{aos.size_} {}
-
-AoS::AoS() = default;
-
-AoS::~AoS() {
-  delete[]data_;
 }
 
-AoS &AoS::operator=(AoS &&other) noexcept {
-  delete[]data_;
-  data_ = other.data_;
-  other.data_ = nullptr;
-  size_ = other.size_;
-  struct_descriptor.struct_size_ = other.struct_descriptor.struct_size_;
-  struct_descriptor.fields_ = std::move(other.struct_descriptor.fields_);
-  struct_descriptor.field_id_map_ = std::move(other.struct_descriptor.field_id_map_);
-  return *this;
-}
-
-AoS &AoS::operator=(const AoS &other) {
-  delete[]data_;
-  data_ = nullptr;
-  size_ = other.size_;
-  struct_descriptor.struct_size_ = other.struct_descriptor.struct_size_;
-  struct_descriptor.fields_ = other.struct_descriptor.fields_;
-  struct_descriptor.field_id_map_ = other.struct_descriptor.field_id_map_;
-  if (size_ && struct_descriptor.struct_size_) {
-    data_ = new u8[size_ * struct_descriptor.struct_size_];
-    std::memcpy(data_, other.data_, size_ * struct_descriptor.struct_size_);
-  }
-  return *this;
-}
-
-void AoS::resize(u64 new_size) {
-  delete[]data_;
-  data_ = nullptr;
-  size_ = new_size;
-  if (!new_size)
-    return;
-  data_ = new u8[new_size * struct_descriptor.struct_size_];
-}
-
-}

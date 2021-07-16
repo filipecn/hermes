@@ -144,7 +144,7 @@ struct Numbers {
   /// \param x **[in]** value
   /// \return base-2 logarithm of **x**
   HERMES_DEVICE_CALLABLE static inline f32 log2(f32 x) {
-#ifndef HERMES_DEVICE_CODE
+#ifndef HERMES_DEVICE_ENABLED
     static f32 invLog2 = 1.f / logf(2.f);
 #else
     f32 invLog2 = 1.f / logf(2.f);

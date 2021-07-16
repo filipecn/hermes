@@ -34,17 +34,20 @@
 
 #define HERMES_HOST_FUNCTION __host__
 #define HERMES_DEVICE_CALLABLE __device__ __host__
-#define HERMES_DEVICE_CODE
+#define HERMES_DEVICE_ENABLED
 #define HERMES_CUDA_KERNEL(NAME) __global__ void NAME ## _k
 // HERMES_CUDA_LAUNCH(GRID_DIM, BLOCK_DIM, SHARED_BYTES, STREAM_ID, NAME, ...)
 //  NAME##<<< (GRID_DIM), (BLOCK_DIM), (SHARED_BYTES), (STREAM_ID) >>> (__VA_ARGS__)
 
 #define HERMES_CUDA_CODE(CODE) {CODE}
+#define HERMES_DEVICE_CODE  __CUDA_ARCH__
 
 #else
+
 #define HERMES_HOST_FUNCTION
 #define HERMES_DEVICE_CALLABLE
 #define HERMES_CUDA_CODE(CODE)
+
 #endif
 
 #include <cstdint>

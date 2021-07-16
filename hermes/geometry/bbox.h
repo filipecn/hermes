@@ -107,7 +107,7 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE friend inline BBox2<T> make_union(const BBox2<T> &b, const Point2 <T> &p) {
     BBox2<T> ret = b;
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     ret.lower.x = fminf(b.lower.x, p.x);
     ret.lower.y = fminf(b.lower.y, p.y);
     ret.upper.x = fmaxf(b.upper.x, p.x);
@@ -133,7 +133,7 @@ public:
   }
   HERMES_DEVICE_CALLABLE explicit BBox2(const Point2 <T> &p) : lower(p), upper(p) {}
   HERMES_DEVICE_CALLABLE BBox2(const Point2 <T> &p1, const Point2 <T> &p2) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     lower = Point2<T>(fminf(p1.x, p2.x), fminf(p1.y, p2.y));
     upper = Point2<T>(fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y));
 #else
@@ -186,7 +186,7 @@ public:
 //                                                                                                         GEOMETRY
 // *******************************************************************************************************************
   [[nodiscard]] HERMES_DEVICE_CALLABLE real_t size(int d) const {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     d = fmaxf(0, fminf(1, d));
 #else
     d = std::max(0, std::min(1, d));
@@ -246,7 +246,7 @@ public:
   /// \return a new bounding box that encompasses **b** and **p**
   HERMES_DEVICE_CALLABLE friend BBox3<T> make_union(const BBox3<T> &b, const Point3 <T> &p) {
     BBox3 <T> ret = b;
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     ret.lower.x = fminf(b.lower.x, p.x);
     ret.lower.y = fminf(b.lower.y, p.y);
     ret.lower.z = fminf(b.lower.z, p.z);
@@ -276,7 +276,7 @@ public:
   /// \param b bounding box
   /// \return a new bbox resulting from the intersection of **a** and **b**
   HERMES_DEVICE_CALLABLE friend BBox3<T> intersect(const BBox3<T> &a, const BBox3<T> &b) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     return BBox3<T>(
         Point3<T>(max(a.lower.x, b.lower.x), max(a.lower.x, b.lower.y),
                   max(a.lower.z, b.lower.z)),
@@ -312,7 +312,7 @@ public:
   /// \param p1 first point
   /// \param p2 second point
   HERMES_DEVICE_CALLABLE BBox3(const Point3 <T> &p1, const Point3 <T> &p2) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
     lower = Point3<T>(fminf(p1.x, p2.x), fminf(p1.y, p2.y),
                       fminf(p1.z, p2.z));
     upper = Point3<T>(fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y),

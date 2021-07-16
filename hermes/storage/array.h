@@ -39,7 +39,7 @@
 namespace hermes {
 
 // *********************************************************************************************************************
-//                                                                                                              Array
+//                                                                                                              DataArray
 // *********************************************************************************************************************
 /// Holds a linear memory area that can be accessed as a 1-dimensional, 2-dimensional or a 3-dimensional array
 /// of elements. The memory can live in host memory or device memory, as set by the template.
@@ -48,7 +48,7 @@ namespace hermes {
 /// \tparam T data type
 /// \tparam L memory space
 template<typename T, MemoryLocation L>
-class Array {
+class DataArray {
 public:
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
@@ -57,31 +57,31 @@ public:
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
   template<typename TT, MemoryLocation LL>
-  friend class Array;
+  friend class DataArray;
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   //                                                                                                              new
-  Array() = default;
-  ~Array() = default;
-  Array(size_t size_in_elements) { resize(size_in_elements); }
-  Array(size2 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
-  Array(size3 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
-  Array(const Array<T, MemoryLocation::HOST> &other) { *this = other; }
-  Array(const Array<T, MemoryLocation::DEVICE> &other) { *this = other; }
+  DataArray() = default;
+  ~DataArray() = default;
+  DataArray(size_t size_in_elements) { resize(size_in_elements); }
+  DataArray(size2 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
+  DataArray(size3 size_in_elements, size_t pitch = 0) { resize(size_in_elements, pitch); }
+  DataArray(const DataArray<T, MemoryLocation::HOST> &other) { *this = other; }
+  DataArray(const DataArray<T, MemoryLocation::DEVICE> &other) { *this = other; }
   //                                                                                                       assignment
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                       assignment
   template<MemoryLocation LL>
-  Array &operator=(const Array<T, LL> &other) {
+  DataArray &operator=(const DataArray<T, LL> &other) {
     data_ = other.data_;
     size_ = other.size_;
     return *this;
   }
   template<MemoryLocation LL>
-  Array &operator=(Array<T, LL> &&other) {
+  DataArray &operator=(DataArray<T, LL> &&other) {
     data_ = std::move(other.data_);
     size_ = other.size_;
     return *this;
@@ -634,9 +634,9 @@ private:
 //                                                                                                                 IO
 // *********************************************************************************************************************
 template<typename T>
-std::ostream &operator<<(std::ostream &os, const Array<T, MemoryLocation::HOST> &array) {
+std::ostream &operator<<(std::ostream &os, const DataArray<T, MemoryLocation::HOST> &array) {
   // print name
-  os << "Array";
+  os << "DataArray";
   for (auto i = 0; i < array.dimensions(); ++i)
     os << "[" << array.size()[i] << "]";
   os << "\n";
@@ -689,9 +689,9 @@ std::ostream &operator<<(std::ostream &os, const Array<T, MemoryLocation::HOST> 
   return os;
 }
 template<typename T>
-std::ostream &operator<<(std::ostream &os, const Array<T, MemoryLocation::UNIFIED> &array) {
+std::ostream &operator<<(std::ostream &os, const DataArray<T, MemoryLocation::UNIFIED> &array) {
   // print name
-  os << "Array";
+  os << "DataArray";
   for (auto i = 0; i < array.dimensions(); ++i)
     os << "[" << array.size()[i] << "]";
   os << "\n";
@@ -799,11 +799,11 @@ std::ostream &operator<<(std::ostream &os, const Array2<T> &array) {
 //                                                                                                           TYPEDEFS
 // *********************************************************************************************************************
 template<typename T>
-using HostArray = Array<T, MemoryLocation::HOST>;
+using Array = DataArray<T, MemoryLocation::HOST>;
 template<typename T>
-using DeviceArray = Array<T, MemoryLocation::DEVICE>;
+using DeviceArray = DataArray<T, MemoryLocation::DEVICE>;
 template<typename T>
-using UnifiedArray = Array<T, MemoryLocation::UNIFIED>;
+using UnifiedArray = DataArray<T, MemoryLocation::UNIFIED>;
 using array1d = Array1<f64>;
 using array1f = Array1<f32>;
 using array1i = Array1<i32>;

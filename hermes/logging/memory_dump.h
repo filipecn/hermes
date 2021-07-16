@@ -100,13 +100,13 @@ public:
                           memory_dumper_options options = memory_dumper_options::none,
                           const std::vector<Region> &regions = {}) {
     // check options
-    auto hide_zeros = testMaskBit(options, memory_dumper_options::hide_zeros);
-    auto include_header = !testMaskBit(options, memory_dumper_options::hide_header);
-    auto align_data = testMaskBit(options, memory_dumper_options::cache_align);
-    auto show_ascii = !testMaskBit(options, memory_dumper_options::hide_ascii);
-    auto write_to_console = testMaskBit(options, memory_dumper_options::write_to_console);
-    auto save_string = testMaskBit(options, memory_dumper_options::save_to_string);
-    auto colored_output = testMaskBit(options, memory_dumper_options::colored_output);
+    auto hide_zeros = HERMES_MASK_BIT(options, memory_dumper_options::hide_zeros);
+    auto include_header = !HERMES_MASK_BIT(options, memory_dumper_options::hide_header);
+    auto align_data = HERMES_MASK_BIT(options, memory_dumper_options::cache_align);
+    auto show_ascii = !HERMES_MASK_BIT(options, memory_dumper_options::hide_ascii);
+    auto write_to_console = HERMES_MASK_BIT(options, memory_dumper_options::write_to_console);
+    auto save_string = HERMES_MASK_BIT(options, memory_dumper_options::save_to_string);
+    auto colored_output = HERMES_MASK_BIT(options, memory_dumper_options::colored_output);
     if (!write_to_console && !save_string)
       write_to_console = true;
     // output string
@@ -115,9 +115,9 @@ public:
     u32 address_digit_count = 8;
     // compute column size for text alignment
     u8 data_digit_count = 2;
-    if (testMaskBit(options, memory_dumper_options::decimal))
+    if (HERMES_MASK_BIT(options, memory_dumper_options::decimal))
       data_digit_count = 3;
-    else if (testMaskBit(options, memory_dumper_options::binary))
+    else if (HERMES_MASK_BIT(options, memory_dumper_options::binary))
       data_digit_count = 8;
     u8 header_digit_count = countHexDigits(bytes_per_row);
     u8 column_size = std::max(header_digit_count, data_digit_count);
@@ -177,13 +177,13 @@ public:
         u8 byte = *(reinterpret_cast<u8 *>(aligned_base_address + byte_offset));
         Str s;
         if (!hide_zeros || byte) {
-          if (testMaskBit(options, memory_dumper_options::hexadecimal))
+          if (HERMES_MASK_BIT(options, memory_dumper_options::hexadecimal))
             s.append(binaryToHex(byte), " ");
-          else if (testMaskBit(options, memory_dumper_options::decimal))
+          else if (HERMES_MASK_BIT(options, memory_dumper_options::decimal))
             s.append(std::setfill('0'), std::setw(column_size), static_cast<u32>(byte), ' ');
-          else if (testMaskBit(options, memory_dumper_options::binary))
+          else if (HERMES_MASK_BIT(options, memory_dumper_options::binary))
             s.append(byteToBinary(byte), " ");
-          else if (testMaskBit(options, memory_dumper_options::hexii))
+          else if (HERMES_MASK_BIT(options, memory_dumper_options::hexii))
             s.append(std::string(column_size, ' '), " ");
           else
             s.append(binaryToHex(byte), " ");

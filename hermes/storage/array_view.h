@@ -40,7 +40,7 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                               FORWARD DECLARATIONS
 // *********************************************************************************************************************
-template<typename T, MemoryLocation L> class Array;
+template<typename T, MemoryLocation L> class DataArray;
 /// forward declaration of Array1
 template<typename T> class Array1;
 /// forward declaration of Array2
@@ -55,9 +55,9 @@ public:
   // *******************************************************************************************************************
   //                                                                                                   FRIEND STRUCTS
   // *******************************************************************************************************************
-  friend class Array<T, MemoryLocation::HOST>;
-  friend class Array<T, MemoryLocation::DEVICE>;
-  friend class Array<T, MemoryLocation::UNIFIED>;
+  friend class DataArray<T, MemoryLocation::HOST>;
+  friend class DataArray<T, MemoryLocation::DEVICE>;
+  friend class DataArray<T, MemoryLocation::UNIFIED>;
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
@@ -125,9 +125,9 @@ public:
   // *******************************************************************************************************************
   //                                                                                                   FRIEND STRUCTS
   // *******************************************************************************************************************
-  friend class Array<T, MemoryLocation::HOST>;
-  friend class Array<T, MemoryLocation::DEVICE>;
-  friend class Array<T, MemoryLocation::UNIFIED>;
+  friend class DataArray<T, MemoryLocation::HOST>;
+  friend class DataArray<T, MemoryLocation::DEVICE>;
+  friend class DataArray<T, MemoryLocation::UNIFIED>;
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************

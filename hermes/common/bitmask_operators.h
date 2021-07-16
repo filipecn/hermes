@@ -52,7 +52,7 @@ struct EnableBitMaskOperators<x>     \
     static const bool enable = true; \
 }
 
-#define HERMES_MASK_BIT(MASK, BIT) ((MASK) & (BIT)) == (BIT)
+#define HERMES_MASK_BIT(MASK, BIT) (((MASK) & (BIT)) == (BIT))
 
 template<typename Enum>
 struct EnableBitMaskOperators {
