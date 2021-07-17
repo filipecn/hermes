@@ -74,7 +74,7 @@ public:
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE T total() const { return width * height; }
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool contains(int i, int j) const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(int i, int j) const {
     return i >= 0 && j >= 0 && i < static_cast<i64>(width) &&
         j < static_cast<i64>(height);
   }

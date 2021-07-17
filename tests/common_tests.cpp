@@ -37,6 +37,8 @@
 #include <hermes/common/index.h>
 #include <hermes/common/bitmask_operators.h>
 #include <hermes/common/file_system.h>
+#include <hermes/common/cuda_utils.h>
+#include <hermes/storage/array.h>
 
 using namespace hermes;
 
@@ -406,6 +408,7 @@ TEST_CASE("FileSystem", "[common]") {
       REQUIRE(lines[i] == "line" + std::to_string(i + 1));
   }
 }
+
 TEST_CASE("size", "[common]") {}
 
 TEST_CASE("index", "[common]") {
@@ -428,8 +431,8 @@ TEST_CASE("index", "[common]") {
   SECTION("index2 friends") {
     index2 a(-1, 2);
     index2 b(4, 1);
-    REQUIRE(max(a,b) == index2(4,2));
-    REQUIRE(min(a,b) == index2(-1,1));
+    REQUIRE(max(a, b) == index2(4, 2));
+    REQUIRE(min(a, b) == index2(-1, 1));
   }//
   SECTION("Index2Range") {
     range2 r({1, 1}, {3, 3});
@@ -491,3 +494,57 @@ TEST_CASE("index", "[common]") {
     REQUIRE(cur == 10 * 10 * 10);
   }//
 }
+
+#ifdef HERMES_DEVICE_ENABLED
+HERMES_CUDA_KERNEL(check_thread_index)(int bounds, int *result) {
+  HERMES_CUDA_THREAD_INDEX_I_LT(bounds)
+  if (i >= bounds)
+    *result = -1;
+}
+HERMES_CUDA_KERNEL(check_thread_index2)(size2 bounds, int *result) {
+  HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds)
+  if (ij >= bounds)
+    *result = -1;
+}
+HERMES_CUDA_KERNEL(check_thread_index3)(size3 bounds, int *result) {
+  HERMES_CUDA_THREAD_INDEX_IJK_LT(bounds)
+  if (ijk >= bounds)
+    *result = -1;
+}
+TEST_CASE("cuda utils", "[cuda]") {
+  SECTION("LaunchInfo") {
+    cuda_utils::LaunchInfo info(1024);
+    REQUIRE(info.threadCount() == 1024);
+    REQUIRE(info.grid_size.x == 1);
+    REQUIRE(info.grid_size.y == 1);
+    REQUIRE(info.grid_size.z == 1);
+    cuda_utils::LaunchInfo info2(2000);
+    REQUIRE(info2.grid_size.x == 8);
+    cuda_utils::LaunchInfo info3(2048);
+    REQUIRE(info3.grid_size.x == 2);
+  }//
+  SECTION("LaunchInfo2") {
+    cuda_utils::LaunchInfo info(size2(1024, 128));
+    HERMES_LOG_VARIABLE(info)
+    cuda_utils::LaunchInfo info2(size2(32, 32));
+    HERMES_LOG_VARIABLE(info2)
+  }//
+  SECTION("LaunchInfo3") {
+    cuda_utils::LaunchInfo info(size3(1024, 128, 4));
+    HERMES_LOG_VARIABLE(info)
+    cuda_utils::LaunchInfo info2(size3(32, 32,32));
+    HERMES_LOG_VARIABLE(info2)
+  }//
+  UnifiedArray<int> results(1);
+  results[0] = 0;
+  HERMES_CUDA_LAUNCH_AND_SYNC((128), check_thread_index_k, 100, results.data())
+  REQUIRE(results[0] == 0);
+  results[0] = 0;
+  HERMES_CUDA_LAUNCH_AND_SYNC((size2(128, 128)), check_thread_index2_k, { 100, 100 }, results.data())
+  REQUIRE(results[0] == 0);
+  results[0] = 0;
+  HERMES_CUDA_LAUNCH_AND_SYNC((size3(128, 128, 128)), check_thread_index3_k, { 100, 100, 100 }, results.data())
+  REQUIRE(results[0] == 0);
+}
+
+#endif

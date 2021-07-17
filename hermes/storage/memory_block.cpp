@@ -405,12 +405,14 @@ void MemoryBlock<MemoryLocation::UNIFIED>::clear() {
 
 MemoryBlock<MemoryLocation::UNIFIED> &
 MemoryBlock<MemoryLocation::UNIFIED>::operator=(const MemoryBlock<MemoryLocation::DEVICE> &other) {
+  HERMES_UNUSED_VARIABLE(other);
   HERMES_NOT_IMPLEMENTED
   return *this;
 }
 
 MemoryBlock<MemoryLocation::UNIFIED> &
 MemoryBlock<MemoryLocation::UNIFIED>::operator=(const MemoryBlock<MemoryLocation::HOST> &other) {
+  HERMES_UNUSED_VARIABLE(other);
   HERMES_NOT_IMPLEMENTED
   return *this;
 }

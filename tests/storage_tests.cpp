@@ -37,7 +37,7 @@ using namespace hermes;
 
 #ifdef ENABLE_CUDA
 HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, u32 n, u32 m) {
-  HERMES_CUDA_THREAD_INDEX2_IJ
+  HERMES_CUDA_THREAD_INDEX_IJ
   if ((ij.i >= n) || (ij.j >= m))
     return;
   u32 matrix_index = ij.j * n + ij.i;
@@ -45,7 +45,7 @@ HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, u32 n, u32 m) {
 }
 
 HERMES_CUDA_KERNEL(testArrayView)(ArrayView<int> array) {
-  HERMES_CUDA_THREAD_INDEX2_IJ
+  HERMES_CUDA_THREAD_INDEX_IJ
   if (ij < array.size.slice())
     array[ij] = ij.j * array.size.width + ij.i;
 }
