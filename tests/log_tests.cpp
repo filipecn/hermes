@@ -239,6 +239,11 @@ TEST_CASE("MemoryDumper", "[log]") {
                               }},
                          });
     }//
-
+    SECTION("array") {
+      int a[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+      MemoryDumper::dump(a, 10, 8, memory_dumper_options::colored_output,
+                         {{0, sizeof(int), 10, ConsoleColors::red,
+                           {}}});
+    }//
   }//
 }

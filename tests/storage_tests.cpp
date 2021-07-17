@@ -36,18 +36,15 @@
 using namespace hermes;
 
 #ifdef ENABLE_CUDA
-HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, u32 n, u32 m) {
-  HERMES_CUDA_THREAD_INDEX_IJ
-  if ((ij.i >= n) || (ij.j >= m))
-    return;
-  u32 matrix_index = ij.j * n + ij.i;
+HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, size2 bounds) {
+  HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds)
+  u32 matrix_index = ij.j * bounds.width + ij.i;
   data[matrix_index] = matrix_index;
 }
 
 HERMES_CUDA_KERNEL(testArrayView)(ArrayView<int> array) {
-  HERMES_CUDA_THREAD_INDEX_IJ
-  if (ij < array.size.slice())
-    array[ij] = ij.j * array.size.width + ij.i;
+  HERMES_CUDA_THREAD_INDEX_IJ_LT(array.size.slice())
+  array[ij] = ij.j * array.size.width + ij.i;
 }
 #endif
 
@@ -151,7 +148,8 @@ TEST_CASE("MemoryBlock", "[storage]") {
   SECTION("unified") {
     UnifiedMemory um(64 * 128 * 4);
     u32 *data = reinterpret_cast<u32 *>( um.ptr());
-    HERMES_CUDA_LAUNCH(({ 64, 128 }, {8, 8}), writeMatrixIndex_k, data, 64, 128)
+    size2 bounds(64, 128);
+    HERMES_CUDA_LAUNCH((bounds), writeMatrixIndex_k, data, bounds)
     HERMES_CUDA_DEVICE_SYNCHRONIZE
     for (u32 j = 0; j < 128; ++j)
       for (u32 i = 0; i < 64; ++i) {

@@ -227,8 +227,13 @@ private:
         auto region_start = region.offset;
         auto region_end = region_start + region.size_in_bytes * region.count;
         if (byte_offset >= region_start && byte_offset < region_end) {
-          if (region.sub_regions.empty())
+          if (region.sub_regions.empty()) {
+            // in the case of an array of elements, lets alternate between dimmed
+            // colors to make it easy to visually identify elements
+            if (((byte_offset - region_start) / region.size_in_bytes) % 2)
+              return ConsoleColors::combine(ConsoleColors::bold, region.color);
             return region.color;
+          }
           return f(region.sub_regions, (byte_offset - region_start) % region.size_in_bytes, region.color);
         }
       }
