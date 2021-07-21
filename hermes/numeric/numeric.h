@@ -281,6 +281,18 @@ struct Numbers {
       ++ui;
     return bitsToDouble(ui);
   }
+  /// \tparam T
+  /// \param n
+  /// \return
+  template<typename T>
+  HERMES_DEVICE_CALLABLE static u8 countHexDigits(T n) {
+    u8 count = 0;
+    while (n) {
+      count++;
+      n >>= 4;
+    }
+    return count;
+  }
 };
 
 // *********************************************************************************************************************

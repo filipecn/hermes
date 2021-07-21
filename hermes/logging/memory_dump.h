@@ -60,6 +60,7 @@ HERMES_ENABLE_BITMASK_OPERATORS(memory_dumper_options);
 class MemoryDumper {
 public:
   struct Region {
+    Region() = default;
     std::size_t offset{0};
     std::size_t size_in_bytes{0};
     std::size_t count{0};
@@ -79,12 +80,12 @@ public:
     uintptr_t aligned_base_address = reinterpret_cast<uintptr_t >(ptr) - down_shift;
     auto size_in_bytes = sizeof(T) * size + down_shift;
     Str s = "Memory Block Information\n";
-    s.appendLine("    Address:\t", addressOf(reinterpret_cast<uintptr_t>(data)));
+    s.appendLine("    Address:\t", Str::addressOf(reinterpret_cast<uintptr_t>(data)));
     s.appendLine("    Block Size:\t", sizeof(T) * size, " bytes");
     s.appendLine("  Left Alignment");
     s.appendLine("    Type Alignment:\t", alignment);
     s.appendLine("    Shift:\t", down_shift);
-    s.appendLine("    Address:\t", addressOf(reinterpret_cast<uintptr_t>(aligned_base_address)));
+    s.appendLine("    Address:\t", Str::addressOf(reinterpret_cast<uintptr_t>(aligned_base_address)));
     s.appendLine("    Total Block Size:\t", size_in_bytes, " bytes");
     return s.str();
   }
@@ -119,13 +120,13 @@ public:
       data_digit_count = 3;
     else if (HERMES_MASK_BIT(options, memory_dumper_options::binary))
       data_digit_count = 8;
-    u8 header_digit_count = countHexDigits(bytes_per_row);
+    u8 header_digit_count = Numbers::countHexDigits(bytes_per_row);
     u8 column_size = std::max(header_digit_count, data_digit_count);
     u8 address_column_size = address_digit_count + 2 + 2; // 0x + \t
     if (include_header) {
       Str s = std::string(address_column_size, ' ');
       for (u32 i = 0; i < bytes_per_row; ++i) {
-        auto bs = binaryToHex(i, true, true);
+        auto bs = Str::binaryToHex(i, true, true);
         if (i % 8 == 0)
           s.append(" ");
         s.append(std::setw(column_size), !bs.empty() ? bs : "0", " ");
@@ -146,7 +147,7 @@ public:
       { // ADDRESS
         Str s;
         s.appendLine();
-        s.append(addressOf(reinterpret_cast<uintptr_t >((void *) (aligned_base_address + byte_offset))).c_str(),
+        s.append(Str::addressOf(reinterpret_cast<uintptr_t >((void *) (aligned_base_address + byte_offset))).c_str(),
                  "  ");
         if (save_string)
           output_string += s;
@@ -178,15 +179,15 @@ public:
         Str s;
         if (!hide_zeros || byte) {
           if (HERMES_MASK_BIT(options, memory_dumper_options::hexadecimal))
-            s.append(binaryToHex(byte), " ");
+            s.append(Str::binaryToHex(byte), " ");
           else if (HERMES_MASK_BIT(options, memory_dumper_options::decimal))
             s.append(std::setfill('0'), std::setw(column_size), static_cast<u32>(byte), ' ');
           else if (HERMES_MASK_BIT(options, memory_dumper_options::binary))
-            s.append(byteToBinary(byte), " ");
+            s.append(Str::byteToBinary(byte), " ");
           else if (HERMES_MASK_BIT(options, memory_dumper_options::hexii))
             s.append(std::string(column_size, ' '), " ");
           else
-            s.append(binaryToHex(byte), " ");
+            s.append(Str::binaryToHex(byte), " ");
         } else
           s.append(std::string(column_size, ' '), " ");
 
@@ -242,52 +243,6 @@ private:
     return f(regions, byte_index, ConsoleColors::default_color);
   }
 
-  static std::string addressOf(uintptr_t ptr, u32 digit_count = 8) {
-    std::string s;
-    // TODO: assuming little endianess
-    for (i8 i = 7; i >= 0; --i) {
-      auto h = binaryToHex((ptr >> (i * 8)) & 0xff, true);
-      s += h.substr(h.size() - 2);
-    }
-    return "0x" + s.substr(s.size() - digit_count, digit_count);
-  }
-
-  template<typename T>
-  static std::string binaryToHex(T n, bool uppercase = true, bool strip_leading_zeros = false) {
-    static const char digits[] = "0123456789abcdef";
-    static const char DIGITS[] = "0123456789ABCDEF";
-    std::string s;
-    for (int i = sizeof(T) - 1; i >= 0; --i) {
-      u8 a = n >> (8 * i + 4) & 0xf;
-      u8 b = (n >> (8 * i)) & 0xf;
-      if (a)
-        strip_leading_zeros = false;
-      if (!strip_leading_zeros)
-        s += (uppercase) ? DIGITS[a] : digits[a];
-      if (b)
-        strip_leading_zeros = false;
-      if (!strip_leading_zeros)
-        s += (uppercase) ? DIGITS[b] : digits[b];
-    }
-    return s;
-  }
-
-  static std::string byteToBinary(byte b) {
-    std::string s;
-    for (int i = 7; i >= 0; i--)
-      s += std::to_string((b >> i) & 1);
-    return s;
-  }
-
-  template<typename T>
-  static u8 countHexDigits(T n) {
-    u8 count = 0;
-    while (n) {
-      count++;
-      n >>= 4;
-    }
-    return count;
-  }
 };
 
 }

@@ -173,15 +173,4 @@
     return R;                                                                                                       \
   }
 
-namespace hermes {
-
-inline void printBits(u32 n) {
-  for (int i = 31; i >= 0; i--)
-    if ((1 << i) & n)
-      std::cout << '1';
-    else
-      std::cout << '0';
-}
-} // namespace hermes
-
 #endif

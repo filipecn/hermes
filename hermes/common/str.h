@@ -152,6 +152,64 @@ public:
   /// \return A copy of s with all replacements
   static std::string replace_r(const std::string &s, const std::string &pattern, const std::string &format,
                                std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+  //                                                                                                          numeric
+  /// \param n
+  static std::string printBits(u32 n) {
+    std::string r;
+    for (int i = 31; i >= 0; i--)
+      if ((1 << i) & n)
+        r += '1';
+      else
+        r += '0';
+    return r;
+  }
+  ///
+  /// \tparam T
+  /// \param n
+  /// \param uppercase
+  /// \param strip_leading_zeros
+  /// \return
+  template<typename T>
+  static std::string binaryToHex(T n, bool uppercase = true, bool strip_leading_zeros = false) {
+    static const char digits[] = "0123456789abcdef";
+    static const char DIGITS[] = "0123456789ABCDEF";
+    std::string s;
+    for (int i = sizeof(T) - 1; i >= 0; --i) {
+      u8 a = n >> (8 * i + 4) & 0xf;
+      u8 b = (n >> (8 * i)) & 0xf;
+      if (a)
+        strip_leading_zeros = false;
+      if (!strip_leading_zeros)
+        s += (uppercase) ? DIGITS[a] : digits[a];
+      if (b)
+        strip_leading_zeros = false;
+      if (!strip_leading_zeros)
+        s += (uppercase) ? DIGITS[b] : digits[b];
+    }
+    return s;
+  }
+  ///
+  /// \param ptr
+  /// \param digit_count
+  /// \return
+  static std::string addressOf(uintptr_t ptr, u32 digit_count = 8) {
+    std::string s;
+    // TODO: assuming little endianess
+    for (i8 i = 7; i >= 0; --i) {
+      auto h = binaryToHex((ptr >> (i * 8)) & 0xff, true);
+      s += h.substr(h.size() - 2);
+    }
+    return "0x" + s.substr(s.size() - digit_count, digit_count);
+  }
+  ///
+  /// \param b
+  /// \return
+  static std::string byteToBinary(byte b) {
+    std::string s;
+    for (int i = 7; i >= 0; i--)
+      s += std::to_string((b >> i) & 1);
+    return s;
+  }
   // *******************************************************************************************************************
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
