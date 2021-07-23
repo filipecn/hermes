@@ -46,6 +46,7 @@ struct Constants {
   static constexpr real_t inv_pi = 0.31830988618379067154;
   static constexpr real_t inv_two_pi = 0.15915494309189533577;
   static constexpr real_t inv_four_pi = 0.07957747154594766788;
+  static constexpr real_t pi_over_four = 0.78539816339;
   static constexpr real_t machine_epsilon = std::numeric_limits<real_t>::epsilon() * .5;
   static constexpr real_t real_infinity = std::numeric_limits<real_t>::max();
   static constexpr f64 f64_one_minus_epsilon = 0x1.fffffffffffffp-1;
