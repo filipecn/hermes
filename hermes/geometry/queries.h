@@ -33,6 +33,9 @@
 #include <hermes/geometry/transform.h>
 #include <hermes/geometry/utils.h>
 #include <hermes/geometry/vector.h>
+#include <hermes/geometry/line.h>
+#include <hermes/geometry/plane.h>
+#include <hermes/geometry/sphere.h>
 #include <optional>
 
 namespace hermes {
@@ -44,6 +47,65 @@ public:
   /// \param p
   /// \return
   static point3 closestPoint(const bbox3 &box, const point3 &p);
+  static bool intersect(const Plane &pl, const Line &l, point3 &p);
+  ///  \brief  intersection test
+  /// \param s **[in]** sphere
+  /// \param l **[in]** line
+  /// \param p1 **[out]** first intersection
+  /// \param p2 **[out]** second intersection
+  ///
+  /// Sphere / Line intersection test
+  ///
+  /// **p1** = **p2** if line is tangent to sphere
+  ///
+  /// /return **true** if intersection exists
+  static bool intersect(const Sphere &s, const Line &l, point3 &p1, point3 &p2);
+/** \brief  intersection test
+ * \param box **[in]**
+ * \param ray **[in]**
+ * \param hit1 **[out]** first intersection
+ * \param hit2 **[out]** second intersection
+ * \param normal **[out | optional]** collision normal
+ *
+ * bbox2D / Ray intersection test.
+ *
+ * **hit1** and **hit2** are in the ray's parametric coordinate.
+ *
+ * **hit1** = **hit2** if a single point is found.
+ *
+ * /return **true** if intersectiton exists
+ */
+  static bool intersect(const bbox2 &box, const Ray2 &ray, real_t &hit1,
+                                    real_t &hit2, real_t *normal = nullptr);
+/** \brief  intersection test
+ * \param box **[in]**
+ * \param ray **[in]**
+ * \param hit1 **[out]** first intersection
+ * \param hit2 **[out]** second intersection
+ *
+ * BBox / Ray3 intersection test.
+ *
+ * **hit1** and **hit2** are in the ray's parametric coordinate.
+ *
+ * **hit1** = **hit2** if a single point is found.
+ *
+ * /return **true** if intersectiton exists
+ */
+  [[deprecated]] static bool intersect(const bbox3 &box, const Ray3 &ray, real_t &hit1,
+                                                   real_t &hit2);
+/** \brief  intersection test
+ * \param box **[in]**
+ * \param ray **[in]**
+ * \param hit1 **[out]** closest intersection
+ *
+ * BBox / Ray3 intersection test. Computes the closest intersection from the
+ *ray's origin.
+ *
+ * **hit1** in in the ray's parametric coordinate.
+ *
+ * /return **true** if intersection exists
+ */
+  static bool intersect(const bbox3 &box, const Ray3 &ray, real_t &hit1);
 };
 
 class GeometricPredicates {

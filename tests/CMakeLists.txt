@@ -2,6 +2,7 @@ set(SOURCES
         main.cu
         #        blas_tests.cu
         common_tests.cpp
+        data_structures_tests.cpp
         geometry_tests.cpp
         log_tests.cpp
         numeric_tests.cpp

@@ -123,7 +123,7 @@ public:
     }
   }
   HERMES_DEVICE_CALLABLE real_t uniformFloat() {
-    return min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));
+    return ::min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));
   }
 private:
   u64 state{0x853c49e6748fea9bULL}, inc{0xda3e39cb94b95bdbULL};
@@ -170,7 +170,7 @@ public:
   /// \param a lower bound
   /// \param b upper bound
   /// \return random float in the range [a,b)
-  float randomFloat(float a, float b) { return Interpolation::lerp(randomFloat(), a, b); }
+  float randomFloat(float a, float b) { return interpolation::lerp(randomFloat(), a, b); }
 
 private:
   uint base, ind;

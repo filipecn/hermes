@@ -124,12 +124,12 @@ public:
   /// \param i
   /// \return
   HERMES_DEVICE_CALLABLE const T &operator[](size_t i) const {
-    return *reinterpret_cast<T *>(data_ + i * stride_ + offset_);
+    return *reinterpret_cast<const T *>(data_ + i * stride_ + offset_);
   }
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE size_t size() const { return size_; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE size_t size() const { return size_; }
   /// \param data
   HERMES_DEVICE_CALLABLE void setDataPtr(const u8 *data) { data_ = data; }
 private:

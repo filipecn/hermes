@@ -42,19 +42,6 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE static BBox1 unitBox() { return BBox1<T>(0, 1); }
   // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE friend BBox1 make_union(const BBox1 &b, const T &p) {
-    BBox1 ret = b;
-    ret.lower = std::min(b.lower, p);
-    ret.upper = std::max(b.upper, p);
-    return ret;
-  }
-  HERMES_DEVICE_CALLABLE friend BBox1 make_union(const BBox1 &a, const BBox1 &b) {
-    BBox1 ret = make_union(a, b.lower);
-    return make_union(ret, b.upper);
-  }
-  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE BBox1() {
@@ -101,28 +88,6 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE static BBox2<T> unitBox() {
     return {Point2<T>(), Point2<T>(1, 1)};
-  }
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE friend inline BBox2<T> make_union(const BBox2<T> &b, const Point2 <T> &p) {
-    BBox2<T> ret = b;
-#ifdef HERMES_DEVICE_ENABLED
-    ret.lower.x = fminf(b.lower.x, p.x);
-    ret.lower.y = fminf(b.lower.y, p.y);
-    ret.upper.x = fmaxf(b.upper.x, p.x);
-    ret.upper.y = fmaxf(b.upper.y, p.y);
-#else
-    ret.lower.x = std::min(b.lower.x, p.x);
-    ret.lower.y = std::min(b.lower.y, p.y);
-    ret.upper.x = std::max(b.upper.x, p.x);
-    ret.upper.y = std::max(b.upper.y, p.y);
-#endif
-    return ret;
-  }
-  HERMES_DEVICE_CALLABLE friend inline BBox2<T> make_union(const BBox2<T> &a, const BBox2<T> &b) {
-    BBox2<T> ret = make_union(a, b.lower);
-    return make_union(ret, b.upper);
   }
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
@@ -226,69 +191,6 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE static BBox3 unitBox() {
     return {Point3<T>(), Point3<T>(1, 1, 1)};
-  }
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  /// Checks if both bounding boxes overlap
-  /// \param a first bounding box
-  /// \param b second bounding box
-  /// \return true if they overlap
-  HERMES_DEVICE_CALLABLE friend bool overlaps(const BBox3<T> &a, const BBox3<T> &b) {
-    bool x = (a.upper.x >= b.lower.x) && (a.lower.x <= b.upper.x);
-    bool y = (a.upper.y >= b.lower.y) && (a.lower.y <= b.upper.y);
-    bool z = (a.upper.z >= b.lower.z) && (a.lower.z <= b.upper.z);
-    return (x && y && z);
-  }
-  /// \tparam T coordinates type
-  /// \param b bounding box
-  /// \param p point
-  /// \return a new bounding box that encompasses **b** and **p**
-  HERMES_DEVICE_CALLABLE friend BBox3<T> make_union(const BBox3<T> &b, const Point3 <T> &p) {
-    BBox3 <T> ret = b;
-#ifdef HERMES_DEVICE_ENABLED
-    ret.lower.x = fminf(b.lower.x, p.x);
-    ret.lower.y = fminf(b.lower.y, p.y);
-    ret.lower.z = fminf(b.lower.z, p.z);
-    ret.upper.x = fmaxf(b.upper.x, p.x);
-    ret.upper.y = fmaxf(b.upper.y, p.y);
-    ret.upper.z = fmaxf(b.upper.z, p.z);
-#else
-    ret.lower.x = std::min(b.lower.x, p.x);
-    ret.lower.y = std::min(b.lower.y, p.y);
-    ret.lower.z = std::min(b.lower.z, p.z);
-    ret.upper.x = std::max(b.upper.x, p.x);
-    ret.upper.y = std::max(b.upper.y, p.y);
-    ret.upper.z = std::max(b.upper.z, p.z);
-#endif
-    return ret;
-  }
-  /// \tparam T coordinates type
-  /// \param a bounding box
-  /// \param b bounding box
-  /// \return a new bounding box that encompasses **a** and **b**
-  HERMES_DEVICE_CALLABLE friend inline BBox3<T> make_union(const BBox3<T> &a, const BBox3<T> &b) {
-    BBox3 <T> ret = make_union(a, b.lower);
-    return make_union(ret, b.upper);
-  }
-  /// \tparam T coordinates type
-  /// \param a bounding box
-  /// \param b bounding box
-  /// \return a new bbox resulting from the intersection of **a** and **b**
-  HERMES_DEVICE_CALLABLE friend BBox3<T> intersect(const BBox3<T> &a, const BBox3<T> &b) {
-#ifdef HERMES_DEVICE_ENABLED
-    return BBox3<T>(
-        Point3<T>(max(a.lower.x, b.lower.x), max(a.lower.x, b.lower.y),
-                  max(a.lower.z, b.lower.z)),
-        Point3<T>(min(a.upper.x, b.upper.x), min(a.upper.x, b.upper.y),
-                  min(a.upper.z, b.upper.z)));
-#else
-    return BBox3<T>(
-        Point3<T>(std::max(a.lower.x, b.lower.x), std::max(a.lower.x, b.lower.y),
-                  std::max(a.lower.z, b.lower.z)),
-        Point3<T>(std::min(a.upper.x, b.upper.x), std::min(a.upper.x, b.upper.y),
-                  std::min(a.upper.z, b.upper.z)));
-#endif
   }
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
@@ -405,8 +307,8 @@ public:
     * ------------ */
   [[nodiscard]] std::vector<BBox3> splitBy8() const {
     auto mid = center();
-    std::vector<BBox3<T>>
-        children;
+    std::vector<BBox3 < T>>
+    children;
     children.emplace_back(lower, mid);
     children.emplace_back(Point3<T>(mid.x, lower.y, lower.z),
                           Point3<T>(upper.x, mid.y, mid.z));
@@ -467,6 +369,109 @@ public:
   Point3 <T> lower, upper;
 };
 
+// *********************************************************************************************************************
+//                                                                                                 EXTERNAL FUNCTIONS
+// *********************************************************************************************************************
+template<typename T>
+HERMES_DEVICE_CALLABLE  BBox1<T> make_union(const BBox1<T> &b, const T &p) {
+  BBox1 ret = b;
+  ret.lower = std::min(b.lower, p);
+  ret.upper = std::max(b.upper, p);
+  return ret;
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  BBox1<T> make_union(const BBox1<T> &a, const BBox1<T> &b) {
+  BBox1 ret = make_union(a, b.lower);
+  return make_union(ret, b.upper);
+}
+
+template<typename T>
+HERMES_DEVICE_CALLABLE  inline BBox2<T> make_union(const BBox2<T> &b, const Point2 <T> &p) {
+  BBox2<T> ret = b;
+#ifdef HERMES_DEVICE_ENABLED
+  ret.lower.x = fminf(b.lower.x, p.x);
+  ret.lower.y = fminf(b.lower.y, p.y);
+  ret.upper.x = fmaxf(b.upper.x, p.x);
+  ret.upper.y = fmaxf(b.upper.y, p.y);
+#else
+  ret.lower.x = std::min(b.lower.x, p.x);
+    ret.lower.y = std::min(b.lower.y, p.y);
+    ret.upper.x = std::max(b.upper.x, p.x);
+    ret.upper.y = std::max(b.upper.y, p.y);
+#endif
+  return ret;
+}
+
+template<typename T>
+HERMES_DEVICE_CALLABLE  inline BBox2<T> make_union(const BBox2<T> &a, const BBox2<T> &b) {
+  BBox2<T> ret = make_union(a, b.lower);
+  return make_union(ret, b.upper);
+}
+
+/// Checks if both bounding boxes overlap
+/// \param a first bounding box
+/// \param b second bounding box
+/// \return true if they overlap
+template<typename T>
+HERMES_DEVICE_CALLABLE  bool overlaps(const BBox3<T> &a, const BBox3<T> &b) {
+  bool x = (a.upper.x >= b.lower.x) && (a.lower.x <= b.upper.x);
+  bool y = (a.upper.y >= b.lower.y) && (a.lower.y <= b.upper.y);
+  bool z = (a.upper.z >= b.lower.z) && (a.lower.z <= b.upper.z);
+  return (x && y && z);
+}
+/// \tparam T coordinates type
+/// \param b bounding box
+/// \param p point
+/// \return a new bounding box that encompasses **b** and **p**
+template<typename T>
+HERMES_DEVICE_CALLABLE  BBox3<T> make_union(const BBox3<T> &b, const Point3 <T> &p) {
+  BBox3 <T> ret = b;
+#ifdef HERMES_DEVICE_ENABLED
+  ret.lower.x = fminf(b.lower.x, p.x);
+  ret.lower.y = fminf(b.lower.y, p.y);
+  ret.lower.z = fminf(b.lower.z, p.z);
+  ret.upper.x = fmaxf(b.upper.x, p.x);
+  ret.upper.y = fmaxf(b.upper.y, p.y);
+  ret.upper.z = fmaxf(b.upper.z, p.z);
+#else
+  ret.lower.x = std::min(b.lower.x, p.x);
+    ret.lower.y = std::min(b.lower.y, p.y);
+    ret.lower.z = std::min(b.lower.z, p.z);
+    ret.upper.x = std::max(b.upper.x, p.x);
+    ret.upper.y = std::max(b.upper.y, p.y);
+    ret.upper.z = std::max(b.upper.z, p.z);
+#endif
+  return ret;
+}
+/// \tparam T coordinates type
+/// \param a bounding box
+/// \param b bounding box
+/// \return a new bounding box that encompasses **a** and **b**
+template<typename T>
+HERMES_DEVICE_CALLABLE  inline BBox3<T> make_union(const BBox3<T> &a, const BBox3<T> &b) {
+  BBox3 <T> ret = make_union(a, b.lower);
+  return make_union(ret, b.upper);
+}
+/// \tparam T coordinates type
+/// \param a bounding box
+/// \param b bounding box
+/// \return a new bbox resulting from the intersection of **a** and **b**
+template<typename T>
+HERMES_DEVICE_CALLABLE  BBox3<T> intersect(const BBox3<T> &a, const BBox3<T> &b) {
+#ifdef HERMES_DEVICE_ENABLED
+  return BBox3<T>(
+      Point3<T>(max(a.lower.x, b.lower.x), max(a.lower.x, b.lower.y),
+                max(a.lower.z, b.lower.z)),
+      Point3<T>(min(a.upper.x, b.upper.x), min(a.upper.x, b.upper.y),
+                min(a.upper.z, b.upper.z)));
+#else
+  return BBox3<T>(
+        Point3<T>(std::max(a.lower.x, b.lower.x), std::max(a.lower.x, b.lower.y),
+                  std::max(a.lower.z, b.lower.z)),
+        Point3<T>(std::min(a.upper.x, b.upper.x), std::min(a.upper.x, b.upper.y),
+                  std::min(a.upper.z, b.upper.z)));
+#endif
+}
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************

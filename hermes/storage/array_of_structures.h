@@ -178,9 +178,9 @@ public:
     auto it = struct_descriptor_.field_id_map_.find(name);
     if (it == struct_descriptor_.field_id_map_.end()) {
       Log::error("Field {} not found.", name);
-      return ConstAoSFieldView<T>(nullptr, 0, 0);
+      return ConstAoSFieldView<T>(nullptr, 0, 0, 0);
     }
-    return ConstAoSFieldView<T>(data_,
+    return ConstAoSFieldView<T>(data_.ptr(),
                                 struct_descriptor_.struct_size_,
                                 struct_descriptor_.fields_[it->second].offset,
                                 size_);
@@ -227,7 +227,7 @@ private:
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************
-std::ostream &operator<<(std::ostream &o, const ArrayOfStructs<MemoryLocation::HOST> &aos) {
+inline std::ostream &operator<<(std::ostream &o, const ArrayOfStructs<MemoryLocation::HOST> &aos) {
 #define PRINT_FIELD_VALUE(T, Type) \
         if (f.type == DataType::Type) { \
     const T *ptr = reinterpret_cast<const T *>(aos.data() + offset + f.offset); \
@@ -265,14 +265,14 @@ std::ostream &operator<<(std::ostream &o, const ArrayOfStructs<MemoryLocation::H
   return o;
 #undef PRINT_FIELD_VALUE
 }
-std::ofstream &operator<<(std::ofstream &o, const ArrayOfStructs<MemoryLocation::HOST> &aos) {
+inline std::ofstream &operator<<(std::ofstream &o, const ArrayOfStructs<MemoryLocation::HOST> &aos) {
   size_t size = aos.size();
   o.write(reinterpret_cast<const char *>(&size), sizeof(u64));
   o << aos.structDescriptor();
   o.write(reinterpret_cast<const char *>(aos.data()), aos.memorySizeInBytes());
   return o;
 }
-std::ifstream &operator>>(std::ifstream &i, ArrayOfStructs<MemoryLocation::HOST> &aos) {
+inline std::ifstream &operator>>(std::ifstream &i, ArrayOfStructs<MemoryLocation::HOST> &aos) {
   aos = ArrayOfStructs<MemoryLocation::HOST>();
   size_t size = 0;
   i.read(reinterpret_cast<char *>(&size), sizeof(u64));

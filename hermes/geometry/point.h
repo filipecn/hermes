@@ -44,33 +44,6 @@ template<typename T> class Point2 : public MathElement<T, 2u> {
       std::is_same<T, double>::value, "Point2 must hold a float type!");
 public:
   // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE friend Point2<T> operator*(real_t f, const Point2<T> &a) {
-    return Point2<T>(a.x * f, a.y * f);
-  }
-  //                                                                                                         geometry
-  HERMES_DEVICE_CALLABLE friend real_t distance(const Point2<T> &a, const Point2<T> &b) {
-    return (a - b).length();
-  }
-  HERMES_DEVICE_CALLABLE friend real_t distance2(const Point2<T> &a, const Point2<T> &b) {
-    return (a - b).length2();
-  }
-#define MATH_OP(NAME, OP)                                                                                           \
-  HERMES_DEVICE_CALLABLE friend Point2<T> NAME(const Point2<T>& p) {                                                \
-    return Point2<T>(OP(p.x), OP(p.y));  }
-#ifdef HERMES_DEVICE_ENABLED
-  MATH_OP(floor, floor)
-  MATH_OP(ceil, ceil)
-  MATH_OP(abs, abs)
-#else
-  MATH_OP(floor, std::floor)
-  MATH_OP(ceil, std::ceil)
-  MATH_OP(abs, std::abs)
-#endif
-#undef MATH_OP
-  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE explicit Point2(T f = T(0)) { x = y = f; }
@@ -142,18 +115,6 @@ template<typename T> class Point3 : public MathElement<T, 3u> {
       std::is_same<T, double>::value, "Size2 must hold an float type!");
 public:
   // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE friend real_t distance(const Point3<T> &a, const Point3<T> &b) {
-    return (a - b).length();
-  }
-  HERMES_DEVICE_CALLABLE friend real_t distance2(const Point3<T> &a, const Point3<T> &b) {
-    return (a - b).length2();
-  }
-  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Point3() : x{0}, y{0}, z{0} {}
@@ -216,6 +177,47 @@ public:
   T y = T(0.0);
   T z = T(0.0);
 };
+
+// *********************************************************************************************************************
+//                                                                                                 EXTERNAL FUNCTIONS
+// *********************************************************************************************************************
+//                                                                                                         arithmetic
+template<typename T>
+HERMES_DEVICE_CALLABLE Point2<T> operator*(real_t f, const Point2<T> &a) {
+  return Point2<T>(a.x * f, a.y * f);
+}
+//                                                                                                           geometry
+template<typename T>
+HERMES_DEVICE_CALLABLE real_t distance(const Point2<T> &a, const Point2<T> &b) {
+  return (a - b).length();
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE real_t distance2(const Point2<T> &a, const Point2<T> &b) {
+  return (a - b).length2();
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE real_t distance(const Point3<T> &a, const Point3<T> &b) {
+  return (a - b).length();
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE real_t distance2(const Point3<T> &a, const Point3<T> &b) {
+  return (a - b).length2();
+}
+//                                                                                                            numbers
+#define MATH_OP(NAME, OP)                                                                                           \
+  template<typename T>                                                                                              \
+  HERMES_DEVICE_CALLABLE Point2<T> NAME(const Point2<T>& p) {                                                       \
+    return Point2<T>(OP(p.x), OP(p.y));  }
+#ifdef HERMES_DEVICE_ENABLED
+MATH_OP(floor, ::floor)
+MATH_OP(ceil, ::ceil)
+MATH_OP(abs, ::abs)
+#else
+MATH_OP(floor, std::floor)
+  MATH_OP(ceil, std::ceil)
+  MATH_OP(abs, std::abs)
+#endif
+#undef MATH_OP
 
 // *********************************************************************************************************************
 //                                                                                                                 IO

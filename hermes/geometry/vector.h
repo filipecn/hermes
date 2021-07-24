@@ -54,40 +54,6 @@ template<typename T> class Vector2 : public MathElement<T, 2u> {
 
 public:
   // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  //                                                                                                         geometry
-  HERMES_DEVICE_CALLABLE friend T dot(const Vector2<T> &a, const Vector2<T> &b) {
-    return a.x * b.x + a.y * b.y;
-  }
-  HERMES_DEVICE_CALLABLE friend Vector2<T> normalize(const Vector2<T> &v) {
-    return v / v.length();
-  }
-  HERMES_DEVICE_CALLABLE friend Vector2<T> orthonormal(const Vector2<T> &v, bool first = true) {
-    Vector2<T> n = normalize(v);
-    if (first)
-      return Vector2<T>(-n.y, n.x);
-    return Vector2<T>(n.y, -n.x);
-  }
-  /// Projects a vector onto another.
-  /// \param a **[in]**
-  /// \param b **[in]**
-  /// \returns the projection of **a** onto **b**
-  HERMES_DEVICE_CALLABLE friend Vector2<T> project(const Vector2<T> &a, const Vector2<T> &b) {
-    return (dot(b, a) / b.length2()) * b;
-  }
-  HERMES_DEVICE_CALLABLE friend T cross(const Vector2<T> &a, const Vector2<T> &b) {
-    return a.x * b.y - a.y * b.x;
-  }
-
-  //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE friend Vector2<T> operator*(T f, const Vector2<T> &v) {
-    return v * f;
-  }
-  HERMES_DEVICE_CALLABLE friend Vector2<T> operator/(T f, const Vector2<T> &v) {
-    return Vector2<T>(f / v.x, f / v.y);
-  }
-  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Vector2() : x{0}, y{0} {};
@@ -150,9 +116,6 @@ public:
 
 template<typename T> class Point3;
 
-template<typename T>
-HERMES_DEVICE_CALLABLE  Vector3<T> normalize(const Vector3<T> &v);
-
 // *********************************************************************************************************************
 //                                                                                                            Vector3
 // *********************************************************************************************************************
@@ -163,59 +126,6 @@ template<typename T> class Vector3 : public MathElement<T, 3u> {
                 "Vector3 must hold an float type!");
 
 public:
-  // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE friend Vector3<T> max(const Vector3<T> &a, const Vector3<T> &b) {
-    return Vector3<T>(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
-  }
-  HERMES_DEVICE_CALLABLE friend Vector3<T> abs(const Vector3<T> &a) {
-    return Vector3<T>(std::abs(a.x), std::abs(a.y), std::abs(a.z));
-  }
-  //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE friend Vector3<T> operator*(T f, const Vector3<T> &v) {
-    return v * f;
-  }
-  //                                                                                                         geometry
-  HERMES_DEVICE_CALLABLE friend T dot(const Vector3<T> &a, const Vector3<T> &b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-  }
-  HERMES_DEVICE_CALLABLE friend Vector3<T> cross(const Vector3<T> &a, const Vector3<T> &b) {
-    return Vector3<T>((a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z),
-                      (a.x * b.y) - (a.y * b.x));
-  }
-  HERMES_DEVICE_CALLABLE friend T triple(const Vector3<T> &a, const Vector3<T> &b, const Vector3<T> &c) {
-    return dot(a, cross(b, c));
-  }
-  HERMES_DEVICE_CALLABLE friend Vector3<T> normalize(const Vector3<T> &v) {
-    if (v.length2() == 0.f)
-      return v;
-    return v / v.length();
-  }
-  /// \brief compute the two orthogonal-tangential vectors from a
-  /// \param a **[in]** normal
-  /// \param b **[out]** first tangent
-  /// \param c **[out]** second tangent
-  HERMES_DEVICE_CALLABLE friend void tangential(const Vector3<T> &a, Vector3<T> &b, Vector3<T> &c) {
-    b = hermes::normalize(cross(a, ((std::abs(a.y) > 0.f || std::abs(a.z) > 0.f)
-                                    ? Vector3<T>(1, 0, 0)
-                                    : Vector3<T>(0, 1, 1))));
-    c = hermes::normalize(cross(a, b));
-  }
-  /// \note b * dot(a,b) / ||b||
-  /// \tparam T
-  /// \param a
-  /// \param b
-  /// \return projection of **a** onto **b**
-  HERMES_DEVICE_CALLABLE friend Vector3<T> project(const Vector3<T> &a, const Vector3<T> &b) {
-    return (dot(b, a) / b.length2()) * b;
-  }
-  HERMES_DEVICE_CALLABLE friend Vector3<T> cos(const Vector3<T> &v) {
-    return Vector3<T>(std::cos(v.x), std::cos(v.y), std::cos(v.z));
-  }
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
@@ -401,12 +311,6 @@ public:
 template<typename T> class Vector4 : public MathElement<T, 4> {
 public:
   // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Vector4() : x{0}, y{0}, z{0}, w{0} {}
@@ -479,6 +383,143 @@ public:
   T w = T(0.0);
 };
 
+// *********************************************************************************************************************
+//                                                                                                 EXTERNAL FUNCTIONS
+// *********************************************************************************************************************
+//                                                                                                         geometry
+template<typename T>
+HERMES_DEVICE_CALLABLE  T dot(const Vector2<T> &a, const Vector2<T> &b) {
+  return a.x * b.x + a.y * b.y;
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  T dot(const Vector3<T> &a, const Vector3<T> &b) {
+  return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  T cross(const Vector2<T> &a, const Vector2<T> &b) {
+  return a.x * b.y - a.y * b.x;
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector3<T> cross(const Vector3<T> &a, const Vector3<T> &b) {
+  return Vector3<T>((a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z),
+                    (a.x * b.y) - (a.y * b.x));
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  T triple(const Vector3<T> &a, const Vector3<T> &b, const Vector3<T> &c) {
+  return dot(a, cross(b, c));
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector2<T> normalize(const Vector2<T> &v) {
+  return v / v.length();
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector3<T> normalize(const Vector3<T> &v) {
+  if (v.length2() == 0.f)
+    return v;
+  return v / v.length();
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector2<T> orthonormal(const Vector2<T> &v, bool first = true) {
+  Vector2<T> n = normalize(v);
+  if (first)
+    return Vector2<T>(-n.y, n.x);
+  return Vector2<T>(n.y, -n.x);
+}
+/// Projects a vector onto another.
+/// \param a **[in]**
+/// \param b **[in]**
+/// \returns the projection of **a** onto **b**
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector2<T> project(const Vector2<T> &a, const Vector2<T> &b) {
+  return (dot(b, a) / b.length2()) * b;
+}
+/// \note b * dot(a,b) / ||b||
+/// \tparam T
+/// \param a
+/// \param b
+/// \return projection of **a** onto **b**
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector3<T> project(const Vector3<T> &a, const Vector3<T> &b) {
+  return (dot(b, a) / b.length2()) * b;
+}
+/// \brief compute the two orthogonal-tangential vectors from a
+/// \param a **[in]** normal
+/// \param b **[out]** first tangent
+/// \param c **[out]** second tangent
+template<typename T>
+HERMES_DEVICE_CALLABLE  void tangential(const Vector3<T> &a, Vector3<T> &b, Vector3<T> &c) {
+  b = hermes::normalize(cross(a, ((std::abs(a.y) > 0.f || std::abs(a.z) > 0.f)
+                                  ? Vector3<T>(1, 0, 0)
+                                  : Vector3<T>(0, 1, 1))));
+  c = hermes::normalize(cross(a, b));
+}
+
+
+//                                                                                                         arithmetic
+#define DOP2(OP) f OP v.x, f OP v.y
+#define DOP3(OP) f OP v.x, f OP v.y, f OP v.z
+#define MATH_OP(D, OP)                                                                                                 \
+template<typename T>                                                                                                   \
+HERMES_DEVICE_CALLABLE  Vector##D<T> operator OP(T f, const Vector##D<T> &v) {                                         \
+  return Vector##D<T>(DOP##D(OP)); }
+MATH_OP(2, *)
+MATH_OP(2, /)
+MATH_OP(3, *)
+MATH_OP(3, /)
+#undef MATH_OP
+#undef DOP2
+#undef DOP3
+
+#define DOP2(OP) OP(a.x, b.x), OP(a.y, b.y)
+#define DOP3(OP) OP(a.x, b.x), OP(a.y, b.y), OP(a.z, b.z)
+#define MATH_OP(D, NAME, OP) \
+template<typename T> \
+HERMES_DEVICE_CALLABLE  Vector##D<T> NAME(const Vector##D<T> &a, const Vector##D<T> &b) { \
+  return Vector##D<T>(DOP##D(OP)); }
+#ifdef HERMES_DEVICE_ENABLED
+MATH_OP(2, min, min)
+MATH_OP(2, max, max)
+MATH_OP(3, min, min)
+MATH_OP(3, max, max)
+#else
+MATH_OP(2, min, std::min)
+MATH_OP(2, max, std::max)
+MATH_OP(3, min, std::min)
+MATH_OP(3, max, std::max)
+#endif
+#undef MATH_OP
+#undef DOP2
+#undef DOP3
+
+//                                                                                                            numbers
+#define DOP2(OP) OP(v.x), OP(v.y)
+#define DOP3(OP) OP(v.x), OP(v.y), OP(v.z)
+#define MATH_OP(NAME, OP, D)                                                                                          \
+  template<typename T>                                                                                                 \
+  HERMES_DEVICE_CALLABLE Vector##D<T> NAME(const Vector##D<T>& v) {                                                    \
+    return Vector##D<T>(DOP##D(OP));  }
+#ifdef HERMES_DEVICE_ENABLED
+MATH_OP(floor, ::floor, 2)
+MATH_OP(ceil, ::ceil, 2)
+MATH_OP(abs, ::abs, 2)
+MATH_OP(cos, ::cos, 2)
+MATH_OP(floor, ::floor, 3)
+MATH_OP(ceil, ::ceil, 3)
+MATH_OP(abs, ::abs, 3)
+MATH_OP(cos, ::cos, 3)
+#else
+MATH_OP(floor, std::floor, 2)
+MATH_OP(ceil, std::ceil, 2)
+MATH_OP(abs, std::abs, 2)
+MATH_OP(cos, std::cos, 2)
+MATH_OP(floor, std::floor, 3)
+MATH_OP(ceil, std::ceil, 3)
+MATH_OP(abs, std::abs, 3)
+MATH_OP(cos, std::cos, 3)
+#endif
+#undef MATH_OP
+#undef DOP2
+#undef DOP3
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************

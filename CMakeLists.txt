@@ -57,13 +57,24 @@ set(HERMES_HEADERS
         hermes/common/size.h
         hermes/common/str.h
         hermes/common/timer.h
+        hermes/data_structures/n_mesh.h
+        hermes/data_structures/p_mesh.h
+        hermes/data_structures/raw_mesh.h
         #        hermes/common/reduce.h
         hermes/geometry/bbox.h
+        hermes/geometry/frustum.h
+        hermes/geometry/line.h
         hermes/geometry/matrix.h
         hermes/geometry/normal.h
+        hermes/geometry/parametric_surface.h
+        hermes/geometry/plane.h
         hermes/geometry/point.h
         hermes/geometry/queries.h
         hermes/geometry/ray.h
+        hermes/geometry/segment.h
+        hermes/geometry/shape.h
+        hermes/geometry/sphere.h
+        hermes/geometry/surface.h
         hermes/geometry/transform.h
         hermes/geometry/utils.h
         hermes/geometry/vector.h
@@ -105,6 +116,7 @@ set(HERMES_HEADERS
         )
 file(GLOB HERMES_SOURCES
         hermes/common/*.cpp
+        hermes/data_structures/*.cpp
         hermes/geometry/*.cpp
         hermes/logging/*.cpp
         #        hermes/numeric/*.cpp

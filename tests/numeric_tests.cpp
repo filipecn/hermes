@@ -17,7 +17,7 @@ HERMES_CUDA_KERNEL(testEFloat)(bool *result) {
 }
 #endif
 
-TEST_CASE("Interval") {
+TEST_CASE("interval") {
   HERMES_NOT_IMPLEMENTED
 }
 
@@ -25,7 +25,7 @@ TEST_CASE("EFloat") {
   EFloat ef;
 }
 
-TEST_CASE("Interpolation", "[numeric][interpolation]") {
+TEST_CASE("interpolation", "[numeric][interpolation]") {
   SECTION("linear") {
     { // 1D
       float dx = 0.01;
@@ -33,7 +33,7 @@ TEST_CASE("Interpolation", "[numeric][interpolation]") {
       HaltonSequence sampler;
       for (int i = 0; i < 1000; ++i) {
         auto p = sampler.randomFloat();
-        REQUIRE(Interpolation::lerp<float>(p, f(0), f(dx)) == Approx(f(p * dx)).margin(1e-6));
+        REQUIRE(interpolation::lerp<float>(p, f(0), f(dx)) == Approx(f(p * dx)).margin(1e-6));
       }
     }
     { // 2D
@@ -42,7 +42,7 @@ TEST_CASE("Interpolation", "[numeric][interpolation]") {
       float dx = 0.01;
       for (int i = 0; i < 1000; ++i) {
         auto p = sampler.sample(bbox2::unitBox());
-        REQUIRE(Interpolation::bilerp<float>(p.x, p.y, f(0.00, 0.00), f(dx, 0.00), f(dx, dx),
+        REQUIRE(interpolation::bilerp<float>(p.x, p.y, f(0.00, 0.00), f(dx, 0.00), f(dx, dx),
                                              f(0.00, dx)) ==
             Approx(f(p.x * dx, p.y * dx)).margin(1e-6));
       }
@@ -57,7 +57,7 @@ TEST_CASE("Interpolation", "[numeric][interpolation]") {
       float dx = 0.01;
       auto f = [](float x) -> float { return std::cos(x) * std::sin(x); };
       for (float s = 0.0; s <= 1.0; s += 0.01) {
-        REQUIRE(Interpolation::monotonicCubicInterpolate(f(-1 * dx), f(0), f(1 * dx),
+        REQUIRE(interpolation::monotonicCubicInterpolate(f(-1 * dx), f(0), f(1 * dx),
                                                          f(2 * dx),
                                                          s) == Approx(f(s * dx)).margin(1e-7));
       }
@@ -72,7 +72,7 @@ TEST_CASE("Interpolation", "[numeric][interpolation]") {
       RNGSampler sampler;
       for (int i = 0; i < 1000; ++i) {
         auto p = sampler.sample(bbox2::unitBox());
-        REQUIRE(Interpolation::monotonicCubicInterpolate(v, point2(p.x, p.y)) ==
+        REQUIRE(interpolation::monotonicCubicInterpolate(v, point2(p.x, p.y)) ==
             Approx(f(dx + p.x * dx, dx + p.y * dx)).margin(1e-7));
       }
     }
@@ -89,7 +89,7 @@ TEST_CASE("Interpolation", "[numeric][interpolation]") {
       RNGSampler sampler;
       for (int i = 0; i < 1000; ++i) {
         auto p = sampler.sample(bbox3::unitBox());
-        REQUIRE(Interpolation::monotonicCubicInterpolate(v, p) ==
+        REQUIRE(interpolation::monotonicCubicInterpolate(v, p) ==
             Approx(f(dx + p.x * dx, dx + p.y * dx, dx + p.z * dx))
                 .margin(1e-7));
       }
@@ -148,7 +148,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
     REQUIRE(g.accessor().cellPosition(8.7 * dx) == Approx(0.7).margin(1e-6));
     SECTION("CLAMP_TO_EDGE + LINEAR INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::CLAMP_TO_EDGE, InterpolationMode::LINEAR);
+          g.accessor(AddressMode::CLAMP_TO_EDGE, interpolationMode::LINEAR);
       REQUIRE(acc[-5] == Approx(f(acc.worldPosition(0))).margin(1e-8));
       REQUIRE(acc[5] == Approx(f(acc.worldPosition(5))).margin(1e-8));
       REQUIRE(acc[11] == Approx(f(acc.worldPosition(9))).margin(1e-8));
@@ -162,7 +162,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
     }//
     SECTION("CLAMP_TO_EDGE + MONOTONIC CUBIC INTERPOLATION") {
       auto acc = g.accessor(AddressMode::CLAMP_TO_EDGE,
-                            InterpolationMode::MONOTONIC_CUBIC);
+                            interpolationMode::MONOTONIC_CUBIC);
       for (u64 j = 1; j < 8; ++j) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -172,7 +172,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
       }
     }//
     SECTION("BORDER + LINEAR INTERPOLATION") {
-      auto acc = g.accessor(AddressMode::BORDER, InterpolationMode::LINEAR);
+      auto acc = g.accessor(AddressMode::BORDER, interpolationMode::LINEAR);
       REQUIRE(acc[-5] == Approx(0).margin(1e-8));
       REQUIRE(acc[11] == Approx(0).margin(1e-8));
       for (u64 j = 0; j < 9; ++j) {
@@ -185,7 +185,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
     }//
     SECTION("BORDER + MONOTONIC CUBIC INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::BORDER, InterpolationMode::MONOTONIC_CUBIC);
+          g.accessor(AddressMode::BORDER, interpolationMode::MONOTONIC_CUBIC);
       for (u64 j = 1; j < 8; ++j) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -212,7 +212,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
       REQUIRE(g.accessor().cellPosition(8.7 * dx) == Approx(0.7).margin(1e-6));
       SECTION("CLAMP_TO_EDGE + LINEAR INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::CLAMP_TO_EDGE, InterpolationMode::LINEAR);
+          g.accessor(AddressMode::CLAMP_TO_EDGE, interpolationMode::LINEAR);
       REQUIRE(acc[-5] == Approx(f(acc.worldPosition(0))).margin(1e-8));
       REQUIRE(acc[5] == Approx(f(acc.worldPosition(5))).margin(1e-8));
       REQUIRE(acc[11] == Approx(f(acc.worldPosition(9))).margin(1e-8));
@@ -229,7 +229,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
     }//
       SECTION("CLAMP_TO_EDGE + MONOTONIC CUBIC INTERPOLATION") {
       auto acc = g.accessor(AddressMode::CLAMP_TO_EDGE,
-                            InterpolationMode::MONOTONIC_CUBIC);
+                            interpolationMode::MONOTONIC_CUBIC);
       for (u64 j = 1; j < 8; ++j) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -239,7 +239,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
       }
     }//
       SECTION("BORDER + LINEAR INTERPOLATION") {
-      auto acc = g.accessor(AddressMode::BORDER, InterpolationMode::LINEAR);
+      auto acc = g.accessor(AddressMode::BORDER, interpolationMode::LINEAR);
       REQUIRE(acc[-5] == Approx(0).margin(1e-8));
       REQUIRE(acc[11] == Approx(0).margin(1e-8));
       for (u64 j = 0; j < 9; ++j) {
@@ -252,7 +252,7 @@ TEST_CASE("Grid1", "[numeric][grid]") {
     }//
       SECTION("BORDER + MONOTONIC CUBIC INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::BORDER, InterpolationMode::MONOTONIC_CUBIC);
+          g.accessor(AddressMode::BORDER, interpolationMode::MONOTONIC_CUBIC);
       for (u64 j = 1; j < 8; ++j) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -264,14 +264,14 @@ TEST_CASE("Grid1", "[numeric][grid]") {
     };
     cf(g, dx, f);
   }//
-  SECTION("Linear Interpolation") {
+  SECTION("Linear interpolation") {
     SECTION("constant function") {
       Grid1<float> g(10);
       g = 4.f;
-      auto acc = g.accessor(AddressMode::CLAMP_TO_EDGE, InterpolationMode::LINEAR);
+      auto acc = g.accessor(AddressMode::CLAMP_TO_EDGE, interpolationMode::LINEAR);
       REQUIRE(acc(0.5) == Approx(4.f).margin(1e-6));
       REQUIRE(acc(-0.5) == Approx(4.f).margin(1e-6));
-      auto acc2 = g.accessor(AddressMode::BORDER, InterpolationMode::LINEAR);
+      auto acc2 = g.accessor(AddressMode::BORDER, interpolationMode::LINEAR);
       REQUIRE(acc2(0.5) == Approx(4.f).margin(1e-6));
       REQUIRE(acc2(-0.5) == Approx(2.f).margin(1e-6));
       REQUIRE(acc2(9.5) == Approx(2.f).margin(1e-6));
@@ -347,7 +347,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
         Approx(0.7).margin(1e-6));
     SECTION("CLAMP_TO_EDGE + LINEAR INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::CLAMP_TO_EDGE, InterpolationMode::LINEAR);
+          g.accessor(AddressMode::CLAMP_TO_EDGE, interpolationMode::LINEAR);
       REQUIRE(acc[index2(-5, 5)] ==
           Approx(f(acc.worldPosition(index2(0, 5)))).margin(1e-8));
       REQUIRE(acc[index2(5, -5)] ==
@@ -366,7 +366,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
     }//
     SECTION("CLAMP_TO_EDGE + MONOTONIC CUBIC INTERPOLATION") {
       auto acc = g.accessor(AddressMode::CLAMP_TO_EDGE,
-                            InterpolationMode::MONOTONIC_CUBIC);
+                            interpolationMode::MONOTONIC_CUBIC);
       for (index2 ij : Index2Range<i32>(index2(1, 1), index2(8, 8))) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -376,7 +376,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
       }
     }//
     SECTION("BORDER + LINEAR INTERPOLATION") {
-      auto acc = g.accessor(AddressMode::BORDER, InterpolationMode::LINEAR);
+      auto acc = g.accessor(AddressMode::BORDER, interpolationMode::LINEAR);
       REQUIRE(acc[index2(-5, 5)] == Approx(0).margin(1e-8));
       REQUIRE(acc[index2(5, -5)] == Approx(0).margin(1e-8));
       REQUIRE(acc[index2(11, 5)] == Approx(0).margin(1e-8));
@@ -391,7 +391,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
     }//
     SECTION("BORDER + MONOTONIC CUBIC INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::BORDER, InterpolationMode::MONOTONIC_CUBIC);
+          g.accessor(AddressMode::BORDER, interpolationMode::MONOTONIC_CUBIC);
       for (index2 ij : Index2Range<i32>(index2(1, 1), index2(8, 8))) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -423,7 +423,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
           Approx(0.7).margin(1e-6));
       SECTION("CLAMP_TO_EDGE + LINEAR INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::CLAMP_TO_EDGE, InterpolationMode::LINEAR);
+          g.accessor(AddressMode::CLAMP_TO_EDGE, interpolationMode::LINEAR);
       REQUIRE(acc[index2(-5, 5)] ==
           Approx(f(acc.worldPosition(index2(0, 5)))).margin(1e-8));
       REQUIRE(acc[index2(5, -5)] ==
@@ -445,7 +445,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
     }//
       SECTION("CLAMP_TO_EDGE + MONOTONIC CUBIC INTERPOLATION") {
       auto acc = g.accessor(AddressMode::CLAMP_TO_EDGE,
-                            InterpolationMode::MONOTONIC_CUBIC);
+                            interpolationMode::MONOTONIC_CUBIC);
       for (index2 ij : Index2Range<i32>(index2(1, 1), index2(8, 8))) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -455,7 +455,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
       }
     }//
       SECTION("BORDER + LINEAR INTERPOLATION") {
-      auto acc = g.accessor(AddressMode::BORDER, InterpolationMode::LINEAR);
+      auto acc = g.accessor(AddressMode::BORDER, interpolationMode::LINEAR);
       REQUIRE(acc[index2(-5, 5)] == Approx(0).margin(1e-8));
       REQUIRE(acc[index2(5, -5)] == Approx(0).margin(1e-8));
       REQUIRE(acc[index2(11, 5)] == Approx(0).margin(1e-8));
@@ -470,7 +470,7 @@ TEST_CASE("Grid2", "[numeric][grid]") {
     }//
       SECTION("BORDER + MONOTONIC CUBIC INTERPOLATION") {
       auto acc =
-          g.accessor(AddressMode::BORDER, InterpolationMode::MONOTONIC_CUBIC);
+          g.accessor(AddressMode::BORDER, interpolationMode::MONOTONIC_CUBIC);
       for (index2 ij : Index2Range<i32>(index2(1, 1), index2(8, 8))) {
         RNGSampler sampler;
         for (int i = 0; i < 1000; ++i) {
@@ -800,17 +800,17 @@ TEST_CASE("DiffOps") {
 ////////////////////       INTERPOLATION     //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("Interpolation", "[numeric][interpolation]") {
+TEST_CASE("interpolation", "[numeric][interpolation]") {
   SECTION("monotonicCubic") {
     { // 1D test
       auto f = [](float x) -> float { return cos(x) * sin(x); };
       for (float s = 0.0; s <= 1.0; s += 0.01) {
-        REQUIRE(ponos::monotonicCubicInterpolate(f(-0.1), f(0.0), f(0.1), f(0.2), s) ==
+        REQUIRE(ponos::monotonicCubicinterpolate(f(-0.1), f(0.0), f(0.1), f(0.2), s) ==
             Approx(f(s * 0.1)).margin(0.1 * 0.1));
       }
       for (float s = 0.0; s <= 1.0; s += 0.01)
         REQUIRE(
-            ponos::monotonicCubicInterpolate(f(-0.01), f(0.0), f(0.01), f(0.02), s) ==
+            ponos::monotonicCubicinterpolate(f(-0.01), f(0.0), f(0.01), f(0.02), s) ==
                 Approx(f(s * 0.01)).margin(0.01 * 0.01));
     }
   }

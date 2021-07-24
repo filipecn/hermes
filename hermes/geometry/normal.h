@@ -40,26 +40,6 @@ template<typename T> class Normal2 : public MathElement<T, 2u> {
                 "Normal2 must hold an float type!");
 public:
   // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  /// \brief  reflects **a** on **n**
-  /// \param a vector to be reflected
-  /// \param n axis of reflection
-  /// \returns reflected **a**
-  HERMES_DEVICE_CALLABLE friend Vector2<T> reflect(const Vector2<T> &a, const Normal2<T> &n) {
-    return a - 2 * dot(a, Vector2<T>(n)) * Vector2<T>(n);
-  }
-  /// \brief projects **v** on the surface with normal **n**
-  /// \param v vector
-  /// \param n surface's normal
-  /// \returns projected **v**
-  HERMES_DEVICE_CALLABLE friend Vector2<T> project(const Vector2<T> &v, const Normal2<T> &n) {
-    return v - dot(v, Vector2<T>(n)) * Vector2<T>(n);
-  }
-  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Normal2() : x{0}, y{0} {};
@@ -100,38 +80,6 @@ public:
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE friend Normal3<T> normalize(const Normal3<T> &normal) {
-    T d = normal.x * normal.x + normal.y * normal.y + normal.z * normal.z;
-    if (d == 0.f)
-      return normal;
-    return Normal3<T>(normal.x / d, normal.y / d, normal.z / d);
-  }
-  HERMES_DEVICE_CALLABLE friend Normal3<T> abs(const Normal3<T> &normal) {
-    return Normal3<T>(std::abs(normal.x), std::abs(normal.y), std::abs(normal.z));
-  }
-  /// \brief reflects **a** on **n**
-  /// \param a vector to be reflected
-  /// \param n axis of reflection
-  /// \returns reflected **a**
-  HERMES_DEVICE_CALLABLE friend Vector3<T> reflect(const Vector3<T> &a, const Normal3<T> &n) {
-    return a - 2 * dot(a, Vector3<T>(n)) * Vector3<T>(n);
-  }
-  /// \brief projects **v** on the surface with normal **n**
-  /// \param v vector
-  /// \param n surface's normal
-  /// \returns projected **v**
-  HERMES_DEVICE_CALLABLE friend Vector3<T> project(const Vector3<T> &v, const Normal3<T> &n) {
-    return v - dot(v, Vector3<T>(n)) * Vector3<T>(n);
-  }
-  HERMES_DEVICE_CALLABLE friend T dot(const Normal3<T> &n, const Vector3<T> &v) {
-    return n.x * v.x + n.y * v.y + n.z * v.z;
-  }
-  HERMES_DEVICE_CALLABLE friend T dot(const Vector3<T> &v, const Normal3<T> &n) {
-    return n.x * v.x + n.y * v.y + n.z * v.z;
-  }
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
@@ -181,6 +129,61 @@ public:
 
   T x{0}, y{0}, z{0};
 };
+
+// *********************************************************************************************************************
+//                                                                                                          FUNCTIONS
+// *********************************************************************************************************************
+/// \brief  reflects **a** on **n**
+/// \param a vector to be reflected
+/// \param n axis of reflection
+/// \returns reflected **a**
+template<typename T>
+HERMES_DEVICE_CALLABLE Vector2<T> reflect(const Vector2<T> &a, const Normal2<T> &n) {
+  return a - 2 * dot(a, Vector2<T>(n)) * Vector2<T>(n);
+}
+/// \brief projects **v** on the surface with normal **n**
+/// \param v vector
+/// \param n surface's normal
+/// \returns projected **v**
+template<typename T>
+HERMES_DEVICE_CALLABLE Vector2<T> project(const Vector2<T> &v, const Normal2<T> &n) {
+  return v - dot(v, Vector2<T>(n)) * Vector2<T>(n);
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  Normal3<T> normalize(const Normal3<T> &normal) {
+  T d = normal.x * normal.x + normal.y * normal.y + normal.z * normal.z;
+  if (d == 0.f)
+    return normal;
+  return Normal3<T>(normal.x / d, normal.y / d, normal.z / d);
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  Normal3<T> abs(const Normal3<T> &normal) {
+  return Normal3<T>(std::abs(normal.x), std::abs(normal.y), std::abs(normal.z));
+}
+/// \brief reflects **a** on **n**
+/// \param a vector to be reflected
+/// \param n axis of reflection
+/// \returns reflected **a**
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector3<T> reflect(const Vector3<T> &a, const Normal3<T> &n) {
+  return a - 2 * dot(a, Vector3<T>(n)) * Vector3<T>(n);
+}
+/// \brief projects **v** on the surface with normal **n**
+/// \param v vector
+/// \param n surface's normal
+/// \returns projected **v**
+template<typename S>
+HERMES_DEVICE_CALLABLE  Vector3<S> project(const Vector3<S> &v, const Normal3<S> &n) {
+  return v - dot(v, Vector3<S>(n)) * Vector3<S>(n);
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  T dot(const Normal3<T> &n, const Vector3<T> &v) {
+  return n.x * v.x + n.y * v.y + n.z * v.z;
+}
+template<typename T>
+HERMES_DEVICE_CALLABLE  T dot(const Vector3<T> &v, const Normal3<T> &n) {
+  return n.x * v.x + n.y * v.y + n.z * v.z;
+}
 
 // *********************************************************************************************************************
 //                                                                                                                 IO

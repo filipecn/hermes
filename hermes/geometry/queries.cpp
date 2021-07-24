@@ -44,6 +44,106 @@ point3 GeometricQueries::closestPoint(const bbox3 &box, const point3 &p) {
   return hermes::point3();
 }
 
+bool GeometricQueries::intersect(const Plane &pl, const Line &l, point3 &p) {
+  vec3 nvector = vec3(pl.normal.x, pl.normal.y, pl.normal.z);
+  real_t k = dot(nvector, l.direction());
+  if (Check::is_zero(k))
+    return false;
+  real_t r = (pl.offset - dot(nvector, vec3(l.a.x, l.a.y, l.a.z))) / k;
+  p = l(r);
+  return true;
+}
+
+bool GeometricQueries::intersect(const Sphere &s, const Line &l, point3 &p1, point3 &p2) {
+  real_t a = dot(l.direction(), l.direction());
+  real_t b = 2.f * dot(l.direction(), l.a - s.c);
+  real_t c = dot(l.a - s.c, l.a - s.c) - s.r * s.r;
+
+  real_t delta = b * b - 4 * a * c;
+  if (delta < 0)
+    return false;
+
+  real_t d = sqrt(delta);
+
+  p1 = l((-b + d) / (2.0 * a));
+  p2 = l((-b - d) / (2.0 * a));
+  return true;
+}
+
+bool GeometricQueries::intersect(const bbox2 &box, const Ray2 &ray, real_t &hit0, real_t &hit1, real_t *normal) {
+  int sign[2];
+  vec2 invdir = 1.f / ray.d;
+  sign[0] = (invdir.x < 0);
+  sign[1] = (invdir.y < 0);
+  real_t tmin = (box[sign[0]].x - ray.o.x) * invdir.x;
+  real_t tmax = (box[1 - sign[0]].x - ray.o.x) * invdir.x;
+  real_t tymin = (box[sign[1]].y - ray.o.y) * invdir.y;
+  real_t tymax = (box[1 - sign[1]].y - ray.o.y) * invdir.y;
+
+  if ((tmin > tymax) || (tymin > tmax))
+    return false;
+  if (tymin > tmin)
+    tmin = tymin;
+  if (tymax < tmax)
+    tmax = tymax;
+  if (normal) {
+    if (ray.o.x < box[0].x && ray.o.y >= box[0].y && ray.o.y <= box[1].y) {
+      normal[0] = -1;
+      normal[1] = 0;
+    } else if (ray.o.x > box[1].x && ray.o.y >= box[0].y &&
+        ray.o.y <= box[1].y) {
+      normal[0] = 1;
+      normal[1] = 0;
+    } else if (ray.o.y < box[0].y && ray.o.x >= box[0].x &&
+        ray.o.x <= box[1].x) {
+      normal[0] = 0;
+      normal[1] = -1;
+    } else if (ray.o.y > box[0].y && ray.o.x >= box[0].x &&
+        ray.o.x <= box[1].x) {
+      normal[0] = 0;
+      normal[1] = 1;
+    } else if (ray.o.x < box[0].x && ray.o.y < box[0].y) {
+      normal[0] = -1;
+      normal[1] = -1;
+    } else if (ray.o.x < box[0].x && ray.o.y > box[1].y) {
+      normal[0] = -1;
+      normal[1] = 1;
+    } else if (ray.o.x > box[0].x && ray.o.y > box[1].y) {
+      normal[0] = 1;
+      normal[1] = 1;
+    } else {
+      normal[0] = 1;
+      normal[1] = -1;
+    }
+  }
+  hit0 = tmin;
+  hit1 = tmax;
+  return true;
+}
+
+bool GeometricQueries::intersect(const bbox3 &box, const Ray3 &ray, real_t &hit0, real_t &hit1) {
+  real_t t0 = 0.f, t1 = INFINITY;
+  for (int i = 0; i < 3; i++) {
+    real_t invRayDir = 1.f / ray.d[i];
+    real_t tNear = (box.lower[i] - ray.o[i]) * invRayDir;
+    real_t tFar = (box.upper[i] - ray.o[i]) * invRayDir;
+    if (tNear > tFar)
+      std::swap(tNear, tFar);
+    t0 = tNear > t0 ? tNear : t0;
+    t1 = tFar < t1 ? tFar : t1;
+    if (t0 > t1)
+      return false;
+  }
+  hit0 = t0;
+  hit1 = t1;
+  return true;
+}
+
+bool GeometricQueries::intersect(const bbox3 &box, const Ray3 &ray, real_t &hit0) {
+  real_t hit1 = 0;
+  return intersect(box, ray, hit0, hit1);
+}
+
 std::optional<real_t> GeometricPredicates::intersect(const bbox3 &bounds,
                                                      const ray3 &ray,
                                                      const vec3 &inv_dir,

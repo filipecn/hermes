@@ -59,6 +59,15 @@ enum class transform_options {
 };
 HERMES_ENABLE_BITMASK_OPERATORS(transform_options);
 
+class Transform;
+class Transform2;
+// *********************************************************************************************************************
+//                                                                                                 EXTERNAL FUNCTIONS
+// *********************************************************************************************************************
+//                                                                                                            algebra
+HERMES_DEVICE_CALLABLE Transform inverse(const Transform &t);
+Transform2 inverse(const Transform2 &t);
+
 // *********************************************************************************************************************
 //                                                                                                         Transform2
 // *********************************************************************************************************************
@@ -146,8 +155,6 @@ public:
 private:
   mat3 m;
 };
-
-Transform2 inverse(const Transform2 &t);
 
 // *********************************************************************************************************************
 //                                                                                                          Transform
@@ -247,9 +254,9 @@ public:
   HERMES_DEVICE_CALLABLE static Transform rotateZ(real_t angle);
   HERMES_DEVICE_CALLABLE static Transform rotate(real_t angle, const vec3 &axis);
   // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
+  //                                                                                                   FRIEND FUNCTIONS
   // *******************************************************************************************************************
-  //                                                                                                          algebra
+  //                                                                                                            algebra
   HERMES_DEVICE_CALLABLE friend Transform inverse(const Transform &t);
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
