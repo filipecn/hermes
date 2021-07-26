@@ -35,7 +35,7 @@
 
 using namespace hermes;
 
-#ifdef ENABLE_CUDA
+#ifdef HERMES_DEVICE_ENABLED
 HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, size2 bounds) {
   HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds)
   u32 matrix_index = ij.j * bounds.width + ij.i;
@@ -72,6 +72,21 @@ TEST_CASE("MemoryBlock", "[storage]") {
     DeviceMemory dm;
     REQUIRE(dm.location == MemoryLocation::DEVICE);
   }//
+  SECTION("copy") {
+    HostMemory hm(8);
+    int a = 1;
+    int b = 2;
+    hm.copy(&a);
+    hm.copy(&b, 4);
+    REQUIRE(reinterpret_cast<int*>(hm.ptr())[0] == a);
+    REQUIRE(reinterpret_cast<int*>(hm.ptr())[1] == b);
+    DeviceMemory dm(8);
+    dm.copy(&a,0,MemoryLocation::HOST);
+    dm.copy(&b,4,MemoryLocation::HOST);
+    HostMemory hm2 = dm;
+    REQUIRE(reinterpret_cast<int*>(hm2.ptr())[0] == a);
+    REQUIRE(reinterpret_cast<int*>(hm2.ptr())[1] == b);
+  }//
   SECTION("assignment") {
     SECTION("host") {
       HostMemory base(100);
@@ -105,6 +120,7 @@ TEST_CASE("MemoryBlock", "[storage]") {
       REQUIRE(hm.sizeInBytes() == 256);
       REQUIRE(checkHostMemory(hm));
     }//
+#ifdef HERMES_DEVICE_ENABLED
     SECTION("device") {
       DeviceMemory dm;
       REQUIRE(dm.sizeInBytes() == 0);
@@ -116,6 +132,7 @@ TEST_CASE("MemoryBlock", "[storage]") {
       REQUIRE(dm.size() == hm.size());
       REQUIRE(checkDeviceMemory(dm));
     }//
+#endif
   }//
   SECTION("linear block") {
     SECTION("host") {
@@ -126,7 +143,9 @@ TEST_CASE("MemoryBlock", "[storage]") {
     }//
     SECTION("device") {
       DeviceMemory dm(256);
+#ifdef HERMES_DEVICE_ENABLED
       REQUIRE(dm.sizeInBytes() == 256);
+#endif
     }//
   }//
   SECTION("2d block") {
@@ -145,6 +164,7 @@ TEST_CASE("MemoryBlock", "[storage]") {
       REQUIRE(checkHostMemory(hm));
     }//
   }//
+#ifdef HERMES_DEVICE_ENABLED
   SECTION("unified") {
     UnifiedMemory um(64 * 128 * 4);
     u32 *data = reinterpret_cast<u32 *>( um.ptr());
@@ -157,6 +177,7 @@ TEST_CASE("MemoryBlock", "[storage]") {
         REQUIRE(data[ind] == ind);
       }
   }
+#endif
 }
 
 TEST_CASE("DataArray", "[storage][array]") {
@@ -183,6 +204,7 @@ TEST_CASE("DataArray", "[storage][array]") {
       Array<i32> a(10);
       for (int i = 0; i < 10; ++i)
         a[i] = i;
+#ifdef HERMES_DEVICE_ENABLED
       DeviceArray<i32> dda(a);
       REQUIRE(dda.size() == size3(10, 1, 1));
       REQUIRE(dda.sizeInBytes() == 10 * sizeof(i32));
@@ -192,6 +214,7 @@ TEST_CASE("DataArray", "[storage][array]") {
       Array<i32> ha = da;
       for (int i = 0; i < 10; ++i)
         REQUIRE(a[i] == i);
+#endif
     }//
     SECTION("access") {
       Array<u32> a1(10);
@@ -215,9 +238,11 @@ TEST_CASE("DataArray", "[storage][array]") {
   }//
   SECTION("View") {
     DeviceArray<int> a({10, 10});
+#ifdef HERMES_DEVICE_ENABLED
     HERMES_CUDA_LAUNCH_AND_SYNC((a.size()), testArrayView_k, a.view())
     Array<int> b = a;
     HERMES_LOG_VARIABLE(b)
+#endif
   }//
 }
 

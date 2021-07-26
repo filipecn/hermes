@@ -1,5 +1,5 @@
 set(SOURCES
-        main.cu
+        main.cpp
         #        blas_tests.cu
         common_tests.cpp
         data_structures_tests.cpp
@@ -44,6 +44,7 @@ if (BUILD_WITH_CUDA)
             POSITION_INDEPENDENT_CODE ON)
 
     set_source_files_properties(
+            main.cpp
             geometry_tests.cpp
             numeric_tests.cpp
             storage_tests.cpp

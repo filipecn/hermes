@@ -123,7 +123,11 @@ public:
     }
   }
   HERMES_DEVICE_CALLABLE real_t uniformFloat() {
+#ifdef HERMES_DEVICE_CODE
     return ::min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));
+#else
+    return std::min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));
+#endif
   }
 private:
   u64 state{0x853c49e6748fea9bULL}, inc{0xda3e39cb94b95bdbULL};

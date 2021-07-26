@@ -99,6 +99,23 @@ public:
   byte *ptr();
   ///
   [[nodiscard]] const byte *ptr() const;
+  /// Copy content from data
+  /// \param data
+  /// \param size_in_bytes
+  /// \param offset offset into memory block
+  /// \param data_location
+  void copy(const void *data,
+            size_t size_in_bytes,
+            size_t offset = 0,
+            MemoryLocation data_location = MemoryLocation::HOST);
+  ///
+  /// \tparam T
+  /// \param data
+  /// \param offset offset into memory block
+  template<typename T>
+  void copy(const T *data, size_t offset = 0, MemoryLocation data_location = MemoryLocation::HOST) {
+    copy(reinterpret_cast<const byte *>(data), sizeof(T), offset, data_location);
+  }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
@@ -109,7 +126,6 @@ private:
   mutable byte *data_{nullptr};
 };
 
-#ifdef ENABLE_CUDA
 // *********************************************************************************************************************
 //                                                                                                 DEVICE MemoryBlock
 // *********************************************************************************************************************
@@ -165,7 +181,24 @@ public:
   byte *ptr();
   /// \return
   [[nodiscard]] const byte *ptr() const;
-
+  /// Copy content from data
+  /// \param data
+  /// \param size_in_bytes
+  /// \param offset offset into memory block
+  /// \param data_location
+  void copy(const void *data,
+            size_t size_in_bytes,
+            size_t offset = 0,
+            MemoryLocation data_location = MemoryLocation::DEVICE);
+  ///
+  /// \tparam T
+  /// \param data
+  /// \param offset offset into memory block
+  template<typename T>
+  void copy(const T *data, size_t offset = 0, MemoryLocation data_location = MemoryLocation::DEVICE) {
+    copy(reinterpret_cast<const byte *>(data), sizeof(T), offset, data_location);
+  }
+#ifdef HERMES_DEVICE_ENABLED
   /// \return
   cudaPitchedPtr pitchedData() {
     cudaPitchedPtr pd{};
@@ -175,6 +208,7 @@ public:
     pd.ysize = size_.height;
     return pd;
   }
+#endif
 
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
@@ -232,13 +266,29 @@ public:
   byte *ptr();
   ///
   [[nodiscard]] const byte *ptr() const;
+  /// Copy content from data
+  /// \param data
+  /// \param size_in_bytes
+  /// \param offset offset into memory block
+  /// \param data_location
+  void copy(const void *data,
+            size_t size_in_bytes,
+            size_t offset = 0,
+            MemoryLocation data_location = MemoryLocation::HOST);
+  ///
+  /// \tparam T
+  /// \param data
+  /// \param offset offset into memory block
+  template<typename T>
+  void copy(const T *data, size_t offset = 0, MemoryLocation data_location = MemoryLocation::HOST) {
+    copy(reinterpret_cast<const byte *>(data), sizeof(T), offset, data_location);
+  }
 private:
   size3 size_;
   size_t pitch_{0};
   mutable byte *data_{nullptr};
 };
 
-#endif
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************

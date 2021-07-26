@@ -27,7 +27,7 @@
 
 #include <hermes/storage/memory_block.h>
 #include <hermes/common/debug.h>
-#ifdef ENABLE_CUDA
+#ifdef HERMES_DEVICE_ENABLED
 #include <hermes/common/cuda_utils.h>
 #endif
 
@@ -81,16 +81,16 @@ MemoryBlock<MemoryLocation::HOST>::operator=(MemoryBlock<MemoryLocation::HOST> &
   return *this;
 }
 
-#ifdef ENABLE_CUDA
 MemoryBlock<MemoryLocation::HOST> &
 MemoryBlock<MemoryLocation::HOST>::operator=(const MemoryBlock<MemoryLocation::DEVICE> &other) {
+#ifdef HERMES_DEVICE_ENABLED
   resize(other.size_, other.pitch_);
   HERMES_CHECK_CUDA(cudaMemcpy(data_, other.data_, other.sizeInBytes(), cudaMemcpyDeviceToHost));
   size_ = other.size_;
   pitch_ = other.pitch_;
+#endif
   return *this;
 }
-#endif
 
 MemoryBlock<MemoryLocation::HOST> &
 MemoryBlock<MemoryLocation::HOST>::operator=(const MemoryBlock<MemoryLocation::HOST> &other) {
@@ -146,8 +146,7 @@ void MemoryBlock<MemoryLocation::HOST>::resize(size3 new_size, size_t new_pitch)
 }
 
 void MemoryBlock<MemoryLocation::HOST>::clear() {
-  if (data_)
-    delete[] data_;
+  delete[] data_;
   size_ = {0, 0, 0};
   pitch_ = 0;
   data_ = nullptr;
@@ -161,7 +160,21 @@ const byte *MemoryBlock<MemoryLocation::HOST>::ptr() const {
   return data_;
 }
 
-#ifdef ENABLE_CUDA
+void MemoryBlock<MemoryLocation::HOST>::copy(const void *data,
+                                             size_t size_in_bytes,
+                                             size_t offset,
+                                             MemoryLocation data_location) {
+  HERMES_CHECK_EXP(size_in_bytes <= sizeInBytes() - offset)
+  if (data_location != MemoryLocation::DEVICE)
+    std::memcpy(data_ + offset, data, size_in_bytes);
+  else {
+#ifdef HERMES_DEVICE_ENABLED
+    HERMES_NOT_IMPLEMENTED
+#else
+    HERMES_NOT_IMPLEMENTED
+#endif
+  }
+}
 
 // *********************************************************************************************************************
 //                                                                                                 DEVICE MemoryBlock
@@ -207,6 +220,7 @@ MemoryBlock<MemoryLocation::DEVICE> &
 MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation::DEVICE> &other) {
   if (this == &other)
     return *this;
+#ifdef HERMES_DEVICE_CODE
   resize(other.size_);
   if (other.size_.height == 1 && other.size_.depth == 1) {
     // linear memory
@@ -232,11 +246,13 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
     p.kind = cudaMemcpyDeviceToDevice;
     HERMES_CHECK_CUDA(cudaMemcpy3D(&p));
   }
+#endif
   return *this;
 }
 
 MemoryBlock<MemoryLocation::DEVICE> &
 MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation::HOST> &other) {
+#ifdef HERMES_DEVICE_CODE
   resize(other.size_);
   if (other.size_.height == 1 && other.size_.depth == 1) {
     // linear region
@@ -262,6 +278,7 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
     p.kind = cudaMemcpyHostToDevice;
     HERMES_CHECK_CUDA(cudaMemcpy3D(&p));
   }
+#endif
   return *this;
 }
 
@@ -274,6 +291,7 @@ const byte *MemoryBlock<MemoryLocation::DEVICE>::ptr() const {
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::resize(size_t new_size_in_bytes) {
+#ifdef HERMES_DEVICE_CODE
   size3 new_size(new_size_in_bytes, 1, 1);
   if (size_ == new_size)
     return;
@@ -281,10 +299,12 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size_t new_size_in_bytes) {
   size_ = {static_cast<u32>(new_size_in_bytes), 1, 1};
   pitch_ = new_size_in_bytes;
   HERMES_CHECK_CUDA(cudaMalloc(&data_, size_.total()));
+#endif
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size, size_t new_pitch) {
   HERMES_UNUSED_VARIABLE(new_pitch);
+#ifdef HERMES_DEVICE_CODE
   if (size_ == size3(new_size.width, new_size.height, 1))
     return;
   if (new_size.height == 1) {
@@ -294,9 +314,11 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size, size_t new_pitc
   clear();
   size_ = {new_size.width, new_size.height, 1};
   HERMES_CHECK_CUDA(cudaMallocPitch(&data_, &pitch_, size_.width, size_.height));
+#endif
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size, size_t new_pitch) {
+#ifdef HERMES_DEVICE_CODE
   HERMES_UNUSED_VARIABLE(new_pitch);
   if (size_ == new_size)
     return;
@@ -314,10 +336,13 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size, size_t new_pitc
   cudaExtent extent = make_cudaExtent(size_.width, size_.height, size_.depth);
   HERMES_CHECK_CUDA(cudaMalloc3D(&pdata, extent));
   pitch_ = pdata.pitch;
+#endif
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::clear() {
+#ifdef HERMES_DEVICE_CODE
   HERMES_CHECK_CUDA(cudaFree(data_))
+#endif
   size_ = {0, 0, 0};
   pitch_ = 0;
   data_ = nullptr;
@@ -335,6 +360,26 @@ size_t MemoryBlock<MemoryLocation::DEVICE>::pitch() const {
   return pitch_;
 }
 
+void MemoryBlock<MemoryLocation::DEVICE>::copy(const void *data,
+                                               size_t size_in_bytes,
+                                               size_t offset,
+                                               MemoryLocation data_location) {
+  HERMES_CHECK_EXP(size_in_bytes <= sizeInBytes() - offset)
+#ifdef HERMES_DEVICE_ENABLED
+  if (size_.height == 1 && size_.depth == 1) {
+    // linear region
+    HERMES_CHECK_CUDA(cudaMemcpy(data_ + offset, data, size_in_bytes, cudaMemcpyHostToDevice));
+  } else if (size_.depth == 1) {
+    // 2d pitched memory
+    HERMES_NOT_IMPLEMENTED
+  } else {
+    // 3d pitched memory
+    HERMES_NOT_IMPLEMENTED
+  }
+#else
+  HERMES_NOT_IMPLEMENTED
+#endif
+}
 // *********************************************************************************************************************
 //                                                                                                UNIFIED MemoryBlock
 // *********************************************************************************************************************
@@ -366,6 +411,7 @@ size_t MemoryBlock<MemoryLocation::UNIFIED>::pitch() const {
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
+#ifdef HERMES_DEVICE_CODE
   size3 new_size(new_size_in_bytes, 1, 1);
   if (size_ == new_size)
     return;
@@ -373,9 +419,11 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
   size_ = {static_cast<u32>(new_size_in_bytes), 1, 1};
   pitch_ = new_size_in_bytes;
   HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+#endif
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::resize(size2 new_size, size_t new_pitch) {
+#ifdef HERMES_DEVICE_CODE
   if (size_ == size3(new_size.width, new_size.height, 1) && pitch_ == new_pitch)
     return;
   clear();
@@ -384,9 +432,11 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size2 new_size, size_t new_pit
   if (pitch_ == 0)
     pitch_ = size_.width;
   HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+#endif
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::resize(size3 new_size, size_t new_pitch) {
+#ifdef HERMES_DEVICE_CODE
   if (size_ == new_size && pitch_ == new_pitch)
     return;
   clear();
@@ -395,10 +445,13 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size3 new_size, size_t new_pit
   if (pitch_ == 0)
     pitch_ = size_.width;
   HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+#endif
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::clear() {
+#ifdef HERMES_DEVICE_CODE
   HERMES_CHECK_CUDA(cudaFree(data_))
+#endif
   size_ = {0, 0, 0};
   data_ = nullptr;
 }
@@ -447,6 +500,20 @@ const byte *MemoryBlock<MemoryLocation::UNIFIED>::ptr() const {
   return data_;
 }
 
+void MemoryBlock<MemoryLocation::UNIFIED>::copy(const void *data,
+                                             size_t size_in_bytes,
+                                             size_t offset,
+                                             MemoryLocation data_location) {
+  HERMES_CHECK_EXP(size_in_bytes <= sizeInBytes() - offset)
+  if (data_location != MemoryLocation::DEVICE)
+    std::memcpy(data_ + offset, data, size_in_bytes);
+  else {
+#ifdef HERMES_DEVICE_ENABLED
+    HERMES_NOT_IMPLEMENTED
+#else
+    HERMES_NOT_IMPLEMENTED
 #endif
+  }
+}
 
 }

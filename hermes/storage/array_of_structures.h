@@ -84,19 +84,21 @@ public:
   }
   template<typename T>
   ArrayOfStructs &operator=(std::vector<T> &&vector_data) {
-    HERMES_NOT_IMPLEMENTED
+    if (L == MemoryLocation::DEVICE) {
+      HERMES_NOT_IMPLEMENTED
+      return *this;
+    }
     /// TODO: move operation is making a copy instead!
-//    if (!struct_descriptor_.struct_size_) {
-//      Log::warn("[ArrayOfStructs] Fields must be previously registered.");
-//      return *this;
-//    }
-//    if (vector_data.size() * sizeof(T) % struct_descriptor_.struct_size_ != 0)
-//      Log::warn("[ArrayOfStructs] Vector data with incompatible size.");
-//    delete[]data_;
-//    data_ = nullptr;
-//    size_ = vector_data.size() * sizeof(T) / struct_descriptor_.struct_size_;
-//    data_ = new u8[size_ * struct_descriptor_.struct_size_];
-//    std::memcpy(data_, vector_data.data(), size_ * struct_descriptor_.struct_size_);
+    if (!struct_descriptor_.struct_size_) {
+      Log::warn("[ArrayOfStructs] Fields must be previously registered.");
+      return *this;
+    }
+    if (vector_data.size() * sizeof(T) % struct_descriptor_.struct_size_ != 0)
+      Log::warn("[ArrayOfStructs] Vector data with incompatible size.");
+    data_.clear();
+    size_ = vector_data.size() * sizeof(T) / struct_descriptor_.struct_size_;
+    data_.resize(size_ * struct_descriptor_.struct_size_);
+    std::memcpy(data_.ptr(), vector_data.data(), size_ * struct_descriptor_.struct_size_);
     return *this;
   }
   template<MemoryLocation LL>
