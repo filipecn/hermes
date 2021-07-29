@@ -199,21 +199,33 @@ public:
 
         if (save_string)
           output_string += s;
+        std::string current_byte_color = byteColor(byte_offset - shift, regions);
         if (write_to_console) {
           if (colored_output)
-            std::cout << byteColor(byte_offset - shift, regions) << s.str() <<
-                      ConsoleColors::default_color << ConsoleColors::reset;
+            std::cout << current_byte_color << s.str() << ConsoleColors::default_color << ConsoleColors::reset;
           else
             std::cout << s.str();
         }
+        if (colored_output)
+          ascii_data += current_byte_color;
         if (std::isalnum(byte))
           ascii_data += byte;
         else
           ascii_data += '.';
+        if (colored_output) {
+          ascii_data += ConsoleColors::default_color;
+          ascii_data += ConsoleColors::reset;
+        }
         // compute type value (if any)
         if (show_type_values) {
+          if (colored_output)
+            type_values += current_byte_color;
           type_values +=
               typeValue(byte_offset - shift, reinterpret_cast<u8 *>(aligned_base_address + byte_offset), regions);
+          if (colored_output) {
+            type_values += ConsoleColors::default_color;
+            type_values += ConsoleColors::reset;
+          }
           type_values += " ";
         }
       }
