@@ -136,6 +136,23 @@ public:
     return DataType::CUSTOM;
 #undef MATCH_TYPE
   }
+  static u32 typeSize(DataType type) {
+#define TYPE_SIZE(Size, Type) \
+        if(DataType::Type == type) \
+        return Size;
+    TYPE_SIZE(sizeof(i8), I8)
+    TYPE_SIZE(sizeof(i16), I16)
+    TYPE_SIZE(sizeof(i32), I32)
+    TYPE_SIZE(sizeof(i64), I64)
+    TYPE_SIZE(sizeof(u8), U8)
+    TYPE_SIZE(sizeof(u16), U16)
+    TYPE_SIZE(sizeof(u32), U32)
+    TYPE_SIZE(sizeof(u64), U64)
+    TYPE_SIZE(sizeof(f32), F32)
+    TYPE_SIZE(sizeof(f64), F64)
+    return 0;
+#undef TYPE_SIZE
+  }
   static std::string typeName(DataType type) {
 #define DATA_TYPE_NAME(Type) \
       if(DataType::Type == type) \

@@ -28,12 +28,14 @@
 #ifndef HERMES_LOG_MEMORY_DUMP_H
 #define HERMES_LOG_MEMORY_DUMP_H
 
+#include <hermes/common/debug.h>
 #include <hermes/common/defs.h>
 #include <hermes/common/str.h>
 #include <hermes/numeric/numeric.h>
 #include <hermes/common/bitmask_operators.h>
 #include <hermes/logging/console_colors.h>
 #include <iostream>
+#include <iomanip>
 #include <cstdlib> // system
 
 namespace hermes {
@@ -52,7 +54,8 @@ enum class memory_dumper_options {
   hide_ascii = 0x80,
   save_to_string = 0x100,
   write_to_console = 0x200,
-  colored_output = 0x400
+  colored_output = 0x400,
+  type_values = 0x800
 };
 HERMES_ENABLE_BITMASK_OPERATORS(memory_dumper_options);
 
@@ -66,6 +69,7 @@ public:
     std::size_t count{0};
     std::string color = ConsoleColors::default_color;
     std::vector<Region> sub_regions;
+    DataType type{DataType::CUSTOM};
   };
   ///
   /// \tparam T
@@ -108,6 +112,7 @@ public:
     auto write_to_console = HERMES_MASK_BIT(options, memory_dumper_options::write_to_console);
     auto save_string = HERMES_MASK_BIT(options, memory_dumper_options::save_to_string);
     auto colored_output = HERMES_MASK_BIT(options, memory_dumper_options::colored_output);
+    auto show_type_values = HERMES_MASK_BIT(options, memory_dumper_options::type_values);
     if (!write_to_console && !save_string)
       write_to_console = true;
     // output string
@@ -160,6 +165,7 @@ public:
         line_count++;
       }
       std::string ascii_data;
+      std::string type_values;
       for (ptrdiff_t i = 0; i < bytes_per_row; i++, byte_offset++) {
         if (i % 8 == 0) {
           if (write_to_console)
@@ -204,12 +210,24 @@ public:
           ascii_data += byte;
         else
           ascii_data += '.';
+        // compute type value (if any)
+        if (show_type_values) {
+          type_values +=
+              typeValue(byte_offset - shift, reinterpret_cast<u8 *>(aligned_base_address + byte_offset), regions);
+          type_values += " ";
+        }
       }
       if (show_ascii) {
         if (write_to_console)
           std::cout << "\t|" << ascii_data << "|";
         if (save_string)
           output_string.append("\t|", ascii_data, "|");
+      }
+      if (show_type_values) {
+        if (write_to_console)
+          std::cout << "\t<" << type_values << ">";
+        if (save_string)
+          output_string.append("\t<", type_values, ">");
       }
     }
     if (save_string)
@@ -239,6 +257,43 @@ private:
         }
       }
       return parent_color;
+    };
+    return f(regions, byte_index, ConsoleColors::default_color);
+  }
+
+  static std::string typeValue(std::size_t byte_index, u8 *data, const std::vector<Region> &regions) {
+    std::function<std::string(const std::vector<Region> &, std::size_t, const std::string &)> f;
+    f = [&](const std::vector<Region> &subregions, std::size_t byte_offset,
+            const std::string &parent_color) -> std::string {
+      for (const auto &region : subregions) {
+        auto region_start = region.offset;
+        auto region_end = region_start + region.size_in_bytes * region.count;
+        if (byte_offset >= region_start && byte_offset < region_end) {
+          if (region.sub_regions.empty() && region.type != DataType::CUSTOM) {
+            if ((byte_offset - region_start) % DataTypes::typeSize(region.type) == 0) {
+              std::stringstream ss;
+#define RETURN_TYPE(T) if(region.type == DataTypes::typeFrom<T>())           {                            \
+           ss << std::setw(10) << std::right << std::setprecision(3) <<  *reinterpret_cast<T*>(data);     \
+              return ss.str(); }
+              RETURN_TYPE(i8)
+              RETURN_TYPE(i16)
+              RETURN_TYPE(i32)
+              RETURN_TYPE(i64)
+              RETURN_TYPE(u8)
+              RETURN_TYPE(u16)
+              RETURN_TYPE(u32)
+              RETURN_TYPE(u64)
+              RETURN_TYPE(f32)
+              RETURN_TYPE(f64)
+#undef RETURN_TYPE
+              return "ERROR";
+            }
+            return "";
+          }
+          return f(region.sub_regions, (byte_offset - region_start) % region.size_in_bytes, region.color);
+        }
+      }
+      return "";
     };
     return f(regions, byte_index, ConsoleColors::default_color);
   }

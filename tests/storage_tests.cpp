@@ -73,6 +73,7 @@ TEST_CASE("MemoryBlock", "[storage]") {
     REQUIRE(dm.location == MemoryLocation::DEVICE);
   }//
   SECTION("copy") {
+#ifdef HERMES_DEVICE_ENABLED
     HostMemory hm(8);
     int a = 1;
     int b = 2;
@@ -86,6 +87,7 @@ TEST_CASE("MemoryBlock", "[storage]") {
     HostMemory hm2 = dm;
     REQUIRE(reinterpret_cast<int*>(hm2.ptr())[0] == a);
     REQUIRE(reinterpret_cast<int*>(hm2.ptr())[1] == b);
+#endif
   }//
   SECTION("assignment") {
     SECTION("host") {

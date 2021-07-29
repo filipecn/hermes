@@ -241,9 +241,25 @@ TEST_CASE("MemoryDumper", "[log]") {
     }//
     SECTION("array") {
       int a[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-      MemoryDumper::dump(a, 10, 8, memory_dumper_options::colored_output,
+      MemoryDumper::dump(a, 10, 8, memory_dumper_options::type_values,
                          {{0, sizeof(int), 10, ConsoleColors::red,
-                           {}}});
+                           {}, DataType::I32}});
     }//
+    SECTION("member values") {
+      struct S {
+        f32 a;
+        i32 b;
+        i16 c;
+//        i8 p[2];
+      };
+      S v[3] = {{0.1, 10, 1}, {0.2, 20, 2}, {0.3, 30, 3}};
+      MemoryDumper::dump(v, 3, 9, memory_dumper_options::type_values
+                         | memory_dumper_options::colored_output,
+                         {{0, sizeof(S), 3, ConsoleColors::red,
+                           {{offsetof(S, a), sizeof(f32), 1, ConsoleColors::yellow, {}, DataType::F32},
+                            {offsetof(S, b), sizeof(i32), 1, ConsoleColors::blue, {}, DataType::I32},
+                            {offsetof(S, c), sizeof(i16), 1, ConsoleColors::green, {}, DataType::I16},
+                           }}});
+    }
   }//
 }
