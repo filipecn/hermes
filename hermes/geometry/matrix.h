@@ -27,6 +27,7 @@
 
 #include <hermes/geometry/vector.h>
 #include <vector>
+#include <hermes/numeric/math_element.h>
 
 namespace hermes {
 
@@ -105,7 +106,7 @@ HERMES_DEVICE_CALLABLE bool gluInvertMatrix(const T m[16], T invOut[16]) {
 // *********************************************************************************************************************
 /// 4x4 Matrix representation
 /// Access: m[ROW][COLUMN]
-template<typename T> class Matrix4x4 {
+template<typename T> class Matrix4x4 : public MathElement<T, 16> {
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
@@ -245,7 +246,7 @@ public:
   }
   ///
   /// \return
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool isIdentity() const {
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool isIdentity() const {
     for (int i = 0; i < 4; i++)
       for (int j = 0; j < 4; j++)
         if ((i != j && !Check::is_equal(m_[i][j], 0.f)) ||
@@ -266,7 +267,7 @@ private:
 // *********************************************************************************************************************
 //                                                                                                          Matrix3x3
 // *********************************************************************************************************************
-template<typename T> class Matrix3x3 {
+template<typename T> class Matrix3x3 : public MathElement<T, 9> {
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
@@ -338,7 +339,7 @@ private:
 // *********************************************************************************************************************
 //                                                                                                          Matrix2x2
 // *********************************************************************************************************************
-template<typename T> class Matrix2x2 {
+template<typename T> class Matrix2x2 : public MathElement<T, 4> {
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
@@ -397,13 +398,12 @@ private:
   T m_[2][2];
 };
 
-
 // *********************************************************************************************************************
 //                                                                                                EXTERNAL FUNCTIONS
 // *********************************************************************************************************************
 template<typename T>
 HERMES_DEVICE_CALLABLE
- Matrix4x4<T> rowReduce(const Matrix4x4<T> &p, const Matrix4x4<T> &q) {
+Matrix4x4<T> rowReduce(const Matrix4x4<T> &p, const Matrix4x4<T> &q) {
   Matrix4x4<T> l = p, r = q;
   // TODO implement with gauss jordan elimination
   return r;

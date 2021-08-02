@@ -151,7 +151,12 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE const real_t *operator[](u32 row_index) const { return m[row_index]; }
   HERMES_DEVICE_CALLABLE real_t *operator[](u32 row_index) { return m[row_index]; }
-
+  // *******************************************************************************************************************
+  //                                                                                                            DEBUG
+  // *******************************************************************************************************************
+  [[nodiscard]] static MemoryDumper::RegionLayout memoryDumpLayout() {
+    return mat3::memoryDumpLayout();
+  }
 private:
   mat3 m;
 };
@@ -392,6 +397,12 @@ public:
   }
   HERMES_DEVICE_CALLABLE const real_t *operator[](u32 row_index) const { return m[row_index]; }
   HERMES_DEVICE_CALLABLE real_t *operator[](u32 row_index) { return m[row_index]; }
+  // *******************************************************************************************************************
+  //                                                                                                            DEBUG
+  // *******************************************************************************************************************
+  [[nodiscard]] static MemoryDumper::RegionLayout memoryDumpLayout() {
+    return mat4::memoryDumpLayout();
+  }
 protected:
   mat4 m;
 };
