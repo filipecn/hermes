@@ -29,6 +29,7 @@
 #define HERMES_GEOMETRY_MATH_ELEMENT_H
 
 #include <hermes/common/defs.h>
+#include <hermes/logging/memory_dump.h>
 
 namespace hermes {
 
@@ -39,6 +40,17 @@ public:
   static NUMERIC_TYPE numeric_data;
   static inline constexpr u64 componentCount() { return COMPONENT_COUNT; };
   static inline constexpr u64 numericTypeSizeInBytes() { return sizeof(NUMERIC_TYPE); };
+
+  [[nodiscard]] static MemoryDumper::RegionLayout memoryDumpLayout() {
+    return {
+        .offset = 0,
+        .field_size_in_bytes = sizeof(NUMERIC_TYPE),
+        .count = COMPONENT_COUNT,
+        .color = ConsoleColors::default_color,
+        .sub_regions = {},
+        .type = DataTypes::typeFrom<NUMERIC_TYPE>()
+    };
+  }
 };
 
 }

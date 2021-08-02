@@ -51,7 +51,7 @@ enum class memory_dumper_options {
   hide_header = 0x10,
   cache_align = 0x20,
   hide_zeros = 0x40,
-  hide_ascii = 0x80,
+  show_ascii = 0x80,
   save_to_string = 0x100,
   write_to_console = 0x200,
   colored_output = 0x400,
@@ -62,13 +62,49 @@ HERMES_ENABLE_BITMASK_OPERATORS(memory_dumper_options);
 /// Auxiliary class for analysing blocks of memory
 class MemoryDumper {
 public:
-  struct Region {
-    Region() = default;
+  struct RegionLayout {
+    RegionLayout() = default;
+
+    RegionLayout &withOffset(std::size_t offset_in_bytes) {
+      offset = offset_in_bytes;
+      return *this;
+    }
+    RegionLayout &withColor(const std::string &console_color) {
+      color = console_color;
+      return *this;
+    }
+    RegionLayout &withCount(std::size_t region_count) {
+      count = region_count;
+      return *this;
+    }
+    RegionLayout &withSubRegion(const RegionLayout &sub_region, bool increment_to_parent_size = false) {
+      std::size_t new_offset = 0;
+      if (!sub_regions.empty())
+        new_offset = sub_regions.back().offset + sub_regions.back().field_size_in_bytes * sub_regions.back().count;
+      sub_regions.push_back(sub_region);
+      sub_regions.back().offset = new_offset;
+      if (increment_to_parent_size)
+        field_size_in_bytes += sub_region.field_size_in_bytes * sub_region.count;
+      return *this;
+    }
+    template<typename T>
+    RegionLayout &withTypeFrom() {
+      type = DataTypes::typeFrom<T>();
+      return *this;
+    }
+    template<typename T>
+    RegionLayout &withSizeOf(std::size_t element_count = 1) {
+      count = element_count;
+      field_size_in_bytes = sizeof(T);
+      return *this;
+    }
+    [[nodiscard]] std::size_t sizeInBytes() const { return field_size_in_bytes * count; }
+
     std::size_t offset{0};
-    std::size_t size_in_bytes{0};
-    std::size_t count{0};
+    std::size_t field_size_in_bytes{0};
+    std::size_t count{1};
     std::string color = ConsoleColors::default_color;
-    std::vector<Region> sub_regions;
+    std::vector<RegionLayout> sub_regions;
     DataType type{DataType::CUSTOM};
   };
   ///
@@ -102,13 +138,13 @@ public:
   /// \return
   template<typename T>
   static std::string dump(const T *data, std::size_t size, u32 bytes_per_row = 8,
-                          memory_dumper_options options = memory_dumper_options::none,
-                          const std::vector<Region> &regions = {}) {
+                          const RegionLayout &region = RegionLayout(),
+                          memory_dumper_options options = memory_dumper_options::none) {
     // check options
     auto hide_zeros = HERMES_MASK_BIT(options, memory_dumper_options::hide_zeros);
     auto include_header = !HERMES_MASK_BIT(options, memory_dumper_options::hide_header);
     auto align_data = HERMES_MASK_BIT(options, memory_dumper_options::cache_align);
-    auto show_ascii = !HERMES_MASK_BIT(options, memory_dumper_options::hide_ascii);
+    auto show_ascii = HERMES_MASK_BIT(options, memory_dumper_options::show_ascii);
     auto write_to_console = HERMES_MASK_BIT(options, memory_dumper_options::write_to_console);
     auto save_string = HERMES_MASK_BIT(options, memory_dumper_options::save_to_string);
     auto colored_output = HERMES_MASK_BIT(options, memory_dumper_options::colored_output);
@@ -199,7 +235,7 @@ public:
 
         if (save_string)
           output_string += s;
-        std::string current_byte_color = byteColor(byte_offset - shift, regions);
+        std::string current_byte_color = byteColor(byte_offset - shift, region);
         if (write_to_console) {
           if (colored_output)
             std::cout << current_byte_color << s.str() << ConsoleColors::default_color << ConsoleColors::reset;
@@ -221,7 +257,7 @@ public:
           if (colored_output)
             type_values += current_byte_color;
           type_values +=
-              typeValue(byte_offset - shift, reinterpret_cast<u8 *>(aligned_base_address + byte_offset), regions);
+              typeValue(byte_offset - shift, reinterpret_cast<u8 *>(aligned_base_address + byte_offset), region);
           if (colored_output) {
             type_values += ConsoleColors::default_color;
             type_values += ConsoleColors::reset;
@@ -250,41 +286,43 @@ public:
   }
 
 private:
-  static std::string byteColor(std::size_t byte_index, const std::vector<Region> &regions) {
-    std::function<std::string(const std::vector<Region> &, std::size_t, const std::string &)> f;
-    f = [&](const std::vector<Region> &subregions, std::size_t byte_offset,
+  static std::string byteColor(std::size_t byte_index, const RegionLayout &region) {
+    std::function<std::string(const std::vector<RegionLayout> &, std::size_t, const std::string &)> f;
+    f = [&](const std::vector<RegionLayout> &subregions, std::size_t byte_offset,
             const std::string &parent_color) -> std::string {
-      for (const auto &region : subregions) {
-        auto region_start = region.offset;
-        auto region_end = region_start + region.size_in_bytes * region.count;
+      for (const auto &sub_region : subregions) {
+        auto region_start = sub_region.offset;
+        auto region_end = region_start + sub_region.field_size_in_bytes * sub_region.count;
         if (byte_offset >= region_start && byte_offset < region_end) {
-          if (region.sub_regions.empty()) {
+          if (sub_region.sub_regions.empty()) {
             // in the case of an array of elements, lets alternate between dimmed
             // colors to make it easy to visually identify elements
-            if (((byte_offset - region_start) / region.size_in_bytes) % 2)
-              return ConsoleColors::combine(ConsoleColors::bold, region.color);
-            return region.color;
+            if (((byte_offset - region_start) / sub_region.field_size_in_bytes) % 2)
+              return ConsoleColors::combine(ConsoleColors::bold, sub_region.color);
+            return sub_region.color;
           }
-          return f(region.sub_regions, (byte_offset - region_start) % region.size_in_bytes, region.color);
+          return f(sub_region.sub_regions,
+                   (byte_offset - region_start) % sub_region.field_size_in_bytes,
+                   sub_region.color);
         }
       }
       return parent_color;
     };
-    return f(regions, byte_index, ConsoleColors::default_color);
+    return f({region}, byte_index, ConsoleColors::default_color);
   }
 
-  static std::string typeValue(std::size_t byte_index, u8 *data, const std::vector<Region> &regions) {
-    std::function<std::string(const std::vector<Region> &, std::size_t, const std::string &)> f;
-    f = [&](const std::vector<Region> &subregions, std::size_t byte_offset,
+  static std::string typeValue(std::size_t byte_index, u8 *data, const RegionLayout &region) {
+    std::function<std::string(const std::vector<RegionLayout> &, std::size_t, const std::string &)> f;
+    f = [&](const std::vector<RegionLayout> &subregions, std::size_t byte_offset,
             const std::string &parent_color) -> std::string {
-      for (const auto &region : subregions) {
-        auto region_start = region.offset;
-        auto region_end = region_start + region.size_in_bytes * region.count;
+      for (const auto &sub_region : subregions) {
+        auto region_start = sub_region.offset;
+        auto region_end = region_start + sub_region.field_size_in_bytes * sub_region.count;
         if (byte_offset >= region_start && byte_offset < region_end) {
-          if (region.sub_regions.empty() && region.type != DataType::CUSTOM) {
-            if ((byte_offset - region_start) % DataTypes::typeSize(region.type) == 0) {
+          if (sub_region.sub_regions.empty() && sub_region.type != DataType::CUSTOM) {
+            if ((byte_offset - region_start) % DataTypes::typeSize(sub_region.type) == 0) {
               std::stringstream ss;
-#define RETURN_TYPE(T) if(region.type == DataTypes::typeFrom<T>())           {                            \
+#define RETURN_TYPE(T) if(sub_region.type == DataTypes::typeFrom<T>())           {                            \
            ss << std::setw(10) << std::right << std::setprecision(3) <<  *reinterpret_cast<T*>(data);     \
               return ss.str(); }
               RETURN_TYPE(i8)
@@ -302,12 +340,14 @@ private:
             }
             return "";
           }
-          return f(region.sub_regions, (byte_offset - region_start) % region.size_in_bytes, region.color);
+          return f(sub_region.sub_regions,
+                   (byte_offset - region_start) % sub_region.field_size_in_bytes,
+                   sub_region.color);
         }
       }
       return "";
     };
-    return f(regions, byte_index, ConsoleColors::default_color);
+    return f({region}, byte_index, ConsoleColors::default_color);
   }
 
 };

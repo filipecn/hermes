@@ -32,6 +32,7 @@
 
 #include <hermes/geometry/vector.h>
 #include <hermes/common/debug.h>
+#include <hermes/logging/memory_dump.h>
 
 namespace hermes {
 
@@ -50,7 +51,7 @@ public:
   HERMES_DEVICE_CALLABLE explicit Point2(const real_t *v) : x(v[0]), y(v[1]) {}
   HERMES_DEVICE_CALLABLE Point2(real_t _x, real_t _y) : x(_x), y(_y) {}
   template<typename U>
-  HERMES_DEVICE_CALLABLE Point2(const Index2 <U> &index) : x{static_cast<T>(index.i)}, y{static_cast<T>(index.j)} {}
+  HERMES_DEVICE_CALLABLE Point2(const Index2<U> &index) : x{static_cast<T>(index.i)}, y{static_cast<T>(index.j)} {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
@@ -61,7 +62,7 @@ public:
   }
   //                                                                                                       assignment
   template<typename U>
-  HERMES_DEVICE_CALLABLE Point2 &operator=(const Index2 <U> &index) {
+  HERMES_DEVICE_CALLABLE Point2 &operator=(const Index2<U> &index) {
     x = index.i;
     y = index.j;
     return *this;
@@ -84,7 +85,7 @@ public:
   ARITHMETIC_OP(/)
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
-  HERMES_DEVICE_CALLABLE Vector2 <T> operator-(const Point2<T> &b) const {
+  HERMES_DEVICE_CALLABLE Vector2<T> operator-(const Point2<T> &b) const {
     return Vector2<T>(x - b.x, y - b.y);
   }
   //                                                                                                       relational
@@ -120,7 +121,7 @@ public:
   HERMES_DEVICE_CALLABLE Point3() : x{0}, y{0}, z{0} {}
   HERMES_DEVICE_CALLABLE explicit Point3(real_t v) { x = y = z = v; }
   HERMES_DEVICE_CALLABLE Point3(real_t _x, real_t _y, real_t _z) : x(_x), y(_y), z(_z) {}
-  HERMES_DEVICE_CALLABLE explicit Point3(const Vector3 <T> &v) : x(v.x), y(v.y), z(v.z) {}
+  HERMES_DEVICE_CALLABLE explicit Point3(const Vector3<T> &v) : x(v.x), y(v.y), z(v.z) {}
   HERMES_DEVICE_CALLABLE explicit Point3(const Point2<T> &p) : x(p.x), y(p.y), z(0) {}
   HERMES_DEVICE_CALLABLE explicit Point3(const real_t *v) : x(v[0]), y(v[1]), z(v[2]) {}
   // *******************************************************************************************************************
@@ -146,7 +147,7 @@ public:
   ARITHMETIC_OP(/)
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
-  HERMES_DEVICE_CALLABLE Vector3 <T> operator-(const Point3<T> &b) const {
+  HERMES_DEVICE_CALLABLE Vector3<T> operator-(const Point3<T> &b) const {
     return Vector3<T>(x - b.x, y - b.y, z - b.z);
   }
   //                                                                                                       relational
@@ -214,8 +215,8 @@ MATH_OP(ceil, ::ceil)
 MATH_OP(abs, ::abs)
 #else
 MATH_OP(floor, std::floor)
-  MATH_OP(ceil, std::ceil)
-  MATH_OP(abs, std::abs)
+MATH_OP(ceil, std::ceil)
+MATH_OP(abs, std::abs)
 #endif
 #undef MATH_OP
 

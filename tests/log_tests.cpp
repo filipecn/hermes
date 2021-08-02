@@ -3,6 +3,7 @@
 #include <hermes/logging/memory_dump.h>
 #include <hermes/logging/console_colors.h>
 #include <hermes/common//debug.h>
+#include <hermes/geometry/point.h>
 
 using namespace hermes;
 
@@ -125,11 +126,11 @@ TEST_CASE("MemoryDumper", "[log]") {
   }//
   SECTION("binary") {
     const u8 v8[] = {1, 2, 3, 4, 5};
-    MemoryDumper::dump(v8, 5, 8, memory_dumper_options::binary);
+    MemoryDumper::dump(v8, 5, 8, {}, memory_dumper_options::binary);
   }//
   SECTION("decimal") {
     const u16 v16[] = {1, 2, 3, 4, 5};
-    MemoryDumper::dump(v16, 5, 8, memory_dumper_options::decimal);
+    MemoryDumper::dump(v16, 5, 8, {}, memory_dumper_options::decimal);
   }//
   SECTION("hide zeros") {
     struct Data {
@@ -141,7 +142,7 @@ TEST_CASE("MemoryDumper", "[log]") {
                          {2, 2, 2},
                          {3, 3, 3},
                          {4, 4, 4}};
-    MemoryDumper::dump(data, 4, 8, memory_dumper_options::hide_zeros);
+    MemoryDumper::dump(data, 4, 8, {}, memory_dumper_options::hide_zeros);
   }//
   SECTION("row size") {
     u64 v[] = {0, 1, 2, 3, 4, 5, 6, 7};
@@ -149,14 +150,12 @@ TEST_CASE("MemoryDumper", "[log]") {
   }//
   SECTION("hide header and ascii") {
     u16 v[] = {0, 1, 2, 3, 4, 5, 6, 7};
-    MemoryDumper::dump(v, 8, 8, memory_dumper_options::hide_header
-        | memory_dumper_options::hide_ascii);
+    MemoryDumper::dump(v, 8, 8, {}, memory_dumper_options::hide_header);
   }//
   SECTION("cache align") {
     u64 v[] = {0, 1, 2, 3, 4, 5, 6, 7};
     std::cerr << MemoryDumper::dumpInfo(v, 8);
-    MemoryDumper::dump(v, 8, 64, memory_dumper_options::cache_align
-        | memory_dumper_options::hide_ascii);
+    MemoryDumper::dump(v, 8, 64, {}, memory_dumper_options::cache_align);
   } //
   SECTION("colored output") {
     SECTION("packed members") {
@@ -167,37 +166,37 @@ TEST_CASE("MemoryDumper", "[log]") {
       };
       S v[5] = {{1, 1, 1}, {2, 2, 2},
                 {3, 3, 3}, {4, 4, 4}, {5, 5, 5}};
-      MemoryDumper::dump(v, 5, 16, memory_dumper_options::colored_output
-                             | memory_dumper_options::cache_align,
-                         {
-                             {0,
-                              sizeof(S),
-                              5,
-                              ConsoleColors::combine(ConsoleColors::yellow, ConsoleColors::dim),
-                              {
-                                  // a
-                                  {
-                                      offsetof(S, a),
-                                      sizeof(S::a),
-                                      1,
-                                      ConsoleColors::green,
-                                      {}},
-                                  // b
-                                  {
-                                      offsetof(S, b),
-                                      sizeof(S::b),
-                                      1,
-                                      ConsoleColors::red,
-                                      {}},
-                                  // c
-                                  {
-                                      offsetof(S, c),
-                                      sizeof(S::c),
-                                      1,
-                                      ConsoleColors::blue,
-                                      {}},
-                              }},
-                         });
+      MemoryDumper::dump(v, 5, 16,
+                         {.offset = 0,
+                             .field_size_in_bytes =  sizeof(S),
+                             .count = 5,
+                             .color = ConsoleColors::combine(ConsoleColors::yellow, ConsoleColors::dim),
+                             .sub_regions = {
+                                 // a
+                                 {
+                                     offsetof(S, a),
+                                     sizeof(S::a),
+                                     1,
+                                     ConsoleColors::green,
+                                     {}},
+                                 // b
+                                 {
+                                     offsetof(S, b),
+                                     sizeof(S::b),
+                                     1,
+                                     ConsoleColors::red,
+                                     {}},
+                                 // c
+                                 {
+                                     offsetof(S, c),
+                                     sizeof(S::c),
+                                     1,
+                                     ConsoleColors::blue,
+                                     {}},
+                             },
+                         },
+                         memory_dumper_options::colored_output
+                             | memory_dumper_options::cache_align);
     }//
     SECTION("bad alignment") {
       struct S {
@@ -207,43 +206,43 @@ TEST_CASE("MemoryDumper", "[log]") {
       };
       S v[5] = {{1, 1, 1}, {2, 2, 2},
                 {3, 3, 3}, {4, 4, 4}, {5, 5, 5}};
-      MemoryDumper::dump(v, 5, 16, memory_dumper_options::colored_output
-                             | memory_dumper_options::cache_align,
-                         {
-                             {0,
-                              sizeof(S),
-                              5,
-                              ConsoleColors::combine(ConsoleColors::yellow, ConsoleColors::dim),
+      MemoryDumper::dump(v, 5, 16,
+                         {0,
+                          sizeof(S),
+                          5,
+                          ConsoleColors::combine(ConsoleColors::yellow, ConsoleColors::dim),
+                          {
+                              // a
                               {
-                                  // a
-                                  {
-                                      offsetof(S, a),
-                                      sizeof(S::a),
-                                      1,
-                                      ConsoleColors::green,
-                                      {}},
-                                  // b
-                                  {
-                                      offsetof(S, b),
-                                      sizeof(S::b),
-                                      1,
-                                      ConsoleColors::red,
-                                      {}},
-                                  // c
-                                  {
-                                      offsetof(S, c),
-                                      sizeof(S::c),
-                                      1,
-                                      ConsoleColors::blue,
-                                      {}},
-                              }},
-                         });
+                                  offsetof(S, a),
+                                  sizeof(S::a),
+                                  1,
+                                  ConsoleColors::green,
+                                  {}},
+                              // b
+                              {
+                                  offsetof(S, b),
+                                  sizeof(S::b),
+                                  1,
+                                  ConsoleColors::red,
+                                  {}},
+                              // c
+                              {
+                                  offsetof(S, c),
+                                  sizeof(S::c),
+                                  1,
+                                  ConsoleColors::blue,
+                                  {}},
+                          }},
+                         memory_dumper_options::colored_output
+                             | memory_dumper_options::cache_align);
     }//
     SECTION("array") {
       int a[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-      MemoryDumper::dump(a, 10, 8, memory_dumper_options::type_values,
-                         {{0, sizeof(int), 10, ConsoleColors::red,
-                           {}, DataType::I32}});
+      MemoryDumper::dump(a, 10, 8,
+                         {0, sizeof(int), 10, ConsoleColors::red,
+                          {}, DataType::I32},
+                         memory_dumper_options::type_values);
     }//
     SECTION("member values") {
       struct S {
@@ -253,13 +252,47 @@ TEST_CASE("MemoryDumper", "[log]") {
 //        i8 p[2];
       };
       S v[3] = {{0.1, 10, 1}, {0.2, 20, 2}, {0.3, 30, 3}};
-      MemoryDumper::dump(v, 3, 9, memory_dumper_options::type_values
-                         | memory_dumper_options::colored_output,
-                         {{0, sizeof(S), 3, ConsoleColors::red,
-                           {{offsetof(S, a), sizeof(f32), 1, ConsoleColors::yellow, {}, DataType::F32},
-                            {offsetof(S, b), sizeof(i32), 1, ConsoleColors::blue, {}, DataType::I32},
-                            {offsetof(S, c), sizeof(i16), 1, ConsoleColors::green, {}, DataType::I16},
-                           }}});
-    }
+      MemoryDumper::RegionLayout layout =
+          {0, sizeof(S), 3, ConsoleColors::red,
+           {{offsetof(S, a), sizeof(f32), 1, ConsoleColors::yellow, {}, DataType::F32},
+            {offsetof(S, b), sizeof(i32), 1, ConsoleColors::blue, {}, DataType::I32},
+            {offsetof(S, c), sizeof(i16), 1, ConsoleColors::green, {}, DataType::I16},
+           }};
+      MemoryDumper::dump(v, 3, 9, layout,
+                         memory_dumper_options::type_values
+                             | memory_dumper_options::colored_output);
+    } //
+    SECTION("hermes member values") {
+      struct S {
+        vec3 v;
+        point2 p;
+      };
+      S v[3] = {{{1, 2, 3}, {4, 5}},
+                {{10, 20, 30}, {40, 50}},
+                {{100, 200, 300}, {400, 500}}};
+
+      auto layout = MemoryDumper::RegionLayout().withSizeOf<S>(3)
+          .withSubRegion(vec3::memoryDumpLayout().withColor(ConsoleColors::red))
+          .withSubRegion(point2::memoryDumpLayout().withColor(ConsoleColors::yellow));
+
+      MemoryDumper::dump(v, 3, 8, layout,
+                         memory_dumper_options::type_values | memory_dumper_options::colored_output);
+    } //
+    SECTION("region construction") {
+      MemoryDumper::RegionLayout layout = MemoryDumper::RegionLayout().withSubRegion(
+          {.field_size_in_bytes = sizeof(point2), .count = 3}, true
+      ).withSubRegion(
+          MemoryDumper::RegionLayout().withSizeOf<u32>(4), true);
+
+      REQUIRE(layout.count == 1);
+      REQUIRE(layout.offset == 0);
+      REQUIRE(layout.field_size_in_bytes == sizeof(point2) * 3 + sizeof(u32) * 4);
+      REQUIRE(layout.sizeInBytes() == layout.field_size_in_bytes * layout.count);
+
+      REQUIRE(layout.sub_regions[0].sizeInBytes() == sizeof(point2) * 3);
+      REQUIRE(layout.sub_regions[0].offset == 0);
+      REQUIRE(layout.sub_regions[1].sizeInBytes() == sizeof(u32) * 4);
+      REQUIRE(layout.sub_regions[1].offset == layout.sub_regions[0].sizeInBytes());
+    } //
   }//
 }

@@ -368,7 +368,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::copy(const void *data,
 #ifdef HERMES_DEVICE_ENABLED
   if (size_.height == 1 && size_.depth == 1) {
     // linear region
-    HERMES_CHECK_CUDA(cudaMemcpy(data_ + offset, data, size_in_bytes, cudaMemcpyHostToDevice));
+    HERMES_CHECK_CUDA(cudaMemcpy(data_ + offset, data, field_size_in_bytes, cudaMemcpyHostToDevice));
   } else if (size_.depth == 1) {
     // 2d pitched memory
     HERMES_NOT_IMPLEMENTED
