@@ -4,6 +4,7 @@
 #include <hermes/logging/console_colors.h>
 #include <hermes/common//debug.h>
 #include <hermes/geometry/point.h>
+#include <hermes/geometry/transform.h>
 
 using namespace hermes;
 
@@ -294,5 +295,13 @@ TEST_CASE("MemoryDumper", "[log]") {
       REQUIRE(layout.sub_regions[1].sizeInBytes() == sizeof(u32) * 4);
       REQUIRE(layout.sub_regions[1].offset == layout.sub_regions[0].sizeInBytes());
     } //
+  }//
+  SECTION("transforms") {
+    Transform t;
+    MemoryDumper::dump(&t,
+                       1,
+                       16,
+                       Transform::memoryDumpLayout(),
+                       memory_dumper_options::colored_output | memory_dumper_options::type_values);
   }//
 }

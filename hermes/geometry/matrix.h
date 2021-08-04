@@ -224,7 +224,13 @@ public:
   // *******************************************************************************************************************
   ///
   HERMES_DEVICE_CALLABLE void setIdentity() {
+#ifndef HERMES_DEVICE_CODE
+    for (int i = 0; i < 4; i++)
+    for (int j = 0; j < 4; j++)
+      m_[i][j] = 0.f;
+#else
     std::memset(m_, 0, sizeof(m_));
+#endif
     for (int i = 0; i < 4; i++)
       m_[i][i] = 1.f;
   }
