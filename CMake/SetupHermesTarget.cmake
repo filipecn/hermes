@@ -44,5 +44,8 @@ if (BUILD_WITH_CUDA)
             $<INSTALL_INTERFACE:include/hermes>
             )
 
-    set_source_files_properties(hermes/geometry/transform.cpp PROPERTIES LANGUAGE CUDA)
+    set_source_files_properties(
+            hermes/geometry/transform.cpp
+            hermes/common/cuda_utils.cpp
+            PROPERTIES LANGUAGE CUDA)
 endif (BUILD_WITH_CUDA)

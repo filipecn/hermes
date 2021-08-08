@@ -175,6 +175,20 @@ struct LaunchInfo {
 };
 
 // *********************************************************************************************************************
+//                                                                                                    SYNCHRONIZATION
+// *********************************************************************************************************************
+
+class Lock {
+public:
+  Lock();
+  ~Lock();
+  HERMES_DEVICE_FUNCTION void lock();
+  HERMES_DEVICE_FUNCTION void unlock();
+private:
+  int *mutex{nullptr};
+};
+
+// *********************************************************************************************************************
 //                                                                                                             MEMORY
 // *********************************************************************************************************************
 /// \param src
@@ -200,6 +214,16 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
 }
 
 } // namespace hermes::cuda_utils
+
+#define HERMES_CUDA_TIME(LAUNCH, ELAPSED_TIME_IN_MS)                                                                      \
+{ cudaEvent_t cuda_event_start_t, cuda_event_stop_t;                                                                \
+  cudaEventCreate(&cuda_event_start_t);                                                                             \
+  cudaEventCreate(&cuda_event_stop_t);                                                                              \
+  cudaEventRecord(cuda_event_start_t, 0);                                                                           \
+  LAUNCH                                                                                                            \
+  cudaEventRecord(cuda_event_stop_t, 0);                                                                            \
+  cudaEventSynchronize(cuda_event_stop_t);                                                                          \
+  cudaEventElapsedTime(&ELAPSED_TIME_IN_MS, cuda_event_start_t, cuda_event_stop_t); }
 
 #define HERMES_CUDA_DEVICE_SYNCHRONIZE HERMES_CHECK_CUDA(cudaDeviceSynchronize())
 

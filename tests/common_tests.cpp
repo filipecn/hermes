@@ -511,6 +511,15 @@ HERMES_CUDA_KERNEL(check_thread_index3)(size3 bounds, int *result) {
   if (ijk >= bounds)
     *result = -1;
 }
+HERMES_CUDA_KERNEL(block_counter)(cuda_utils::Lock lock, int *n) {
+  if (threadIdx.x == 0) {
+//    lock.lock();
+//    (*n)++;
+
+    atomicAdd(n, 1);
+//    lock.unlock();
+  }
+}
 TEST_CASE("cuda utils", "[cuda]") {
   SECTION("LaunchInfo") {
     cuda_utils::LaunchInfo info(1024);
@@ -532,19 +541,27 @@ TEST_CASE("cuda utils", "[cuda]") {
   SECTION("LaunchInfo3") {
     cuda_utils::LaunchInfo info(size3(1024, 128, 4));
     HERMES_LOG_VARIABLE(info)
-    cuda_utils::LaunchInfo info2(size3(32, 32,32));
+    cuda_utils::LaunchInfo info2(size3(32, 32, 32));
     HERMES_LOG_VARIABLE(info2)
   }//
-  UnifiedArray<int> results(1);
-  results[0] = 0;
-  HERMES_CUDA_LAUNCH_AND_SYNC((128), check_thread_index_k, 100, results.data())
-  REQUIRE(results[0] == 0);
-  results[0] = 0;
-  HERMES_CUDA_LAUNCH_AND_SYNC((size2(128, 128)), check_thread_index2_k, { 100, 100 }, results.data())
-  REQUIRE(results[0] == 0);
-  results[0] = 0;
-  HERMES_CUDA_LAUNCH_AND_SYNC((size3(128, 128, 128)), check_thread_index3_k, { 100, 100, 100 }, results.data())
-  REQUIRE(results[0] == 0);
+  SECTION("Thread indices") {
+    UnifiedArray<int> results(1);
+    results[0] = 0;
+    float elapsed_time = 0;
+    HERMES_CUDA_TIME(HERMES_CUDA_LAUNCH_AND_SYNC((128), check_thread_index_k, 100, results.data()), elapsed_time)
+    HERMES_LOG_VARIABLE(elapsed_time)
+    REQUIRE(results[0] == 0);
+    results[0] = 0;
+    HERMES_CUDA_LAUNCH_AND_SYNC((size2(128, 128)), check_thread_index2_k, { 100, 100 }, results.data())
+    REQUIRE(results[0] == 0);
+    results[0] = 0;
+    HERMES_CUDA_LAUNCH_AND_SYNC((size3(128, 128, 128)), check_thread_index3_k, { 100, 100, 100 }, results.data())
+    REQUIRE(results[0] == 0);
+    results[0] = 0;
+    cuda_utils::Lock lock;
+    HERMES_CUDA_LAUNCH_AND_SYNC((size2(128, 128)), block_counter_k, lock, results.data());
+    HERMES_LOG_VARIABLE(results[0])
+  }//
 }
 
 #endif
