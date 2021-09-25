@@ -63,6 +63,9 @@ public:
   HERMES_DEVICE_CALLABLE Size2<T> operator+(const Size2<T> &b) const {
     return Size2<T>(width + b.width, height + b.height);
   }
+  HERMES_DEVICE_CALLABLE Size2<T> operator*(T s) const {
+    return Size2<T>(width * s, height * s);
+  }
   //                                                                                                          boolean
   HERMES_DEVICE_CALLABLE bool operator==(const Size2<T> &b) const {
     return width == b.width && height == b.height;

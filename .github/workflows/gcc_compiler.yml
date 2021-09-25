@@ -1,0 +1,44 @@
+name: gcc-compiler-ubuntu-linux
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: build ubuntu/gcc
+    runs-on: ubuntu-latest
+
+    steps:
+      # checkout repository
+      - uses: actions/checkout@v2
+
+      - name: Install lcov
+        run: sudo apt-get install lcov
+      #      - name: Install coveralls
+      #        run: |
+      #          sudo gem install coveralls-lcov
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.8
+        with:
+          cmake-version: '3.19.x'
+
+      - name: Configure & build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON
+          make -j8
+      - name: Test
+        run: |
+          cd build
+          cmake --build . --target test_hermes -- -j 9
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: build/ponos/tests/cov.info

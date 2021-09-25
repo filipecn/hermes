@@ -41,10 +41,146 @@ namespace hermes {
 //                                                                                               FORWARD DECLARATIONS
 // *********************************************************************************************************************
 template<typename T, MemoryLocation L> class DataArray;
+template<typename T> class ArrayView;
+template<typename T> class ConstArrayView;
 /// forward declaration of Array1
 template<typename T> class Array1;
 /// forward declaration of Array2
 template<typename T> class Array2;
+
+// *********************************************************************************************************************
+//                                                                                                      ArrayIterator
+// *********************************************************************************************************************
+template<typename T>
+class ArrayIterator {
+public:
+  // *******************************************************************************************************************
+  //                                                                                                   FRIEND STRUCTS
+  // *******************************************************************************************************************
+  friend class DataArray<T, MemoryLocation::HOST>;
+  friend class DataArray<T, MemoryLocation::DEVICE>;
+  friend class DataArray<T, MemoryLocation::UNIFIED>;
+  friend class ArrayView<T>;
+  // *******************************************************************************************************************
+  //                                                                                                    Element class
+  // *******************************************************************************************************************
+  class Element {
+    friend class ArrayIterator<T>;
+  public:
+    HERMES_DEVICE_CALLABLE Element &operator=(const T &v) {
+      value = v;
+      return *this;
+    }
+    HERMES_DEVICE_CALLABLE bool operator==(const T &v) const { return value == v; }
+    T &value;
+    const index3 index;
+    const size_t flat_index;
+  private:
+    HERMES_DEVICE_CALLABLE Element(T &v, const index3 &ijk, size_t flat_index)
+        : value(v), index(ijk), flat_index(flat_index) {}
+  };
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       arithmetic
+  HERMES_DEVICE_CALLABLE ArrayIterator &operator++() {
+    ++index_iterator_;
+    return *this;
+  }
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE  Element operator*() {
+    return Element(reinterpret_cast<T *>( data_ + (*index_iterator_).k * pitch_ * size.height
+                       + (*index_iterator_).j * pitch_ + (*index_iterator_).i * sizeof(T))[0], *index_iterator_,
+                   index_iterator_.flatIndex());
+  }
+  //                                                                                                          boolean
+  HERMES_DEVICE_CALLABLE bool operator==(const ArrayIterator &other) {
+    return size_ == other.size_ && data_ == other.data_ && (*index_iterator_) == (*other.index_iterator_);
+  }
+  HERMES_DEVICE_CALLABLE bool operator!=(const ArrayIterator &other) {
+    return size_ != other.size_ || data_ != other.data_ || (*index_iterator_) != (*other.index_iterator_);
+  }
+
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  const size3 size;
+private:
+  HERMES_DEVICE_CALLABLE ArrayIterator(byte *data, size3 size, index3 ijk) :
+      data_(data), size_{size} {
+    index_iterator_ = Index3Iterator<i32>(index3(0, 0, 0),
+                                          index3(size_.width, size_.height, size_.depth), ijk);
+  }
+  byte *data_{nullptr};
+  size_t pitch_{0};
+  size3 size_;
+  Index3Iterator <i32> index_iterator_;
+};
+
+// *********************************************************************************************************************
+//                                                                                                      ArrayIterator
+// *********************************************************************************************************************
+template<typename T>
+class ConstArrayIterator {
+public:
+  // *******************************************************************************************************************
+  //                                                                                                   FRIEND STRUCTS
+  // *******************************************************************************************************************
+  friend class DataArray<T, MemoryLocation::HOST>;
+  friend class DataArray<T, MemoryLocation::DEVICE>;
+  friend class DataArray<T, MemoryLocation::UNIFIED>;
+  friend class ConstArrayView<T>;
+  // *******************************************************************************************************************
+  //                                                                                                    Element class
+  // *******************************************************************************************************************
+  class Element {
+    friend class ConstArrayIterator<T>;
+  public:
+    HERMES_DEVICE_CALLABLE bool operator==(const T &v) const { return value == v; }
+    const T &value;
+    const index3 index;
+    const size_t flat_index;
+  private:
+    HERMES_DEVICE_CALLABLE Element(const T &v, const index3 &ijk, size_t flat_index)
+        : value(v), index(ijk), flat_index(flat_index) {}
+  };
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       arithmetic
+  HERMES_DEVICE_CALLABLE ConstArrayIterator &operator++() {
+    ++index_iterator_;
+    return *this;
+  }
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE Element operator*() {
+    return Element(reinterpret_cast<const T *>( data_ + (*index_iterator_).k * pitch_ * size.height
+                       + (*index_iterator_).j * pitch_ + (*index_iterator_).i * sizeof(T))[0], *index_iterator_,
+                   index_iterator_.flatIndex());
+  }
+  //                                                                                                          boolean
+  HERMES_DEVICE_CALLABLE bool operator==(const ConstArrayIterator &other) {
+    return size_ == other.size_ && data_ == other.data_ && (*index_iterator_) == (*other.index_iterator_);
+  }
+  HERMES_DEVICE_CALLABLE  bool operator!=(const ConstArrayIterator &other) {
+    return size_ != other.size_ || data_ != other.data_ || (*index_iterator_) != (*other.index_iterator_);
+  }
+
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  const size3 size;
+private:
+  HERMES_DEVICE_CALLABLE ConstArrayIterator(const byte *data, size3 size, index3 ijk) :
+      data_(data), size_{size} {
+    index_iterator_ = Index3Iterator<i32>(index3(0, 0, 0),
+                                          index3(size_.width, size_.height, size_.depth), ijk);
+  }
+  const byte *data_{nullptr};
+  size_t pitch_{0};
+  size3 size_;
+  Index3Iterator <i32> index_iterator_;
+};
 
 // *********************************************************************************************************************
 //                                                                                                         ARRAY VIEW
@@ -109,9 +245,23 @@ public:
     return reinterpret_cast<T *>( data_ + ijk.k * pitch_ * size.height + ijk.j * pitch_
         + ijk.i * sizeof(T))[0];
   }
+  //                                                                                                        iterators
+  HERMES_DEVICE_CALLABLE ArrayIterator<T> begin() {
+    return ArrayIterator<T>(data_, size, index3(0, 0, 0));
+  }
+  HERMES_DEVICE_CALLABLE  ArrayIterator<T> end() {
+    return ArrayIterator<T>(data_, size, index3(size.width, size.height, size.depth));
+  }
+  HERMES_DEVICE_CALLABLE  ConstArrayIterator<T> begin() const {
+    return ConstArrayIterator<T>(data_, size, index3(0, 0, 0));
+  }
+  HERMES_DEVICE_CALLABLE  ConstArrayIterator<T> end() const {
+    return ConstArrayIterator<T>(data_, size, index3(size.width, size.height, size.depth));
+  }
+
   const size3 size;
 private:
-  ArrayView(byte *data, size3 size, size_t pitch) : data_{data}, size{size}, pitch_{pitch} {}
+  HERMES_DEVICE_CALLABLE ArrayView(byte *data, size3 size, size_t pitch) : data_{data}, size{size}, pitch_{pitch} {}
   byte *data_{nullptr};
   size_t pitch_{0};
 };
@@ -157,6 +307,13 @@ public:
   HERMES_DEVICE_CALLABLE const T &operator[](index3 ijk) const {
     return reinterpret_cast<const T *>( data_ + ijk.k * pitch_ * size.height + ijk.j * pitch_
         + ijk.i * sizeof(T))[0];
+  }
+  //                                                                                                        iterators
+  HERMES_DEVICE_CALLABLE ConstArrayIterator<T> begin() const {
+    return ConstArrayIterator<T>(data_, size, index3(0, 0, 0));
+  }
+  HERMES_DEVICE_CALLABLE  ConstArrayIterator<T> end() const {
+    return ConstArrayIterator<T>(data_, size, index3(size.width, size.height, size.depth));
   }
   const size3 size;
 private:

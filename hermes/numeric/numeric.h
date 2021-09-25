@@ -86,12 +86,21 @@ struct Numbers {
   HERMES_DEVICE_CALLABLE static constexpr real_t gamma(i32 n) {
     return (n * Constants::machine_epsilon) / (1 - n * Constants::machine_epsilon);
   }
+
   template<typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
-    return 0xfff0000000000000;
+    // TODO hex please!
+    if (std::is_same_v<T, f32>)
+      return -340282346638528859811704183484516925440.0f;
+    return -179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368.0;
   }
+
   template<typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
-    return 0x7ff0000000000000;
+    // TODO hex please!
+    if (std::is_same_v<T, f32>)
+      return 340282346638528859811704183484516925440.0f;
+    return 179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368.0;
   }
+
   HERMES_DEVICE_CALLABLE static constexpr int lowest_int() { return -2147483647; }
   HERMES_DEVICE_CALLABLE static constexpr int greatest_int() { return 2147483647; }
   template<typename T> HERMES_DEVICE_CALLABLE T min(const T &a, const T &b) {
@@ -354,6 +363,26 @@ struct Check {
   }
 };
 
+namespace numeric {
+
+template<typename T>
+HERMES_DEVICE_CALLABLE bool soveLinearSystem(const T A[2][2], const T B[2], T* x0, T* x1) {
+  T det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+  if(abs(det) < 1e-10f)
+    return false;
+  *x0 = (A[1][1] * B[0] - A[0][1] * B[1]) / det;
+  *x1 = (A[0][0] * B[1] - A[1][0] * B[0]) / det;
+#ifdef HERMES_DEVICE_CODE
+  if(isnan(*x0) || isnan(*x1))
+    return false;
+#else
+  if(std::isnan(*x0) || std::isnan(*x1))
+    return false;
+#endif
+  return true;
+}
+
+}
 //
 //template<typename T>
 //__device__ __host__ unsigned int mortonCode(const Point3 <T> &v) {

@@ -17,6 +17,23 @@ HERMES_CUDA_KERNEL(testEFloat)(bool *result) {
 }
 #endif
 
+TEST_CASE("numeric") {
+  real_t A[2][2] = {{0, 1}, {1, 0}};
+  real_t B[2] = {3, 4};
+  real_t x0 = 0, x1 = 0;
+  REQUIRE(numeric::soveLinearSystem(A, B, &x0, &x1));
+  REQUIRE(x0 == Approx(4));
+  REQUIRE(x1 == Approx(3));
+
+}
+
+TEST_CASE("Numbers") {
+  REQUIRE(Numbers::lowest<f32>() == std::numeric_limits<f32>::lowest());
+  REQUIRE(Numbers::lowest<f64>() == std::numeric_limits<f64>::lowest());
+  REQUIRE(Numbers::greatest<f32>() == std::numeric_limits<f32>::max());
+  REQUIRE(Numbers::greatest<f64>() == std::numeric_limits<f64>::max());
+}
+
 TEST_CASE("interval") {
   HERMES_NOT_IMPLEMENTED
 }

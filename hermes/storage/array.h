@@ -166,11 +166,31 @@ public:
     size_ = {0, 0, 0};
     data_.clear();
   }
+  /// Checks if ``i`` is not out of bounds
+  /// \param ij position index
+  /// \return ``true`` if position can be accessed
+  [[nodiscard]] bool stores(i32 i) const {
+    return i >= 0 && static_cast<i64>(i) < size_.width;
+  }
   //                                                                                                           access
   const T *data() const { return reinterpret_cast<T *>( data_.ptr()); }
   T *data() { return reinterpret_cast<T *>(data_.ptr()); }
   ArrayView<T> view() { return ArrayView<T>(data_.ptr(), size_, data_.pitch()); }
   ConstArrayView<T> view() const { return ConstArrayView<T>(data_.ptr(), size_, data_.pitch()); }
+  ConstArrayView<T> constView() const { return ConstArrayView<T>(data_.ptr(), size_, data_.pitch()); }
+  //                                                                                                        iterators
+  ArrayIterator<T> begin() {
+    return ArrayIterator<T>(data_.ptr(), size_, index3(0, 0, 0));
+  }
+  ArrayIterator<T> end() {
+    return ArrayIterator<T>(data_.ptr(), size_, index3(size_.width, size_.height, size_.depth));
+  }
+  ConstArrayIterator<T> begin() const {
+    return ConstArrayIterator<T>(data_.ptr(), size_, index3(0, 0, 0));
+  }
+  ConstArrayIterator<T> end() const {
+    return ConstArrayIterator<T>(data_.ptr(), size_, index3(size_.width, size_.height, size_.depth));
+  }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************

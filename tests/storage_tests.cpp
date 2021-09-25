@@ -32,6 +32,7 @@
 #include <hermes/geometry/vector.h>
 #include <hermes/storage/memory_block.h>
 #include <hermes/common/cuda_utils.h>
+#include <hermes/storage/stack_allocator.h>
 
 using namespace hermes;
 
@@ -79,14 +80,14 @@ TEST_CASE("MemoryBlock", "[storage]") {
     int b = 2;
     hm.copy(&a);
     hm.copy(&b, 4);
-    REQUIRE(reinterpret_cast<int*>(hm.ptr())[0] == a);
-    REQUIRE(reinterpret_cast<int*>(hm.ptr())[1] == b);
+    REQUIRE(reinterpret_cast<int *>(hm.ptr())[0] == a);
+    REQUIRE(reinterpret_cast<int *>(hm.ptr())[1] == b);
     DeviceMemory dm(8);
-    dm.copy(&a,0,MemoryLocation::HOST);
-    dm.copy(&b,4,MemoryLocation::HOST);
+    dm.copy(&a, 0, MemoryLocation::HOST);
+    dm.copy(&b, 4, MemoryLocation::HOST);
     HostMemory hm2 = dm;
-    REQUIRE(reinterpret_cast<int*>(hm2.ptr())[0] == a);
-    REQUIRE(reinterpret_cast<int*>(hm2.ptr())[1] == b);
+    REQUIRE(reinterpret_cast<int *>(hm2.ptr())[0] == a);
+    REQUIRE(reinterpret_cast<int *>(hm2.ptr())[1] == b);
 #endif
   }//
   SECTION("assignment") {
@@ -171,8 +172,7 @@ TEST_CASE("MemoryBlock", "[storage]") {
     UnifiedMemory um(64 * 128 * 4);
     u32 *data = reinterpret_cast<u32 *>( um.ptr());
     size2 bounds(64, 128);
-    HERMES_CUDA_LAUNCH((bounds), writeMatrixIndex_k, data, bounds)
-    HERMES_CUDA_DEVICE_SYNCHRONIZE
+    HERMES_CUDA_LAUNCH_AND_SYNC((bounds), writeMatrixIndex_k, data, bounds)
     for (u32 j = 0; j < 128; ++j)
       for (u32 i = 0; i < 64; ++i) {
         u32 ind = j * 64 + i;
@@ -180,6 +180,158 @@ TEST_CASE("MemoryBlock", "[storage]") {
       }
   }
 #endif
+}
+
+TEST_CASE("mem", "[memory]") {
+  SECTION("alignTo") {
+    REQUIRE(mem::alignTo(1, sizeof(u8)) == sizeof(u8));
+    REQUIRE(mem::alignTo(1, sizeof(u16)) == sizeof(u16));
+    REQUIRE(mem::alignTo(1, sizeof(u32)) == sizeof(u32));
+    REQUIRE(mem::alignTo(1, sizeof(u64)) == sizeof(u64));
+    struct S {
+      f32 a;
+      u8 b;
+      u16 c;
+    };
+    REQUIRE(sizeof(S) == 8);
+    REQUIRE(mem::alignTo(15, sizeof(S)) == 16);
+    REQUIRE(mem::alignTo(17, sizeof(S)) == 24);
+  }//
+  SECTION("left and right alignments") {
+    REQUIRE(mem::leftAlignShift(100, 64) == 100 - 64);
+    REQUIRE(mem::rightAlignShift(100, 64) == 128 - 100);
+
+    REQUIRE(mem::leftAlignShift(100, 1) == 0);
+    REQUIRE(mem::rightAlignShift(100, 1) == 0);
+  }//
+  SECTION("allocAligned") {
+    auto *ptr = mem::allocAligned(10, 1);
+    mem::freeAligned(ptr);
+  }//
+}
+
+TEST_CASE("StackAllocator", "[memory]") {
+  SECTION("HOST") {
+    SECTION("empty") {
+      StackAllocator stack_allocator;
+      REQUIRE(stack_allocator.capacityInBytes() == 0);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 0);
+      REQUIRE(stack_allocator.allocate(10).id == 0);
+      REQUIRE(stack_allocator.allocateAligned<int>().id == 0);
+      REQUIRE(stack_allocator.freeTo({}) == HeResult::BAD_OPERATION);
+    }//
+    SECTION("sanity") {
+      StackAllocator stack_allocator;
+      REQUIRE(stack_allocator.resize(100) == HeResult::SUCCESS);
+      REQUIRE(stack_allocator.capacityInBytes() == 100);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 100);
+      auto p = stack_allocator.allocate(50);
+      REQUIRE(p.id == 1);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 50);
+      stack_allocator.clear();
+      REQUIRE(stack_allocator.availableSizeInBytes() == 100);
+      stack_allocator.resize(200);
+      REQUIRE(stack_allocator.capacityInBytes() == 200);
+      auto p1 = stack_allocator.allocate(180);
+      REQUIRE(p1.id == 1);
+      auto p2 = stack_allocator.allocate(40);
+      REQUIRE(p2.id == 0);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 20);
+      REQUIRE(stack_allocator.freeTo(p1) == HeResult::SUCCESS);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 200);
+    }//
+    SECTION("debug") {
+#ifdef ODYSSEUS_DEBUG
+      StackAllocator stack_allocator(200);
+      stack_allocator.allocate(10);
+      stack_allocator.allocate(50);
+      stack_allocator.allocate(80, 64);
+      stack_allocator.dump();
+#endif
+    }//
+    SECTION("set get") {
+      StackAllocator stack_allocator(80);
+      std::vector<AddressIndex> handles;
+      handles.reserve(20);
+      for (int i = 0; i < 20; ++i)
+        handles.emplace_back(stack_allocator.allocateAligned<int>(0));
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(*stack_allocator.get<int>(handles[i]) == i);
+    }//
+    SECTION("view") {
+      StackAllocator stack_allocator(80);
+      std::vector<AddressIndex> handles;
+      handles.reserve(20);
+      for (int i = 0; i < 20; ++i)
+        handles.emplace_back(stack_allocator.allocateAligned<int>(0));
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
+      auto view = stack_allocator.view();
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(*view.get<int>(handles[i]) == i);
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(view.set(handles[i], 2 * i) == HeResult::SUCCESS);
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(*stack_allocator.get<int>(handles[i]) == 2*i);
+    }//
+  }//
+  SECTION("UNIFIED") {
+    SECTION("empty") {
+      UnifiedStackAllocator stack_allocator;
+      REQUIRE(stack_allocator.capacityInBytes() == 0);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 0);
+      REQUIRE(stack_allocator.allocate(10).id == 0);
+      REQUIRE(stack_allocator.allocateAligned<int>().id == 0);
+      REQUIRE(stack_allocator.freeTo({}) == HeResult::BAD_OPERATION);
+    }//
+    return;
+    SECTION("sanity") {
+      UnifiedStackAllocator stack_allocator;
+      REQUIRE(stack_allocator.resize(100) == HeResult::SUCCESS);
+      REQUIRE(stack_allocator.capacityInBytes() == 100);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 100);
+      auto p = stack_allocator.allocate(50);
+      REQUIRE(p.id == 1);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 50);
+      stack_allocator.clear();
+      REQUIRE(stack_allocator.availableSizeInBytes() == 100);
+      stack_allocator.resize(200);
+      REQUIRE(stack_allocator.capacityInBytes() == 200);
+      auto p1 = stack_allocator.allocate(180);
+      REQUIRE(p1.id == 1);
+      auto p2 = stack_allocator.allocate(40);
+      REQUIRE(p2.id == 0);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 20);
+      REQUIRE(stack_allocator.freeTo(p1) == HeResult::SUCCESS);
+      REQUIRE(stack_allocator.availableSizeInBytes() == 200);
+    }//
+    SECTION("debug") {
+#ifdef ODYSSEUS_DEBUG
+      UnifiedStackAllocator stack_allocator(200);
+    stack_allocator.allocate(10);
+    stack_allocator.allocate(50);
+    stack_allocator.allocate(80, 64);
+    stack_allocator.dump();
+#endif
+    }//
+    SECTION("set get") {
+      UnifiedStackAllocator stack_allocator(80);
+      std::vector<AddressIndex> handles;
+      handles.reserve(20);
+      for (int i = 0; i < 20; ++i)
+        handles.emplace_back(stack_allocator.allocateAligned<int>(0));
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
+#ifdef ODYSSEUS_DEBUG
+      stack_allocator.dump();
+#endif
+      for (int i = 0; i < 20; ++i)
+        REQUIRE(*stack_allocator.get<int>(handles[i]) == i);
+    }
+  }//
+  SECTION("DEVICE") {}//
 }
 
 TEST_CASE("DataArray", "[storage][array]") {
@@ -245,6 +397,82 @@ TEST_CASE("DataArray", "[storage][array]") {
     Array<int> b = a;
     HERMES_LOG_VARIABLE(b)
 #endif
+  }//
+  SECTION("Array1-iterator") {
+    Array<vec2> a(10);
+    int count = 0;
+    for (auto e : a) {
+      e.value = vec2(1, 2);
+      REQUIRE(e.flat_index == count++);
+    }
+    REQUIRE(count == 10);
+    for (auto e : a)
+      REQUIRE(e.value == vec2(1, 2));
+  }//
+  SECTION("Array2-iterator") {
+    Array<vec2> a(size2(10, 10));
+    for (auto e : a)
+      e.value = vec2(1, 2);
+    int count = 0;
+    for (auto e : a) {
+      REQUIRE(e.flat_index == count++);
+      REQUIRE(e.value == vec2(1, 2));
+      REQUIRE(e.flat_index == e.index.j * 10 + e.index.i);
+    }
+    REQUIRE(count == 100);
+  }//
+  SECTION("Array3-iterator") {
+    Array<vec2> a(size3(10, 10, 10));
+    for (auto e : a)
+      e.value = vec2(1, 2);
+    int count = 0;
+    for (auto e : a) {
+      REQUIRE(e.flat_index == count++);
+      REQUIRE(e.value == vec2(1, 2));
+      REQUIRE(e.flat_index == e.index.k * 100 + e.index.j * 10 + e.index.i);
+    }
+    REQUIRE(count == 1000);
+  }//
+
+  SECTION("const Array1-iterator") {
+    Array<vec2> a(10);
+    for (auto e : a)
+      e.value = vec2(1, 2);
+    auto f = [](const Array<vec2> &array) {
+      for (auto e : array)
+        REQUIRE(e.value == vec2(1, 2));
+    };
+    f(a);
+  }//
+  SECTION("const Array2-iterator") {
+    Array<vec2> a(size2(10, 10));
+    for (auto e : a)
+      e.value = vec2(1, 2);
+    auto f = [](const Array<vec2> &array) {
+      int count = 0;
+      for (auto e : array) {
+        REQUIRE(e.flat_index == count++);
+        REQUIRE(e.value == vec2(1, 2));
+        REQUIRE(e.flat_index == e.index.j * 10 + e.index.i);
+      }
+      REQUIRE(count == 100);
+    };
+    f(a);
+  }//
+  SECTION("const Array3-iterator") {
+    Array<vec2> a(size3(10, 10, 10));
+    for (auto e : a)
+      e.value = vec2(1, 2);
+    auto f = [](const Array<vec2> &array) {
+      int count = 0;
+      for (auto e : array) {
+        REQUIRE(e.flat_index == count++);
+        REQUIRE(e.value == vec2(1, 2));
+        REQUIRE(e.flat_index == e.index.k * 100 + e.index.j * 10 + e.index.i);
+      }
+      REQUIRE(count == 1000);
+    };
+    f(a);
   }//
 }
 

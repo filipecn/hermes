@@ -90,9 +90,9 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                          casting
-  HERMES_DEVICE_CALLABLE explicit operator Vector3<T>() const {
-    return Vector3<T>(x, y, z);
-  }
+//  HERMES_DEVICE_CALLABLE explicit operator Vector3<T>() const {
+//    return Vector3<T>(x, y, z);
+//  }
   //                                                                                                       arithmetic
   HERMES_DEVICE_CALLABLE Normal3 operator-() const { return Normal3(-x, -y, -z); }
   HERMES_DEVICE_CALLABLE Normal3 &operator*=(T f) {

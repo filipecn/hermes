@@ -418,7 +418,7 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
   clear();
   size_ = {static_cast<u32>(new_size_in_bytes), 1, 1};
   pitch_ = new_size_in_bytes;
-  HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+  if (new_size_in_bytes) HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
 #endif
 }
 
@@ -450,7 +450,7 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size3 new_size, size_t new_pit
 
 void MemoryBlock<MemoryLocation::UNIFIED>::clear() {
 #ifdef HERMES_DEVICE_CODE
-  HERMES_CHECK_CUDA(cudaFree(data_))
+  if (data_) HERMES_CHECK_CUDA(cudaFree(data_))
 #endif
   size_ = {0, 0, 0};
   data_ = nullptr;
@@ -501,9 +501,9 @@ const byte *MemoryBlock<MemoryLocation::UNIFIED>::ptr() const {
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::copy(const void *data,
-                                             size_t size_in_bytes,
-                                             size_t offset,
-                                             MemoryLocation data_location) {
+                                                size_t size_in_bytes,
+                                                size_t offset,
+                                                MemoryLocation data_location) {
   HERMES_CHECK_EXP(size_in_bytes <= sizeInBytes() - offset)
   if (data_location != MemoryLocation::DEVICE)
     std::memcpy(data_ + offset, data, size_in_bytes);

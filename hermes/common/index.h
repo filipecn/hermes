@@ -219,6 +219,10 @@ public:
   //                                                                                                           access
   ///\return const Index2<T>& current index coordinate
   HERMES_DEVICE_CALLABLE const Index2<T> &operator*() const { return index_; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE size_t flatIndex() const {
+    auto size = upper_ - lower_;
+    return index_.j * size.i + index_.i;
+  }
   //                                                                                                          boolean
   ///\brief are equal? operator
   ///\param other **[in]**
@@ -259,11 +263,11 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE friend Index2Range<T> intersect(const Index2Range<T> &a, const Index2Range<T> &b) {
 #ifdef HERMES_DEVICE_ENABLED
-    return Index2Range<T>(Index2<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.i, b.lower_.j)),
-                          Index2<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.i, b.upper_.j)));
+    return Index2Range<T>(Index2<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.j, b.lower_.j)),
+                          Index2<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.j, b.upper_.j)));
 #else
-    return {{std::max(a.lower_.i, b.lower_.i), std::max(a.lower_.i, b.lower_.j)},
-            {std::min(a.upper_.i, b.upper_.i), std::min(a.upper_.i, b.upper_.j)}};
+    return {{std::max(a.lower_.i, b.lower_.i), std::max(a.lower_.j, b.lower_.j)},
+            {std::min(a.upper_.i, b.upper_.i), std::min(a.upper_.j, b.upper_.j)}};
 #endif
   }
   // *******************************************************************************************************************
@@ -402,18 +406,25 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE Index3Iterator() {}
   ///\brief Construct a new Index3Iterator object
   ///\param lower **[in]** lower bound
   ///\param upper **[in]** upper bound
   ///\param start **[in]** starting coordinate
   HERMES_DEVICE_CALLABLE Index3Iterator(Index3<T> lower, Index3<T> upper, Index3<T> start)
       : index_(start), lower_(lower), upper_(upper) {}
+  /// \param upper
+  HERMES_DEVICE_CALLABLE explicit Index3Iterator(Index3<T> upper) : upper_(upper) {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                           access
   ///\return const Index3<T>& current index coordinate
   HERMES_DEVICE_CALLABLE const Index3<T> &operator*() const { return index_; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE size_t flatIndex() const {
+    auto size = upper_ - lower_;
+    return index_.k * (size.i * size.j) + index_.j * size.i + index_.i;
+  }
   //                                                                                                       arithmetic
   ///\return Index3Iterator&
   HERMES_DEVICE_CALLABLE Index3Iterator &operator++() {
@@ -461,9 +472,9 @@ public:
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE friend Index3Range<T> intersect(const Index3Range<T> &a, const Index3Range<T> &b) {
 #ifdef HERMES_DEVICE_ENABLED
-    return {Index3<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.i, b.lower_.j),
+    return {Index3<T>(max(a.lower_.i, b.lower_.i), max(a.lower_.j, b.lower_.j),
                       max(a.lower_.k, b.lower_.k)),
-            Index3<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.i, b.upper_.j),
+            Index3<T>(min(a.upper_.i, b.upper_.i), min(a.upper_.j, b.upper_.j),
                       min(a.upper_.k, b.upper_.k))};
 #else
     return {{std::max(a.lower_.i, b.lower_.i), std::max(a.lower_.i, b.lower_.j),

@@ -121,7 +121,9 @@ TEST_CASE("Console Colors", "[log]") {
 TEST_CASE("MemoryDumper", "[log]") {
   SECTION("hex") {
     const char s[] = "abcdefghijklmnopqrstuvxzwy";
-    std::cerr << MemoryDumper::dump(s, sizeof(s));
+    std::cerr << MemoryDumper::dump(s, sizeof(s), 8, {},
+                                    memory_dumper_options::colored_output |
+                                    memory_dumper_options::show_ascii);
     const u32 v32[] = {1, 2, 3, 4, 5};
     MemoryDumper::dump(v32, 5);
   }//
@@ -273,7 +275,7 @@ TEST_CASE("MemoryDumper", "[log]") {
                 {{100, 200, 300}, {400, 500}}};
 
       auto layout = MemoryDumper::RegionLayout().withSizeOf<S>(3)
-          .withSubRegion(vec3::memoryDumpLayout().withColor(ConsoleColors::red))
+          .withSubRegion(vec3::memoryDumpLayout().withColor(ConsoleColors::blue))
           .withSubRegion(point2::memoryDumpLayout().withColor(ConsoleColors::yellow));
 
       MemoryDumper::dump(v, 3, 8, layout,

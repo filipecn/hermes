@@ -100,11 +100,13 @@ set(HERMES_HEADERS
         #        hermes/random/rng.h
         #        hermes/storage/array.h
         #        hermes/storage/array_of_structures.h
+        hermes/storage/memory.h
         hermes/storage/array.h
         hermes/storage/array_of_structures.h
         hermes/storage/array_of_structures_view.h
         hermes/storage/array_view.h
         hermes/storage/memory_block.h
+        hermes/storage/stack_allocator.h
         hermes/storage/struct_descriptor.h
         #        hermes/storage/device_array.h
         #        hermes/storage/cu_array.h
