@@ -41,4 +41,4 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: build/hermes/tests/cov.info
+          path-to-lcov: build/tests/cov.info
