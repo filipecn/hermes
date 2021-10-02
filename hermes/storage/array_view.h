@@ -245,6 +245,12 @@ public:
     return reinterpret_cast<T *>( data_ + ijk.k * pitch_ * size.height + ijk.j * pitch_
         + ijk.i * sizeof(T))[0];
   }
+
+  template<typename... Args>
+  HERMES_DEVICE_CALLABLE HeResult emplace(std::size_t i, Args &&... args) {
+    new(&(reinterpret_cast<T *>(data_)[i])) T(std::forward<Args>(args)...);
+    return HeResult::SUCCESS;
+  }
   //                                                                                                        iterators
   HERMES_DEVICE_CALLABLE ArrayIterator<T> begin() {
     return ArrayIterator<T>(data_, size, index3(0, 0, 0));

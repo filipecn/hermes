@@ -220,7 +220,7 @@ MemoryBlock<MemoryLocation::DEVICE> &
 MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation::DEVICE> &other) {
   if (this == &other)
     return *this;
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   resize(other.size_);
   if (other.size_.height == 1 && other.size_.depth == 1) {
     // linear memory
@@ -252,7 +252,7 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
 
 MemoryBlock<MemoryLocation::DEVICE> &
 MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation::HOST> &other) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   resize(other.size_);
   if (other.size_.height == 1 && other.size_.depth == 1) {
     // linear region
@@ -291,7 +291,7 @@ const byte *MemoryBlock<MemoryLocation::DEVICE>::ptr() const {
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::resize(size_t new_size_in_bytes) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   size3 new_size(new_size_in_bytes, 1, 1);
   if (size_ == new_size)
     return;
@@ -304,7 +304,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size_t new_size_in_bytes) {
 
 void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size, size_t new_pitch) {
   HERMES_UNUSED_VARIABLE(new_pitch);
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   if (size_ == size3(new_size.width, new_size.height, 1))
     return;
   if (new_size.height == 1) {
@@ -318,7 +318,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size, size_t new_pitc
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size, size_t new_pitch) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   HERMES_UNUSED_VARIABLE(new_pitch);
   if (size_ == new_size)
     return;
@@ -340,7 +340,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size, size_t new_pitc
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::clear() {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA(cudaFree(data_))
 #endif
   size_ = {0, 0, 0};
@@ -411,7 +411,7 @@ size_t MemoryBlock<MemoryLocation::UNIFIED>::pitch() const {
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   size3 new_size(new_size_in_bytes, 1, 1);
   if (size_ == new_size)
     return;
@@ -423,7 +423,7 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::resize(size2 new_size, size_t new_pitch) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   if (size_ == size3(new_size.width, new_size.height, 1) && pitch_ == new_pitch)
     return;
   clear();
@@ -436,7 +436,7 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size2 new_size, size_t new_pit
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::resize(size3 new_size, size_t new_pitch) {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   if (size_ == new_size && pitch_ == new_pitch)
     return;
   clear();
@@ -449,7 +449,7 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size3 new_size, size_t new_pit
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::clear() {
-#ifdef HERMES_DEVICE_CODE
+#ifdef HERMES_DEVICE_ENABLED
   if (data_) HERMES_CHECK_CUDA(cudaFree(data_))
 #endif
   size_ = {0, 0, 0};

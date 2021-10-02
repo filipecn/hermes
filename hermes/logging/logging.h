@@ -56,7 +56,9 @@ public:
   /// \param fmt
   /// \param args
   template<typename ...Ts>
-  static inline void info(const std::string &fmt, Ts &&...args) {
+  HERMES_DEVICE_CALLABLE static inline void info(const char* fmt, Ts &&...args) {
+#if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
+#else
     Str s;
     if (use_colors)
       s += ConsoleColors::color(info_label_color);
@@ -67,13 +69,17 @@ public:
     if (use_colors)
       s += ConsoleColors::reset;
     printf("%s\n", s.c_str());
+#endif
   }
   ///
   /// \tparam Ts
   /// \param fmt
   /// \param args
   template<typename ...Ts>
-  static inline void warn(const std::string &fmt, Ts &&...args) {
+  HERMES_DEVICE_CALLABLE static inline void warn(const char* fmt, Ts &&...args) {
+#if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
+
+#else
     Str s;
     if (use_colors)
       s += ConsoleColors::color(warn_label_color);
@@ -84,13 +90,16 @@ public:
     if (use_colors)
       s += ConsoleColors::reset;
     printf("%s\n", s.c_str());
+#endif
   }
   ///
   /// \tparam Ts
   /// \param fmt
   /// \param args
   template<typename ...Ts>
-  static inline void error(const std::string &fmt, Ts &&...args) {
+  static HERMES_DEVICE_CALLABLE inline void error(const char* fmt, Ts &&...args) {
+#if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
+#else
     Str s;
     if (use_colors)
       s += ConsoleColors::color(error_label_color);
@@ -101,13 +110,16 @@ public:
     if (use_colors)
       s += ConsoleColors::reset;
     printf("%s\n", s.c_str());
+#endif
   }
   ///
   /// \tparam Ts
   /// \param fmt
   /// \param args
   template<typename ...Ts>
-  static inline void critical(const std::string &fmt, Ts &&...args) {
+  HERMES_DEVICE_CALLABLE static inline void critical(const std::string &fmt, Ts &&...args) {
+#if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
+#else
     Str s;
     if (use_colors)
       s += ConsoleColors::color(critical_label_color);
@@ -118,6 +130,7 @@ public:
     if (use_colors)
       s += ConsoleColors::reset;
     printf("%s\n", s.c_str());
+#endif
   }
 
   static bool use_colors;

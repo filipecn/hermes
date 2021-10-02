@@ -318,7 +318,7 @@ private:
 };
 
 // *********************************************************************************************************************
-//                                                                                     UNIFIED Memory Stack Allocator
+//                                                                                      DEVICE Memory Stack Allocator
 // *********************************************************************************************************************
 template<>
 class MemoryStackAllocator<MemoryLocation::DEVICE> {
@@ -334,32 +334,22 @@ public:
   /// \param size_in_bytes
   explicit MemoryStackAllocator(std::size_t size_in_bytes = 0);
   explicit MemoryStackAllocator(std::size_t size_in_bytes, byte *buffer);
+  MemoryStackAllocator(const MemoryStackAllocator<MemoryLocation::HOST>& other);
   ///
   ~MemoryStackAllocator();
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  //                                                                                                             view
+  ///
+  /// \return
+  StackAllocatorView view();
   //                                                                                                             size
   /// \return total stack capacity (in bytes)
   [[nodiscard]] std::size_t capacityInBytes() const;
   /// All previous data is deleted and markers get invalid
   /// \param size_in_bytes total memory capacity
   HeResult resize(std::size_t size_in_bytes);
-  ///
-  /// \tparam T
-  /// \param handle
-  /// \return
-  template<typename T>
-  T *get(AddressIndex handle) {
-    HERMES_ASSERT(handle.id > 0 && ((handle.id & 0xffffff) - 1) < capacity_)
-    return reinterpret_cast<T *>(data_ + ((handle.id & 0xffffff) - 1));
-  }
-
-  /// Roll the stack back to a previous marker point
-  /// \param marker
-  HeResult freeTo(AddressIndex handle);
-  /// Roll stack back to zero
-  void clear();
 
 private:
   MemoryBlock<MemoryLocation::DEVICE> mem_block_;

@@ -85,6 +85,17 @@ MemoryStackAllocator<MemoryLocation::HOST>::MemoryStackAllocator(std::size_t siz
     data_(buffer), capacity_(size_in_bytes), using_external_memory_{true} {
 }
 
+MemoryStackAllocator<MemoryLocation::DEVICE>::MemoryStackAllocator(
+    const MemoryStackAllocator<MemoryLocation::HOST> &other) : using_external_memory_(false) {
+  capacity_ = other.capacity_;
+  if (capacity_) {
+    // compute address alignment
+    auto base_address = reinterpret_cast<uintptr_t>(other.data_);
+    HERMES_LOG_VARIABLE(base_address);
+    mem_block_.resize(capacity_);
+  }
+}
+
 MemoryStackAllocator<MemoryLocation::HOST>::~MemoryStackAllocator() = default;
 
 std::size_t MemoryStackAllocator<MemoryLocation::HOST>::capacityInBytes() const {
@@ -191,6 +202,35 @@ void MemoryStackAllocator<MemoryLocation::UNIFIED>::clear() {
 
 StackAllocatorView MemoryStackAllocator<MemoryLocation::UNIFIED>::view() {
   return StackAllocatorView(data_, capacity_, marker_);
+}
+// *********************************************************************************************************************
+//                                                                                      DEVICE Memory Stack Allocator
+// *********************************************************************************************************************
+MemoryStackAllocator<MemoryLocation::DEVICE>::MemoryStackAllocator(std::size_t size_in_bytes) {
+  resize(size_in_bytes);
+}
+
+MemoryStackAllocator<MemoryLocation::DEVICE>::MemoryStackAllocator(std::size_t size_in_bytes, byte *buffer) :
+    data_(buffer), capacity_(size_in_bytes), using_external_memory_{true} {
+}
+
+MemoryStackAllocator<MemoryLocation::DEVICE>::~MemoryStackAllocator() = default;
+
+std::size_t MemoryStackAllocator<MemoryLocation::DEVICE>::capacityInBytes() const {
+  return capacity_;
+}
+
+HeResult MemoryStackAllocator<MemoryLocation::DEVICE>::resize(std::size_t size_in_bytes) {
+  if (using_external_memory_)
+    return HeResult::BAD_OPERATION;
+  mem_block_.resize(size_in_bytes);
+  capacity_ = mem_block_.sizeInBytes();
+  data_ = mem_block_.ptr();
+  return capacity_ >= size_in_bytes ? HeResult::SUCCESS : HeResult::BAD_ALLOCATION;
+}
+
+StackAllocatorView MemoryStackAllocator<MemoryLocation::DEVICE>::view() {
+  return StackAllocatorView(data_, capacity_);
 }
 
 #undef SA_EXTRACT_MARKER

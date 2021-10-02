@@ -47,5 +47,6 @@ if (BUILD_WITH_CUDA)
     set_source_files_properties(
             hermes/geometry/transform.cpp
             hermes/common/cuda_utils.cpp
+            hermes/storage/stack_allocator.cpp
             PROPERTIES LANGUAGE CUDA)
 endif (BUILD_WITH_CUDA)

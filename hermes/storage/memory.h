@@ -36,6 +36,7 @@ namespace hermes {
 /// Object returned by memory allocators and other memory-related classes
 /// Each class puts a meaning into its value
 struct AddressIndex {
+  HERMES_DEVICE_CALLABLE AddressIndex(std::size_t id = 0) : id(id) {}
   /// handle identifier, a value of zero identifies an invalid address
   const std::size_t id{0};
   [[nodiscard]] HERMES_DEVICE_CALLABLE inline bool isValid() const { return id != 0; }
@@ -58,13 +59,13 @@ public:
   /// \param align alignment size in number of bytes
   /// \return the actual amount of bytes necessary to store number_of_bytes
   /// under the alignment
-  static inline std::size_t alignTo(std::size_t number_of_bytes, std::size_t align) {
+  HERMES_DEVICE_CALLABLE static inline std::size_t alignTo(std::size_t number_of_bytes, std::size_t align) {
     return number_of_bytes > 0 ? (1u + (number_of_bytes - 1u) / align) * align : 0;
   }
   /// \param address
   /// \param align
   /// \return
-  static inline std::size_t leftAlignShift(uintptr_t address, std::size_t align) {
+  HERMES_DEVICE_CALLABLE static inline std::size_t leftAlignShift(uintptr_t address, std::size_t align) {
     const std::size_t mask = align - 1;
     HERMES_ASSERT((align & mask) == 0);
     return address - (address & ~mask);
@@ -72,7 +73,7 @@ public:
   /// \param address
   /// \param align
   /// \return
-  static inline std::size_t rightAlignShift(uintptr_t address, std::size_t align) {
+  HERMES_DEVICE_CALLABLE static inline std::size_t rightAlignShift(uintptr_t address, std::size_t align) {
     const std::size_t mask = align - 1;
     HERMES_ASSERT((align & mask) == 0);
     return ((address + mask) & ~mask) - address;
@@ -82,7 +83,7 @@ public:
   /// \param address **[in]** memory address
   /// \param align **[in]** number of bytes
   /// \return aligned address
-  static inline uintptr_t alignAddress(uintptr_t address, std::size_t align) {
+  HERMES_DEVICE_CALLABLE static inline uintptr_t alignAddress(uintptr_t address, std::size_t align) {
     const std::size_t mask = align - 1;
     HERMES_ASSERT((align & mask) == 0);
     return (address + mask) & ~mask;
@@ -94,7 +95,7 @@ public:
   /// \param align **[in]** number of bytes
   /// \return aligned pointer
   template<typename T>
-  static inline T *alignPointer(T *ptr, std::size_t align) {
+  HERMES_DEVICE_CALLABLE static inline T *alignPointer(T *ptr, std::size_t align) {
     const auto addr = reinterpret_cast<uintptr_t>(ptr);
     const uintptr_t addr_aligned = alignAddress(addr, align);
     return reinterpret_cast<T *>(addr_aligned);

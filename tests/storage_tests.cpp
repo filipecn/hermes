@@ -210,6 +210,30 @@ TEST_CASE("mem", "[memory]") {
   }//
 }
 
+#ifdef HERMES_DEVICE_ENABLED
+HERMES_CUDA_KERNEL(fillStackAllocator)(StackAllocatorView stack_allocator,
+                                       ArrayView<AddressIndex> handles,
+                                       HeResult *result) {
+  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  for (int i = 0; i < 20; ++i)
+    handles.emplace(i, stack_allocator.allocateAligned<int>(0));
+  for (int i = 0; i < 20; ++i) {
+    *result = stack_allocator.set(handles[i], i);
+    if (*result != HeResult::SUCCESS)
+      return;
+  }
+}
+
+HERMES_CUDA_KERNEL(checkStackAllocator)(StackAllocatorView stack_allocator,
+                                        ArrayView<AddressIndex> handles,
+                                        HeResult *result) {
+  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  for (int i = 0; i < 20; ++i)
+    if (i != *stack_allocator.get<int>(handles[i]))
+      *result = HeResult::BAD_OPERATION;
+}
+#endif
+
 TEST_CASE("StackAllocator", "[memory]") {
   SECTION("HOST") {
     SECTION("empty") {
@@ -274,9 +298,10 @@ TEST_CASE("StackAllocator", "[memory]") {
       for (int i = 0; i < 20; ++i)
         REQUIRE(view.set(handles[i], 2 * i) == HeResult::SUCCESS);
       for (int i = 0; i < 20; ++i)
-        REQUIRE(*stack_allocator.get<int>(handles[i]) == 2*i);
+        REQUIRE(*stack_allocator.get<int>(handles[i]) == 2 * i);
     }//
   }//
+#ifdef HERMES_DEVICE_ENABLED
   SECTION("UNIFIED") {
     SECTION("empty") {
       UnifiedStackAllocator stack_allocator;
@@ -286,7 +311,6 @@ TEST_CASE("StackAllocator", "[memory]") {
       REQUIRE(stack_allocator.allocateAligned<int>().id == 0);
       REQUIRE(stack_allocator.freeTo({}) == HeResult::BAD_OPERATION);
     }//
-    return;
     SECTION("sanity") {
       UnifiedStackAllocator stack_allocator;
       REQUIRE(stack_allocator.resize(100) == HeResult::SUCCESS);
@@ -331,7 +355,25 @@ TEST_CASE("StackAllocator", "[memory]") {
         REQUIRE(*stack_allocator.get<int>(handles[i]) == i);
     }
   }//
-  SECTION("DEVICE") {}//
+  SECTION("DEVICE") {
+    SECTION("sanity") {
+      DeviceStackAllocator stack_allocator(80);
+      DeviceArray<AddressIndex> handles(20);
+      UnifiedArray<HeResult> result(1);
+      HERMES_CUDA_LAUNCH_AND_SYNC((1), fillStackAllocator_k, stack_allocator.view(), handles.view(),
+                                  result.data());
+      REQUIRE(result[0] == HeResult::SUCCESS);
+      HERMES_CUDA_LAUNCH_AND_SYNC((1), fillStackAllocator_k, stack_allocator.view(), handles.view(),
+                                  result.data());
+      REQUIRE(result[0] == HeResult::SUCCESS);
+    } //
+    SECTION("copy from host") {
+      StackAllocator h_stack(80);
+      HERMES_LOG_VARIABLE(h_stack.capacityInBytes());
+      DeviceStackAllocator d_stack = h_stack;
+    }//
+  }//
+#endif
 }
 
 TEST_CASE("DataArray", "[storage][array]") {
