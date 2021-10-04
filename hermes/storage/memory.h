@@ -38,7 +38,7 @@ namespace hermes {
 struct AddressIndex {
   HERMES_DEVICE_CALLABLE AddressIndex(std::size_t id = 0) : id(id) {}
   /// handle identifier, a value of zero identifies an invalid address
-  const std::size_t id{0};
+  std::size_t id{0};
   [[nodiscard]] HERMES_DEVICE_CALLABLE inline bool isValid() const { return id != 0; }
 };
 
