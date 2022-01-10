@@ -42,19 +42,33 @@ namespace hermes {
 HERMES_DEVICE_CALLABLE StackAllocatorView::StackAllocatorView(byte *data,
                                                               std::size_t capacity_in_bytes,
                                                               std::size_t marker)
-    : data_(data), capacity_in_bytes(capacity_in_bytes), marker_(marker) {
+    : data_(data), capacity_in_bytes_(capacity_in_bytes), marker_(marker) {
 
 }
 
+HERMES_DEVICE_CALLABLE StackAllocatorView &StackAllocatorView::operator=(StackAllocatorView &&other) noexcept {
+  capacity_in_bytes_ = other.capacity_in_bytes_;
+  marker_ = other.marker_;
+  data_ = other.data_;
+  return *this;
+}
+
+HERMES_DEVICE_CALLABLE StackAllocatorView &StackAllocatorView::operator=(const StackAllocatorView &other) {
+  capacity_in_bytes_ = other.capacity_in_bytes_;
+  data_ = other.data_;
+  marker_ = other.marker_;
+  return *this;
+}
+
 HERMES_DEVICE_CALLABLE std::size_t StackAllocatorView::availableSizeInBytes() const {
-  return capacity_in_bytes - marker_;
+  return capacity_in_bytes_ - marker_;
 }
 
 HERMES_DEVICE_CALLABLE AddressIndex StackAllocatorView::allocate(std::size_t block_size_in_bytes, std::size_t align) {
   std::size_t
       actual_size = block_size_in_bytes + mem::rightAlignShift(reinterpret_cast<uintptr_t >(data_ ) + marker_, align);
   std::size_t shift = actual_size - block_size_in_bytes;
-  if (actual_size > capacity_in_bytes - marker_)
+  if (actual_size > capacity_in_bytes_ - marker_)
     return {0};
   const auto marker = marker_;
   marker_ += actual_size;
@@ -74,6 +88,24 @@ HERMES_DEVICE_CALLABLE void StackAllocatorView::clear() {
   marker_ = 0;
 }
 
+HERMES_DEVICE_CALLABLE const byte *StackAllocatorView::data() const {
+  return data_;
+}
+
+HERMES_DEVICE_CALLABLE StackAllocatorView::StackAllocatorView(const StackAllocatorView &other)
+    : capacity_in_bytes_(other.capacity_in_bytes_), data_(other.data_), marker_(other.marker_) {
+
+}
+
+HERMES_DEVICE_CALLABLE StackAllocatorView::StackAllocatorView(StackAllocatorView &&other) noexcept:
+    capacity_in_bytes_(other.capacity_in_bytes_), data_(other.data_), marker_(other.marker_) {
+
+}
+
+HERMES_DEVICE_CALLABLE std::size_t StackAllocatorView::capacityInBytes() const {
+  return capacity_in_bytes_;
+}
+
 // *********************************************************************************************************************
 //                                                                                        HOST Memory Stack Allocator
 // *********************************************************************************************************************
@@ -83,17 +115,6 @@ MemoryStackAllocator<MemoryLocation::HOST>::MemoryStackAllocator(std::size_t siz
 
 MemoryStackAllocator<MemoryLocation::HOST>::MemoryStackAllocator(std::size_t size_in_bytes, byte *buffer) :
     data_(buffer), capacity_(size_in_bytes), using_external_memory_{true} {
-}
-
-MemoryStackAllocator<MemoryLocation::DEVICE>::MemoryStackAllocator(
-    const MemoryStackAllocator<MemoryLocation::HOST> &other) : using_external_memory_(false) {
-  capacity_ = other.capacity_;
-  if (capacity_) {
-    // compute address alignment
-    auto base_address = reinterpret_cast<uintptr_t>(other.data_);
-    HERMES_LOG_VARIABLE(base_address);
-    mem_block_.resize(capacity_);
-  }
 }
 
 MemoryStackAllocator<MemoryLocation::HOST>::~MemoryStackAllocator() = default;
@@ -214,7 +235,31 @@ MemoryStackAllocator<MemoryLocation::DEVICE>::MemoryStackAllocator(std::size_t s
     data_(buffer), capacity_(size_in_bytes), using_external_memory_{true} {
 }
 
-MemoryStackAllocator<MemoryLocation::DEVICE>::~MemoryStackAllocator() = default;
+MemoryStackAllocator<MemoryLocation::DEVICE>::MemoryStackAllocator(
+    const MemoryStackAllocator<MemoryLocation::HOST> &other) : using_external_memory_(false) {
+  capacity_ = other.capacity_;
+  if (capacity_) {
+    // TODO compute address alignment
+    auto base_address = reinterpret_cast<uintptr_t>(other.data_);
+    mem_block_ = other.mem_block_;
+    data_ = mem_block_.ptr();
+  }
+}
+
+MemoryStackAllocator<MemoryLocation::DEVICE>::~MemoryStackAllocator() {
+  capacity_ = 0;
+  data_ = nullptr;
+}
+
+MemoryStackAllocator<MemoryLocation::DEVICE> &MemoryStackAllocator<MemoryLocation::DEVICE>::operator=(
+    const MemoryStackAllocator<MemoryLocation::HOST> &other) {
+  mem_block_ = other.mem_block_;
+  capacity_ = other.capacity_;
+  if (other.using_external_memory_)
+    HERMES_NOT_IMPLEMENTED
+  data_ = mem_block_.ptr();
+  return *this;
+}
 
 std::size_t MemoryStackAllocator<MemoryLocation::DEVICE>::capacityInBytes() const {
   return capacity_;

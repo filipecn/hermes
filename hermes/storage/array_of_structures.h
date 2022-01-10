@@ -32,6 +32,8 @@
 #include <hermes/logging/logging.h>
 #include <hermes/storage/memory_block.h>
 #include <hermes/storage/array_of_structures_view.h>
+#include "struct_descriptor.h"
+#include <hermes/logging/memory_dump.h>
 
 namespace hermes {
 
@@ -126,6 +128,9 @@ public:
   // *******************************************************************************************************************
   const StructDescriptor &structDescriptor() const { return struct_descriptor_; }
   StructDescriptor &structDescriptor() { return struct_descriptor_; }
+  void setStructDescriptor(const StructDescriptor &new_struct_descriptor) {
+    struct_descriptor_ = new_struct_descriptor;
+  }
   /// \return
   [[nodiscard]] const u8 *data() const { return data_.ptr(); }
   [[nodiscard]] u8 *data() { return data_.ptr(); }
@@ -190,9 +195,32 @@ public:
   //                                                                                                            field
   template<typename T>
   u64 pushField(const std::string &name = "") {
+    u64 new_field_id = 0;
+    std::string field_name = name;
     if (name.empty())
-      return struct_descriptor_.pushField<T>(Str::concat("field_", struct_descriptor_.fields_.size()));
-    return struct_descriptor_.pushField<T>(name);
+      field_name = Str::concat("field_", struct_descriptor_.fields_.size());
+    // increase buffer if necessary
+    if (size_) {
+      StructDescriptor desc = struct_descriptor_;
+      new_field_id = desc.template pushField<T>(field_name);
+      // allocate memory
+      MemoryBlock<MemoryLocation::HOST> new_data(desc.struct_size_ * size_);
+      auto ptr = data_.ptr();
+      if (location == MemoryLocation::DEVICE) {
+        // TODO
+        HERMES_NOT_IMPLEMENTED
+      }
+      for (size_t i = 0; i < size_; ++i) {
+        // since all fields remain in order, we can copy the entire struct
+        auto buffer_offset = struct_descriptor_.addressOffsetOf(0, i);
+        auto new_buffer_offset = desc.addressOffsetOf(0, i);
+        std::memcpy(new_data.ptr() + new_buffer_offset, ptr + buffer_offset, struct_descriptor_.struct_size_);
+      }
+      struct_descriptor_ = desc;
+      data_ = new_data;
+    } else
+      new_field_id = struct_descriptor_.pushField<T>(field_name);
+    return new_field_id;
   }
   /// \return
   const std::vector<StructDescriptor::Field> &fields() const { return struct_descriptor_.fields_; }
@@ -215,6 +243,22 @@ public:
   T &back(u64 field_id) {
     return *reinterpret_cast< T *>(data_.ptr() + (size_ - 1) * struct_descriptor_.struct_size_
         + struct_descriptor_.fields_[field_id].offset);
+  }
+  // *******************************************************************************************************************
+  //                                                                                                            debug
+  // *******************************************************************************************************************
+  std::string dumpMemory(memory_dumper_options options = memory_dumper_options::colored_output
+      | memory_dumper_options::type_values) const {
+    auto layout = MemoryDumper::RegionLayout().withSize(struct_descriptor_.sizeInBytes(), size_);
+
+    for (size_t i = 0; i < struct_descriptor_.fields_.size(); ++i) {
+      const auto &f = struct_descriptor_.fields_[i];
+      auto field_layout = MemoryDumper::RegionLayout().withSize(
+          f.size, f.component_count).withType(f.type);
+      layout.pushSubRegion(field_layout
+                               .withColor(ConsoleColors::color((i % 3) + 2)));
+    }
+    return MemoryDumper::dump<u8>(data_.ptr(), data_.sizeInBytes(), 16, layout, options);
   }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS

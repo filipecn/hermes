@@ -508,6 +508,10 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE size_t flatIndex(const Index3<T> &ijk) const {
+    auto size = upper_ - lower_;
+    return ijk.k * (size.i * size.j) + ijk.j * size.i + ijk.i;
+  }
   ///\return Index3Iterator<T>
   HERMES_DEVICE_CALLABLE Index3Iterator<T> begin() const {
     return Index3Iterator<T>(lower_, upper_, lower_);

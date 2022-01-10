@@ -99,8 +99,13 @@ public:
   // *******************************************************************************************************************
   //                                                                                                           LAYOUT
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE u64 offsetOf(u64 field_id) const;
-  HERMES_DEVICE_CALLABLE u64 sizeOf(u64 field_id) const;
+  /// Compute buffer offset of field at array index
+  /// \param field_id
+  /// \param i array index
+  /// \return
+  HERMES_DEVICE_CALLABLE [[nodiscard]] ptrdiff_t addressOffsetOf(u64 field_id, u64 i) const;
+  HERMES_DEVICE_CALLABLE [[nodiscard]] u64 offsetOf(u64 field_id) const;
+  HERMES_DEVICE_CALLABLE [[nodiscard]] u64 sizeOf(u64 field_id) const;
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
@@ -267,6 +272,7 @@ public:
   // *******************************************************************************************************************
   //                                                                                                           LAYOUT
   // *******************************************************************************************************************
+  ptrdiff_t addressOffsetOf(u64 field_id, u64 i) const;
   u64 offsetOf(const std::string &field_name) const;
   u64 offsetOf(u64 field_id) const;
   u64 sizeOf(const std::string &field_name) const;

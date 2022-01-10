@@ -189,7 +189,9 @@ public:
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
-  HERMES_DEVICE_CALLABLE static BBox3 unitBox() {
+  HERMES_DEVICE_CALLABLE static BBox3 unitBox(bool centroid_center = false) {
+    if (centroid_center)
+      return {Point3<T>(-0.5), Point3<T>(0.5)};
     return {Point3<T>(), Point3<T>(1, 1, 1)};
   }
   // *******************************************************************************************************************
@@ -395,9 +397,9 @@ HERMES_DEVICE_CALLABLE  inline BBox2<T> make_union(const BBox2<T> &b, const Poin
   ret.upper.y = fmaxf(b.upper.y, p.y);
 #else
   ret.lower.x = std::min(b.lower.x, p.x);
-    ret.lower.y = std::min(b.lower.y, p.y);
-    ret.upper.x = std::max(b.upper.x, p.x);
-    ret.upper.y = std::max(b.upper.y, p.y);
+  ret.lower.y = std::min(b.lower.y, p.y);
+  ret.upper.x = std::max(b.upper.x, p.x);
+  ret.upper.y = std::max(b.upper.y, p.y);
 #endif
   return ret;
 }
@@ -435,11 +437,11 @@ HERMES_DEVICE_CALLABLE  BBox3<T> make_union(const BBox3<T> &b, const Point3 <T> 
   ret.upper.z = fmaxf(b.upper.z, p.z);
 #else
   ret.lower.x = std::min(b.lower.x, p.x);
-    ret.lower.y = std::min(b.lower.y, p.y);
-    ret.lower.z = std::min(b.lower.z, p.z);
-    ret.upper.x = std::max(b.upper.x, p.x);
-    ret.upper.y = std::max(b.upper.y, p.y);
-    ret.upper.z = std::max(b.upper.z, p.z);
+  ret.lower.y = std::min(b.lower.y, p.y);
+  ret.lower.z = std::min(b.lower.z, p.z);
+  ret.upper.x = std::max(b.upper.x, p.x);
+  ret.upper.y = std::max(b.upper.y, p.y);
+  ret.upper.z = std::max(b.upper.z, p.z);
 #endif
   return ret;
 }
@@ -466,10 +468,10 @@ HERMES_DEVICE_CALLABLE  BBox3<T> intersect(const BBox3<T> &a, const BBox3<T> &b)
                 min(a.upper.z, b.upper.z)));
 #else
   return BBox3<T>(
-        Point3<T>(std::max(a.lower.x, b.lower.x), std::max(a.lower.x, b.lower.y),
-                  std::max(a.lower.z, b.lower.z)),
-        Point3<T>(std::min(a.upper.x, b.upper.x), std::min(a.upper.x, b.upper.y),
-                  std::min(a.upper.z, b.upper.z)));
+      Point3<T>(std::max(a.lower.x, b.lower.x), std::max(a.lower.x, b.lower.y),
+                std::max(a.lower.z, b.lower.z)),
+      Point3<T>(std::min(a.upper.x, b.upper.x), std::min(a.upper.x, b.upper.y),
+                std::min(a.upper.z, b.upper.z)));
 #endif
 }
 // *********************************************************************************************************************

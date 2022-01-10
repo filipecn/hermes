@@ -39,7 +39,77 @@
 namespace hermes {
 
 // *********************************************************************************************************************
-//                                                                                                              DataArray
+//                                                                                                             CArray
+// *********************************************************************************************************************
+/// Holds a simple array in memory (just like usual arrays [])
+/// \tparam T data type
+/// \tparam S array size in elements
+template<typename T, int S>
+class CArray {
+public:
+  using iterator = T *;
+  using const_iterator = const T *;
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  // *******************************************************************************************************************
+  //                                                                                                 FRIEND FUNCTIONS
+  // *******************************************************************************************************************
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  ///
+  HERMES_DEVICE_CALLABLE CArray() {}
+  /// \param values
+  HERMES_DEVICE_CALLABLE CArray(std::initializer_list<T> values) {
+    std::size_t i = 0;
+    for (const T &v : values)
+      data_[i++] = v;
+  }
+  //                                                                                                       assignment
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  //                                                                                                       assignment
+  HERMES_DEVICE_CALLABLE CArray &operator=(const T &value) {
+    for (int i = 0; i < S; ++i)
+      data_[i] = value;
+    return *this;
+  }
+  //                                                                                                           access
+  HERMES_DEVICE_CALLABLE T &operator[](size_t i) { return data_[i]; }
+  HERMES_DEVICE_CALLABLE const T &operator[](size_t i) const { return data_[i]; }
+  //                                                                                                       arithmetic
+  //                                                                                                          boolean
+  HERMES_DEVICE_CALLABLE bool operator==(const CArray<T, S> &other) const {
+    for (int i = 0; i < S; ++i)
+      if (data_[i] != other.data_[i])
+        return false;
+    return true;
+  }
+  HERMES_DEVICE_CALLABLE bool operator!=(const CArray<T, S> &other) const {
+    return !(*this == other);
+  }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  [[nodiscard]] std::size_t size() const { return S; }
+  T *data() { return data_; }
+  const T *data() const { return data_; }
+  //                                                                                                        iteration
+  HERMES_DEVICE_CALLABLE iterator begin() { return data_; }
+  HERMES_DEVICE_CALLABLE iterator end() { return data_ + S; }
+  HERMES_DEVICE_CALLABLE const_iterator begin() const { return data_; }
+  HERMES_DEVICE_CALLABLE const_iterator end() const { return data_ + S; }
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+private:
+  T data_[S] = {};
+};
+
+// *********************************************************************************************************************
+//                                                                                                          DataArray
 // *********************************************************************************************************************
 /// Holds a linear memory area that can be accessed as a 1-dimensional, 2-dimensional or a 3-dimensional array
 /// of elements. The memory can live in host memory or device memory, as set by the template.
@@ -84,6 +154,11 @@ public:
   DataArray &operator=(DataArray<T, LL> &&other) {
     data_ = std::move(other.data_);
     size_ = other.size_;
+    return *this;
+  }
+  DataArray &operator=(const std::vector<T> &std_data) {
+    resize(std_data.size());
+    data_.copy(std_data.data(), sizeof(T) * std_data.size(), 0, MemoryLocation::HOST);
     return *this;
   }
   //                                                                                                         1-access

@@ -6,7 +6,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # avoid policy warning message
 cmake_policy(SET CMP0104 NEW)
 ##########################################
-##               options                ##
+##               options_                ##
 ##########################################
 option(BUILD_ALL "build all libraries" OFF)
 option(BUILD_WITH_CUDA "build with cuda" OFF)
@@ -27,7 +27,7 @@ endif (BUILD_WITH_CUDA)
 ##########################################
 # cmake modules
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
-# check for specific machine/compiler options.
+# check for specific machine/compiler options_.
 include(ConfigCompilerFlags)
 ##########################################
 ##           dependencies               ##
@@ -54,6 +54,8 @@ set(HERMES_HEADERS
         hermes/common/defs.h
         hermes/common/file_system.h
         hermes/common/index.h
+        hermes/common/profiler.h
+        hermes/common/optional.h
         hermes/common/size.h
         hermes/common/str.h
         hermes/common/timer.h
@@ -78,6 +80,7 @@ set(HERMES_HEADERS
         hermes/geometry/transform.h
         hermes/geometry/utils.h
         hermes/geometry/vector.h
+        hermes/logging/argb_colors.h
         hermes/logging/console_colors.h
         hermes/logging/logging.h
         hermes/logging/memory_dump.h
@@ -106,6 +109,7 @@ set(HERMES_HEADERS
         hermes/storage/array_of_structures_view.h
         hermes/storage/array_view.h
         hermes/storage/memory_block.h
+        hermes/storage/array_slice.h
         hermes/storage/stack_allocator.h
         hermes/storage/struct_descriptor.h
         #        hermes/storage/device_array.h

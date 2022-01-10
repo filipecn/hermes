@@ -33,6 +33,7 @@
 #include <hermes/geometry/vector.h>
 #include <hermes/common/debug.h>
 #include <hermes/logging/memory_dump.h>
+#include <hermes/numeric/interval.h>
 
 namespace hermes {
 
@@ -41,8 +42,9 @@ namespace hermes {
 // *********************************************************************************************************************
 ///\tparam T
 template<typename T> class Point2 : public MathElement<T, 2u> {
-  static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value || std::is_same<T, float>::value ||
-      std::is_same<T, double>::value, "Point2 must hold a float type!");
+  static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
+                    std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
+                "Point2 must hold a float type!");
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
@@ -112,18 +114,37 @@ public:
 //                                                                                                             Point3
 // *********************************************************************************************************************
 template<typename T> class Point3 : public MathElement<T, 3u> {
-  static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value || std::is_same<T, float>::value ||
-      std::is_same<T, double>::value, "Size2 must hold an float type!");
+  static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
+                    std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
+                "Size2 must hold an float type!");
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE Point3() : x{0}, y{0}, z{0} {}
-  HERMES_DEVICE_CALLABLE explicit Point3(real_t v) { x = y = z = v; }
-  HERMES_DEVICE_CALLABLE Point3(real_t _x, real_t _y, real_t _z) : x(_x), y(_y), z(_z) {}
-  HERMES_DEVICE_CALLABLE explicit Point3(const Vector3<T> &v) : x(v.x), y(v.y), z(v.z) {}
+  HERMES_DEVICE_CALLABLE explicit Point3(T v) { x = y = z = v; }
+  HERMES_DEVICE_CALLABLE Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
   HERMES_DEVICE_CALLABLE explicit Point3(const Point2<T> &p) : x(p.x), y(p.y), z(0) {}
   HERMES_DEVICE_CALLABLE explicit Point3(const real_t *v) : x(v[0]), y(v[1]), z(v[2]) {}
+  template<typename S, typename C = T>
+  HERMES_DEVICE_CALLABLE explicit Point3(const Point3<S> &c, const Vector3<S> &r,
+                                         typename std::enable_if_t<
+                                             std::is_same_v<C, Interval<f32>>
+                                                 || std::is_same_v<C, Interval<f64>>> * = nullptr)
+      :      x(Interval<S>::withRadius(c.x, r.x)),
+             y(Interval<S>::withRadius(c.y, r.y)), z(Interval<S>::withRadius(c.z, r.z)) {}
+  //                                                                                                       conversion
+  HERMES_DEVICE_CALLABLE explicit Point3(const Vector3<T> &v) : x(v.x), y(v.y), z(v.z) {}
+  template<typename S, typename C = T>
+  HERMES_DEVICE_CALLABLE explicit Point3(const Point3<Interval<S>> &vi,
+                                         typename std::enable_if_t<
+                                             !std::is_same_v<C, Interval<f32>>
+                                                 && !std::is_same_v<C, Interval<f64>>> * = nullptr) :
+      x(vi.x), y(vi.y), z(vi.z) {}
+
+  template<typename U>
+  HERMES_DEVICE_CALLABLE Point3(const Index3<U> &index) : x{static_cast<T>(index.i)}, y{static_cast<T>(index.j)},
+                                                          z{static_cast<T>(index.k)} {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
@@ -140,7 +161,7 @@ public:
     x OP##= f; y OP##= f; z OP##= f; return *this; }                                                                \
   HERMES_DEVICE_CALLABLE Point3 operator OP (const Vector3 <T> &v) const {                                          \
     return {x OP v.x, y OP v.y, z OP v.z}; }                                                                        \
-  HERMES_DEVICE_CALLABLE Point3 operator OP (real_t f) const {                                                      \
+  HERMES_DEVICE_CALLABLE Point3 operator OP (T f) const {                                                           \
     return {x OP f, y OP f, z OP f}; }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
@@ -243,6 +264,8 @@ using point2d = Point2<double>;
 using point3 = Point3<real_t>;
 using point3f = Point3<float>;
 using point3d = Point3<double>;
+using point2i = Point2<Interval<real_t>>;
+using point3i = Point3<Interval<real_t>>;
 
 } // namespace hermes
 

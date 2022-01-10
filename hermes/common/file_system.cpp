@@ -188,6 +188,13 @@ Path Path::operator+(const Str &b) const {
 bool Path::operator==(const Path &b) const {
   return static_cast<std::string>(*this) == static_cast<std::string>(b);
 }
+Path Path::operator/(const Path &other) const {
+  return *this + other.path_;
+}
+
+Path &Path::operator/=(const Path &other) {
+  return *this = *this / other;
+}
 
 std::ostream &operator<<(std::ostream &o, const Path &path) {
   o << path.fullName();
@@ -420,11 +427,11 @@ std::vector<Path> FileSystem::ls(const Path &path, ls_options options) {
     for (const auto &entry : std::filesystem::directory_iterator(directory_path)) {
       auto full_path = entry.path().string();
       bool is_directory = entry.is_directory();
-      if ((options & ls_options::recursive) == ls_options::recursive && is_directory)
+      if ((options_ & ls_options::recursive) == ls_options::recursive && is_directory)
         ls_(full_path);
-      if ((options & ls_options::directories) == ls_options::directories && !is_directory)
+      if ((options_ & ls_options::directories) == ls_options::directories && !is_directory)
         continue;
-      if ((options & ls_options::files) == ls_options::files && is_directory)
+      if ((options_ & ls_options::files) == ls_options::files && is_directory)
         continue;
       l.emplace_back(normalizePath(full_path));
     }

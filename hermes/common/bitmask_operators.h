@@ -62,7 +62,7 @@ struct EnableBitMaskOperators {
 template<typename Enum>
 HERMES_DEVICE_CALLABLE
 typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
-operator|(Enum lhs, Enum rhs) {
+operator|(Enum lhs, Enum rhs) noexcept {
   using underlying = typename std::underlying_type<Enum>::type;
   return static_cast<Enum> (
       static_cast<underlying>(lhs) |

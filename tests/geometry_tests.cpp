@@ -25,11 +25,6 @@ HERMES_CUDA_KERNEL(testPoint)(int *result) {
 #endif
 
 TEST_CASE("Point", "[geometry][point]") {
-  HERMES_CUDA_CODE(
-      UnifiedArray<int> results(1);
-//      HERMES_CUDA_LAUNCH_AND_SYNC((16), testPoint_k, results.data())
-//      REQUIRE(results[0] == 0);
-  )
   SECTION("Point2") {
     SECTION("index cast") {
       point2 p = index2(3, 4);
@@ -49,6 +44,10 @@ TEST_CASE("Point", "[geometry][point]") {
       REQUIRE(std::hash<point2>()(a) == std::hash<point2>()(b));
       REQUIRE(std::hash<point2>()(a) != std::hash<point2>()(c));
     }//
+    SECTION("interval") {
+      point2i p;
+      HERMES_LOG_VARIABLE(p)
+    }
   }//
   SECTION("Point3") {
     SECTION("hash") {
@@ -58,6 +57,10 @@ TEST_CASE("Point", "[geometry][point]") {
       REQUIRE(std::hash<point3>()(a) == std::hash<point3>()(b));
       REQUIRE(std::hash<point3>()(a) != std::hash<point3>()(c));
     }
+  } //
+  SECTION("interval") {
+    point3i p(1, 2, 3);
+    HERMES_LOG_VARIABLE(p)
   } //
 }
 
@@ -86,7 +89,11 @@ TEST_CASE("Vector", "[geometry][vector]") {
       vec3 c(0.0000000001, 0.1, 0.000000001);
       REQUIRE(std::hash<vec3>()(a) == std::hash<vec3>()(b));
       REQUIRE(std::hash<vec3>()(a) != std::hash<vec3>()(c));
-    }
+    } //
+    SECTION("interval") {
+      vec3i p(1, 2, 3);
+      HERMES_LOG_VARIABLE(p)
+    } //
   }
 }
 

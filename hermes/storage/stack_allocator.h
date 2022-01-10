@@ -44,12 +44,21 @@ public:
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   HERMES_DEVICE_CALLABLE StackAllocatorView(byte *data, std::size_t capacity_in_bytes, std::size_t marker = 0);
+  HERMES_DEVICE_CALLABLE StackAllocatorView(const StackAllocatorView& other);
+  HERMES_DEVICE_CALLABLE StackAllocatorView(StackAllocatorView&& other) noexcept;
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE StackAllocatorView &operator=(const StackAllocatorView &other);
+  HERMES_DEVICE_CALLABLE StackAllocatorView &operator=(StackAllocatorView &&other) noexcept;
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   //                                                                                                             size
   /// \return available size that can be allocated
   [[nodiscard]] HERMES_DEVICE_CALLABLE std::size_t availableSizeInBytes() const;
+  /// \return
+  [[nodiscard]] HERMES_DEVICE_CALLABLE std::size_t capacityInBytes() const;
   //                                                                                                       allocation
   /// Allocates a new block from stack top
   /// \param block_size_in_bytes
@@ -61,8 +70,22 @@ public:
   /// \param params
   /// \return
   template<typename T, class... P>
-  HERMES_DEVICE_CALLABLE AddressIndex allocateAligned(P &&... params) {
+  HERMES_DEVICE_CALLABLE AddressIndex pushAligned(P &&... params) {
     auto handle = allocate(sizeof(T), alignof(T));
+    if (!handle.id)
+      return handle;
+    T *ptr = reinterpret_cast<T *>(data_ + ((handle.id & 0xffffff) - 1));
+    new(ptr) T(std::forward<P>(params)...);
+    return handle;
+  }
+  ///
+  /// \tparam T
+  /// \tparam P
+  /// \param params
+  /// \return
+  template<typename T, class... P>
+  HERMES_DEVICE_CALLABLE AddressIndex push(P &&... params) {
+    auto handle = allocate(sizeof(T), 1);
     if (!handle.id)
       return handle;
     T *ptr = reinterpret_cast<T *>(data_ + ((handle.id & 0xffffff) - 1));
@@ -76,7 +99,7 @@ public:
   /// \return
   template<typename T>
   HERMES_DEVICE_CALLABLE HeResult set(AddressIndex handle, const T &value) {
-    if (handle.id == 0 || handle.id >= capacity_in_bytes)
+    if (handle.id == 0 || handle.id >= capacity_in_bytes_)
       return HeResult::INVALID_INPUT;
     *reinterpret_cast<T *>(data_ + ((handle.id & 0xffffff) - 1)) = value;
     return HeResult::SUCCESS;
@@ -95,9 +118,11 @@ public:
   HERMES_DEVICE_CALLABLE HeResult freeTo(AddressIndex handle);
   /// Roll stack back to zero
   HERMES_DEVICE_CALLABLE void clear();
-  /// Total stack capacity in bytes
-  const std::size_t capacity_in_bytes;
+  ///
+  [[nodiscard]] HERMES_DEVICE_CALLABLE const byte *data() const;
+
 private:
+  std::size_t capacity_in_bytes_;
   byte *data_{nullptr};
   std::size_t marker_{0};
 };
@@ -161,8 +186,22 @@ public:
   /// \param params
   /// \return
   template<typename T, class... P>
-  AddressIndex allocateAligned(P &&... params) {
+  AddressIndex pushAligned(P &&... params) {
     auto handle = allocate(sizeof(T), alignof(T));
+    if (!handle.id)
+      return handle;
+    T *ptr = reinterpret_cast<T *>(data_ + ((handle.id & 0xffffff) - 1));
+    new(ptr) T(std::forward<P>(params)...);
+    return handle;
+  }
+  ///
+  /// \tparam T
+  /// \tparam P
+  /// \param params
+  /// \return
+  template<typename T, class... P>
+  AddressIndex push(P &&... params) {
+    auto handle = allocate(sizeof(T), 1);
     if (!handle.id)
       return handle;
     T *ptr = reinterpret_cast<T *>(data_ + ((handle.id & 0xffffff) - 1));
@@ -334,9 +373,13 @@ public:
   /// \param size_in_bytes
   explicit MemoryStackAllocator(std::size_t size_in_bytes = 0);
   explicit MemoryStackAllocator(std::size_t size_in_bytes, byte *buffer);
-  MemoryStackAllocator(const MemoryStackAllocator<MemoryLocation::HOST>& other);
+  MemoryStackAllocator(const MemoryStackAllocator<MemoryLocation::HOST> &other);
   ///
   ~MemoryStackAllocator();
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  MemoryStackAllocator &operator=(const MemoryStackAllocator<MemoryLocation::HOST> &other);
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************

@@ -48,5 +48,6 @@ if (BUILD_WITH_CUDA)
             hermes/geometry/transform.cpp
             hermes/common/cuda_utils.cpp
             hermes/storage/stack_allocator.cpp
+            hermes/storage/memory_block.cpp
             PROPERTIES LANGUAGE CUDA)
 endif (BUILD_WITH_CUDA)

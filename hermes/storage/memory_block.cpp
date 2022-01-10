@@ -352,7 +352,7 @@ size_t MemoryBlock<MemoryLocation::DEVICE>::sizeInBytes() const {
   return pitch_ * size_.height * size_.depth;
 }
 
-size3 MemoryBlock<MemoryLocation::DEVICE>::size() const {
+HERMES_DEVICE_CALLABLE size3 MemoryBlock<MemoryLocation::DEVICE>::size() const {
   return size_;
 }
 

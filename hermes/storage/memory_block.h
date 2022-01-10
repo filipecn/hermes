@@ -106,7 +106,7 @@ public:
   /// \param data_location
   void copy(const void *data,
             size_t size_in_bytes,
-            size_t offset = 0,
+            size_t offset,
             MemoryLocation data_location = MemoryLocation::HOST);
   ///
   /// \tparam T
@@ -167,7 +167,7 @@ public:
   /// \return total size in bytes
   [[nodiscard]] size_t sizeInBytes() const;
   [[nodiscard]] size_t pitch() const;
-  size3 size() const;
+  HERMES_DEVICE_CALLABLE size3 size() const;
   /// \param new_size_in_bytes
   void resize(size_t new_size_in_bytes);
   /// \param new_size width in bytes

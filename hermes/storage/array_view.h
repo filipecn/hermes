@@ -288,10 +288,19 @@ public:
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
   //                                                                                                              new
+  HERMES_DEVICE_CALLABLE ConstArrayView() {}
   ~ConstArrayView() = default;
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE ConstArrayView &operator=(const ConstArrayView<T> &other) {
+    if (&other != this) {
+      data_ = other.data_;
+      pitch_ = other.pitch_;
+      size_ = other.size_;
+    }
+    return *this;
+  }
   //                                                                                                         1-access
   /// Access as a 1-dimensional array
   /// \param i 1-dimensional index
@@ -311,21 +320,23 @@ public:
   /// \param ijk 3-dimensional index
   /// \return (data ptr) + j * pitch + i
   HERMES_DEVICE_CALLABLE const T &operator[](index3 ijk) const {
-    return reinterpret_cast<const T *>( data_ + ijk.k * pitch_ * size.height + ijk.j * pitch_
+    return reinterpret_cast<const T *>( data_ + ijk.k * pitch_ * size_.height + ijk.j * pitch_
         + ijk.i * sizeof(T))[0];
   }
   //                                                                                                        iterators
   HERMES_DEVICE_CALLABLE ConstArrayIterator<T> begin() const {
-    return ConstArrayIterator<T>(data_, size, index3(0, 0, 0));
+    return ConstArrayIterator<T>(data_, size_, index3(0, 0, 0));
   }
   HERMES_DEVICE_CALLABLE  ConstArrayIterator<T> end() const {
-    return ConstArrayIterator<T>(data_, size, index3(size.width, size.height, size.depth));
+    return ConstArrayIterator<T>(data_, size_, index3(size_.width, size_.height, size_.depth));
   }
-  const size3 size;
+  /// \return
+  [[nodiscard]] HERMES_DEVICE_CALLABLE const size3 &size() const { return size_; }
 private:
-  ConstArrayView(const byte *data, size3 size, size_t pitch) : data_{data}, size{size}, pitch_{pitch} {}
+  ConstArrayView(const byte *data, size3 size_, size_t pitch) : data_{data}, size_{size_}, pitch_{pitch} {}
   const byte *data_{nullptr};
   size_t pitch_{0};
+  size3 size_;
 };
 // *********************************************************************************************************************
 //                                                                                                     Array1Iterator

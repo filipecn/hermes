@@ -47,7 +47,7 @@ enum class memory_dumper_options {
   decimal = 0x2,
   hexadecimal = 0x4,
   hexii = 0x8,
-  // display options
+  // display options_
   hide_header = 0x10,
   cache_align = 0x20,
   hide_zeros = 0x40,
@@ -77,6 +77,10 @@ public:
       count = region_count;
       return *this;
     }
+    RegionLayout &withType(DataType t) {
+      type = t;
+      return *this;
+    }
     RegionLayout &withSubRegion(const RegionLayout &sub_region, bool increment_to_parent_size = false) {
       std::size_t new_offset = 0;
       if (!sub_regions.empty())
@@ -87,6 +91,16 @@ public:
         field_size_in_bytes += sub_region.field_size_in_bytes * sub_region.count;
       return *this;
     }
+    void pushSubRegion(const RegionLayout &sub_region, bool increment_to_parent_size = false) {
+      std::size_t new_offset = 0;
+      if (!sub_regions.empty())
+        new_offset = sub_regions.back().offset + sub_regions.back().field_size_in_bytes * sub_regions.back().count;
+      sub_regions.push_back(sub_region);
+      sub_regions.back().offset = new_offset;
+      if (increment_to_parent_size)
+        field_size_in_bytes += sub_region.field_size_in_bytes * sub_region.count;
+    }
+
     template<typename T>
     RegionLayout &withTypeFrom() {
       type = DataTypes::typeFrom<T>();
@@ -98,7 +112,23 @@ public:
       field_size_in_bytes = sizeof(T);
       return *this;
     }
+    RegionLayout &withSize(std::size_t size_in_bytes, std::size_t element_count = 1) {
+      count = element_count;
+      field_size_in_bytes = size_in_bytes;
+      return *this;
+    }
     [[nodiscard]] std::size_t sizeInBytes() const { return field_size_in_bytes * count; }
+
+    void resizeSubRegions(size_t sub_regions_count) {
+      sub_regions.resize(sub_regions_count);
+      field_size_in_bytes = 0;
+      for (auto &s : sub_regions)
+        field_size_in_bytes += s.field_size_in_bytes * s.count;
+    }
+
+    void clear() {
+      *this = RegionLayout();
+    }
 
     std::size_t offset{0};
     std::size_t field_size_in_bytes{0};
@@ -140,7 +170,7 @@ public:
   static std::string dump(const T *data, std::size_t size, u32 bytes_per_row = 8,
                           const RegionLayout &region = RegionLayout(),
                           memory_dumper_options options = memory_dumper_options::none) {
-    // check options
+    // check options_
     auto hide_zeros = HERMES_MASK_BIT(options, memory_dumper_options::hide_zeros);
     auto include_header = !HERMES_MASK_BIT(options, memory_dumper_options::hide_header);
     auto align_data = HERMES_MASK_BIT(options, memory_dumper_options::cache_align);
@@ -315,6 +345,7 @@ private:
     std::function<std::string(const std::vector<RegionLayout> &, std::size_t, const std::string &)> f;
     f = [&](const std::vector<RegionLayout> &subregions, std::size_t byte_offset,
             const std::string &parent_color) -> std::string {
+      HERMES_UNUSED_VARIABLE(parent_color);
       for (const auto &sub_region : subregions) {
         auto region_start = sub_region.offset;
         auto region_end = region_start + sub_region.field_size_in_bytes * sub_region.count;
@@ -351,6 +382,21 @@ private:
   }
 
 };
+
+inline std::ostream &operator<<(std::ostream &os, const MemoryDumper::RegionLayout &layout) {
+  os << layout.color << "MemoryRegionLayout [offset = " << layout.offset;
+  os << " field size (bytes) = " << layout.field_size_in_bytes;
+  os << " count = " << layout.count;
+  os << " type = " << DataTypes::typeName(layout.type) << "]\n";
+  os << "\tsub regions [" << layout.sub_regions.size() << "]\n";
+  if (!layout.sub_regions.empty())
+    for (const auto &s : layout.sub_regions) {
+      os << s;
+      os << "\n";
+    }
+  os << "\n";
+  return os;
+}
 
 }
 

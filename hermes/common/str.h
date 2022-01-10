@@ -77,6 +77,11 @@ public:
       stream << '0';
     return stream.str();
   }
+  ///
+  /// \param s
+  /// \param patterns
+  /// \return
+  static std::string strip(const std::string& s, const std::string& patterns);
   //                                                                                                   concatenation
   /// Concatenates multiple elements_ into a single string.
   /// \tparam Args
@@ -170,9 +175,11 @@ public:
   /// \param strip_leading_zeros
   /// \return
   template<typename T>
-  static std::string binaryToHex(T n, bool uppercase = true, bool strip_leading_zeros = false) {
+  static std::string binaryToHex(T input_n, bool uppercase = true, bool strip_leading_zeros = false) {
     static const char digits[] = "0123456789abcdef";
     static const char DIGITS[] = "0123456789ABCDEF";
+    unsigned long long n = 0;
+    std::memcpy(&n, &input_n, sizeof(T));
     std::string s;
     for (int i = sizeof(T) - 1; i >= 0; --i) {
       u8 a = n >> (8 * i + 4) & 0xf;
@@ -210,6 +217,10 @@ public:
       s += std::to_string((b >> i) & 1);
     return s;
   }
+  ///
+  /// \param s
+  /// \return
+  static bool isInteger(const std::string& s);
   // *******************************************************************************************************************
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************

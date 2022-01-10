@@ -28,10 +28,10 @@
 #ifndef HERMES_GEOMETRY_VECTOR_H
 #define HERMES_GEOMETRY_VECTOR_H
 
-#include <hermes/geometry/normal.h>
 #include <hermes/numeric/numeric.h>
 #include <hermes/common/debug.h>
 #include <hermes/common/index.h>
+#include <hermes/numeric/interval.h>
 
 #include <cstring>
 #include <initializer_list>
@@ -48,8 +48,7 @@ template<typename T> class Point2;
 /// \tparam T
 template<typename T> class Vector2 : public MathElement<T, 2u> {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
-                    std::is_same<T, float>::value ||
-                    std::is_same<T, double>::value,
+                    std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
                 "Vector2 must hold an float type!");
 
 public:
@@ -59,7 +58,6 @@ public:
   HERMES_DEVICE_CALLABLE Vector2() : x{0}, y{0} {};
   HERMES_DEVICE_CALLABLE Vector2(T _x, T _y) : x(_x), y(_y) {}
   HERMES_DEVICE_CALLABLE explicit Vector2(const Point2<T> &p) : x(p.x), y(p.y) {}
-  HERMES_DEVICE_CALLABLE explicit Vector2(const Normal2<T> &n) : x(n.x), y(n.y) {}
   HERMES_DEVICE_CALLABLE explicit Vector2(T f) { x = y = f; }
   HERMES_DEVICE_CALLABLE explicit Vector2(T *f) {
     x = f[0];
@@ -107,6 +105,11 @@ public:
   HERMES_DEVICE_CALLABLE T length() const { return sqrtf(length2()); }
   HERMES_DEVICE_CALLABLE Vector2 right() const { return Vector2(y, -x); }
   HERMES_DEVICE_CALLABLE Vector2 left() const { return Vector2(-y, x); }
+  //                                                                                                          swizzle
+  Vector2 xy() const { return {x, y}; }
+  Vector2 yx() const { return {y, x}; }
+  Vector2 xx() const { return {x, x}; }
+  Vector2 yy() const { return {y, y}; }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
@@ -121,8 +124,7 @@ template<typename T> class Point3;
 // *********************************************************************************************************************
 template<typename T> class Vector3 : public MathElement<T, 3u> {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
-                    std::is_same<T, float>::value ||
-                    std::is_same<T, double>::value,
+                    std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
                 "Vector3 must hold an float type!");
 
 public:
@@ -137,8 +139,14 @@ public:
     y = v[1];
     z = v[2];
   }
-  HERMES_DEVICE_CALLABLE explicit Vector3(const Normal3<T> &n) : x(n.x), y(n.y), z(n.z) {}
+  //                                                                                                       conversion
   HERMES_DEVICE_CALLABLE explicit Vector3(const Point3<T> &p) : x(p.x), y(p.y), z(p.z) {}
+  template<typename S, typename C = T>
+  HERMES_DEVICE_CALLABLE explicit Vector3(const Vector3<Interval<S>> &vi,
+                                          typename std::enable_if_t<
+                                              !std::is_same_v<C, Interval<f32>>
+                                                  && !std::is_same_v<C, Interval<f64>>> * = nullptr) :
+      x(vi.x), y(vi.y), z(vi.z) {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
@@ -155,7 +163,7 @@ public:
     x OP##= f; y OP##= f; z OP##= f; return *this;  }                                                               \
   HERMES_DEVICE_CALLABLE Vector3 operator OP (const Vector3<T> &b) const {                                          \
     return {x OP b.x, y OP b.y, z OP b.z}; }                                                                        \
-  HERMES_DEVICE_CALLABLE Vector3 operator OP (real_t f) const {                                                     \
+  HERMES_DEVICE_CALLABLE Vector3 operator OP (T f) const {                                                          \
     return {x OP f, y OP f, z OP f}; }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
@@ -223,7 +231,18 @@ public:
   /// \note Also called L2-norm, Euclidean norm, Euclidean distance, 2-norm
   /// \note Defined as ||v|| = (v_i * v_i)^(1/2)
   /// \return 2-norm of this vector
-  HERMES_DEVICE_CALLABLE T length() const { return std::sqrt(length2()); }
+  template<typename C = T>
+  HERMES_DEVICE_CALLABLE T length(typename std::enable_if_t<!std::is_same_v<C, Interval<f32>>
+                                                                && !std::is_same_v<C,
+                                                                                   Interval<f64>>> * = nullptr) const {
+    return std::sqrt(length2());
+  }
+  template<typename C = T>
+  HERMES_DEVICE_CALLABLE T length(typename std::enable_if_t<std::is_same_v<C, Interval<f32>>
+                                                                || std::is_same_v<C,
+                                                                                  Interval<f64>>> * = nullptr) const {
+    return length2().sqrt();
+  }
   /// \note Also called squared Euclidean distance
   /// \note Defined as ||v||^2 = v_i * v_i
   /// \return squared 2-norm of this vector
@@ -386,7 +405,7 @@ public:
 // *********************************************************************************************************************
 //                                                                                                 EXTERNAL FUNCTIONS
 // *********************************************************************************************************************
-//                                                                                                         geometry
+//                                                                                                           geometry
 template<typename T>
 HERMES_DEVICE_CALLABLE  T dot(const Vector2<T> &a, const Vector2<T> &b) {
   return a.x * b.x + a.y * b.y;
@@ -548,6 +567,8 @@ using vec4 = Vector4<real_t>;
 using vec3d = Vector3<double>;
 using vec3f = Vector3<float>;
 using vec2f = Vector2<float>;
+using vec2i = Vector2<Interval<real_t>>;
+using vec3i = Vector3<Interval<real_t>>;
 
 } // namespace hermes
 

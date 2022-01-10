@@ -705,7 +705,7 @@ public:
   //                           OPERATORS
   // ***********************************************************************
   NMesh &operator=(const NMesh &other);
-  NMesh &operator=(NMesh &&other);
+  NMesh &operator=(NMesh &&other) noexcept;
   // ***********************************************************************
   //                          STATIC METHODS
   // ***********************************************************************
@@ -799,7 +799,7 @@ public:
       vertices[i] = half_edges_[cell_id * 3 + i].vertex;
     }
     auto normal = normalize(cross(vertex_positions_[vertices[1]] - vertex_positions_[vertices[0]],
-                                                vertex_positions_[vertices[2]] - vertex_positions_[vertices[1]]));
+                                  vertex_positions_[vertices[2]] - vertex_positions_[vertices[1]]));
     return normal3(normal.x, normal.y, normal.z);
   }
   // ***********************************************************************

@@ -66,12 +66,12 @@ enum class HeResult {
 //                                                                                               COMPILATION WARNINGS
 // *********************************************************************************************************************
 #ifndef HERMES_UNUSED_VARIABLE
-#define HERMES_UNUSED_VARIABLE(x) ((void)x)
+#define HERMES_UNUSED_VARIABLE(x) ((void)x);
 #endif
 
 #ifndef HERMES_NOT_IMPLEMENTED
 #define HERMES_NOT_IMPLEMENTED \
-  hermes::Log::warn("[{}][{}][{}] calling not implemented function.", __FILE__, __LINE__, __FUNCTION__);
+  printf("[%s][%d][%s] calling not implemented function.", __FILE__, __LINE__, __FUNCTION__);
 #endif
 // *********************************************************************************************************************
 //                                                                                                         DEBUG MODE
@@ -91,23 +91,88 @@ enum class HeResult {
 #endif
 
 #ifndef HERMES_LOG
-#define HERMES_LOG(A) hermes::Log::info("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+//#define HERMES_LOG(A) hermes::Log::info("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+#define HERMES_LOG(A) hermes::Log::logMessage(hermes::logging_options::info, "{}", \
+  hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, A);
 #endif
 
 #ifndef HERMES_LOG_WARNING
-#define HERMES_LOG_WARNING(A) hermes::Log::warn("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+//#define HERMES_LOG_WARNING(A) hermes::Log::warn("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+#define HERMES_LOG_WARNING(A) hermes::Log::logMessage(hermes::logging_options::warn, "{}", \
+  hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, A);
 #endif
 
 #ifndef HERMES_LOG_ERROR
-#define HERMES_LOG_ERROR(A) hermes::Log::error("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+//#define HERMES_LOG_ERROR(A) hermes::Log::error("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+#define HERMES_LOG_ERROR(A) hermes::Log::logMessage(hermes::logging_options::error, "{}", \
+  hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, A);
 #endif
 
 #ifndef HERMES_LOG_CRITICAL
-#define HERMES_LOG_CRITICAL(A) hermes::Log::critical("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+//#define HERMES_LOG_CRITICAL(A) hermes::Log::critical("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, A);
+#define HERMES_LOG_CRITICAL(A) hermes::Log::logMessage(hermes::logging_options::critical, "{}", \
+  hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, A);
 #endif
 
 #ifndef HERMES_LOG_VARIABLE
-#define HERMES_LOG_VARIABLE(A) hermes::Log::info("[{}][{}][{}]: {} = {}", __FILE__, __LINE__, __FUNCTION__, #A, A);
+//#define HERMES_LOG_VARIABLE(A) hermes::Log::info("[{}][{}][{}]: {} = {}", __FILE__, __LINE__, __FUNCTION__, #A, A);
+#define HERMES_LOG_VARIABLE(A) hermes::Log::logMessage(hermes::logging_options::info, "{} = {}", \
+  hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, #A, A);
+#endif
+
+template<typename T>
+static inline void hermes_log_variables_r(std::stringstream &s, const T &first) {
+  s << first << "\n";
+}
+
+template<typename T, typename ...Args>
+static inline void hermes_log_variables_r(std::stringstream &s, const T &first, Args &&...rest) {
+  s << first << " | ";
+  if constexpr(sizeof ...(rest) > 0)
+    hermes_log_variables_r(s, std::forward<Args>(rest) ...);
+}
+
+template<class... Args>
+static inline std::string hermes_log_variables(Args &&... args) {
+  std::stringstream s;
+  if constexpr(sizeof...(args) > 0) {
+    hermes_log_variables_r(s, std::forward<Args>(args) ...);
+    return s.str();
+  }
+  return "";
+}
+
+#ifndef HERMES_LOG_VARIABLES
+#define HERMES_LOG_VARIABLES(...) \
+  hermes::Log::info("[{}][{}][{}]: {}", __FILE__, __LINE__, __FUNCTION__, hermes_log_variables(__VA_ARGS__));
+#endif
+
+#ifndef HERMES_C_LOG
+#define HERMES_C_LOG(FMT, ...)                                                                                      \
+fprintf(stdout, "[%s][%d][%s]: ", __FILE__, __LINE__, __FUNCTION__);                                                \
+fprintf(stdout, FMT __VA_OPT__(,) __VA_ARGS__);                                                                     \
+fprintf(stdout, "\n");
+#endif
+
+#ifndef HERMES_C_ERROR
+#define HERMES_C_ERROR(FMT, ...)                                                                                    \
+fprintf(stderr, "[%s][%d][%s]: ", __FILE__, __LINE__, __FUNCTION__);                                                \
+fprintf(stderr, FMT __VA_OPT__(,) __VA_ARGS__);                                                                     \
+fprintf(stderr, "\n");
+#endif
+
+#ifndef HERMES_C_DEVICE_LOG
+#define HERMES_C_DEVICE_LOG(FMT, ...)                                                                               \
+printf("[%s][%d][%s]: ", __FILE__, __LINE__, __FUNCTION__);                                                         \
+printf(FMT __VA_OPT__(,) __VA_ARGS__);                                                                              \
+printf("\n");
+#endif
+
+#ifndef HERMES_C_DEVICE_ERROR
+#define HERMES_C_DEVICE_ERROR(FMT, ...)                                                                             \
+printf("[%s][%d][%s]: ", __FILE__, __LINE__, __FUNCTION__);                                                         \
+printf(FMT __VA_OPT__(,) __VA_ARGS__);                                                                              \
+printf("\n");
 #endif
 
 #else
@@ -168,15 +233,23 @@ enum class HeResult {
 // *********************************************************************************************************************
 //                                                                                                          CODE FLOW
 // *********************************************************************************************************************
-#define HERMES_RETURN_IF(A, R)                                                                                      \
+#define HERMES_RETURN_IF(A)                                                                                         \
+  if (A) {                                                                                                          \
+    return;                                                                                                         \
+  }
+#define HERMES_RETURN_IF_NOT(A)                                                                                     \
+  if (!(A)) {                                                                                                       \
+    return;                                                                                                         \
+  }
+#define HERMES_RETURN_VALUE_IF(A, R)                                                                                \
   if (A) {                                                                                                          \
     return R;                                                                                                       \
   }
-#define HERMES_RETURN_IF_NOT(A, R)                                                                                  \
+#define HERMES_RETURN_VALUE_IF_NOT(A, R)                                                                            \
   if (!(A)) {                                                                                                       \
     return R;                                                                                                       \
   }
-#define HERMES_LOG_AND_RETURN_IF_NOT(A, R, M)                                                                       \
+#define HERMES_LOG_AND_RETURN_VALUE_IF_NOT(A, R, M)                                                                 \
   if (!(A)) {                                                                                                       \
     HERMES_LOG(M)                                                                                                   \
     return R;                                                                                                       \

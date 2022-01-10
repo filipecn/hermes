@@ -39,6 +39,8 @@
 #include <hermes/common/file_system.h>
 #include <hermes/common/cuda_utils.h>
 #include <hermes/storage/array.h>
+#include <hermes/common/optional.h>
+#include <hermes/common/profiler.h>
 
 using namespace hermes;
 
@@ -154,6 +156,21 @@ TEST_CASE("bitmask operators") {
 }
 
 TEST_CASE("Str", "[common]") {
+  SECTION("strip") {
+    REQUIRE(Str::strip(" asd ", "") == " asd ");
+    REQUIRE(Str::strip(" asd ", " ") == "asd");
+    REQUIRE(Str::strip(" asd \n", " ") == "asd \n");
+    REQUIRE(Str::strip(" asd \n", " \n") == "asd");
+  }//
+  SECTION("is integer") {
+    REQUIRE(Str::isInteger("") == false);
+    REQUIRE(Str::isInteger("+") == false);
+    REQUIRE(Str::isInteger("234+") == false);
+    REQUIRE(Str::isInteger("12.2") == false);
+    REQUIRE(Str::isInteger(" +123 ") == true);
+    REQUIRE(Str::isInteger(" -2435 ") == true);
+    REQUIRE(Str::isInteger("234234") == true);
+  }//
   SECTION("format") {
     REQUIRE(Str::format("word") == "word");
     REQUIRE(Str::format("word", 3) == "word");
@@ -235,6 +252,10 @@ TEST_CASE("Str", "[common]") {
 }
 
 TEST_CASE("Path", "[common]") {
+  Path a("path_test_folder");
+  a /= "folder";
+  a = a / "folder2";
+  REQUIRE(a == "path_test_folder/folder/folder2");
   Path folder("path_test_folder/folder");
   REQUIRE(folder.mkdir());
   REQUIRE(FileSystem::touch(folder + "file.txt"));
@@ -496,6 +517,46 @@ TEST_CASE("index", "[common]") {
 }
 
 #ifdef HERMES_DEVICE_ENABLED
+HERMES_CUDA_KERNEL(check_optional)(bool *result) {
+  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+  *result = false;
+  Optional<int> a;
+  HERMES_RETURN_IF_NOT(!a.hasValue());
+  HERMES_RETURN_IF_NOT(a.valueOr(-1) == -1);
+  Optional<int> b(1);
+  HERMES_RETURN_IF_NOT(b.hasValue());
+  HERMES_RETURN_IF_NOT(b.value() == 1);
+  Optional<int> c = b;
+  HERMES_RETURN_IF_NOT(c.hasValue());
+  HERMES_RETURN_IF_NOT(c.value() == 1);
+  Optional<int> d = Optional<int>(2);
+  HERMES_RETURN_IF_NOT(d.hasValue());
+  HERMES_RETURN_IF_NOT(d.value() == 2);
+  *result = true;
+}
+#endif
+
+TEST_CASE("optional") {
+  Optional<int> a;
+  REQUIRE(!a.hasValue());
+  REQUIRE(a.valueOr(-1) == -1);
+  Optional<int> b(1);
+  REQUIRE(b.hasValue());
+  REQUIRE(b.value() == 1);
+  Optional<int> c = b;
+  REQUIRE(c.hasValue());
+  REQUIRE(c.value() == 1);
+  Optional<int> d = Optional<int>(2);
+  REQUIRE(d.hasValue());
+  REQUIRE(d.value() == 2);
+#ifdef HERMES_DEVICE_ENABLED
+  UnifiedArray<bool> results(1);
+  HERMES_CUDA_LAUNCH_AND_SYNC((1), check_optional_k, results.data())
+  REQUIRE(results[0]);
+#endif
+}
+
+#ifdef HERMES_DEVICE_ENABLED
 HERMES_CUDA_KERNEL(check_thread_index)(int bounds, int *result) {
   HERMES_CUDA_THREAD_INDEX_I_LT(bounds)
   if (i >= bounds)
@@ -513,11 +574,11 @@ HERMES_CUDA_KERNEL(check_thread_index3)(size3 bounds, int *result) {
 }
 HERMES_CUDA_KERNEL(block_counter)(cuda_utils::Lock lock, int *n) {
   if (threadIdx.x == 0) {
-//    lock.lock();
-//    (*n)++;
+  //    lock.lock();
+  //    (*n)++;
 
     atomicAdd(n, 1);
-//    lock.unlock();
+  //    lock.unlock();
   }
 }
 TEST_CASE("cuda utils", "[cuda]") {
@@ -563,5 +624,55 @@ TEST_CASE("cuda utils", "[cuda]") {
     HERMES_LOG_VARIABLE(results[0])
   }//
 }
-
 #endif
+
+void profiledFunc() {
+  HERMES_PROFILE_FUNCTION()
+  for (int i = 0; i < 100000; ++i);
+  {
+    HERMES_PROFILE_SCOPE("scope")
+    for (int i = 0; i < 100000000; ++i);
+  }
+  HERMES_PROFILE_START_BLOCK("fors")
+  for (int i = 0; i < 5; ++i) {
+    HERMES_PROFILE_SCOPE("for")
+    for (int j = 0; j < 100000; ++j);
+  }
+  HERMES_PROFILE_END_BLOCK
+}
+
+TEST_CASE("Profiler") {
+  SECTION("scoped") {
+    profiledFunc();
+    HERMES_LOG_VARIABLE(hermes::profiler::Profiler::dump())
+    HERMES_RESET_PROFILER
+  } //
+  SECTION("limiting blocks zombie blocks") {
+    hermes::profiler::Profiler::setMaxBlockCount(6);
+    {
+      HERMES_PROFILE_SCOPE("first")
+      {
+        HERMES_PROFILE_SCOPE("second")
+        for (int i = 0; i < 4; ++i) {
+          HERMES_PROFILE_SCOPE("third")
+        }
+      }
+    }
+    HERMES_LOG_VARIABLE(hermes::profiler::Profiler::dump())
+    hermes::profiler::Profiler::setMaxBlockCount(0);
+    HERMES_RESET_PROFILER
+  }//
+  SECTION("limiting blocks") {
+    hermes::profiler::Profiler::setMaxBlockCount(5);
+    for (int i = 0; i < 7; ++i) {
+      HERMES_PROFILE_SCOPE("for")
+      for (int j = 0; j < 2; ++j) {
+        HERMES_PROFILE_SCOPE("nested for")
+      }
+    }
+    HERMES_LOG_VARIABLE(hermes::profiler::Profiler::dump())
+    hermes::profiler::Profiler::setMaxBlockCount(0);
+    HERMES_RESET_PROFILER
+  }//
+
+}

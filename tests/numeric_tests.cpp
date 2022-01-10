@@ -28,10 +28,72 @@ TEST_CASE("numeric") {
 }
 
 TEST_CASE("Numbers") {
-  REQUIRE(Numbers::lowest<f32>() == std::numeric_limits<f32>::lowest());
-  REQUIRE(Numbers::lowest<f64>() == std::numeric_limits<f64>::lowest());
-  REQUIRE(Numbers::greatest<f32>() == std::numeric_limits<f32>::max());
-  REQUIRE(Numbers::greatest<f64>() == std::numeric_limits<f64>::max());
+  SECTION("floating point") {
+    REQUIRE(Numbers::fract(0.1) == Approx(0.1).margin(1e-8));
+    REQUIRE(Numbers::fract(10.2) == Approx(0.2).margin(1e-8));
+    REQUIRE(Numbers::fract(-20.3) == Approx(-0.3).margin(1e-8));
+  }//
+  SECTION("limits") {
+    REQUIRE(Numbers::lowest<f32>() == std::numeric_limits<f32>::lowest());
+    REQUIRE(Numbers::lowest<f64>() == std::numeric_limits<f64>::lowest());
+    REQUIRE(Numbers::greatest<f32>() == std::numeric_limits<f32>::max());
+    REQUIRE(Numbers::greatest<f64>() == std::numeric_limits<f64>::max());
+  }//
+  SECTION("functions") {
+    REQUIRE(Numbers::min({9, 0, 1, 4, -1}) == -1);
+    REQUIRE(Numbers::max({9, 0, 1, 4, -1}) == 9);
+  }//
+  SECTION("fast exp") {
+    REQUIRE(1 == Numbers::fastExp(0));
+
+    real_t maxErr = 0;
+    RNG rng(6502);
+    for (int i = 0; i < 100; ++i) {
+      real_t v = interpolation::lerp(rng.randomFloat(), -20.f, 20.f);
+      real_t f = Numbers::fastExp(v);
+      real_t e = std::exp(v);
+      real_t err = std::abs((f - e) / e);
+      maxErr = std::max(err, maxErr);
+      REQUIRE(err < 0.0003f);
+    }//
+    SECTION("pow") {
+      REQUIRE(Numbers::pow<0>(2.f) == 1 << 0);
+      REQUIRE(Numbers::pow<1>(2.f) == 1 << 1);
+      REQUIRE(Numbers::pow<2>(2.f) == 1 << 2);
+      REQUIRE(Numbers::pow<3>(2.f) == 1 << 3);
+      REQUIRE(Numbers::pow<4>(2.f) == 1 << 4);
+      REQUIRE(Numbers::pow<5>(2.f) == 1 << 5);
+      REQUIRE(Numbers::pow<6>(2.f) == 1 << 6);
+      REQUIRE(Numbers::pow<7>(2.f) == 1 << 7);
+      REQUIRE(Numbers::pow<8>(2.f) == 1 << 8);
+      REQUIRE(Numbers::pow<9>(2.f) == 1 << 9);
+      REQUIRE(Numbers::pow<10>(2.f) == 1 << 10);
+      REQUIRE(Numbers::pow<11>(2.f) == 1 << 11);
+      REQUIRE(Numbers::pow<12>(2.f) == 1 << 12);
+      REQUIRE(Numbers::pow<13>(2.f) == 1 << 13);
+      REQUIRE(Numbers::pow<14>(2.f) == 1 << 14);
+      REQUIRE(Numbers::pow<15>(2.f) == 1 << 15);
+      REQUIRE(Numbers::pow<16>(2.f) == 1 << 16);
+      REQUIRE(Numbers::pow<17>(2.f) == 1 << 17);
+      REQUIRE(Numbers::pow<18>(2.f) == 1 << 18);
+      REQUIRE(Numbers::pow<19>(2.f) == 1 << 19);
+      REQUIRE(Numbers::pow<20>(2.f) == 1 << 20);
+      REQUIRE(Numbers::pow<21>(2.f) == 1 << 21);
+      REQUIRE(Numbers::pow<22>(2.f) == 1 << 22);
+      REQUIRE(Numbers::pow<23>(2.f) == 1 << 23);
+      REQUIRE(Numbers::pow<24>(2.f) == 1 << 24);
+      REQUIRE(Numbers::pow<25>(2.f) == 1 << 25);
+      REQUIRE(Numbers::pow<26>(2.f) == 1 << 26);
+      REQUIRE(Numbers::pow<27>(2.f) == 1 << 27);
+      REQUIRE(Numbers::pow<28>(2.f) == 1 << 28);
+      REQUIRE(Numbers::pow<29>(2.f) == 1 << 29);
+    } //
+
+  }
+}
+
+TEST_CASE("Check") {
+  REQUIRE(!Check::is_nan(3.f));
 }
 
 TEST_CASE("interval") {

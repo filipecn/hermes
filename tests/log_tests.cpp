@@ -12,11 +12,11 @@ TEST_CASE("debug macros", "[log]") {
   SECTION("flow") {
     {
       auto rif = [](int a, int b) -> bool {
-        HERMES_RETURN_IF(a == b, true)
+        HERMES_RETURN_VALUE_IF(a == b, true)
         return false;
       };
       auto rnif = [](int a, int b) -> bool {
-        HERMES_RETURN_IF_NOT(a == b, true)
+        HERMES_RETURN_VALUE_IF_NOT(a == b, true)
         return false;
       };
       REQUIRE(!rif(3, 2));
@@ -26,11 +26,11 @@ TEST_CASE("debug macros", "[log]") {
     }
     {
       auto rif = [](int a, int b) -> bool {
-        HERMES_RETURN_IF(a == b, true)
+        HERMES_RETURN_VALUE_IF(a == b, true)
         return false;
       };
       auto rnif = [](int a, int b) -> bool {
-        HERMES_LOG_AND_RETURN_IF_NOT(a == b, true, "message")
+        HERMES_LOG_AND_RETURN_VALUE_IF_NOT(a == b, true, "message")
         return false;
       };
       REQUIRE(!rif(3, 2));
@@ -39,14 +39,18 @@ TEST_CASE("debug macros", "[log]") {
       REQUIRE(!rnif(3, 3));
     }
   }
-  Log::use_colors = true;
   HERMES_PING
   HERMES_LOG(std::to_string(3).c_str())
   HERMES_LOG_WARNING("warning")
   HERMES_LOG_ERROR("error")
+  Log::addOptions(logging_options::abbreviate);
   HERMES_LOG_CRITICAL("critical")
   int a = 0;
+  int b = 3;
+  int c = 4;
+  Log::removeOptions(logging_options::location);
   HERMES_LOG_VARIABLE(a)
+  HERMES_LOG_VARIABLES(a, b, c)
   HERMES_CHECK_EXP(3 == 3)
   HERMES_CHECK_EXP(3 == 2)
   HERMES_CHECK_EXP_WITH_LOG(3 == 3, "message")
@@ -55,6 +59,11 @@ TEST_CASE("debug macros", "[log]") {
   HERMES_ASSERT(3 == 2)
   HERMES_ASSERT_WITH_LOG(3 == 3, "message")
   HERMES_ASSERT_WITH_LOG(3 == 2, "message")
+  // C logs
+  HERMES_C_LOG("c logging %d", 1)
+  HERMES_C_LOG("c logging")
+  HERMES_C_ERROR("c logging error %d", 1)
+  HERMES_C_ERROR("c logging error")
 }
 
 TEST_CASE("Console Colors", "[log]") {
@@ -123,7 +132,7 @@ TEST_CASE("MemoryDumper", "[log]") {
     const char s[] = "abcdefghijklmnopqrstuvxzwy";
     std::cerr << MemoryDumper::dump(s, sizeof(s), 8, {},
                                     memory_dumper_options::colored_output |
-                                    memory_dumper_options::show_ascii);
+                                        memory_dumper_options::show_ascii);
     const u32 v32[] = {1, 2, 3, 4, 5};
     MemoryDumper::dump(v32, 5);
   }//

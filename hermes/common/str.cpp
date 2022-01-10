@@ -26,6 +26,7 @@
 ///\brief String utils
 
 #include "str.h"
+#include <hermes/common/debug.h>
 
 #include <iostream>
 #include <utility>
@@ -44,6 +45,27 @@ std::string Str::join(const std::vector<std::string> &s, const std::string &sepa
   return r;
 }
 
+std::string Str::strip(const std::string &s, const std::string &patterns) {
+  if (s.empty())
+    return s;
+  int lpos = 0;
+  bool found = false;
+  do {
+    found = false;
+    for (auto p : patterns)
+      if (s[lpos] == p)
+        found = true;
+  } while (found && ++lpos < s.size());
+  int rpos = s.size() - 1;
+  do {
+    found = false;
+    for (auto p : patterns)
+      if (s[rpos] == p)
+        found = true;
+  } while (found && --rpos >= 0);
+  return s.substr(lpos, rpos - lpos + 1);
+}
+
 std::vector<std::string> Str::split(const std::string &s, const std::string &delimiters) {
   std::vector<std::string> tokens;
 
@@ -59,6 +81,24 @@ std::vector<std::string> Str::split(const std::string &s, const std::string &del
     pos = s.find_first_of(delimiters, lastPos);
   }
   return tokens;
+}
+
+bool Str::isInteger(const std::string &s) {
+  auto ss = strip(s, " \n");
+  if (ss.empty())
+    return false;
+  size_t i = 0;
+  if (!std::isdigit(ss[0])) {
+    i = 1;
+    if (ss.size() == 1)
+      return false;
+    if (ss[0] != '-' && ss[0] != '+')
+      return false;
+  }
+  for (; i < ss.size(); ++i)
+    if (!std::isdigit(ss[i]))
+      return false;
+  return true;
 }
 
 bool Str::match_r(const std::string &s, const std::string &pattern, std::regex_constants::match_flag_type flags) {

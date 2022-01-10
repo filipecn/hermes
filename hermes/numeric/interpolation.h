@@ -48,21 +48,39 @@ HERMES_DEVICE_CALLABLE static inline f32 sharpen(const f32 &r2, const f32 &h) {
   return fmaxf(h * h / fmaxf(r2, static_cast<f32>(1.0e-5)) - 1.0f, 0.0f);
 }
 ///  smooth Hermit interpolation when **a** < **v** < **b**
-/// \param v **[in]** coordinate
 /// \param a **[in]** lower bound
 /// \param b **[in]** upper bound
+/// \param v **[in]** coordinate
 /// \return Hermit value between **0** and **1**
-template<typename T>
-HERMES_DEVICE_CALLABLE static T smoothStep(T v, T a, T b) {
-  f32 t = clamp((v - a) / (b - a), T(0), T(1));
-  return t * t * (T(3) - 2 * t);
+HERMES_DEVICE_CALLABLE static f32 smoothStep(f32 a, f32 b, f32 v) {
+  f32 t = Numbers::clamp((v - a) / (b - a), 0.f, 1.f);
+  return t * t * (3.f - 2 * t);
 }
+///
+/// \tparam T
+/// \param a
+/// \param b
+/// \param v
+/// \return
+template<typename T>
+HERMES_DEVICE_CALLABLE static Vector2<T> smoothStep(f32 a, f32 b, const Vector2<T> &v) {
+  Vector2<T> t = {
+      Numbers::clamp((v.x - a) / (b - a), 0.f, 1.f),
+      Numbers::clamp((v.y - a) / (b - a), 0.f, 1.f)};
+  return t * t * (Vector2<T>(3.f, 3.f) - T(2) * t);
+}
+
 /// \param v **[in]** coordinate
 /// \param a **[in]** lower bound
 /// \param b **[in]** upper bound
 /// \return linear value between **0** and **1**
 HERMES_DEVICE_CALLABLE static inline f32 linearStep(f32 v, f32 a, f32 b) {
   return Numbers::clamp((v - a) / (b - a), 0.f, 1.f);
+}
+
+template<typename T>
+HERMES_DEVICE_CALLABLE static inline T mix(T x, T y, f32 a) {
+  return x * (1.f - a) + y * a;
 }
 /// \param t **[in]** (in [0,1]) parametric coordinate of the interpolation
 /// point

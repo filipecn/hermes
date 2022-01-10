@@ -1,8 +1,3 @@
-//
-// Created by filipecn on 20/06/2021.
-//
-
-
 /// Copyright (c) 2021, FilipeCN.
 ///
 /// The MIT License (MIT)
@@ -34,7 +29,8 @@
 
 namespace hermes {
 
-bool Log::use_colors = false;
+logging_options
+    Log::options_ = logging_options::use_colors | logging_options::location | logging_options::full_path_location;
 
 u8 Log::info_color = 247;//253;
 u8 Log::warn_color = 191;//215;
@@ -45,6 +41,14 @@ u8 Log::info_label_color = 247;
 u8 Log::warn_label_color = 191;
 u8 Log::error_label_color = 9;
 u8 Log::critical_label_color = 197;
+
+size_t Log::abbreviation_size = 10;
+
+std::function<void(const Str &, logging_options)> Log::log_callback;
+std::function<void(const Str &)> Log::info_callback;
+std::function<void(const Str &)> Log::warn_callback;
+std::function<void(const Str &)> Log::error_callback;
+std::function<void(const Str &)> Log::critical_callback;
 
 }
 

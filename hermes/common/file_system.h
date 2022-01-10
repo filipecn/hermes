@@ -64,6 +64,8 @@ public:
   bool operator==(const Path &b) const;
   //                                                                                                       arithmetic
   Path operator+(const Str &b) const;
+  Path operator/(const Path &other) const;
+  Path &operator/=(const Path &other);
   Path &operator+=(const std::string &other);
   Path &operator+=(const Path &other);
   // *******************************************************************************************************************
@@ -98,7 +100,7 @@ private:
 // *********************************************************************************************************************
 //                                                                                                         ls_options
 // *********************************************************************************************************************
-/// List of options for ls method
+/// List of options_ for ls method
 enum class ls_options {
   none = 0x0,
   sort = 0x1,
@@ -222,7 +224,7 @@ public:
   //                                                                                                      directories
   /// Lists files inside a directory
   /// \param path **[in]** path/to/directory
-  /// \param options **[in | ls_options::none]** options based on ls command:
+  /// \param options **[in | ls_options::none]** options_ based on ls command:
   ///     none = the default behaviour;
   ///     sort = sort paths following lexicographical order;
   ///     reverse_sort = sort in reverse order;

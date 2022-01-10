@@ -29,6 +29,7 @@
 #define HERMES_STRUCTURES_P_MESH_H
 
 #include <hermes/geometry/point.h>
+#include <hermes/geometry/normal.h>
 
 namespace hermes {
 

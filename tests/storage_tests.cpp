@@ -33,8 +33,38 @@
 #include <hermes/storage/memory_block.h>
 #include <hermes/common/cuda_utils.h>
 #include <hermes/storage/stack_allocator.h>
+#include <hermes/storage/array_slice.h>
 
 using namespace hermes;
+
+class Object {
+public:
+  Object() {
+    data.resize(128);
+    printf("calling constructor %p\n", data.ptr());
+  }
+  Object(Object &&o) {
+    printf("calling move constructor\n");
+    a = 3;
+  }
+  Object(const Object &o) {
+    printf("calling copy constructor\n");
+    a = 2;
+  }
+  Object &operator=(const Object &o) {
+    printf("calling copy assignment\n");
+    a = 1;
+    return *this;
+  }
+  ~Object() {
+    printf("calling destructor\n");
+    a = 0;
+  }
+  HERMES_DEVICE_CALLABLE
+  void say() const { printf("ah %d %ul!\n", a, data.size().total()); }
+  int a = 10;
+  MemoryBlock<MemoryLocation::DEVICE> data;
+};
 
 #ifdef HERMES_DEVICE_ENABLED
 HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, size2 bounds) {
@@ -47,7 +77,20 @@ HERMES_CUDA_KERNEL(testArrayView)(ArrayView<int> array) {
   HERMES_CUDA_THREAD_INDEX_IJ_LT(array.size.slice())
   array[ij] = ij.j * array.size.width + ij.i;
 }
+
+HERMES_CUDA_KERNEL(testObject)(Object o) {
+  o.say();
+}
 #endif
+
+TEST_CASE("object") {
+#ifdef HERMES_DEVICE_ENABLED
+  HERMES_CUDA_LAUNCH_AND_SYNC((10), testObject_k, Object())
+  Object o;
+  HERMES_CUDA_LAUNCH_AND_SYNC((10), testObject_k, o)
+  o.say();
+#endif
+}
 
 TEST_CASE("MemoryBlock", "[storage]") {
   auto writeHostMemory = [](HostMemory &hm) {
@@ -216,7 +259,7 @@ HERMES_CUDA_KERNEL(fillStackAllocator)(StackAllocatorView stack_allocator,
                                        HeResult *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
   for (int i = 0; i < 20; ++i)
-    handles.emplace(i, stack_allocator.allocateAligned<int>(0));
+    handles.emplace(i, stack_allocator.pushAligned<int>(0));
   for (int i = 0; i < 20; ++i) {
     *result = stack_allocator.set(handles[i], i);
     if (*result != HeResult::SUCCESS)
@@ -241,7 +284,7 @@ TEST_CASE("StackAllocator", "[memory]") {
       REQUIRE(stack_allocator.capacityInBytes() == 0);
       REQUIRE(stack_allocator.availableSizeInBytes() == 0);
       REQUIRE(stack_allocator.allocate(10).id == 0);
-      REQUIRE(stack_allocator.allocateAligned<int>().id == 0);
+      REQUIRE(stack_allocator.pushAligned<int>().id == 0);
       REQUIRE(stack_allocator.freeTo({}) == HeResult::BAD_OPERATION);
     }//
     SECTION("sanity") {
@@ -278,7 +321,7 @@ TEST_CASE("StackAllocator", "[memory]") {
       std::vector<AddressIndex> handles;
       handles.reserve(20);
       for (int i = 0; i < 20; ++i)
-        handles.emplace_back(stack_allocator.allocateAligned<int>(0));
+        handles.emplace_back(stack_allocator.pushAligned<int>(0));
       for (int i = 0; i < 20; ++i)
         REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
       for (int i = 0; i < 20; ++i)
@@ -289,7 +332,7 @@ TEST_CASE("StackAllocator", "[memory]") {
       std::vector<AddressIndex> handles;
       handles.reserve(20);
       for (int i = 0; i < 20; ++i)
-        handles.emplace_back(stack_allocator.allocateAligned<int>(0));
+        handles.emplace_back(stack_allocator.pushAligned<int>(0));
       for (int i = 0; i < 20; ++i)
         REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
       auto view = stack_allocator.view();
@@ -371,9 +414,41 @@ TEST_CASE("StackAllocator", "[memory]") {
       StackAllocator h_stack(80);
       HERMES_LOG_VARIABLE(h_stack.capacityInBytes());
       DeviceStackAllocator d_stack = h_stack;
+      // TODO complete this test!!!
+      // allocate things in gpu and save markers in a unified array
+      // copy back to host and access elements
     }//
   }//
 #endif
+}
+
+TEST_CASE("ArraySlice") {
+  int array[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  ArraySlice<int> slice(array, 10);
+  REQUIRE(slice.size() == 10);
+  int c = 0;
+  for (auto a : slice)
+    REQUIRE(a == c++);
+}
+
+TEST_CASE("CArray") {
+  SECTION("sanity") {
+    CArray<int, 10> a;
+    a = 3;
+    for (int i = 0; i < 10; ++i)
+      REQUIRE(a[i] == 3);
+    CArray<int, 10> b;
+    b = a;
+    for (int i = 0; i < 10; ++i)
+      REQUIRE(b[i] == 3);
+    REQUIRE(a == b);
+    int count = 0;
+    for (auto v : a) {
+      REQUIRE(v == 3);
+      count++;
+    }
+    REQUIRE(count == 10);
+  }
 }
 
 TEST_CASE("DataArray", "[storage][array]") {
@@ -411,6 +486,24 @@ TEST_CASE("DataArray", "[storage][array]") {
       for (int i = 0; i < 10; ++i)
         REQUIRE(a[i] == i);
 #endif
+      SECTION("std vector") {
+        Array<i32> b;
+        std::vector<i32> v = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        b = v;
+        REQUIRE(b.sizeInBytes() == sizeof(i32) * v.size());
+        REQUIRE(b.size() == size3(v.size(), 1, 1));
+        for (int i = 0; i < v.size(); ++i)
+          REQUIRE(b[i] == i + 1);
+#ifdef HERMES_DEVICE_ENABLED
+        DeviceArray<i32> db;
+        db = v;
+        REQUIRE(db.sizeInBytes() == sizeof(i32) * v.size());
+        REQUIRE(db.size() == size3(v.size(), 1, 1));
+        Array<i32> c = db;
+        for (int i = 0; i < v.size(); ++i)
+          REQUIRE(c[i] == i + 1);
+#endif
+      }//
     }//
     SECTION("access") {
       Array<u32> a1(10);
@@ -440,6 +533,7 @@ TEST_CASE("DataArray", "[storage][array]") {
     HERMES_LOG_VARIABLE(b)
 #endif
   }//
+
   SECTION("Array1-iterator") {
     Array<vec2> a(10);
     int count = 0;
@@ -824,6 +918,48 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(aos.valueAt<int>(2, i) == i + 1);
     }
     HERMES_LOG_VARIABLE(aos)
+  }//
+  SECTION("change description") {
+    StructDescriptor desc;
+    REQUIRE(desc.pushField<vec3>("vec3") == 0);
+    REQUIRE(desc.pushField<f32>("f32") == 1);
+    REQUIRE(desc.pushField<int>("int") == 2);
+// check fields
+    AoS aos;
+    aos.setStructDescriptor(desc);
+    auto fields = aos.fields();
+    REQUIRE(fields.size() == 3);
+    REQUIRE(fields[0].name == "vec3");
+    REQUIRE(fields[0].size == sizeof(vec3));
+    REQUIRE(fields[0].offset == 0);
+    REQUIRE(fields[0].component_count == 3);
+    REQUIRE(fields[0].type == DataType::F32);
+    REQUIRE(fields[1].name == "f32");
+    REQUIRE(fields[1].size == sizeof(f32));
+    REQUIRE(fields[1].offset == sizeof(vec3));
+    REQUIRE(fields[1].component_count == 1);
+    REQUIRE(fields[1].type == DataType::F32);
+    REQUIRE(fields[2].name == "int");
+    REQUIRE(fields[2].size == sizeof(i32));
+    REQUIRE(fields[2].offset == sizeof(vec3) + sizeof(f32));
+    REQUIRE(fields[2].component_count == 1);
+    REQUIRE(fields[2].type == DataType::I32);
+  }//
+  SECTION("push new fields") {
+    AoS aos;
+    aos.pushField<int>();
+    aos.pushField<hermes::vec2>();
+    aos.resize(5);
+    for (int i = 0; i < aos.size(); ++i) {
+      aos.valueAt<int>(0, i) = i;
+      aos.valueAt<hermes::vec2>(1, i) = {i * 0.1f, -i * 1.f};
+    }
+    aos.pushField<int>();
+    REQUIRE(aos.memorySizeInBytes() == 5 * (sizeof(int) + sizeof(hermes::vec2) + sizeof(int)));
+    for (int i = 0; i < aos.size(); ++i) {
+      REQUIRE(aos.valueAt<int>(0, i) == i);
+      REQUIRE(aos.valueAt<hermes::vec2>(1, i) == hermes::vec2(i * 0.1f, -i * 1.f));
+    }
   }//
   SECTION("Access") {
     AoS aos;

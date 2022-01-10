@@ -78,7 +78,7 @@ NMesh &NMesh::operator=(const NMesh &other) {
   return *this;
 }
 
-NMesh &NMesh::operator=(NMesh &&other) {
+NMesh &NMesh::operator=(NMesh &&other) noexcept {
   boundary_offset_ = other.boundary_offset_;
   vertex_positions_ = std::move(other.vertex_positions_);
   half_edges_ = std::move(other.half_edges_);

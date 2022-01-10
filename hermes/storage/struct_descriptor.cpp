@@ -41,12 +41,20 @@ StructDescriptorView::StructDescriptorView(const StructDescriptor &descriptor) :
   }
 }
 
+ptrdiff_t StructDescriptorView::addressOffsetOf(u64 field_id, u64 i) const {
+  return i * struct_size + fields_[field_id].offset;
+}
+
 HERMES_DEVICE_CALLABLE u64 StructDescriptorView::offsetOf(u64 field_id) const {
   return fields_[field_id].offset;
 }
 
 HERMES_DEVICE_CALLABLE u64 StructDescriptorView::sizeOf(u64 field_id) const {
   return fields_[field_id].size;
+}
+
+ptrdiff_t StructDescriptor::addressOffsetOf(u64 field_id, u64 i) const {
+  return i * struct_size_ + fields_[field_id].offset;
 }
 
 u64 StructDescriptor::offsetOf(const std::string &field_name) const {
