@@ -24,6 +24,10 @@
 ///\date 2020-10-07
 ///
 ///\brief String utils
+///
+///\ingroup common
+///\addtogroup common
+/// @{
 
 #ifndef HERMES_COMMON_STR_H
 #define HERMES_COMMON_STR_H
@@ -42,6 +46,7 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                                                Str
 // *********************************************************************************************************************
+/// \brief String class and set of string functions
 class Str {
 public:
   // *******************************************************************************************************************
@@ -63,6 +68,13 @@ public:
       r = fmt;
     return r;
   }
+  /// \brief Generates hexadecimal representation from number
+  /// \note Calls std::hex on `i`
+  /// \tparam T
+  /// \param i number
+  /// \param leading_zeros puts leading zeros up to the size of `T`
+  /// \param zero_x puts the "0x" suffix
+  /// \return
   template<typename T>
   static std::string toHex(T i, bool leading_zeros = false, bool zero_x = false) {
     std::stringstream stream;
@@ -81,9 +93,9 @@ public:
   /// \param s
   /// \param patterns
   /// \return
-  static std::string strip(const std::string& s, const std::string& patterns);
+  static std::string strip(const std::string &s, const std::string &patterns);
   //                                                                                                   concatenation
-  /// Concatenates multiple elements_ into a single string.
+  /// \brief Concatenates multiple elements_ into a single string.
   /// \tparam Args
   /// \param args
   /// \return a single string of the resulting concatenation
@@ -93,11 +105,17 @@ public:
     (s << ... << args);
     return s.str();
   }
-  /// Concatenate strings together separated by a separator
-  /// \param s array of strings
+  /// \brief Concatenate strings together separated by a separator
+  /// \param v array of strings
   /// \param separator **[in | ""]**
   /// \return final string
   static std::string join(const std::vector<std::string> &v, const std::string &separator = "");
+  /// \brief Concatenate elements together separates by a separator
+  /// \note Element type must be able to perform << operator with `std::stringstream`
+  /// \tparam T element type
+  /// \param v
+  /// \param separator
+  /// \return
   template<typename T>
   static std::string join(const std::vector<T> &v, const std::string &separator = "") {
     bool first = true;
@@ -111,35 +129,35 @@ public:
     return r.str();
   }
   //                                                                                                       separation
-  /// Splits a string into tokens separated by delimiters
+  /// \brief Splits a string into tokens separated by delimiters
   /// \param s **[in]** input string
   /// \param delimiters **[in | default = " "]** delimiters
   /// \return a vector of substrings
   static std::vector<std::string> split(const std::string &s,
                                         const std::string &delimiters = " ");
   //                                                                                                            regex
-  /// Checks if a string s matches exactly a regular expression
+  /// \brief Checks if a string s matches exactly a regular expression
   /// \param s input string
   /// \param pattern regex pattern
   /// \param flags [optional] controls how pattern is matched
   /// \return true if s matches exactly the pattern
   static bool match_r(const std::string &s, const std::string &pattern,
                       std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// Checks if any substring of s matches a regular expression
+  /// \brief Checks if any substring of s matches a regular expression
   /// \param s input string
   /// \param pattern regex pattern
   /// \param flags [optional] controls how pattern is matched
   /// \return true if s contains the pattern
   static bool contains_r(const std::string &s, const std::string &pattern,
                          std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// Search the first substrings of s that matches the pattern
+  /// \brief Search the first substrings of s that matches the pattern
   /// \param s input string
   /// \param pattern regular expression pattern
   /// \param flags [optional] controls how pattern is matched
   /// \return std match object containing the first match
   static std::smatch search_r(const std::string &s, const std::string &pattern,
                               std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// Iterate over all substrings of s that match the pattern
+  /// \brief Iterate over all substrings of s that match the pattern
   /// \param s input string
   /// \param pattern regular expression pattern
   /// \param callback called for each match
@@ -149,7 +167,7 @@ public:
                        const std::string &pattern,
                        const std::function<void(const std::smatch &)> &callback,
                        std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// Replaces all matches of pattern in s by format
+  /// \brief Replaces all matches of pattern in s by format
   /// \param s input string
   /// \param pattern regular expression pattern
   /// \param format replacement format
@@ -158,7 +176,9 @@ public:
   static std::string replace_r(const std::string &s, const std::string &pattern, const std::string &format,
                                std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
   //                                                                                                          numeric
+  /// \brief Print bits in big-endian order
   /// \param n
+  /// \return
   static std::string printBits(u32 n) {
     std::string r;
     for (int i = 31; i >= 0; i--)
@@ -168,9 +188,9 @@ public:
         r += '0';
     return r;
   }
-  ///
+  /// \brief Get ascii representation of raw bit data of `input_n`
   /// \tparam T
-  /// \param n
+  /// \param input_n
   /// \param uppercase
   /// \param strip_leading_zeros
   /// \return
@@ -195,7 +215,7 @@ public:
     }
     return s;
   }
-  ///
+  /// \brief Generates hexadecimal representation of memory address
   /// \param ptr
   /// \param digit_count
   /// \return
@@ -208,7 +228,7 @@ public:
     }
     return "0x" + s.substr(s.size() - digit_count, digit_count);
   }
-  ///
+  /// \brief Binary representation of byte
   /// \param b
   /// \return
   static std::string byteToBinary(byte b) {
@@ -217,25 +237,48 @@ public:
       s += std::to_string((b >> i) & 1);
     return s;
   }
-  ///
+  /// \brief Checks if string represents an integer
+  /// \note Checks the pattern [+|-]?[1-9]+
   /// \param s
   /// \return
-  static bool isInteger(const std::string& s);
+  static bool isInteger(const std::string &s);
+  /// \brief Checks if string represents a number
+  /// \note Checks the pattern [+|-]?([1-9]+ or .[0-9]+f? or e[1-9]+)
+  /// \param s
+  /// \return
+  static bool isNumber(const std::string &s);
   // *******************************************************************************************************************
   //                                                                                                 FRIEND FUNCTIONS
   // *******************************************************************************************************************
+  /// \brief Concatenate
+  /// \param s
+  /// \param str
+  /// \return
   inline friend Str operator<<(const char *s, const Str &str) {
     return {str.str() + s};
   }
+  /// \brief Concatenate
+  /// \param s
+  /// \param str
+  /// \return
   inline friend Str operator+(const std::string &s, const Str &str) {
     std::stringstream ss;
     ss << s << str.s_;
     return {ss.str()};
   }
   //                                                                                                          boolean
+  /// \brief `const char*` pointer comparison
+  /// \param ss
+  /// \param s
+  /// \return
   inline friend bool operator==(const char *ss, const Str &s) {
     return s.str() == ss;
   }
+  /// \brief Character-wise comparison
+  /// \tparam T
+  /// \param t
+  /// \param s
+  /// \return
   template<typename T>
   inline bool friend operator==(const T &t, const Str &s) {
     std::stringstream ss;
@@ -245,27 +288,48 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
-  /// \param s
+  /// \brief Default constructor
   Str();
+  /// \brief Constructor from `std::string`
+  /// \param s
   Str(std::string s);
+  /// \brief Constructor from `const char*`'s contents copy
+  /// \param s
   Str(const char *s);
+  /// \brief Copy constructor
+  /// \param other
   Str(const Str &other);
+  /// \brief Move constructor
+  /// \param other
   Str(Str &&other) noexcept;
+  ///
   ~Str();
   // *******************************************************************************************************************
   //                                                                                                           ACCESS
   // *******************************************************************************************************************
+  /// \brief Get `std::string` object
+  /// \return
   [[nodiscard]] inline const std::string &str() const { return s_; }
+  /// \brief Get `const char*` pointer
+  /// \return
   [[nodiscard]] inline const char *c_str() const { return s_.c_str(); }
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  /// \brief Append arguments to this Str
+  /// \note Arguments must support << operator from `std::ostringstream`
+  /// \tparam Args
+  /// \param args
   template<class... Args>
   void append(const Args &... args) {
     std::ostringstream s;
     (s << ... << args);
     s_ += s.str();
   }
+  /// \brief Append arguments to this Str followed by a breakline
+  /// \note Arguments must support << operator from `std::ostringstream`
+  /// \tparam Args
+  /// \param args
   template<class... Args>
   void appendLine(const Args &... args) {
     std::ostringstream s;
@@ -276,7 +340,15 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                       assignment
+  /// Copy assignment
+  /// \param s
+  /// \return
   Str &operator=(const Str &s) = default;
+  /// \brief String of value assignment
+  /// \note Argument must support << operator from `std::stringstream`
+  /// \tparam T
+  /// \param t
+  /// \return
   template<typename T>
   Str &operator=(const T &t) {
     std::stringstream ss;
@@ -285,10 +357,18 @@ public:
     return *this;
   }
   //                                                                                                       arithmetic
+  /// \brief Simple concatenation with `other`
+  /// \param other
+  /// \return
   Str &operator+=(const Str &other) {
     s_ += other.s_;
     return *this;
   }
+  /// \brief Simple concatenation with string of value
+  /// \note Argument must support << operator from `std::stringstream`
+  /// \tparam T
+  /// \param t
+  /// \return
   template<typename T>
   Str &operator+=(const T &t) {
     std::stringstream ss;
@@ -296,19 +376,32 @@ public:
     s_ += ss.str();
     return *this;
   }
+  /// \brief Generates a copy appended by `t`
+  /// \note Argument must support << operator from `std::stringstream`
+  /// \tparam T
+  /// \param t
+  /// \return
   template<typename T>
   inline Str operator+(const T &t) const {
     std::stringstream ss;
     ss << s_ << t;
     return ss.str();
   }
+  /// \brief Generates a copy appended by `s`
+  /// \param s
+  /// \return
   inline Str operator<<(const char *s) const {
     return {s_ + s};
   }
   //                                                                                                          boolean
+  /// \brief Performs const char* comparison
+  /// \param ss
+  /// \return
   inline bool operator==(const char *ss) const {
     return s_ == ss;
   }
+  /// \brief Performs character comparison with string value of `t`
+  /// \note Argument must support << operator from `std::stringstream`
   template<typename T>
   inline bool operator==(const T &t) const {
     std::stringstream ss;
@@ -356,16 +449,30 @@ private:
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************
+/// \brief Str support for `std::ostream`'s << operator
+/// \param os
+/// \param s
+/// \return
 inline std::ostream &operator<<(std::ostream &os, const Str &s) {
   os << s.str();
   return os;
 }
+/// \brief Value support for Str << operator
+/// \tparam T
+/// \param s
+/// \param t
+/// \return
 template<typename T>
 inline Str operator<<(const Str &s, T t) {
   std::stringstream ss;
   ss << t;
   return {s + ss.str()};
 }
+/// \brief `std::string` support for Str << operator
+/// \tparam T
+/// \param t
+/// \param s
+/// \return
 template<typename T, std::enable_if_t<std::is_same_v<T, std::string> == false>>
 inline Str operator<<(T t, const Str &s) {
   std::stringstream ss;
@@ -376,3 +483,5 @@ inline Str operator<<(T t, const Str &s) {
 }
 
 #endif //HERMES_COMMON_STR_H
+
+/// @}

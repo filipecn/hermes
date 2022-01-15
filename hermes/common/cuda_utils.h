@@ -23,7 +23,11 @@
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date 2021-06-30
 ///
-///\brief
+///\brief Auxiliary classes and macros for CUDA calls
+///
+///\ingroup common
+///\addtogroup common
+/// @{
 
 #ifndef HERMES_COMMON_CUDA_UTILS_H
 #define HERMES_COMMON_CUDA_UTILS_H
@@ -37,25 +41,33 @@
 
 namespace hermes::cuda_utils {
 
+/// \brief Maximum thread block size
 #define GPU_BLOCK_SIZE 1024
+/// \brief Maximum thread block size in 1st dimension
 #define GPU_BLOCK_SIZE_X 1024
+/// \brief Maximum thread block size in 2nd dimension
 #define GPU_BLOCK_SIZE_Y 1024
+/// \brief Maximum thread block size in 3rd dimension
 #define GPU_BLOCK_SIZE_Z 64
+/// \brief Warp size
 #define GPU_WARP_SIZE 32
 
-/// \note - Each block cannot have more than 512/1024 threads in total
+/// \brief Holds CUDA launch parameters
+///
+/// Here is a list of limitations about the quantity of threads in a CUDA launch:
+///  - Each block cannot have more than 512/1024 threads in total
 /// (Compute Capability 1.x or 2.x and later respectively)
-/// \note - The maximum dimensions of each block are limited to [512,512,64]/[1024,1024,64]
+///  - The maximum dimensions of each block are limited to [512,512,64]/[1024,1024,64]
 /// (Compute 1.x/2.x or later)
-/// \note - Each block cannot consume more than 8k/16k/32k/64k/32k/64k/32k/64k/32k/64k registers total
+///  - Each block cannot consume more than 8k/16k/32k/64k/32k/64k/32k/64k/32k/64k registers total
 /// (Compute 1.0,1.1/1.2,1.3/2.x-/3.0/3.2/3.5-5.2/5.3/6-6.1/6.2/7.0)
-/// \note - Each block cannot consume more than 16kb/48kb/96kb of shared memory
+///  - Each block cannot consume more than 16kb/48kb/96kb of shared memory
 /// (Compute 1.x/2.x-6.2/7.0)
 struct LaunchInfo {
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
-  /// Tries to achieve good occupancy by recomputing block and grid sizes
+  /// \brief Recomputes block and grid sizes to achieve good occupancy
   /// \param max_b maximum number of threads per block
   /// \param n total number of threads
   /// \param b output block size
@@ -82,7 +94,7 @@ struct LaunchInfo {
       g = (m % b) ? (m + b) / b : m / b;
     }
   }
-  /// Redistribute threads to fit the gpu block size limits
+  /// \brief Redistributes threads to fit the gpu block size limits
   /// \param b
   /// \param g
   /// \param new_b
@@ -107,6 +119,7 @@ struct LaunchInfo {
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief 1-dimensional launch constructor
   /// \param n thread count
   /// \param shared_memory_size_in_bytes (per block)
   /// \param stream stream id
@@ -116,6 +129,7 @@ struct LaunchInfo {
     distribute(GPU_BLOCK_SIZE_X, n, block_size.x, grid_size.x);
     HERMES_CHECK_EXP(blockThreadCount() <= GPU_BLOCK_SIZE)
   }
+  /// \brief 2-dimensional launch constructor
   /// \param b block size (threads per block)
   /// \param s grid size (blocks)
   /// \param shared_memory_size_in_bytes per (per block)
@@ -134,6 +148,7 @@ struct LaunchInfo {
     }
     HERMES_CHECK_EXP(blockThreadCount() <= GPU_BLOCK_SIZE)
   }
+  /// \brief 3-dimensional launch constructor
   /// \param b block size (threads per block)
   /// \param s grid size (blocks)
   /// \param shared_memory_size_in_bytes (per block)
@@ -153,36 +168,40 @@ struct LaunchInfo {
     }
     HERMES_CHECK_EXP(blockThreadCount() <= GPU_BLOCK_SIZE)
   }
-  LaunchInfo(LaunchInfo &other) = delete;
-  LaunchInfo(LaunchInfo &&other) = delete;
-  LaunchInfo(const LaunchInfo &other) = delete;
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  /// \brief Computes the total number of threads
+  /// \return
   [[nodiscard]] u32 threadCount() const {
     return grid_size.x * grid_size.y * grid_size.z * block_size.x * block_size.y * block_size.z;
   }
+  /// \brief Computes the total number of threads per block
+  /// \return
   [[nodiscard]] u32 blockThreadCount() const {
     return block_size.x * block_size.y * block_size.z;
   }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
-  dim3 grid_size;
-  dim3 block_size;
-  size_t shared_memory_size{0};
-  cudaStream_t stream_id{};
+  dim3 grid_size;                       //!< cuda grid size (in number of blocks)
+  dim3 block_size;                      //!< cuda block size (in number of threads)
+  size_t shared_memory_size{0};         //!< size of shared memory in bytes
+  cudaStream_t stream_id{};             //!< launch stream identifier
 };
 
 // *********************************************************************************************************************
 //                                                                                                    SYNCHRONIZATION
 // *********************************************************************************************************************
-
+/// \brief Synchronization lock
 class Lock {
 public:
+  /// \brief Default constructor
   Lock();
   ~Lock();
+  /// \brief locks mutex
   HERMES_DEVICE_FUNCTION void lock();
+  /// \brief unlocks mutex
   HERMES_DEVICE_FUNCTION void unlock();
 private:
   int *mutex{nullptr};
@@ -191,6 +210,7 @@ private:
 // *********************************************************************************************************************
 //                                                                                                             MEMORY
 // *********************************************************************************************************************
+/// \brief Computes cuda flag of memory block copy direction
 /// \param src
 /// \param dst
 /// \return
@@ -207,6 +227,10 @@ inline cudaMemcpyKind copyDirection(MemoryLocation src, MemoryLocation dst) {
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************
+/// \brief LaunchInfo support for `std::ostream` << operator
+/// \param o
+/// \param info
+/// \return
 inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
   o << "[block size (" << info.block_size.x << " " << info.block_size.y << " " << info.block_size.z << ") ";
   o << "grid size (" << info.grid_size.x << " " << info.grid_size.y << " " << info.grid_size.z << ")]";
@@ -215,6 +239,9 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
 
 } // namespace hermes::cuda_utils
 
+/// \brief Computes execution time from a given CUDA call
+/// \param LAUNCH - launch call
+/// \param ELAPSED_TIME_IN_MS - receives elapsed time
 #define HERMES_CUDA_TIME(LAUNCH, ELAPSED_TIME_IN_MS)                                                                      \
 { cudaEvent_t cuda_event_start_t, cuda_event_stop_t;                                                                \
   cudaEventCreate(&cuda_event_start_t);                                                                             \
@@ -225,8 +252,13 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
   cudaEventSynchronize(cuda_event_stop_t);                                                                          \
   cudaEventElapsedTime(&ELAPSED_TIME_IN_MS, cuda_event_start_t, cuda_event_stop_t); }
 
+/// \brief Calls cudaDeviceSynchronize
 #define HERMES_CUDA_DEVICE_SYNCHRONIZE HERMES_CHECK_CUDA(cudaDeviceSynchronize())
 
+/// \brief Launches a CUDA kernel given its parameters
+/// \param LAUNCH_INFO - launch parameters object
+/// \param NAME - kernel name
+/// \param ... - kernel parameters
 #define HERMES_CUDA_LAUNCH(LAUNCH_INFO, NAME, ...)                                                                  \
 {                                                                                                                   \
   auto _hli_ = hermes::cuda_utils::LaunchInfo LAUNCH_INFO;                                                          \
@@ -234,66 +266,91 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
   HERMES_CHECK_LAST_CUDA                                                                                            \
 }
 
+/// \brief Launches a CUDA kernel given its parameters and synchronizes with host
+/// \param LAUNCH_INFO - launch parameters object
+/// \param NAME - kernel name
+/// \param ... - kernel parameters
 #define HERMES_CUDA_LAUNCH_AND_SYNC(LAUNCH_INFO, NAME, ...)                                                         \
 {                                                                                                                   \
   auto _hli_ = hermes::cuda_utils::LaunchInfo LAUNCH_INFO;                                                          \
   NAME<<< _hli_.grid_size, _hli_.block_size, _hli_.shared_memory_size, _hli_.stream_id >>> (__VA_ARGS__);           \
-  HERMES_CHECK_LAST_CUDA                                                                                            \
+  HERMES_CHECK_LAST_CUDA_CALL                                                                                            \
   HERMES_CUDA_DEVICE_SYNCHRONIZE                                                                                    \
 }
 
+/// \brief Creates a 1-dimensional index based on current cuda thread index
 #define HERMES_CUDA_THREAD_INDEX_I                                                                                  \
   u32 i = threadIdx.x + blockIdx.x * blockDim.x;
 
+/// \brief Creates a 2-dimensional index based on current cuda thread index
 #define HERMES_CUDA_THREAD_INDEX_IJ                                                                                \
   hermes::index2 ij(threadIdx.x + blockIdx.x * blockDim.x,                                                          \
                     threadIdx.y + blockIdx.y * blockDim.y);
 
+/// \brief Creates a 3-dimensional index based on current cuda thread index
 #define HERMES_CUDA_THREAD_INDEX_IJK                                                                               \
   hermes::index3 ijk(threadIdx.x + blockIdx.x * blockDim.x,                                                         \
                      threadIdx.y + blockIdx.y * blockDim.y,                                                         \
                      threadIdx.z + blockIdx.z * blockDim.z);
 
+/// \brief Ensures just thread of index 0 is run
 #define HERMES_CUDA_RETURN_IF_NOT_THREAD_0                                                                          \
 { HERMES_CUDA_THREAD_INDEX_IJK                                                                                     \
   if(ijk != hermes::index3(0,0,0))                                                                                  \
     return;                                                                                                         \
 }
 
+/// \brief Creates a 1-dimensional index and tests it against bounds
+/// \param I - index variable (u32) name
+/// \param BOUNDS - 1-dimensional bound (u32)
 #define HERMES_CUDA_THREAD_INDEX_LT(I, BOUNDS)                                                                      \
   u32 I = threadIdx.x + blockIdx.x * blockDim.x;                                                                    \
   if(I >= (BOUNDS)) return;
 
+/// \brief Creates a 2-dimensional index and tests it against bounds
+/// \param IJ - index variable (hermes::index2) name
+/// \param BOUNDS - 2-dimensional bound (hermes::size2)
 #define HERMES_CUDA_THREAD_INDEX2_LT(IJ, BOUNDS)                                                                    \
   hermes::index2 IJ(threadIdx.x + blockIdx.x * blockDim.x,                                                          \
                     threadIdx.y + blockIdx.y * blockDim.y);                                                         \
   if(IJ >= (BOUNDS)) return;
 
+/// \brief Creates a 3-dimensional index and tests it against bounds
+/// \param IJK - index variable (hermes::index3) name
+/// \param BOUNDS - 3-dimensional bound (hermes::size3)
 #define HERMES_CUDA_THREAD_INDEX3_LT(IJK, BOUNDS)                                                                   \
   hermes::index3 IJK(threadIdx.x + blockIdx.x * blockDim.x,                                                         \
                      threadIdx.y + blockIdx.y * blockDim.y,                                                         \
                      threadIdx.z + blockIdx.z * blockDim.z);                                                        \
   if(IJK >= (BOUNDS)) return;
 
+/// \brief Creates a 1-dimensional index variable i and tests it against bounds
+/// \param BOUNDS - 1-dimensional bound (u32)
 #define HERMES_CUDA_THREAD_INDEX_I_LT(BOUNDS) HERMES_CUDA_THREAD_INDEX_LT(i, BOUNDS)
+/// \brief Creates a 2-dimensional index variable ij and tests it against bounds
+/// \param BOUNDS - 2-dimensional bound (hermes::size2)
 #define HERMES_CUDA_THREAD_INDEX_IJ_LT(BOUNDS) HERMES_CUDA_THREAD_INDEX2_LT(ij, BOUNDS)
+/// \brief Creates a 3-dimensional index variable ijk and tests it against bounds
+/// \param BOUNDS - 3-dimensional bound (hermes::size3)
 #define HERMES_CUDA_THREAD_INDEX_IJK_LT(BOUNDS) HERMES_CUDA_THREAD_INDEX3_LT(ijk, BOUNDS)
 
 // *********************************************************************************************************************
 //                                                                                                              ERROR
 // *********************************************************************************************************************
+/// \brief Checks (and logs) a CUDA method return code for errors
 #define HERMES_CHECK_CUDA(err)                                                                                      \
   {                                                                                                                 \
       auto hermes_cuda_result = (err);                                                                              \
       if(hermes_cuda_result != cudaSuccess) {                                                                       \
-        HERMES_LOG_CRITICAL(cudaGetErrorString(hermes_cuda_result))                                                 \
+        HERMES_LOG_CRITICAL(cudaGetErrorString(hermes_cuda_result));                                                \
         cudaDeviceReset();                                                                                          \
         exit(99);                                                                                                   \
         }                                                                                                           \
   }
+/// \brief Checks (and logs) the last CUDA call for errors
+#define HERMES_CHECK_LAST_CUDA_CALL HERMES_CHECK_CUDA(cudaGetLastError());
 
-#define HERMES_CHECK_LAST_CUDA HERMES_CHECK_CUDA(cudaGetLastError())
-
+/// \brief Outputs in stdout information about all devices in the current machine
 inline void hermes_print_cuda_devices() {
   int nDevices;
 
@@ -342,6 +399,7 @@ inline void hermes_print_cuda_devices() {
   }
 }
 
+/// \brief Outputs in stdout current GPU memory usage
 inline void hermes_print_cuda_memory_usage() {
   size_t free_byte;
   size_t total_byte;
@@ -354,6 +412,7 @@ inline void hermes_print_cuda_memory_usage() {
          total_db / 1024.0 / 1024.0);
 }
 
+/// \brief Outputs in stdout current GPU memory usage
 #define CUDA_MEMORY_USAGE                                                                                           \
   {                                                                                                                 \
     std::cerr << "[INFO][" << __FILE__ << "][" << __LINE__ << "]";                                                  \
@@ -367,3 +426,5 @@ inline void hermes_print_cuda_memory_usage() {
 #endif
 
 #endif // HERMES_COMMON_CUDA_UTILS_H
+
+/// @}

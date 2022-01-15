@@ -12,11 +12,11 @@ TEST_CASE("debug macros", "[log]") {
   SECTION("flow") {
     {
       auto rif = [](int a, int b) -> bool {
-        HERMES_RETURN_VALUE_IF(a == b, true)
+        HERMES_RETURN_VALUE_IF(a == b, true);
         return false;
       };
       auto rnif = [](int a, int b) -> bool {
-        HERMES_RETURN_VALUE_IF_NOT(a == b, true)
+        HERMES_RETURN_VALUE_IF_NOT(a == b, true);
         return false;
       };
       REQUIRE(!rif(3, 2));
@@ -26,11 +26,11 @@ TEST_CASE("debug macros", "[log]") {
     }
     {
       auto rif = [](int a, int b) -> bool {
-        HERMES_RETURN_VALUE_IF(a == b, true)
+        HERMES_RETURN_VALUE_IF(a == b, true);
         return false;
       };
       auto rnif = [](int a, int b) -> bool {
-        HERMES_LOG_AND_RETURN_VALUE_IF_NOT(a == b, true, "message")
+        HERMES_LOG_AND_RETURN_VALUE_IF_NOT(a == b, true, "message");
         return false;
       };
       REQUIRE(!rif(3, 2));
@@ -40,30 +40,32 @@ TEST_CASE("debug macros", "[log]") {
     }
   }
   HERMES_PING
-  HERMES_LOG(std::to_string(3).c_str())
-  HERMES_LOG_WARNING("warning")
-  HERMES_LOG_ERROR("error")
+  HERMES_LOG(std::to_string(3).c_str());
+  HERMES_LOG_WARNING("warning");
+  HERMES_LOG_ERROR("error");
   Log::addOptions(logging_options::abbreviate);
-  HERMES_LOG_CRITICAL("critical")
+  HERMES_LOG_CRITICAL("critical");
   int a = 0;
   int b = 3;
   int c = 4;
   Log::removeOptions(logging_options::location);
-  HERMES_LOG_VARIABLE(a)
-  HERMES_LOG_VARIABLES(a, b, c)
-  HERMES_CHECK_EXP(3 == 3)
-  HERMES_CHECK_EXP(3 == 2)
-  HERMES_CHECK_EXP_WITH_LOG(3 == 3, "message")
-  HERMES_CHECK_EXP_WITH_LOG(3 == 2, "message")
-  HERMES_ASSERT(3 == 3)
-  HERMES_ASSERT(3 == 2)
-  HERMES_ASSERT_WITH_LOG(3 == 3, "message")
-  HERMES_ASSERT_WITH_LOG(3 == 2, "message")
+  HERMES_LOG_VARIABLE(a);
+  HERMES_LOG_VARIABLES(a, b, c);
+  HERMES_CHECK_EXP(3 == 3);
+  HERMES_CHECK_EXP(3 == 2);
+  HERMES_CHECK_EXP_WITH_LOG(3 == 3, "message");
+  HERMES_CHECK_EXP_WITH_LOG(3 == 2, "message");
+  HERMES_ASSERT(3 == 3);
+  HERMES_ASSERT(3 == 2);
+  HERMES_ASSERT_WITH_LOG(3 == 3, "message");
+  HERMES_ASSERT_WITH_LOG(3 == 2, "message");
   // C logs
-  HERMES_C_LOG("c logging %d", 1)
-  HERMES_C_LOG("c logging")
-  HERMES_C_ERROR("c logging error %d", 1)
-  HERMES_C_ERROR("c logging error")
+  HERMES_C_LOG("c logging %d", 1);
+  HERMES_C_LOG("c logging");
+  HERMES_C_LOG_ERROR("c logging error %d", 1);
+  HERMES_C_LOG_ERROR("c logging error");
+  Log::addOptions(logging_options::location);
+  Log::removeOptions(logging_options::abbreviate);
 }
 
 TEST_CASE("Console Colors", "[log]") {
@@ -71,40 +73,40 @@ TEST_CASE("Console Colors", "[log]") {
 #define PRINT_COLOR_NAME(COLOR) \
   std::cout << (COLOR) << #COLOR << std::endl;
 
-  PRINT_COLOR_NAME(ConsoleColors::default_color)
-  PRINT_COLOR_NAME(ConsoleColors::black)
-  PRINT_COLOR_NAME(ConsoleColors::red)
-  PRINT_COLOR_NAME(ConsoleColors::green)
-  PRINT_COLOR_NAME(ConsoleColors::yellow)
-  PRINT_COLOR_NAME(ConsoleColors::blue)
-  PRINT_COLOR_NAME(ConsoleColors::magenta)
-  PRINT_COLOR_NAME(ConsoleColors::cyan)
-  PRINT_COLOR_NAME(ConsoleColors::light_gray)
-  PRINT_COLOR_NAME(ConsoleColors::dark_gray)
-  PRINT_COLOR_NAME(ConsoleColors::light_red)
-  PRINT_COLOR_NAME(ConsoleColors::light_green)
-  PRINT_COLOR_NAME(ConsoleColors::light_yellow)
-  PRINT_COLOR_NAME(ConsoleColors::light_blue)
-  PRINT_COLOR_NAME(ConsoleColors::light_magenta)
-  PRINT_COLOR_NAME(ConsoleColors::light_cyan)
-  PRINT_COLOR_NAME(ConsoleColors::white)
-  PRINT_COLOR_NAME(ConsoleColors::background_default_color)
-  PRINT_COLOR_NAME(ConsoleColors::background_black)
-  PRINT_COLOR_NAME(ConsoleColors::background_red)
-  PRINT_COLOR_NAME(ConsoleColors::background_green)
-  PRINT_COLOR_NAME(ConsoleColors::background_yellow)
-  PRINT_COLOR_NAME(ConsoleColors::background_blue)
-  PRINT_COLOR_NAME(ConsoleColors::background_magenta)
-  PRINT_COLOR_NAME(ConsoleColors::background_cyan)
-  PRINT_COLOR_NAME(ConsoleColors::background_light_gray)
-  PRINT_COLOR_NAME(ConsoleColors::background_dark_gray)
-  PRINT_COLOR_NAME(ConsoleColors::background_light_red)
-  PRINT_COLOR_NAME(ConsoleColors::background_light_green)
-  PRINT_COLOR_NAME(ConsoleColors::background_light_yellow)
-  PRINT_COLOR_NAME(ConsoleColors::background_light_blue)
-  PRINT_COLOR_NAME(ConsoleColors::background_light_magenta)
-  PRINT_COLOR_NAME(ConsoleColors::background_light_cyan)
-  PRINT_COLOR_NAME(ConsoleColors::background_white)
+  PRINT_COLOR_NAME(ConsoleColors::default_color);
+  PRINT_COLOR_NAME(ConsoleColors::black);
+  PRINT_COLOR_NAME(ConsoleColors::red);
+  PRINT_COLOR_NAME(ConsoleColors::green);
+  PRINT_COLOR_NAME(ConsoleColors::yellow);
+  PRINT_COLOR_NAME(ConsoleColors::blue);
+  PRINT_COLOR_NAME(ConsoleColors::magenta);
+  PRINT_COLOR_NAME(ConsoleColors::cyan);
+  PRINT_COLOR_NAME(ConsoleColors::light_gray);
+  PRINT_COLOR_NAME(ConsoleColors::dark_gray);
+  PRINT_COLOR_NAME(ConsoleColors::light_red);
+  PRINT_COLOR_NAME(ConsoleColors::light_green);
+  PRINT_COLOR_NAME(ConsoleColors::light_yellow);
+  PRINT_COLOR_NAME(ConsoleColors::light_blue);
+  PRINT_COLOR_NAME(ConsoleColors::light_magenta);
+  PRINT_COLOR_NAME(ConsoleColors::light_cyan);
+  PRINT_COLOR_NAME(ConsoleColors::white);
+  PRINT_COLOR_NAME(ConsoleColors::background_default_color);
+  PRINT_COLOR_NAME(ConsoleColors::background_black);
+  PRINT_COLOR_NAME(ConsoleColors::background_red);
+  PRINT_COLOR_NAME(ConsoleColors::background_green);
+  PRINT_COLOR_NAME(ConsoleColors::background_yellow);
+  PRINT_COLOR_NAME(ConsoleColors::background_blue);
+  PRINT_COLOR_NAME(ConsoleColors::background_magenta);
+  PRINT_COLOR_NAME(ConsoleColors::background_cyan);
+  PRINT_COLOR_NAME(ConsoleColors::background_light_gray);
+  PRINT_COLOR_NAME(ConsoleColors::background_dark_gray);
+  PRINT_COLOR_NAME(ConsoleColors::background_light_red);
+  PRINT_COLOR_NAME(ConsoleColors::background_light_green);
+  PRINT_COLOR_NAME(ConsoleColors::background_light_yellow);
+  PRINT_COLOR_NAME(ConsoleColors::background_light_blue);
+  PRINT_COLOR_NAME(ConsoleColors::background_light_magenta);
+  PRINT_COLOR_NAME(ConsoleColors::background_light_cyan);
+  PRINT_COLOR_NAME(ConsoleColors::background_white);
 
   std::cout << ConsoleColors::background_default_color;
   for (u8 r = 0; r < 32; ++r) {

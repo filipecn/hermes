@@ -84,12 +84,14 @@ HERMES_CUDA_KERNEL(testObject)(Object o) {
 #endif
 
 TEST_CASE("object") {
+  SECTION("rvalue") {
 #ifdef HERMES_DEVICE_ENABLED
-  HERMES_CUDA_LAUNCH_AND_SYNC((10), testObject_k, Object())
-  Object o;
-  HERMES_CUDA_LAUNCH_AND_SYNC((10), testObject_k, o)
-  o.say();
+    HERMES_CUDA_LAUNCH_AND_SYNC((10), testObject_k, Object())
+    Object o;
+    HERMES_CUDA_LAUNCH_AND_SYNC((10), testObject_k, o)
+    o.say();
 #endif
+  }
 }
 
 TEST_CASE("MemoryBlock", "[storage]") {
@@ -511,13 +513,13 @@ TEST_CASE("DataArray", "[storage][array]") {
         a1[i] = i;
         REQUIRE(a1[i] == i);
       }
-      HERMES_LOG_VARIABLE(a1)
+      HERMES_LOG_VARIABLE(a1);
       Array<i32> a2({10, 2});
       for (index2 ij : Index2Range<i32>(a2.size().slice(0, 1))) {
         a2[ij] = ij.j * 10 + ij.i;
         REQUIRE(a2[ij] == ij.j * 10 + ij.i);
       }
-      HERMES_LOG_VARIABLE(a2)
+      HERMES_LOG_VARIABLE(a2);
       Array<i32> a3({10, 2, 3});
       for (index3 ijk : Index3Range<i32>(a3.size())) {
         a3[ijk] = ijk.k * 20 + ijk.j * 10 + ijk.i;
@@ -530,7 +532,7 @@ TEST_CASE("DataArray", "[storage][array]") {
 #ifdef HERMES_DEVICE_ENABLED
     HERMES_CUDA_LAUNCH_AND_SYNC((a.size()), testArrayView_k, a.view())
     Array<int> b = a;
-    HERMES_LOG_VARIABLE(b)
+    HERMES_LOG_VARIABLE(b);
 #endif
   }//
 
@@ -838,7 +840,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(sd.offsetOf("vec3") == 0);
     REQUIRE(sd.offsetOf("f32") == sizeof(vec3));
     REQUIRE(sd.offsetOf("int") == sizeof(vec3) + sizeof(f32));
-    HERMES_LOG_VARIABLE(sd)
+    HERMES_LOG_VARIABLE(sd);
     { // valueAt
       AoS aos;
       aos.pushField<size2>("size2");
@@ -917,7 +919,7 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(aos.valueAt<f32>(1, i) == Approx(1.f * i));
       REQUIRE(aos.valueAt<int>(2, i) == i + 1);
     }
-    HERMES_LOG_VARIABLE(aos)
+    HERMES_LOG_VARIABLE(aos);
   }//
   SECTION("change description") {
     StructDescriptor desc;

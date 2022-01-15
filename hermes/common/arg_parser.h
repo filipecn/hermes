@@ -22,9 +22,11 @@
 ///\file arg_parser.h
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date 2020-13-07
-///
 ///\brief Simple argument parser
-/// inspired in https://github.com/jamolnng/argparse/blob/develop/argparse.h
+///\note inspired in https://github.com/jamolnng/argparse/blob/develop/argparse.h
+///\ingroup common
+///\addtogroup common
+/// @{
 
 #ifndef HERMES_COMMON_ARG_PARSER_H
 #define HERMES_COMMON_ARG_PARSER_H
@@ -40,12 +42,30 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                                          ArgParser
 // *********************************************************************************************************************
-/// Command line argument parser
+/// \brief Command line argument parser
+///
+/// - Example:
+/// \code{.cpp}
+///     int main(int argc, char** argv) {
+///         hermes::ArgParser parser("my program", "description");
+///         // define a simple float argument
+///         parser.addArgument("float_argument", "description");
+///         // an required argument
+///         parser.addArgument("int_argument", "description", true);
+///         // parse arguments
+///         parser.parse(argc, argv);
+///         // access argument value with default value
+///         parser.get<int>("int_argument", 0);
+///         // check if argument was given
+///         bool b = parser.check("float_argument");
+///     }
+/// \endcode
 class ArgParser {
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Constructor
   /// \param bin executable name
   /// \param description program description
   explicit ArgParser(std::string bin = "", std::string description = "");
@@ -53,19 +73,21 @@ public:
   //                                                                                                     METHODS
   // *******************************************************************************************************************
   //                                                                                                          parsing
-  ///
+  /// \brief Parse program arguments
   /// \param argc
   /// \param argv
+  /// \param verbose_parsing
+  /// \return
   bool parse(int argc, const char **argv, bool verbose_parsing = false);
   //                                                                                                        arguments
-  ///
+  /// \brief Define program argument
   /// \param name
   /// \param description
-  /// \param required
+  /// \param is_required
   void addArgument(const std::string &name,
                    const std::string &description = "",
                    bool is_required = false);
-  ///
+  /// \brief Get argument value
   /// \tparam T
   /// \param name
   /// \param default_value
@@ -80,11 +102,11 @@ public:
     in >> t;
     return t;
   }
-  /// Checks if an argument was given
+  /// \brief Checks if an argument was given
   /// \param name argument's name
   /// \return true if argument was given
   [[nodiscard]] bool check(const std::string &name) const;
-  ///
+  /// \brief Output help into stdout
   void printHelp() const;
 
 private:
@@ -104,3 +126,5 @@ private:
 }
 
 #endif //HERMES_COMMON_ARG_PARSER_H
+
+/// @}

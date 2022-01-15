@@ -46,7 +46,7 @@ TEST_CASE("Point", "[geometry][point]") {
     }//
     SECTION("interval") {
       point2i p;
-      HERMES_LOG_VARIABLE(p)
+      HERMES_LOG_VARIABLE(p);
     }
   }//
   SECTION("Point3") {
@@ -60,7 +60,7 @@ TEST_CASE("Point", "[geometry][point]") {
   } //
   SECTION("interval") {
     point3i p(1, 2, 3);
-    HERMES_LOG_VARIABLE(p)
+    HERMES_LOG_VARIABLE(p);
   } //
 }
 
@@ -92,7 +92,7 @@ TEST_CASE("Vector", "[geometry][vector]") {
     } //
     SECTION("interval") {
       vec3i p(1, 2, 3);
-      HERMES_LOG_VARIABLE(p)
+      HERMES_LOG_VARIABLE(p);
     } //
   }
 }
@@ -150,7 +150,7 @@ TEST_CASE("Transform", "[geometry]") {
   SECTION("Sanity") {
     Transform t;
     REQUIRE(t.matrix().isIdentity());
-    HERMES_LOG_VARIABLE(t.matrix())
+    HERMES_LOG_VARIABLE(t.matrix());
   }//
   SECTION("orthographic projection") {
     SECTION("left handed") {

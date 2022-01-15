@@ -370,7 +370,7 @@ constexpr u32 Dark = Grey900;
 constexpr u32 Silver = Grey300;
 constexpr u32 BlueGrey = BlueGrey500;
 
-constexpr u32 Default = Wheat;
+constexpr u32 Default = Red300;
 
 }
 

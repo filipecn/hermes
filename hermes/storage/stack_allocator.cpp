@@ -240,7 +240,7 @@ MemoryStackAllocator<MemoryLocation::DEVICE>::MemoryStackAllocator(
   capacity_ = other.capacity_;
   if (capacity_) {
     // TODO compute address alignment
-    auto base_address = reinterpret_cast<uintptr_t>(other.data_);
+    // auto base_address = reinterpret_cast<uintptr_t>(other.data_);
     mem_block_ = other.mem_block_;
     data_ = mem_block_.ptr();
   }

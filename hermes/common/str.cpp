@@ -101,6 +101,45 @@ bool Str::isInteger(const std::string &s) {
   return true;
 }
 
+bool Str::isNumber(const std::string &s) {
+  auto ss = strip(s, " \n");
+  if (ss.empty())
+    return false;
+
+  auto p = split(ss, "e");
+  if (p.size() > 2)
+    return false;
+  // check floating piece
+  size_t i = 0;
+  int point_count = 0;
+  if (!std::isdigit(p[0][0])) {
+    i = 1;
+    if (p[0].size() == 1)
+      return false;
+    if (p[0][0] != '-' && p[0][0] != '+' && s[0] != '.')
+      return false;
+    if (p[0][0] == '.')
+      point_count++;
+  }
+  for (; i < p[0].size(); ++i) {
+    if (p[0][i] == '.') {
+      point_count++;
+      if (point_count > 1)
+        return false;
+      continue;
+    }
+    if (p[0][i] == 'f' && i != p[0].size() - 1)
+      return false;
+    if (p[0][i] == 'f')
+      continue;
+    if (!std::isdigit(p[0][i]))
+      return false;
+  }
+  if (p.size() > 1)
+    return isInteger(p[1]);
+  return true;
+}
+
 bool Str::match_r(const std::string &s, const std::string &pattern, std::regex_constants::match_flag_type flags) {
   std::smatch m;
   return std::regex_match(s, m, std::regex(pattern), flags);

@@ -52,7 +52,8 @@ enum class logging_options {
   time = 0x10,
   abbreviate = 0x20,
   use_colors = 0x40,
-  full_path_location = 0x80
+  full_path_location = 0x80,
+  callback_only = 0x100
 };
 
 HERMES_ENABLE_BITMASK_OPERATORS(logging_options);
@@ -105,6 +106,9 @@ public:
   HERMES_DEVICE_CALLABLE static inline void logMessage(logging_options message_options, const char *fmt,
                                                        Location location,
                                                        Ts &&...args) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+    printf(fmt);
+#else
     // merge options_
     message_options = options_ | message_options;
     bool use_colors = HERMES_MASK_BIT(message_options, logging_options::use_colors);
@@ -128,12 +132,17 @@ public:
       s += ConsoleColors::reset;
     if (log_callback)
       log_callback(s, message_options);
-    else
-      printf("%s\n", s.c_str());
+    if (HERMES_MASK_BIT(message_options, logging_options::callback_only))
+      return;
+    printf("%s\n", s.c_str());
+#endif
   }
 
   template<typename ...Ts>
   HERMES_DEVICE_CALLABLE static inline void logMessage(logging_options message_options, const char *fmt, Ts &&...args) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+    printf(fmt);
+#else
     // merge options_
     message_options = options_ | message_options;
     bool use_colors = HERMES_MASK_BIT(message_options, logging_options::use_colors);
@@ -152,8 +161,10 @@ public:
       s += ConsoleColors::reset;
     if (log_callback)
       log_callback(s, message_options);
-    else
-      printf("%s\n", s.c_str());
+    if (HERMES_MASK_BIT(message_options, logging_options::callback_only))
+      return;
+    printf("%s\n", s.c_str());
+#endif
   }
 
   ///
@@ -163,7 +174,7 @@ public:
   template<typename ...Ts>
   HERMES_DEVICE_CALLABLE static inline void info(const char *fmt, Ts &&...args) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    printf("[%s][%d][%s] INFO\n", std::forward<Ts>(args)...);
+    printf(fmt, std::forward<Ts>(args)...);
 #else
     auto message_options = options_ | logging_options::info;
     bool use_colors = HERMES_MASK_BIT(message_options, logging_options::use_colors);
@@ -189,7 +200,7 @@ public:
   template<typename ...Ts>
   HERMES_DEVICE_CALLABLE static inline void warn(const char *fmt, Ts &&...args) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    printf("[%s][%d][%s] WARN\n", std::forward<Ts>(args)...);
+    printf(fmt, std::forward<Ts>(args)...);
 #else
     auto message_options = options_ | logging_options::warn;
     bool use_colors = HERMES_MASK_BIT(message_options, logging_options::use_colors);
@@ -215,7 +226,7 @@ public:
   template<typename ...Ts>
   static HERMES_DEVICE_CALLABLE inline void error(const char *fmt, Ts &&...args) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    printf("[%s][%d][%s] ERROR\n", std::forward<Ts>(args)...);
+    printf(fmt, std::forward<Ts>(args)...);
 #else
     auto message_options = options_ | logging_options::error;
     bool use_colors = HERMES_MASK_BIT(message_options, logging_options::use_colors);
@@ -261,11 +272,11 @@ public:
 #endif
   }
 
-  HERMES_DEVICE_CALLABLE static inline void addOptions(logging_options options_to_add) {
+  static inline void addOptions(logging_options options_to_add) {
     options_ = options_ | options_to_add;
   }
 
-  HERMES_DEVICE_CALLABLE static inline void removeOptions(logging_options options_to_remove) {
+  static inline void removeOptions(logging_options options_to_remove) {
     options_ = options_ & ~options_to_remove;
   }
 

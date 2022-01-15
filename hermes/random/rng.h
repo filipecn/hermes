@@ -123,7 +123,7 @@ public:
     }
   }
   HERMES_DEVICE_CALLABLE real_t uniformFloat() {
-#ifdef HERMES_DEVICE_CODE
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     return ::min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));
 #else
     return std::min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));

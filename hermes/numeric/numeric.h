@@ -71,12 +71,16 @@ struct Numbers {
       return -0x1.fffffep+127;
     return -0x1.fffffffffffffp+1023;
   }
+  HERMES_DEVICE_CALLABLE static constexpr f64 greatest_f32() {
+    return 0x1.fffffep+127;
+  }
+  HERMES_DEVICE_CALLABLE static constexpr f64 greatest_f64() {
+    return 0x1.fffffffffffffp+1023;
+  }
   /// \tparam T
   /// \return
   template<typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
-    if (std::is_same_v<T, f32>)
-      return 0x1.fffffep+127;
-    return 0x1.fffffffffffffp+1023;
+    return T(greatest_f32());
   }
   //                                                                                                          queries
   /// \tparam T
@@ -687,6 +691,13 @@ HERMES_DEVICE_CALLABLE inline constexpr float Numbers::pow<0>(float v) {
   return 1;
 }
 
+template<> HERMES_DEVICE_CALLABLE inline constexpr f32 Numbers::greatest() {
+  return greatest_f32();
+}
+
+template<> HERMES_DEVICE_CALLABLE inline constexpr f64 Numbers::greatest() {
+  return greatest_f64();
+}
 // *********************************************************************************************************************
 //                                                                                                       Trigonometry
 // *********************************************************************************************************************
