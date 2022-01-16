@@ -275,6 +275,48 @@ Macros</h2></td></tr>
 <tr class="memitem:gaaf2fa36058f958d335b2913b580c0ec5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gaaf2fa36058f958d335b2913b580c0ec5">HERMES_LOG_VARIABLES</a>(...)&#160;&#160;&#160;hermes::Log::info(&quot;[{}][{}][{}]: {}&quot;, __FILE__, __LINE__, __FUNCTION__, hermes_log_variables(__VA_ARGS__))</td></tr>
 <tr class="memdesc:gaaf2fa36058f958d335b2913b580c0ec5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs multiple variables into info log stream.  <a href="group__common.html#gaaf2fa36058f958d335b2913b580c0ec5">More...</a><br /></td></tr>
 <tr class="separator:gaaf2fa36058f958d335b2913b580c0ec5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga70f946b0b765e24239e1013485243ed1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(FMT, ...)</td></tr>
+<tr class="memdesc:ga70f946b0b765e24239e1013485243ed1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into stdout in printf style.  <a href="group__common.html#ga70f946b0b765e24239e1013485243ed1">More...</a><br /></td></tr>
+<tr class="separator:ga70f946b0b765e24239e1013485243ed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac6d0a5f83afa84d83d984a51e30ee82a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a>(FMT, ...)</td></tr>
+<tr class="memdesc:gac6d0a5f83afa84d83d984a51e30ee82a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into stderr in printf style.  <a href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">More...</a><br /></td></tr>
+<tr class="separator:gac6d0a5f83afa84d83d984a51e30ee82a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7df7b88d9404767403b6de3e0b72daa2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga7df7b88d9404767403b6de3e0b72daa2">HERMES_C_DEVICE_LOG</a>(FMT, ...)</td></tr>
+<tr class="memdesc:ga7df7b88d9404767403b6de3e0b72daa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into info stdout from device code.  <a href="group__common.html#ga7df7b88d9404767403b6de3e0b72daa2">More...</a><br /></td></tr>
+<tr class="separator:ga7df7b88d9404767403b6de3e0b72daa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3aa32ccf1d66c3054099d448b210cddf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga3aa32ccf1d66c3054099d448b210cddf">HERMES_C_DEVICE_ERROR</a>(FMT, ...)</td></tr>
+<tr class="memdesc:ga3aa32ccf1d66c3054099d448b210cddf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into stderr from device code.  <a href="group__common.html#ga3aa32ccf1d66c3054099d448b210cddf">More...</a><br /></td></tr>
+<tr class="separator:ga3aa32ccf1d66c3054099d448b210cddf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad8dedfb6f395b28f362e39fe7959315a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gad8dedfb6f395b28f362e39fe7959315a">HERMES_CHECK_EXP</a>(expr)</td></tr>
+<tr class="memdesc:gad8dedfb6f395b28f362e39fe7959315a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Warns if expression is false.  <a href="group__common.html#gad8dedfb6f395b28f362e39fe7959315a">More...</a><br /></td></tr>
+<tr class="separator:gad8dedfb6f395b28f362e39fe7959315a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac484cff6909402c505a1248907a879be"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gac484cff6909402c505a1248907a879be">HERMES_CHECK_EXP_WITH_LOG</a>(expr,  M)</td></tr>
+<tr class="memdesc:gac484cff6909402c505a1248907a879be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Warns if expression is false with message.  <a href="group__common.html#gac484cff6909402c505a1248907a879be">More...</a><br /></td></tr>
+<tr class="separator:gac484cff6909402c505a1248907a879be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga13bf501f420bb63f3cf9b62b06b03574"><td class="memItemLeft" align="right" valign="top"><a id="ga13bf501f420bb63f3cf9b62b06b03574"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>debugBreak</b>()</td></tr>
+<tr class="separator:ga13bf501f420bb63f3cf9b62b06b03574"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1c115720d5b704b94684e164e3ebf5e5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga1c115720d5b704b94684e164e3ebf5e5">HERMES_ASSERT</a>(expr)</td></tr>
+<tr class="memdesc:ga1c115720d5b704b94684e164e3ebf5e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Errors if expression is false.  <a href="group__common.html#ga1c115720d5b704b94684e164e3ebf5e5">More...</a><br /></td></tr>
+<tr class="separator:ga1c115720d5b704b94684e164e3ebf5e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga99a91d4f512268c11db58d0827210e65"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga99a91d4f512268c11db58d0827210e65">HERMES_ASSERT_WITH_LOG</a>(expr,  M)</td></tr>
+<tr class="memdesc:ga99a91d4f512268c11db58d0827210e65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Errors if expression is false with message.  <a href="group__common.html#ga99a91d4f512268c11db58d0827210e65">More...</a><br /></td></tr>
+<tr class="separator:ga99a91d4f512268c11db58d0827210e65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga682e625a093aabcc21b6e9d6c33df785"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga682e625a093aabcc21b6e9d6c33df785">HERMES_RETURN_IF</a>(A)</td></tr>
+<tr class="memdesc:ga682e625a093aabcc21b6e9d6c33df785"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls return if condition is true.  <a href="group__common.html#ga682e625a093aabcc21b6e9d6c33df785">More...</a><br /></td></tr>
+<tr class="separator:ga682e625a093aabcc21b6e9d6c33df785"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8b7117eeb4a4c42fcb6c5573b3eb09c5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga8b7117eeb4a4c42fcb6c5573b3eb09c5">HERMES_RETURN_IF_NOT</a>(A)</td></tr>
+<tr class="memdesc:ga8b7117eeb4a4c42fcb6c5573b3eb09c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls return if condition is false.  <a href="group__common.html#ga8b7117eeb4a4c42fcb6c5573b3eb09c5">More...</a><br /></td></tr>
+<tr class="separator:ga8b7117eeb4a4c42fcb6c5573b3eb09c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadb309619422ca91bc6828f52e4cd5607"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gadb309619422ca91bc6828f52e4cd5607">HERMES_RETURN_VALUE_IF</a>(A,  R)</td></tr>
+<tr class="memdesc:gadb309619422ca91bc6828f52e4cd5607"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return value if condition is true.  <a href="group__common.html#gadb309619422ca91bc6828f52e4cd5607">More...</a><br /></td></tr>
+<tr class="separator:gadb309619422ca91bc6828f52e4cd5607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9f58dbada1043321e435b215cd9cac66"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga9f58dbada1043321e435b215cd9cac66">HERMES_RETURN_VALUE_IF_NOT</a>(A,  R)</td></tr>
+<tr class="memdesc:ga9f58dbada1043321e435b215cd9cac66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return value if condition is false.  <a href="group__common.html#ga9f58dbada1043321e435b215cd9cac66">More...</a><br /></td></tr>
+<tr class="separator:ga9f58dbada1043321e435b215cd9cac66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3facb947bcf6e391f23567f5a0a15688"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga3facb947bcf6e391f23567f5a0a15688">HERMES_LOG_AND_RETURN_VALUE_IF_NOT</a>(A,  R,  M)</td></tr>
+<tr class="memdesc:ga3facb947bcf6e391f23567f5a0a15688"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs and return value if condition is false.  <a href="group__common.html#ga3facb947bcf6e391f23567f5a0a15688">More...</a><br /></td></tr>
+<tr class="separator:ga3facb947bcf6e391f23567f5a0a15688"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad826e86c01ed0d3ab4222eb4967aa9de"><td class="memItemLeft" align="right" valign="top"><a id="gad826e86c01ed0d3ab4222eb4967aa9de"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gad826e86c01ed0d3ab4222eb4967aa9de">HERMES_HOST_FUNCTION</a>&#160;&#160;&#160;__host__</td></tr>
 <tr class="memdesc:gad826e86c01ed0d3ab4222eb4967aa9de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies that the function can only be called from host side. <br /></td></tr>
@@ -446,6 +488,259 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 
 </div>
 </div>
+<a id="ga1c115720d5b704b94684e164e3ebf5e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1c115720d5b704b94684e164e3ebf5e5">&#9670;&nbsp;</a></span>HERMES_ASSERT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_ASSERT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">expr</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span>(expr) {}                                                                                                       \</div>
+<div class="line">  else {                                                                                                            \</div>
+<div class="line">    hermes::Log::error(<span class="stringliteral">&quot;[{}][{}][ASSERT FAIL {}]&quot;</span>, __FILE__, __LINE__, #expr);                                      \</div>
+<div class="line">    debugBreak();                                                                                                   \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Errors if expression is false. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">expr</td><td>expression </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga99a91d4f512268c11db58d0827210e65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga99a91d4f512268c11db58d0827210e65">&#9670;&nbsp;</a></span>HERMES_ASSERT_WITH_LOG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_ASSERT_WITH_LOG</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">expr, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">M&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span>(expr) {}                                                                                                       \</div>
+<div class="line">  else {                                                                                                            \</div>
+<div class="line">    hermes::Log::error(<span class="stringliteral">&quot;[{}][{}][ASSERT FAIL {}]: {}&quot;</span>, __FILE__, __LINE__, #expr, M);                               \</div>
+<div class="line">    debugBreak();                                                                                                   \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Errors if expression is false with message. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">expr</td><td>expression </td></tr>
+    <tr><td class="paramname">M</td><td>custom error message </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga3aa32ccf1d66c3054099d448b210cddf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3aa32ccf1d66c3054099d448b210cddf">&#9670;&nbsp;</a></span>HERMES_C_DEVICE_ERROR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_C_DEVICE_ERROR</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">FMT, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">printf(<span class="stringliteral">&quot;[%s][%d][%s]: &quot;</span>, __FILE__, __LINE__, __FUNCTION__);                                                         \</div>
+<div class="line">printf(FMT __VA_OPT__(,) __VA_ARGS__);                                                                              \</div>
+<div class="line">printf(<span class="stringliteral">&quot;\n&quot;</span>)</div>
+</div><!-- fragment -->
+<p>Logs into stderr from device code. </p>
+<div class="fragment"><div class="line"><a class="code" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(<span class="stringliteral">&quot;my log with %d as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
+<div class="line"><a class="code" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(&quot;simple log&quot;)</div>
+</div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">FMT</td><td>string format following printf format </td></tr>
+    <tr><td class="paramname">...</td><td>format values </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga7df7b88d9404767403b6de3e0b72daa2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7df7b88d9404767403b6de3e0b72daa2">&#9670;&nbsp;</a></span>HERMES_C_DEVICE_LOG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_C_DEVICE_LOG</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">FMT, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">printf(<span class="stringliteral">&quot;[%s][%d][%s]: &quot;</span>, __FILE__, __LINE__, __FUNCTION__);                                                         \</div>
+<div class="line">printf(FMT __VA_OPT__(,) __VA_ARGS__);                                                                              \</div>
+<div class="line">printf(<span class="stringliteral">&quot;\n&quot;</span>)</div>
+</div><!-- fragment -->
+<p>Logs into info stdout from device code. </p>
+<div class="fragment"><div class="line"><a class="code" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(<span class="stringliteral">&quot;my log with %d as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
+<div class="line"><a class="code" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(&quot;simple log&quot;)</div>
+</div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">FMT</td><td>string format following printf format </td></tr>
+    <tr><td class="paramname">...</td><td>format values </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga70f946b0b765e24239e1013485243ed1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga70f946b0b765e24239e1013485243ed1">&#9670;&nbsp;</a></span>HERMES_C_LOG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_C_LOG</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">FMT, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">fprintf(stdout, <span class="stringliteral">&quot;[%s][%d][%s]: &quot;</span>, __FILE__, __LINE__, __FUNCTION__);                                                \</div>
+<div class="line">fprintf(stdout, FMT __VA_OPT__(,) __VA_ARGS__);                                                                     \</div>
+<div class="line">fprintf(stdout, <span class="stringliteral">&quot;\n&quot;</span>)</div>
+</div><!-- fragment -->
+<p>Logs into stdout in printf style. </p>
+<div class="fragment"><div class="line"><a class="code" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(<span class="stringliteral">&quot;my log with %d as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
+<div class="line"><a class="code" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(&quot;simple log&quot;)</div>
+</div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">FMT</td><td>string format following printf format </td></tr>
+    <tr><td class="paramname">...</td><td>format values </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gac6d0a5f83afa84d83d984a51e30ee82a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac6d0a5f83afa84d83d984a51e30ee82a">&#9670;&nbsp;</a></span>HERMES_C_LOG_ERROR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_C_LOG_ERROR</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">FMT, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">fprintf(stderr, <span class="stringliteral">&quot;[%s][%d][%s]: &quot;</span>, __FILE__, __LINE__, __FUNCTION__);                                                \</div>
+<div class="line">fprintf(stderr, FMT __VA_OPT__(,) __VA_ARGS__);                                                                     \</div>
+<div class="line">fprintf(stderr, <span class="stringliteral">&quot;\n&quot;</span>)</div>
+</div><!-- fragment -->
+<p>Logs into stderr in printf style. </p>
+<div class="fragment"><div class="line"><a class="code" href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a>(<span class="stringliteral">&quot;my log with %d as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
+<div class="line"><a class="code" href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a>(&quot;simple log&quot;)</div>
+</div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">FMT</td><td>string format following printf format </td></tr>
+    <tr><td class="paramname">...</td><td>format values </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="gaa631c407e6b628e29363133ac90717c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaa631c407e6b628e29363133ac90717c1">&#9670;&nbsp;</a></span>HERMES_CHECK_CUDA</h2>
 
@@ -473,6 +768,81 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <div class="line">  }</div>
 </div><!-- fragment -->
 <p>Checks (and logs) a CUDA method return code for errors. </p>
+
+</div>
+</div>
+<a id="gad8dedfb6f395b28f362e39fe7959315a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad8dedfb6f395b28f362e39fe7959315a">&#9670;&nbsp;</a></span>HERMES_CHECK_EXP</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_CHECK_EXP</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">expr</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span>(expr) {}                                                                                                       \</div>
+<div class="line">  else {                                                                                                            \</div>
+<div class="line">    hermes::Log::warn(<span class="stringliteral">&quot;[{}][{}][CHECK_EXP FAIL {}]&quot;</span>, __FILE__, __LINE__, (#expr));                                  \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Warns if expression is false. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">expr</td><td>expression </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gac484cff6909402c505a1248907a879be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac484cff6909402c505a1248907a879be">&#9670;&nbsp;</a></span>HERMES_CHECK_EXP_WITH_LOG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_CHECK_EXP_WITH_LOG</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">expr, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">M&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span>(expr) {}                                                                                                       \</div>
+<div class="line">  else {                                                                                                            \</div>
+<div class="line">    hermes::Log::warn(<span class="stringliteral">&quot;[{}][{}][CHECK_EXP FAIL {}]: {}&quot;</span>, __FILE__, __LINE__, (#expr), M);                           \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Warns if expression is false with message. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">expr</td><td>expression </td></tr>
+    <tr><td class="paramname">M</td><td>custom warn message </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -971,6 +1341,56 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 
 </div>
 </div>
+<a id="ga3facb947bcf6e391f23567f5a0a15688"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3facb947bcf6e391f23567f5a0a15688">&#9670;&nbsp;</a></span>HERMES_LOG_AND_RETURN_VALUE_IF_NOT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_LOG_AND_RETURN_VALUE_IF_NOT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">A, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">R, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">M&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span> (!(A)) {                                                                                                       \</div>
+<div class="line">    HERMES_LOG(M);                                                                                                  \</div>
+<div class="line">    return R;                                                                                                       \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Logs and return value if condition is false. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">A</td><td>condition </td></tr>
+    <tr><td class="paramname">R</td><td>value </td></tr>
+    <tr><td class="paramname">M</td><td>log message </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ga3bb391c0f11f0a592b3d7fe0a6bf91d2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">&#9670;&nbsp;</a></span>HERMES_LOG_CRITICAL</h2>
 
@@ -1275,6 +1695,152 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 
 </div>
 </div>
+<a id="ga682e625a093aabcc21b6e9d6c33df785"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga682e625a093aabcc21b6e9d6c33df785">&#9670;&nbsp;</a></span>HERMES_RETURN_IF</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_RETURN_IF</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">A</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span> (A) {                                                                                                          \</div>
+<div class="line">    return;                                                                                                         \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Calls return if condition is true. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">A</td><td>condition </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga8b7117eeb4a4c42fcb6c5573b3eb09c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8b7117eeb4a4c42fcb6c5573b3eb09c5">&#9670;&nbsp;</a></span>HERMES_RETURN_IF_NOT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_RETURN_IF_NOT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">A</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span> (!(A)) {                                                                                                       \</div>
+<div class="line">    return;                                                                                                         \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Calls return if condition is false. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">A</td><td>condition </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gadb309619422ca91bc6828f52e4cd5607"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadb309619422ca91bc6828f52e4cd5607">&#9670;&nbsp;</a></span>HERMES_RETURN_VALUE_IF</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_RETURN_VALUE_IF</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">A, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">R&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span> (A) {                                                                                                          \</div>
+<div class="line">    return R;                                                                                                       \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Return value if condition is true. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">A</td><td>condition </td></tr>
+    <tr><td class="paramname">R</td><td>value </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga9f58dbada1043321e435b215cd9cac66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9f58dbada1043321e435b215cd9cac66">&#9670;&nbsp;</a></span>HERMES_RETURN_VALUE_IF_NOT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HERMES_RETURN_VALUE_IF_NOT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">A, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">R&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>#include &lt;<a class="el" href="debug_8h.html">hermes/common/debug.h</a>&gt;</code></p>
+<b>Value:</b><div class="fragment"><div class="line">  <span class="keywordflow">if</span> (!(A)) {                                                                                                       \</div>
+<div class="line">    return R;                                                                                                       \</div>
+<div class="line">  }</div>
+</div><!-- fragment -->
+<p>Return value if condition is false. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">A</td><td>condition </td></tr>
+    <tr><td class="paramname">R</td><td>value </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ga468fb1b5ed4c5fecd63abbcd5e64a3d6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga468fb1b5ed4c5fecd63abbcd5e64a3d6">&#9670;&nbsp;</a></span>HERMES_TOKEN_CONCATENATE</h2>
 
@@ -1425,11 +1991,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <div class="ttc" id="agroup__common_html_ga9f8966e7cf4b47602f0fd05a143c3e4c"><div class="ttname"><a href="group__common.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a></div><div class="ttdeci">#define HERMES_LOG_WARNING(FMT,...)</div><div class="ttdoc">Logs into warning log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:120</div></div>
 <div class="ttc" id="astructhermes_1_1cuda__utils_1_1LaunchInfo_html"><div class="ttname"><a href="structhermes_1_1cuda__utils_1_1LaunchInfo.html">hermes::cuda_utils::LaunchInfo</a></div><div class="ttdoc">Holds CUDA launch parameters.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:66</div></div>
 <div class="ttc" id="agroup__common_html_ga70c1fcc1a4e96af8f6580f708657cd41"><div class="ttname"><a href="group__common.html#ga70c1fcc1a4e96af8f6580f708657cd41">u32</a></div><div class="ttdeci">uint32_t u32</div><div class="ttdoc">32 bit size unsigned integer type</div><div class="ttdef"><b>Definition:</b> defs.h:88</div></div>
+<div class="ttc" id="agroup__common_html_ga70f946b0b765e24239e1013485243ed1"><div class="ttname"><a href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a></div><div class="ttdeci">#define HERMES_C_LOG(FMT,...)</div><div class="ttdoc">Logs into stdout in printf style.</div><div class="ttdef"><b>Definition:</b> debug.h:204</div></div>
 <div class="ttc" id="astructhermes_1_1cuda__utils_1_1LaunchInfo_html_aaacc047ea81d695bcf248e206d030101"><div class="ttname"><a href="structhermes_1_1cuda__utils_1_1LaunchInfo.html#aaacc047ea81d695bcf248e206d030101">hermes::cuda_utils::LaunchInfo::grid_size</a></div><div class="ttdeci">dim3 grid_size</div><div class="ttdoc">cuda grid size (in number of blocks)</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:187</div></div>
 <div class="ttc" id="astructhermes_1_1Index3_html"><div class="ttname"><a href="structhermes_1_1Index3.html">hermes::Index3</a></div><div class="ttdoc">Holds 3-dimensional index coordinates.</div><div class="ttdef"><b>Definition:</b> index.h:360</div></div>
 <div class="ttc" id="agroup__common_html_ga468fb1b5ed4c5fecd63abbcd5e64a3d6"><div class="ttname"><a href="group__common.html#ga468fb1b5ed4c5fecd63abbcd5e64a3d6">HERMES_TOKEN_CONCATENATE</a></div><div class="ttdeci">#define HERMES_TOKEN_CONCATENATE(x, y)</div><div class="ttdoc">Concatenates two tokens.</div><div class="ttdef"><b>Definition:</b> profiler.h:364</div></div>
 <div class="ttc" id="aclasshermes_1_1profiler_1_1Profiler_html_a017dfd2b831d59990ade1f2b5c18a540"><div class="ttname"><a href="classhermes_1_1profiler_1_1Profiler.html#a017dfd2b831d59990ade1f2b5c18a540">hermes::profiler::Profiler::pushBlockDescriptor</a></div><div class="ttdeci">static u32 pushBlockDescriptor(const char *name, u32 color=argb_colors::Default)</div><div class="ttdoc">Registers a new block description.</div><div class="ttdef"><b>Definition:</b> profiler.cpp:45</div></div>
 <div class="ttc" id="agroup__common_html_ga3bb391c0f11f0a592b3d7fe0a6bf91d2"><div class="ttname"><a href="group__common.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a></div><div class="ttdeci">#define HERMES_LOG_CRITICAL(FMT,...)</div><div class="ttdoc">Logs into critical log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:142</div></div>
+<div class="ttc" id="agroup__common_html_gac6d0a5f83afa84d83d984a51e30ee82a"><div class="ttname"><a href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a></div><div class="ttdeci">#define HERMES_C_LOG_ERROR(FMT,...)</div><div class="ttdoc">Logs into stderr in printf style.</div><div class="ttdef"><b>Definition:</b> debug.h:217</div></div>
 <div class="ttc" id="astructhermes_1_1Index2_html"><div class="ttname"><a href="structhermes_1_1Index2.html">hermes::Index2</a></div><div class="ttdoc">Holds 2-dimensional integer index coordinates.</div><div class="ttdef"><b>Definition:</b> index.h:50</div></div>
 <div class="ttc" id="agroup__common_html_ga8fb92829d690469e456157f6f47a8e94"><div class="ttname"><a href="group__common.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a></div><div class="ttdeci">#define HERMES_LOG(FMT,...)</div><div class="ttdoc">Logs into info log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:109</div></div>
 <div class="ttc" id="aclasshermes_1_1profiler_1_1Profiler_html_a28aafeb267dc3e9a10a164d2a096fa67"><div class="ttname"><a href="classhermes_1_1profiler_1_1Profiler.html#a28aafeb267dc3e9a10a164d2a096fa67">hermes::profiler::Profiler::startBlock</a></div><div class="ttdeci">static void startBlock(Block &amp;block)</div><div class="ttdoc">Starts a new block by taking this call time point.</div><div class="ttdef"><b>Definition:</b> profiler.cpp:52</div></div>

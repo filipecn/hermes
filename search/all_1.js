@@ -12,5 +12,6 @@ var searchData=
   ['blocklist_20',['blockList',['../classhermes_1_1profiler_1_1Profiler.html#a0b12b77457850f55febfc5cbd120b608',1,'hermes::profiler::Profiler']]],
   ['blockthreadcount_21',['blockThreadCount',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#a20349cc2d61d655c7c3c04cb9f036831',1,'hermes::cuda_utils::LaunchInfo']]],
   ['byte_22',['byte',['../group__common.html#ga3eca60932ee4119828944ccd69a6272b',1,'defs.h']]],
-  ['bytetobinary_23',['byteToBinary',['../classhermes_1_1Str.html#aee350ad1575c35294a060e707b76d57b',1,'hermes::Str']]]
+  ['bytetobinary_23',['byteToBinary',['../classhermes_1_1Str.html#aee350ad1575c35294a060e707b76d57b',1,'hermes::Str']]],
+  ['building_20hermes_24',['Building Hermes',['../md_docs_1_build_and_install.html',1,'']]]
 ];

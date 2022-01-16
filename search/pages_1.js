@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['example_20page_529',['Example Page',['../page1.html',1,'common']]]
+  ['code_20profiling_547',['Code Profiling',['../md_docs_profiling.html',1,'']]]
 ];
