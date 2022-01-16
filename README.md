@@ -2,9 +2,10 @@
 ![ubuntu/gcc](https://github.com/filipecn/hermes/actions/workflows/gcc_compiler.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/filipecn/hermes/badge.svg?branch=main)](https://coveralls.io/github/filipecn/hermes?branch=main)
 [![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-----
+
 Hermes is a multi-purpose `C++`/(optionally `CUDA`) library with lots of data structures and algorithms. 
 The purpose is to serve as a starting point to your project by providing some common and auxiliary tools.
+
 
 Here is the list of some things you can get from hermes:
 
@@ -18,7 +19,7 @@ Here is the list of some things you can get from hermes:
 You can find Hermes in [github](https://github.com/filipecn/hermes).
 
 ## Usage
-Please check the [docs]() for a better introduction and detailed examples :)
+Please check the [docs](docs/memory.md) for a better introduction and detailed examples :)
 
 ```c++
 // TODO

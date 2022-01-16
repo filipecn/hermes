@@ -198,6 +198,7 @@ static inline std::string hermes_log_variables(Args &&... args) {
 /// \code{cpp}
 ///     HERMES_C_LOG("my log with %d as value", 3) // produces "my log with 3 as value"
 ///     HERMES_C_LOG("simple log")
+/// \endcode
 /// \param FMT string format following printf format
 /// \param ... format values
 #define HERMES_C_LOG(FMT, ...)                                                                                      \
@@ -210,6 +211,7 @@ fprintf(stdout, "\n")
 /// \code{cpp}
 ///     HERMES_C_LOG_ERROR("my log with %d as value", 3) // produces "my log with 3 as value"
 ///     HERMES_C_LOG_ERROR("simple log")
+/// \endcode
 /// \param FMT string format following printf format
 /// \param ... format values
 #define HERMES_C_LOG_ERROR(FMT, ...)                                                                                    \
@@ -222,6 +224,7 @@ fprintf(stderr, "\n")
 /// \code{cpp}
 ///     HERMES_C_LOG("my log with %d as value", 3) // produces "my log with 3 as value"
 ///     HERMES_C_LOG("simple log")
+/// \endcode
 /// \param FMT string format following printf format
 /// \param ... format values
 #define HERMES_C_DEVICE_LOG(FMT, ...)                                                                               \
@@ -234,6 +237,7 @@ printf("\n")
 /// \code{cpp}
 ///     HERMES_C_LOG("my log with %d as value", 3) // produces "my log with 3 as value"
 ///     HERMES_C_LOG("simple log")
+/// \endcode
 /// \param FMT string format following printf format
 /// \param ... format values
 #define HERMES_C_DEVICE_ERROR(FMT, ...)                                                                             \
