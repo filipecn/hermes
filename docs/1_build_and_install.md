@@ -55,7 +55,7 @@ options you can use when configuring `cmake` for `hermes`:
 
 | option | description | default  |
 |--------------|--------|-----|
-| BUILD_WITH_CUDA  | build `hermes` compiles with support to CUDA | OFF |
+| BUILD_WITH_CUDA  | build `hermes` with support to CUDA | OFF |
 | BUILD_TESTS  | build unit-tests | OFF |
 | BUILD_EXAMPLES  | build examples | OFF |
 | BUILD_DOCS  | generates documentation | OFF |
@@ -119,8 +119,6 @@ make install
 Hopefully you will not encounter any errors! Now you are free include and link `hermes` to
 your project :)
 
-Check the [next](0_getting_started.md) page to see how use `hermes`.
-
 ## Summary
 So putting all together, we get something like this:
 ```shell
@@ -131,6 +129,9 @@ cd build
 cmake .. -DBUILD_ALL=ON -DINSTALL_PATH=/my/install/location
 make -j8 install
 ```
+---
+
+Check the [next](2_linking.md) page to see how use `hermes` in your project.
 
 ## Troubleshooting
 
