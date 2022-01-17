@@ -23,30 +23,30 @@ for the JavaScript code in this file
 var NAVTREE =
 [
   [ "Hermes", "index.html", [
-    [ "Usage", "index.html#autotoc_md1", null ],
-    [ "Build", "index.html#autotoc_md2", null ],
-    [ "Dependencies", "index.html#autotoc_md3", null ],
-    [ "TODO", "index.html#autotoc_md4", null ],
-    [ "Notes", "index.html#autotoc_md5", null ],
-    [ "Contact", "index.html#autotoc_md6", null ],
+    [ "Usage", "index.html#autotoc_md2", null ],
+    [ "Build", "index.html#autotoc_md3", null ],
+    [ "Dependencies", "index.html#autotoc_md4", null ],
+    [ "TODO", "index.html#autotoc_md5", null ],
+    [ "Notes", "index.html#autotoc_md6", null ],
+    [ "Contact", "index.html#autotoc_md7", null ],
     [ "Getting Started", "md_docs_0_getting_started.html", [
-      [ "File Structure", "md_docs_0_getting_started.html#autotoc_md8", null ]
+      [ "File Structure", "md_docs_0_getting_started.html#autotoc_md9", null ]
     ] ],
     [ "Building Hermes", "md_docs_1_build_and_install.html", [
-      [ "cmake", "md_docs_1_build_and_install.html#autotoc_md10", null ],
-      [ "Build Options", "md_docs_1_build_and_install.html#autotoc_md11", null ],
-      [ "Dependencies", "md_docs_1_build_and_install.html#autotoc_md12", [
-        [ "CUDA", "md_docs_1_build_and_install.html#autotoc_md13", null ]
+      [ "cmake", "md_docs_1_build_and_install.html#autotoc_md11", null ],
+      [ "Build Options", "md_docs_1_build_and_install.html#autotoc_md12", null ],
+      [ "Dependencies", "md_docs_1_build_and_install.html#autotoc_md13", [
+        [ "CUDA", "md_docs_1_build_and_install.html#autotoc_md14", null ]
       ] ],
-      [ "Install", "md_docs_1_build_and_install.html#autotoc_md14", null ],
-      [ "Build", "md_docs_1_build_and_install.html#autotoc_md15", null ],
-      [ "Summary", "md_docs_1_build_and_install.html#autotoc_md16", null ],
-      [ "Troubleshooting", "md_docs_1_build_and_install.html#autotoc_md17", null ]
+      [ "Install", "md_docs_1_build_and_install.html#autotoc_md15", null ],
+      [ "Build", "md_docs_1_build_and_install.html#autotoc_md16", null ],
+      [ "Summary", "md_docs_1_build_and_install.html#autotoc_md17", null ],
+      [ "Troubleshooting", "md_docs_1_build_and_install.html#autotoc_md19", null ]
     ] ],
     [ "Linking Hermes", "md_docs_2_linking.html", [
-      [ "cmake", "md_docs_2_linking.html#autotoc_md19", null ],
-      [ "CUDA", "md_docs_2_linking.html#autotoc_md20", null ],
-      [ "Troubleshooting", "md_docs_2_linking.html#autotoc_md22", null ]
+      [ "cmake", "md_docs_2_linking.html#autotoc_md21", null ],
+      [ "CUDA", "md_docs_2_linking.html#autotoc_md22", null ],
+      [ "Troubleshooting", "md_docs_2_linking.html#autotoc_md24", null ]
     ] ],
     [ "Logging", "md_docs_logging.html", null ],
     [ "Memory", "md_docs_memory.html", null ],

@@ -111,6 +111,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><object type="image/svg+xml" data="https://github.com/filipecn/hermes/actions/workflows/gcc_compiler.yml/badge.svg" style="pointer-events: none;">ubuntu/gcc</object> <a href="https://coveralls.io/github/filipecn/hermes?branch=main"><object type="image/svg+xml" data="https://coveralls.io/repos/github/filipecn/hermes/badge.svg?branch=main" style="pointer-events: none;">Coverage Status</object></a> <a href="https://opensource.org/licenses/MIT"><object type="image/svg+xml" data="https://img.shields.io/badge/License-MIT-yellow.svg" style="pointer-events: none;">License:MIT</object></a></p>
+<hr  />
 <p>Hermes is a multi-purpose <code>C++</code>/(optionally <code>CUDA</code>) library with lots of data structures and algorithms. The purpose is to serve as a starting point to your project by providing some common and auxiliary tools.</p>
 <p>Here is the list of some things you can get from hermes:</p>
 <table class="markdownTable">
@@ -126,12 +127,12 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <td class="markdownTableBodyNone"><b>common</b> </td><td class="markdownTableBodyNone">code profiling, logging, string operations, filesystem, arg parser  </td></tr>
 </table>
 <p>You can find Hermes in <a href="https://github.com/filipecn/hermes">github</a>.</p>
-<h1><a class="anchor" id="autotoc_md1"></a>
+<h1><a class="anchor" id="autotoc_md2"></a>
 Usage</h1>
 <p>Please check the <a class="el" href="md_docs_memory.html">docs</a> for a better introduction and detailed examples :)</p>
 <div class="fragment"><div class="line"> {c++}</div>
 <div class="line">// TODO</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md2"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md3"></a>
 Build</h1>
 <p>In order to build and use Hermes (with no options), you can do as usual with <code>cmake</code>: </p><div class="fragment"><div class="line">git clone https://github.com/filipecn/hermes.git</div>
 <div class="line">cd hermes</div>
@@ -155,25 +156,25 @@ Build</h1>
 <td class="markdownTableBodyNone">BUILD_DOCS </td><td class="markdownTableBodyNone">generates documentation </td><td class="markdownTableBodyNone">OFF  </td></tr>
 </table>
 <p>Suppose you would like to use <code>CUDA</code> and also perform the unit tests, your <code>cmake</code> command then will look like this: </p><div class="fragment"><div class="line">cmake .. -DBUILD_WITH_CUDA=ON -DBUILD_TESTS=ON</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md3"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md4"></a>
 Dependencies</h1>
 <p>Hermes is dependency-free library, so there is no need to install/compile anything else, besides <b>optionally</b> <code>CUDA</code>.</p><ul>
 <li><a href="https://github.com/catchorg/Catch2">catch2</a> - is used for the unit-tests, but their header is already included in the source :)</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md4"></a>
+<h1><a class="anchor" id="autotoc_md5"></a>
 TODO</h1>
 <ul>
 <li>Find nvcc automatically (CMAKE_CUDA_COMPILER)</li>
 <li>online documentation</li>
 <li><strike>README</strike> :)</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md5"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
 Notes</h1>
 <ul>
 <li>This library is my personal lib that I use in my projects, at my own risk :) Please keep it in mind.</li>
 <li>I've been developing Hermes under Ubuntu 20.04, I have no idea how it behaves on other systems (or distributions).</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md6"></a>
+<h1><a class="anchor" id="autotoc_md7"></a>
 Contact</h1>
 <p>Please feel free to contact me :)</p>
 <p><a href="#" onclick="location.href='mai'+'lto:'+'fil'+'ip'+'ede'+'cn'+'@gm'+'ai'+'l.c'+'om'; return false;">e-mail</a> </p>
