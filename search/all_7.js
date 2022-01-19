@@ -9,7 +9,7 @@ var searchData=
   ['hermes_5fc_5fdevice_5flog_88',['HERMES_C_DEVICE_LOG',['../group__common.html#ga7df7b88d9404767403b6de3e0b72daa2',1,'debug.h']]],
   ['hermes_5fc_5flog_89',['HERMES_C_LOG',['../group__common.html#ga70f946b0b765e24239e1013485243ed1',1,'debug.h']]],
   ['hermes_5fc_5flog_5ferror_90',['HERMES_C_LOG_ERROR',['../group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a',1,'debug.h']]],
-  ['hermes_5fcheck_5fcuda_91',['HERMES_CHECK_CUDA',['../group__common.html#gaa631c407e6b628e29363133ac90717c1',1,'cuda_utils.h']]],
+  ['hermes_5fcheck_5fcuda_5fcall_91',['HERMES_CHECK_CUDA_CALL',['../group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4',1,'cuda_utils.h']]],
   ['hermes_5fcheck_5fexp_92',['HERMES_CHECK_EXP',['../group__common.html#gad8dedfb6f395b28f362e39fe7959315a',1,'debug.h']]],
   ['hermes_5fcheck_5fexp_5fwith_5flog_93',['HERMES_CHECK_EXP_WITH_LOG',['../group__common.html#gac484cff6909402c505a1248907a879be',1,'debug.h']]],
   ['hermes_5fcheck_5flast_5fcuda_5fcall_94',['HERMES_CHECK_LAST_CUDA_CALL',['../group__common.html#ga6d0b9a59602d23ef75413ac258c1273e',1,'cuda_utils.h']]],
@@ -59,6 +59,5 @@ var searchData=
   ['hermes_5freturn_5fvalue_5fif_5fnot_138',['HERMES_RETURN_VALUE_IF_NOT',['../group__common.html#ga9f58dbada1043321e435b215cd9cac66',1,'debug.h']]],
   ['hermes_5ftoken_5fconcatenate_139',['HERMES_TOKEN_CONCATENATE',['../group__common.html#ga468fb1b5ed4c5fecd63abbcd5e64a3d6',1,'profiler.h']]],
   ['hermes_5ftoken_5fjoin_140',['HERMES_TOKEN_JOIN',['../group__common.html#gaefec4c7b5c75f0942e79a87ebab49d96',1,'profiler.h']]],
-  ['hermes_5funused_5fvariable_141',['HERMES_UNUSED_VARIABLE',['../group__common.html#ga32b1bf5b4527416af48e655cfc859378',1,'debug.h']]],
-  ['hermes_142',['Hermes',['../index.html',1,'']]]
+  ['hermes_5funused_5fvariable_141',['HERMES_UNUSED_VARIABLE',['../group__common.html#ga32b1bf5b4527416af48e655cfc859378',1,'debug.h']]]
 ];

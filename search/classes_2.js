@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['datatypes_293',['DataTypes',['../classhermes_1_1DataTypes.html',1,'hermes']]]
+  ['datatypes_292',['DataTypes',['../classhermes_1_1DataTypes.html',1,'hermes']]]
 ];

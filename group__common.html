@@ -181,7 +181,7 @@ Macros</h2></td></tr>
 <tr class="memdesc:ga26a59cf13c926a37f186e74858aca1bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes execution time from a given CUDA call.  <a href="group__common.html#ga26a59cf13c926a37f186e74858aca1bb">More...</a><br /></td></tr>
 <tr class="separator:ga26a59cf13c926a37f186e74858aca1bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga676baf81a2a55b1840f697c91d5b25b2"><td class="memItemLeft" align="right" valign="top"><a id="ga676baf81a2a55b1840f697c91d5b25b2"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga676baf81a2a55b1840f697c91d5b25b2">HERMES_CUDA_DEVICE_SYNCHRONIZE</a>&#160;&#160;&#160;<a class="el" href="group__common.html#gaa631c407e6b628e29363133ac90717c1">HERMES_CHECK_CUDA</a>(cudaDeviceSynchronize())</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga676baf81a2a55b1840f697c91d5b25b2">HERMES_CUDA_DEVICE_SYNCHRONIZE</a>&#160;&#160;&#160;<a class="el" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaDeviceSynchronize());</td></tr>
 <tr class="memdesc:ga676baf81a2a55b1840f697c91d5b25b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls cudaDeviceSynchronize. <br /></td></tr>
 <tr class="separator:ga676baf81a2a55b1840f697c91d5b25b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga350ed576208adc680122424579b2254d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga350ed576208adc680122424579b2254d">HERMES_CUDA_LAUNCH</a>(LAUNCH_INFO,  NAME, ...)</td></tr>
@@ -191,7 +191,7 @@ Macros</h2></td></tr>
 <tr class="memdesc:ga160960b00f95a612a175ff2b070bf43a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Launches a CUDA kernel given its parameters and synchronizes with host.  <a href="group__common.html#ga160960b00f95a612a175ff2b070bf43a">More...</a><br /></td></tr>
 <tr class="separator:ga160960b00f95a612a175ff2b070bf43a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga609bcafb13ee429a59a0293a7865caf8"><td class="memItemLeft" align="right" valign="top"><a id="ga609bcafb13ee429a59a0293a7865caf8"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga609bcafb13ee429a59a0293a7865caf8">HERMES_CUDA_THREAD_INDEX_I</a>&#160;&#160;&#160;<a class="el" href="group__common.html#ga70c1fcc1a4e96af8f6580f708657cd41">u32</a> i = threadIdx.x + blockIdx.x * blockDim.x;</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga609bcafb13ee429a59a0293a7865caf8">HERMES_CUDA_THREAD_INDEX_I</a>&#160;&#160;&#160;<a class="el" href="group__common.html#ga70c1fcc1a4e96af8f6580f708657cd41">u32</a> i = threadIdx.x + blockIdx.x * blockDim.x</td></tr>
 <tr class="memdesc:ga609bcafb13ee429a59a0293a7865caf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a 1-dimensional index based on current cuda thread index. <br /></td></tr>
 <tr class="separator:ga609bcafb13ee429a59a0293a7865caf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4ef6fff657663b66f0d0f5e12ababcdb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga4ef6fff657663b66f0d0f5e12ababcdb">HERMES_CUDA_THREAD_INDEX_IJ</a></td></tr>
@@ -221,11 +221,11 @@ Macros</h2></td></tr>
 <tr class="memitem:ga4bf99862fa4007d991bf46f507b3264f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga4bf99862fa4007d991bf46f507b3264f">HERMES_CUDA_THREAD_INDEX_IJK_LT</a>(BOUNDS)&#160;&#160;&#160;<a class="el" href="group__common.html#ga23f00d772be8060e66dde091871e159c">HERMES_CUDA_THREAD_INDEX3_LT</a>(ijk, BOUNDS)</td></tr>
 <tr class="memdesc:ga4bf99862fa4007d991bf46f507b3264f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a 3-dimensional index variable ijk and tests it against bounds.  <a href="group__common.html#ga4bf99862fa4007d991bf46f507b3264f">More...</a><br /></td></tr>
 <tr class="separator:ga4bf99862fa4007d991bf46f507b3264f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa631c407e6b628e29363133ac90717c1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gaa631c407e6b628e29363133ac90717c1">HERMES_CHECK_CUDA</a>(err)</td></tr>
-<tr class="memdesc:gaa631c407e6b628e29363133ac90717c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks (and logs) a CUDA method return code for errors.  <a href="group__common.html#gaa631c407e6b628e29363133ac90717c1">More...</a><br /></td></tr>
-<tr class="separator:gaa631c407e6b628e29363133ac90717c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga75561c2137a0fd59581d3698d9ffa0c4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(err)</td></tr>
+<tr class="memdesc:ga75561c2137a0fd59581d3698d9ffa0c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks (and logs) a CUDA method return code for errors.  <a href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">More...</a><br /></td></tr>
+<tr class="separator:ga75561c2137a0fd59581d3698d9ffa0c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6d0b9a59602d23ef75413ac258c1273e"><td class="memItemLeft" align="right" valign="top"><a id="ga6d0b9a59602d23ef75413ac258c1273e"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga6d0b9a59602d23ef75413ac258c1273e">HERMES_CHECK_LAST_CUDA_CALL</a>&#160;&#160;&#160;<a class="el" href="group__common.html#gaa631c407e6b628e29363133ac90717c1">HERMES_CHECK_CUDA</a>(cudaGetLastError());</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga6d0b9a59602d23ef75413ac258c1273e">HERMES_CHECK_LAST_CUDA_CALL</a>&#160;&#160;&#160;<a class="el" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaGetLastError());</td></tr>
 <tr class="memdesc:ga6d0b9a59602d23ef75413ac258c1273e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks (and logs) the last CUDA call for errors. <br /></td></tr>
 <tr class="separator:ga6d0b9a59602d23ef75413ac258c1273e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae79415bf34734d92ff241c1cb1eef6a4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gae79415bf34734d92ff241c1cb1eef6a4">CUDA_MEMORY_USAGE</a></td></tr>
@@ -741,14 +741,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 
 </div>
 </div>
-<a id="gaa631c407e6b628e29363133ac90717c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa631c407e6b628e29363133ac90717c1">&#9670;&nbsp;</a></span>HERMES_CHECK_CUDA</h2>
+<a id="ga75561c2137a0fd59581d3698d9ffa0c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga75561c2137a0fd59581d3698d9ffa0c4">&#9670;&nbsp;</a></span>HERMES_CHECK_CUDA_CALL</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define HERMES_CHECK_CUDA</td>
+          <td class="memname">#define HERMES_CHECK_CUDA_CALL</td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">err</td><td>)</td>
@@ -962,7 +962,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <b>Value:</b><div class="fragment"><div class="line">{                                                                                                                   \</div>
 <div class="line">  auto _hli_ = <a class="code" href="structhermes_1_1cuda__utils_1_1LaunchInfo.html">hermes::cuda_utils::LaunchInfo</a> LAUNCH_INFO;                                                          \</div>
 <div class="line">  NAME&lt;&lt;&lt; _hli_.<a class="code" href="structhermes_1_1cuda__utils_1_1LaunchInfo.html#aaacc047ea81d695bcf248e206d030101">grid_size</a>, _hli_.block_size, _hli_.shared_memory_size, _hli_.stream_id &gt;&gt;&gt; (__VA_ARGS__);           \</div>
-<div class="line">  HERMES_CHECK_LAST_CUDA_CALL                                                                                            \</div>
+<div class="line">  HERMES_CHECK_LAST_CUDA_CALL                                                                                       \</div>
 <div class="line">  HERMES_CUDA_DEVICE_SYNCHRONIZE                                                                                    \</div>
 <div class="line">}</div>
 </div><!-- fragment -->
@@ -991,7 +991,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 </div><div class="memdoc">
 
 <p><code>#include &lt;<a class="el" href="cuda__utils_8h.html">hermes/common/cuda_utils.h</a>&gt;</code></p>
-<b>Value:</b><div class="fragment"><div class="line">{ HERMES_CUDA_THREAD_INDEX_IJK                                                                                     \</div>
+<b>Value:</b><div class="fragment"><div class="line">{ HERMES_CUDA_THREAD_INDEX_IJK                                                                                      \</div>
 <div class="line">  if(ijk != <a class="code" href="structhermes_1_1Index3.html">hermes::index3</a>(0,0,0))                                                                                  \</div>
 <div class="line">    return;                                                                                                         \</div>
 <div class="line">}</div>
@@ -1029,7 +1029,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <p><code>#include &lt;<a class="el" href="cuda__utils_8h.html">hermes/common/cuda_utils.h</a>&gt;</code></p>
 <b>Value:</b><div class="fragment"><div class="line">  <a class="code" href="structhermes_1_1Index2.html">hermes::index2</a> IJ(threadIdx.x + blockIdx.x * blockDim.x,                                                          \</div>
 <div class="line">                    threadIdx.y + blockIdx.y * blockDim.y);                                                         \</div>
-<div class="line">  if(IJ &gt;= (BOUNDS)) <span class="keywordflow">return</span>;</div>
+<div class="line">  if(IJ &gt;= (BOUNDS)) <span class="keywordflow">return</span></div>
 </div><!-- fragment -->
 <p>Creates a 2-dimensional index and tests it against bounds. </p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -1072,7 +1072,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <b>Value:</b><div class="fragment"><div class="line">  <a class="code" href="structhermes_1_1Index3.html">hermes::index3</a> IJK(threadIdx.x + blockIdx.x * blockDim.x,                                                         \</div>
 <div class="line">                     threadIdx.y + blockIdx.y * blockDim.y,                                                         \</div>
 <div class="line">                     threadIdx.z + blockIdx.z * blockDim.z);                                                        \</div>
-<div class="line">  if(IJK &gt;= (BOUNDS)) <span class="keywordflow">return</span>;</div>
+<div class="line">  if(IJK &gt;= (BOUNDS)) <span class="keywordflow">return</span></div>
 </div><!-- fragment -->
 <p>Creates a 3-dimensional index and tests it against bounds. </p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -1127,7 +1127,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 
 <p><code>#include &lt;<a class="el" href="cuda__utils_8h.html">hermes/common/cuda_utils.h</a>&gt;</code></p>
 <b>Value:</b><div class="fragment"><div class="line">  <a class="code" href="structhermes_1_1Index2.html">hermes::index2</a> ij(threadIdx.x + blockIdx.x * blockDim.x,                                                          \</div>
-<div class="line">                    threadIdx.y + blockIdx.y * blockDim.y);</div>
+<div class="line">                    threadIdx.y + blockIdx.y * blockDim.y)</div>
 </div><!-- fragment -->
 <p>Creates a 2-dimensional index based on current cuda thread index. </p>
 
@@ -1238,7 +1238,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 
 <p><code>#include &lt;<a class="el" href="cuda__utils_8h.html">hermes/common/cuda_utils.h</a>&gt;</code></p>
 <b>Value:</b><div class="fragment"><div class="line">  <a class="code" href="group__common.html#ga70c1fcc1a4e96af8f6580f708657cd41">u32</a> I = threadIdx.x + blockIdx.x * blockDim.x;                                                                    \</div>
-<div class="line">  if(I &gt;= (BOUNDS)) <span class="keywordflow">return</span>;</div>
+<div class="line">  if(I &gt;= (BOUNDS)) <span class="keywordflow">return</span></div>
 </div><!-- fragment -->
 <p>Creates a 1-dimensional index and tests it against bounds. </p>
 <dl class="params"><dt>Parameters</dt><dd>

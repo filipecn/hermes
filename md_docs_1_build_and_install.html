@@ -111,15 +111,15 @@ $(document).ready(function(){initNavTree('md_docs_1_build_and_install.html','');
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md11">cmake</a></li>
-<li class="level1"><a href="#autotoc_md12">Build Options</a></li>
-<li class="level1"><a href="#autotoc_md13">Dependencies</a><ul><li class="level2"><a href="#autotoc_md14">CUDA</a></li>
+<ul><li class="level1"><a href="#autotoc_md5">cmake</a></li>
+<li class="level1"><a href="#autotoc_md6">Build Options</a></li>
+<li class="level1"><a href="#autotoc_md7">Dependencies</a><ul><li class="level2"><a href="#autotoc_md8">CUDA</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md15">Install</a></li>
-<li class="level1"><a href="#autotoc_md16">Build</a></li>
-<li class="level1"><a href="#autotoc_md17">Summary</a></li>
-<li class="level1"><a href="#autotoc_md19">Troubleshooting</a></li>
+<li class="level1"><a href="#autotoc_md9">Install</a></li>
+<li class="level1"><a href="#autotoc_md10">Build</a></li>
+<li class="level1"><a href="#autotoc_md11">Summary</a></li>
+<li class="level1"><a href="#autotoc_md13">Troubleshooting</a></li>
 </ul>
 </div>
 <div class="textblock"><p>Hermes is in <a href="https://github.com/filipecn/hermes">github</a>, so you can download directly in the website or you can just <code>clone</code> the repository like this:</p>
@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('md_docs_1_build_and_install.html','');
 <div class="fragment"><div class="line">ls </div>
 <div class="line">CMake CMakeLists.txt docs Doxyfile ext hermes LICENSE README.md tests</div>
 </div><!-- fragment --><p>Now you are all set to build hermes!</p>
-<h1><a class="anchor" id="autotoc_md11"></a>
+<h1><a class="anchor" id="autotoc_md5"></a>
 cmake</h1>
 <p>Since there are no raw makefiles or anything, the easy way to go is with <a href="https://cmake.org/">cmake</a>. <code>cmake</code> is a tool that generates all the makefiles for you in a very portable manner, so you can just call <code>make</code> later. Usually, people create a separate directory for all the generated files and binaries:</p>
 <div class="fragment"><div class="line">mkdir build</div>
@@ -140,7 +140,7 @@ cmake</h1>
 </blockquote>
 <p>then you can invoke <code>cmake</code> from the newly created folder: </p><div class="fragment"><div class="line">cmake ..</div>
 </div><!-- fragment --><p>This will tell <code>cmake</code> that the source code is in the parent folder (if you created <code>build</code> inside <code>hermes</code>) and <code>cmake</code> will generate all its files, include the makefiles, in the current (<code>build</code>) folder. Calling <code>cmake</code> with no configuration options (just the <code>..</code> argument) will configure <code>hermes</code> on its default setting: which is just the hermes library. But of course there are other things you may want to compile along with the core library.</p>
-<h1><a class="anchor" id="autotoc_md12"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
 Build Options</h1>
 <p>We set compilation options in the <code>cmake</code> command. For example, <code>hermes</code> provides unit tests, and <code>CUDA</code> support. You need to tell <code>cmake</code> if you want these extra features. An option can <em>turned</em> <code>ON</code> or <code>OFF</code>, depending on whether it is set or not - so options with value <code>ON</code> are options you want. Here is a list of all the options you can use when configuring <code>cmake</code> for <code>hermes</code>:</p>
 <table class="markdownTable">
@@ -159,28 +159,28 @@ Build Options</h1>
 </table>
 <p>You set an option by using the <code>-D</code> argument in the command line. Suppose you would like to use <code>CUDA</code> (BUILD_WITH_CUDA option) and also perform the unit tests (BUILD_TESTS options), your <code>cmake</code> command then will look like this:</p>
 <div class="fragment"><div class="line">cmake .. -DBUILD_WITH_CUDA=ON -DBUILD_TESTS=ON</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md13"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md7"></a>
 Dependencies</h1>
 <p>Hermes' core is dependency-free, the library is self-contained. The only (optionally) required external libraries are the <code>CUDA</code> runtime libs and <a href="https://github.com/catchorg/Catch2">catch2</a>, when building with options BUILD_WITH_CUDA and BUILD_TESTS, respectively.</p>
 <p>Since <code>hermes</code> source already include <code>catch2</code> headers, you don't need to take any actions about it.</p>
 <p><code>CUDA</code> is more complicated. You will need to have <code>CUDA</code> runtime libraries installed in your machine and let <code>cmake</code> know where <code>nvcc</code> (<code>CUDA</code> compiler) is located passing the <code>CMAKE_CUDA_COMPILER</code> variable. For example, in my machine <code>nvcc</code> is located at <code>/usr/local/cuda-11.0/bin/nvcc</code>, so my <code>cmake</code> command would look like this: </p><div class="fragment"><div class="line">cmake .. -DBUILD_WITH_CUDA=ON -DCMAKE_CUDA_COMPILER=/usr/local/cuda-11.0/bin/nvcc</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md14"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md8"></a>
 CUDA</h2>
 <p>Right now, my <code>cmake</code> file is very simple regarding <code>CUDA</code>, I just call the <code>enable_language(CUDA)</code> function inside it and include CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES (which is defined automatically by <code>cmake</code>).</p>
-<p>&gt;I'm currently using Ubuntu 20.04 with no special setting. Hopefully <code>cmake</code> will be able to </p><blockquote class="doxtable">
-<p>handle <code>CUDA</code> in your system as well :) </p>
+<blockquote class="doxtable">
+<p>I'm currently using Ubuntu 20.04 with no special setting. Hopefully <code>cmake</code> will be able to handle <code>CUDA</code> in your system as well :) </p>
 </blockquote>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md9"></a>
 Install</h1>
 <p>You can also install <code>hermes</code> headers and library wherever you want. By default, the installation folder is the <code>build</code> folder from where you ran the <code>cmake</code> command. In order to install in another location use the INSTALL_PATH variable when running the <code>cmake</code> command like this:</p>
 <div class="fragment"><div class="line">cmake .. -DINSTALL_PATH=/my/install/location</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md16"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
 Build</h1>
 <p>If the <code>cmake</code> command runs successfully, then you can proceed to compilation:</p>
 <div class="fragment"><div class="line">make -j8</div>
 </div><!-- fragment --><p>and install </p><div class="fragment"><div class="line">make install</div>
 </div><!-- fragment --><p>Hopefully you will not encounter any errors! Now you are free include and link <code>hermes</code> to your project :)</p>
-<h1><a class="anchor" id="autotoc_md17"></a>
+<h1><a class="anchor" id="autotoc_md11"></a>
 Summary</h1>
 <p>So putting all together, we get something like this: </p><div class="fragment"><div class="line">git clone https://github.com/filipecn/hermes.git</div>
 <div class="line">cd hermes</div>
@@ -190,7 +190,7 @@ Summary</h1>
 <div class="line">make -j8 install</div>
 </div><!-- fragment --><hr  />
 <p>Check the next page to see how use <code>hermes</code> in your project.</p>
-<h1><a class="anchor" id="autotoc_md19"></a>
+<h1><a class="anchor" id="autotoc_md13"></a>
 Troubleshooting</h1>
 <p><em>TODO</em> </p>
 </div></div><!-- contents -->

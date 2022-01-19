@@ -63,7 +63,7 @@ var group__common =
     [ "HERMES_C_DEVICE_LOG", "group__common.html#ga7df7b88d9404767403b6de3e0b72daa2", null ],
     [ "HERMES_C_LOG", "group__common.html#ga70f946b0b765e24239e1013485243ed1", null ],
     [ "HERMES_C_LOG_ERROR", "group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a", null ],
-    [ "HERMES_CHECK_CUDA", "group__common.html#gaa631c407e6b628e29363133ac90717c1", null ],
+    [ "HERMES_CHECK_CUDA_CALL", "group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4", null ],
     [ "HERMES_CHECK_EXP", "group__common.html#gad8dedfb6f395b28f362e39fe7959315a", null ],
     [ "HERMES_CHECK_EXP_WITH_LOG", "group__common.html#gac484cff6909402c505a1248907a879be", null ],
     [ "HERMES_CHECK_LAST_CUDA_CALL", "group__common.html#ga6d0b9a59602d23ef75413ac258c1273e", null ],

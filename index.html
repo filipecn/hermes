@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="Doxygen Awesome" />
 <meta name="twitter:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
 <!-- END twitter metadata -->
-<title>Hermes: Hermes</title>
+<title>Hermes: Getting Started</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -107,77 +107,54 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">Hermes </div>  </div>
+<div class="title">Getting Started </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><object type="image/svg+xml" data="https://github.com/filipecn/hermes/actions/workflows/gcc_compiler.yml/badge.svg" style="pointer-events: none;">ubuntu/gcc</object> <a href="https://coveralls.io/github/filipecn/hermes?branch=main"><object type="image/svg+xml" data="https://coveralls.io/repos/github/filipecn/hermes/badge.svg?branch=main" style="pointer-events: none;">Coverage Status</object></a> <a href="https://opensource.org/licenses/MIT"><object type="image/svg+xml" data="https://img.shields.io/badge/License-MIT-yellow.svg" style="pointer-events: none;">License:MIT</object></a></p>
-<hr  />
-<p>Hermes is a multi-purpose <code>C++</code>/(optionally <code>CUDA</code>) library with lots of data structures and algorithms. The purpose is to serve as a starting point to your project by providing some common and auxiliary tools.</p>
-<p>Here is the list of some things you can get from hermes:</p>
+<div class="toc"><h3>Table of Contents</h3>
+<ul><li class="level1"><a href="#autotoc_md1">Features</a></li>
+<li class="level1"><a href="#autotoc_md2">Download</a></li>
+<li class="level1"><a href="#autotoc_md3">Contact</a></li>
+</ul>
+</div>
+<div class="textblock"><p><object type="image/svg+xml" data="https://github.com/filipecn/hermes/actions/workflows/gcc_compiler.yml/badge.svg" style="pointer-events: none;">ubuntu/gcc</object> <a href="https://coveralls.io/github/filipecn/hermes?branch=main"><object type="image/svg+xml" data="https://coveralls.io/repos/github/filipecn/hermes/badge.svg?branch=main" style="pointer-events: none;">Coverage Status</object></a> <a href="https://opensource.org/licenses/MIT"><object type="image/svg+xml" data="https://img.shields.io/badge/License-MIT-yellow.svg" style="pointer-events: none;">License:MIT</object></a> <a href="https://github.com/filipecn/hermes"><img src="https://badgen.net/badge/icon/github?icon=github&amp;label" alt="GitHub" class="inline"/></a></p>
+<p>Welcome to Hermes! A multi-purpose library that may (hopefully) help you quickly set up a <code>C++</code>/<code>CUDA</code> project by providing you a bunch of auxiliary tools and structures.</p>
+<blockquote class="doxtable">
+<p>This library is my personal lib I use in my projects, at my own risk :) Please keep it in mind. But I really hope it can be useful to you too. </p>
+</blockquote>
+<h1><a class="anchor" id="autotoc_md1"></a>
+Features</h1>
+<p>Although most of <code>hermes</code> classes live in a single namespace, you will find the files organized in folders, such as: <code>geometry</code>, <code>data_structures</code>, <code>storage</code>, etc. You can find examples and documentation for each of these groups here:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone"></th><th class="markdownTableHeadNone">some features  </th></tr>
+<th class="markdownTableHeadNone">group </th><th class="markdownTableHeadNone">description  </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><b>geometry</b> </td><td class="markdownTableBodyNone">vector, point, matrix, transforms, intersection tests, line, plane  </td></tr>
+<td class="markdownTableBodyNone">common </td><td class="markdownTableBodyNone">auxiliary classes for debugging, time profiling, iterating, logging, strings, files, argument parsing, etc  </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><b>numeric</b> </td><td class="markdownTableBodyNone">math operations, interpolation, intervals  </td></tr>
+<td class="markdownTableBodyNone">geometry </td><td class="markdownTableBodyNone">geometry related objects, functions and utilities such as vector, point, matrix, transforms, intersection tests, line, plane, etc  </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><b>storage</b> </td><td class="markdownTableBodyNone">allocators, memory blocks, array of structs  </td></tr>
+<td class="markdownTableBodyNone">storage </td><td class="markdownTableBodyNone">memory classes: allocators, memory blocks, array of structs, etc  </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><b>common</b> </td><td class="markdownTableBodyNone">code profiling, logging, string operations, filesystem, arg parser  </td></tr>
+<td class="markdownTableBodyNone">numeric </td><td class="markdownTableBodyNone">math operations, interpolation, intervals  </td></tr>
 </table>
-<p>You can find Hermes in <a href="https://github.com/filipecn/hermes">github</a>.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
-Usage</h1>
-<p>Please check the <a class="el" href="md_docs_memory.html">docs</a> for a better introduction and detailed examples :)</p>
-<div class="fragment"><div class="line"> {c++}</div>
-<div class="line">// TODO</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md3"></a>
-Build</h1>
-<p>In order to build and use Hermes (with no options), you can do as usual with <code>cmake</code>: </p><div class="fragment"><div class="line">git clone https://github.com/filipecn/hermes.git</div>
+Download</h1>
+<p>You can find Hermes in <a href="https://github.com/filipecn/hermes">github</a>.</p>
+<blockquote class="doxtable">
+<p>Please check the build and link instructions to learn </p>
+</blockquote>
+<p>how to build and use <code>hermes</code> into your project.</p>
+<p>For the impatient, here is what you can do: </p><div class="fragment"><div class="line">git clone https://github.com/filipecn/hermes.git</div>
 <div class="line">cd hermes</div>
 <div class="line">mkdir build</div>
 <div class="line">cd build</div>
-<div class="line">cmake ..</div>
+<div class="line">cmake .. -DINSTALL_PATH=/my/install/location</div>
 <div class="line">make -j8 install</div>
-</div><!-- fragment --><p>Depending on what you want to compile, you may need to set some <code>cmake</code> options:</p>
-<table class="markdownTable">
-<tr class="markdownTableHead">
-<th class="markdownTableHeadNone">variable </th><th class="markdownTableHeadNone">description </th><th class="markdownTableHeadNone">default  </th></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">BUILD_ALL </td><td class="markdownTableBodyNone">set all variables below to ON </td><td class="markdownTableBodyNone">OFF  </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">BUILD_WITH_CUDA </td><td class="markdownTableBodyNone">compiles with support to CUDA </td><td class="markdownTableBodyNone">OFF  </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">BUILD_TESTS </td><td class="markdownTableBodyNone">build unit-tests </td><td class="markdownTableBodyNone">OFF  </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">BUILD_EXAMPLES </td><td class="markdownTableBodyNone">build examples </td><td class="markdownTableBodyNone">OFF  </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">BUILD_DOCS </td><td class="markdownTableBodyNone">generates documentation </td><td class="markdownTableBodyNone">OFF  </td></tr>
-</table>
-<p>Suppose you would like to use <code>CUDA</code> and also perform the unit tests, your <code>cmake</code> command then will look like this: </p><div class="fragment"><div class="line">cmake .. -DBUILD_WITH_CUDA=ON -DBUILD_TESTS=ON</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md4"></a>
-Dependencies</h1>
-<p>Hermes is dependency-free library, so there is no need to install/compile anything else, besides <b>optionally</b> <code>CUDA</code>.</p><ul>
-<li><a href="https://github.com/catchorg/Catch2">catch2</a> - is used for the unit-tests, but their header is already included in the source :)</li>
-</ul>
-<h1><a class="anchor" id="autotoc_md5"></a>
-TODO</h1>
-<ul>
-<li>Find nvcc automatically (CMAKE_CUDA_COMPILER)</li>
-<li>online documentation</li>
-<li><strike>README</strike> :)</li>
-</ul>
-<h1><a class="anchor" id="autotoc_md6"></a>
-Notes</h1>
-<ul>
-<li>This library is my personal lib that I use in my projects, at my own risk :) Please keep it in mind.</li>
-<li>I've been developing Hermes under Ubuntu 20.04, I have no idea how it behaves on other systems (or distributions).</li>
-</ul>
-<h1><a class="anchor" id="autotoc_md7"></a>
+</div><!-- fragment --><p>and to compile along with your code here is what to do: </p><div class="fragment"><div class="line">g++ -I/my/install/location/include                \</div>
+<div class="line">    -l/my/install/location/lib/libhermes.a         \</div>
+<div class="line">    main.cpp  </div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md3"></a>
 Contact</h1>
-<p>Please feel free to contact me :)</p>
-<p><a href="#" onclick="location.href='mai'+'lto:'+'fil'+'ip'+'ede'+'cn'+'@gm'+'ai'+'l.c'+'om'; return false;">e-mail</a> </p>
+<p>Please feel free to contact me by <a href="#" onclick="location.href='mai'+'lto:'+'fil'+'ip'+'ede'+'cn'+'@gm'+'ai'+'l.c'+'om'; return false;">e-mail</a> :) </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

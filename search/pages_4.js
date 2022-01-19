@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['linking_20hermes_550',['Linking Hermes',['../md_docs_2_linking.html',1,'']]],
-  ['logging_551',['Logging',['../md_docs_logging.html',1,'']]]
+  ['memory_550',['Memory',['../md_docs_4_storage.html',1,'']]]
 ];

@@ -6,7 +6,7 @@ var cuda__utils_8h =
     [ "GPU_BLOCK_SIZE_Y", "cuda__utils_8h.html#a9c739d635bb77b3390f44624d702eb50", null ],
     [ "GPU_BLOCK_SIZE_Z", "cuda__utils_8h.html#afb70a88f0f1d53c0cae95566b1562056", null ],
     [ "GPU_WARP_SIZE", "cuda__utils_8h.html#a71bb45f0a9f8e3144a7041e3ec78d178", null ],
-    [ "HERMES_CHECK_CUDA", "group__common.html#gaa631c407e6b628e29363133ac90717c1", null ],
+    [ "HERMES_CHECK_CUDA_CALL", "group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4", null ],
     [ "HERMES_CHECK_LAST_CUDA_CALL", "group__common.html#ga6d0b9a59602d23ef75413ac258c1273e", null ],
     [ "HERMES_CUDA_DEVICE_SYNCHRONIZE", "group__common.html#ga676baf81a2a55b1840f697c91d5b25b2", null ],
     [ "HERMES_CUDA_LAUNCH", "group__common.html#ga350ed576208adc680122424579b2254d", null ],

@@ -7,5 +7,5 @@ var searchData=
   ['gpu_5fblock_5fsize_5fz_78',['GPU_BLOCK_SIZE_Z',['../cuda__utils_8h.html#afb70a88f0f1d53c0cae95566b1562056',1,'cuda_utils.h']]],
   ['gpu_5fwarp_5fsize_79',['GPU_WARP_SIZE',['../cuda__utils_8h.html#a71bb45f0a9f8e3144a7041e3ec78d178',1,'cuda_utils.h']]],
   ['grid_5fsize_80',['grid_size',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#aaacc047ea81d695bcf248e206d030101',1,'hermes::cuda_utils::LaunchInfo']]],
-  ['getting_20started_81',['Getting Started',['../md_docs_0_getting_started.html',1,'']]]
+  ['getting_20started_81',['Getting Started',['../index.html',1,'']]]
 ];
