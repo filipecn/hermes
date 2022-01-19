@@ -422,9 +422,9 @@ host code.
 > When you build `hermes` without `CUDA` support, all macros listed in this section get empty or are simply not defined.
 
 Here is how you can declare a `CUDA` kernel:
-```c++
+```cpp
 // this macro creates a kernel called my_kernel_k
-HERMES_CUDA_KERNEL(my_kernel)(int int_argument) {
+HERMES_CUDA_KERNEL(my_kernel)(int argument) {
   // kernel code   
 }
 ```
@@ -432,7 +432,7 @@ HERMES_CUDA_KERNEL(my_kernel)(int int_argument) {
 
 Usually your kernel will use thread indices that can be 1-dimensional, 2-dimensional or 3-dimensional
 depending on you launch configurations. Here are some macros that create those indices for you:
-```c++
+```cpp
 // creates a u32 i containing the thread index
 HERMES_CUDA_THREAD_INDEX_I;
 // creates a hermes::index2 ij containing the thread index
@@ -450,11 +450,11 @@ HERMES_CUDA_THREAD_INDEX3_LT(IJK, BOUNDS);
 ```
 For debugging purposes, you may want to quickly make the first thread the only thread to execute,
 then you can use:
-```c++
+```cpp
 HERMES_CUDA_RETURN_IF_NOT_THREAD_0
 ```
 The most important thing you want to do is to check for errors, `hermes` lets you use:
-```c++
+```cpp
 // check CUDA function returns
 HERMES_CHECK_CUDA_CALL(err);
 // for functions that do not return error codes or for kernel launches
@@ -465,12 +465,12 @@ When launching kernels, `hermes::cuda_utils::LaunchInfo` holds launch informatio
 as number of threads, blocks, shared memory size and stream. It also 
 redistributes threads for you trying to optimize occupancy. The following macro
 can be used to launch kernels:
-```c++
+```cpp
 HERMES_CUDA_LAUNCH_AND_SYNC(LAUNCH_INFO, NAME, ...);
 ```
 In this case, LAUNCH_INFO is the constructor parameters, surrounded by `()`, of `hermes::cuda_utils::LaunchInfo`.
 Here is a complete example:
-```c++
+```cpp
 #include <vector>
 #include <hermes/common/cuda_utils.h>
 

@@ -10,6 +10,8 @@
 Hermes is a multi-purpose `C++`/(optionally `CUDA`) library with lots of data structures and algorithms. 
 The purpose is to serve as a starting point to your project by providing some common and auxiliary tools.
 
+> Please check the [docs](https://filipecn.github.io/hermes/) for a good introduction, details of the API and examples.
+
 > This library is my personal lib that I use in my projects, at my own risk :) Please keep it in mind.
 
 Here is the list of some things you can get from hermes:
@@ -23,7 +25,6 @@ Here is the list of some things you can get from hermes:
 
 ## Usage
 
-> Please check the [docs](https://filipecn.github.io/hermes/) for a good introduction, details of the API and examples.
 
 ```c++
 // TODO
@@ -31,7 +32,7 @@ Here is the list of some things you can get from hermes:
 
 ## Build
 
-> Please check the [docs](https://filipecn.github.io/hermes/) for details about the build process of `circe`.
+> Please check the [docs](https://filipecn.github.io/hermes/) for details about the build process of `hermes`.
 
 In order to build and use Hermes (with no options), you can do as usual with `cmake`:
 ```shell
