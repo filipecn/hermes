@@ -191,7 +191,7 @@ R reduce(const Array1<T> &data, ReducePredicate reduce_predicate) {
   Array1<R> d_c(block_size);
   __reduce<T, R, ReducePredicate>
   <<<block_size, 256>>>(data.constAccessor(), d_c.accessor(), hrp);
-  HERMES_CHECK_CUDA(cudaDeviceSynchronize());
+  HERMES_CHECK_CUDA_CALL(cudaDeviceSynchronize());
   auto h_c = d_c.hostData();
   R r = h_c[0];
   for (int i = 1; i < block_size; i++)
@@ -303,7 +303,7 @@ R reduce(const Array2<T> &data, ReducePredicate reduce_predicate) {
   Array1<R> d_c(block_size);
   __reduce<T, R, ReducePredicate>
   <<<block_size, 256>>>(data.constAccessor(), d_c.accessor(), hrp);
-  HERMES_CHECK_CUDA(cudaDeviceSynchronize());
+  HERMES_CHECK_CUDA_CALL(cudaDeviceSynchronize());
   auto h_c = d_c.hostData();
   R r = h_c[0];
   for (int i = 1; i < block_size; i++) {

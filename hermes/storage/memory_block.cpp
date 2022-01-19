@@ -85,7 +85,7 @@ MemoryBlock<MemoryLocation::HOST> &
 MemoryBlock<MemoryLocation::HOST>::operator=(const MemoryBlock<MemoryLocation::DEVICE> &other) {
 #ifdef HERMES_DEVICE_ENABLED
   resize(other.size_, other.pitch_);
-  HERMES_CHECK_CUDA(cudaMemcpy(data_, other.data_, other.sizeInBytes(), cudaMemcpyDeviceToHost));
+  HERMES_CHECK_CUDA_CALL(cudaMemcpy(data_, other.data_, other.sizeInBytes(), cudaMemcpyDeviceToHost));
   size_ = other.size_;
   pitch_ = other.pitch_;
 #endif
@@ -224,11 +224,11 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
   resize(other.size_);
   if (other.size_.height == 1 && other.size_.depth == 1) {
     // linear memory
-    HERMES_CHECK_CUDA(cudaMemcpy(data_, other.data_, size_.width, cudaMemcpyDeviceToDevice));
+    HERMES_CHECK_CUDA_CALL(cudaMemcpy(data_, other.data_, size_.width, cudaMemcpyDeviceToDevice));
   } else if (other.size_.depth == 1) {
     // 2d pitched memory
-    HERMES_CHECK_CUDA(cudaMemcpy2D(data_, pitch_, other.data_, other.pitch_, other.size_.width,
-                                   other.size_.height, cudaMemcpyDeviceToDevice));
+    HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(data_, pitch_, other.data_, other.pitch_, other.size_.width,
+                                        other.size_.height, cudaMemcpyDeviceToDevice));
   } else {
     // 3d pitched memory
     cudaMemcpy3DParms p = {};
@@ -244,7 +244,7 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
     p.extent.height = other.size_.height;
     p.extent.depth = other.size_.depth;
     p.kind = cudaMemcpyDeviceToDevice;
-    HERMES_CHECK_CUDA(cudaMemcpy3D(&p));
+    HERMES_CHECK_CUDA_CALL(cudaMemcpy3D(&p));
   }
 #endif
   return *this;
@@ -256,11 +256,11 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
   resize(other.size_);
   if (other.size_.height == 1 && other.size_.depth == 1) {
     // linear region
-    HERMES_CHECK_CUDA(cudaMemcpy(data_, other.data_, size_.width, cudaMemcpyHostToDevice));
+    HERMES_CHECK_CUDA_CALL(cudaMemcpy(data_, other.data_, size_.width, cudaMemcpyHostToDevice));
   } else if (other.size_.depth == 1) {
     // 2d pitched memory
-    HERMES_CHECK_CUDA(cudaMemcpy2D(data_, pitch_, other.data_, other.pitch_, other.size_.width,
-                                   other.size_.height, cudaMemcpyHostToDevice));
+    HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(data_, pitch_, other.data_, other.pitch_, other.size_.width,
+                                        other.size_.height, cudaMemcpyHostToDevice));
   } else {
     // 3d pitched memory
     cudaMemcpy3DParms p = {};
@@ -276,7 +276,7 @@ MemoryBlock<MemoryLocation::DEVICE>::operator=(const MemoryBlock<MemoryLocation:
     p.extent.height = other.size_.height;
     p.extent.depth = other.size_.depth;
     p.kind = cudaMemcpyHostToDevice;
-    HERMES_CHECK_CUDA(cudaMemcpy3D(&p));
+    HERMES_CHECK_CUDA_CALL(cudaMemcpy3D(&p));
   }
 #endif
   return *this;
@@ -298,7 +298,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size_t new_size_in_bytes) {
   clear();
   size_ = {static_cast<u32>(new_size_in_bytes), 1, 1};
   pitch_ = new_size_in_bytes;
-  HERMES_CHECK_CUDA(cudaMalloc(&data_, size_.total()));
+  HERMES_CHECK_CUDA_CALL(cudaMalloc(&data_, size_.total()));
 #endif
 }
 
@@ -313,7 +313,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size2 new_size, size_t new_pitc
   }
   clear();
   size_ = {new_size.width, new_size.height, 1};
-  HERMES_CHECK_CUDA(cudaMallocPitch(&data_, &pitch_, size_.width, size_.height));
+  HERMES_CHECK_CUDA_CALL(cudaMallocPitch(&data_, &pitch_, size_.width, size_.height));
 #endif
 }
 
@@ -334,14 +334,14 @@ void MemoryBlock<MemoryLocation::DEVICE>::resize(size3 new_size, size_t new_pitc
   size_ = new_size;
   cudaPitchedPtr pdata{};
   cudaExtent extent = make_cudaExtent(size_.width, size_.height, size_.depth);
-  HERMES_CHECK_CUDA(cudaMalloc3D(&pdata, extent));
+  HERMES_CHECK_CUDA_CALL(cudaMalloc3D(&pdata, extent));
   pitch_ = pdata.pitch;
 #endif
 }
 
 void MemoryBlock<MemoryLocation::DEVICE>::clear() {
 #ifdef HERMES_DEVICE_ENABLED
-  HERMES_CHECK_CUDA(cudaFree(data_))
+  HERMES_CHECK_CUDA_CALL(cudaFree(data_))
 #endif
   size_ = {0, 0, 0};
   pitch_ = 0;
@@ -368,7 +368,7 @@ void MemoryBlock<MemoryLocation::DEVICE>::copy(const void *data,
 #ifdef HERMES_DEVICE_ENABLED
   if (size_.height == 1 && size_.depth == 1) {
     // linear region
-    HERMES_CHECK_CUDA(cudaMemcpy(data_ + offset, data, size_in_bytes, cudaMemcpyHostToDevice));
+    HERMES_CHECK_CUDA_CALL(cudaMemcpy(data_ + offset, data, size_in_bytes, cudaMemcpyHostToDevice));
   } else if (size_.depth == 1) {
     // 2d pitched memory
     HERMES_NOT_IMPLEMENTED
@@ -418,7 +418,7 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size_t new_size_in_bytes) {
   clear();
   size_ = {static_cast<u32>(new_size_in_bytes), 1, 1};
   pitch_ = new_size_in_bytes;
-  if (new_size_in_bytes) HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+  if (new_size_in_bytes) HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data_, this->sizeInBytes()))
 #endif
 }
 
@@ -431,7 +431,7 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size2 new_size, size_t new_pit
   size_ = {new_size.width, new_size.height, 1};
   if (pitch_ == 0)
     pitch_ = size_.width;
-  HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+  HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data_, this->sizeInBytes()))
 #endif
 }
 
@@ -444,13 +444,13 @@ void MemoryBlock<MemoryLocation::UNIFIED>::resize(size3 new_size, size_t new_pit
   size_ = new_size;
   if (pitch_ == 0)
     pitch_ = size_.width;
-  HERMES_CHECK_CUDA(cudaMallocManaged(&data_, this->sizeInBytes()))
+  HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data_, this->sizeInBytes()))
 #endif
 }
 
 void MemoryBlock<MemoryLocation::UNIFIED>::clear() {
 #ifdef HERMES_DEVICE_ENABLED
-  if (data_) HERMES_CHECK_CUDA(cudaFree(data_))
+  if (data_) HERMES_CHECK_CUDA_CALL(cudaFree(data_))
 #endif
   size_ = {0, 0, 0};
   data_ = nullptr;

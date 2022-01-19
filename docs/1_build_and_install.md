@@ -91,7 +91,7 @@ Right now, my `cmake` file is very simple regarding `CUDA`, I just call the `ena
 function inside it and include CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES (which is defined automatically
 by `cmake`).
 
->I'm currently using Ubuntu 20.04 with no special setting. Hopefully `cmake` will be able to 
+> I'm currently using Ubuntu 20.04 with no special setting. Hopefully `cmake` will be able to 
 > handle `CUDA` in your system as well :)
 
 ## Install

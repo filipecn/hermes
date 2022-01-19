@@ -68,13 +68,13 @@ public:
 
 #ifdef HERMES_DEVICE_ENABLED
 HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, size2 bounds) {
-  HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds)
+  HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds);
   u32 matrix_index = ij.j * bounds.width + ij.i;
   data[matrix_index] = matrix_index;
 }
 
 HERMES_CUDA_KERNEL(testArrayView)(ArrayView<int> array) {
-  HERMES_CUDA_THREAD_INDEX_IJ_LT(array.size.slice())
+  HERMES_CUDA_THREAD_INDEX_IJ_LT(array.size.slice());
   array[ij] = ij.j * array.size.width + ij.i;
 }
 

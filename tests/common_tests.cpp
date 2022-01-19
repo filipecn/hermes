@@ -582,17 +582,17 @@ TEST_CASE("optional") {
 
 #ifdef HERMES_DEVICE_ENABLED
 HERMES_CUDA_KERNEL(check_thread_index)(int bounds, int *result) {
-  HERMES_CUDA_THREAD_INDEX_I_LT(bounds)
+  HERMES_CUDA_THREAD_INDEX_I_LT(bounds);
   if (i >= bounds)
     *result = -1;
 }
 HERMES_CUDA_KERNEL(check_thread_index2)(size2 bounds, int *result) {
-  HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds)
+  HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds);
   if (ij >= bounds)
     *result = -1;
 }
 HERMES_CUDA_KERNEL(check_thread_index3)(size3 bounds, int *result) {
-  HERMES_CUDA_THREAD_INDEX_IJK_LT(bounds)
+  HERMES_CUDA_THREAD_INDEX_IJK_LT(bounds);
   if (ijk >= bounds)
     *result = -1;
 }

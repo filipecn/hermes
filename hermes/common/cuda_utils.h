@@ -253,7 +253,7 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
   cudaEventElapsedTime(&ELAPSED_TIME_IN_MS, cuda_event_start_t, cuda_event_stop_t); }
 
 /// \brief Calls cudaDeviceSynchronize
-#define HERMES_CUDA_DEVICE_SYNCHRONIZE HERMES_CHECK_CUDA(cudaDeviceSynchronize())
+#define HERMES_CUDA_DEVICE_SYNCHRONIZE HERMES_CHECK_CUDA_CALL(cudaDeviceSynchronize());
 
 /// \brief Launches a CUDA kernel given its parameters
 /// \param LAUNCH_INFO - launch parameters object
@@ -274,28 +274,28 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
 {                                                                                                                   \
   auto _hli_ = hermes::cuda_utils::LaunchInfo LAUNCH_INFO;                                                          \
   NAME<<< _hli_.grid_size, _hli_.block_size, _hli_.shared_memory_size, _hli_.stream_id >>> (__VA_ARGS__);           \
-  HERMES_CHECK_LAST_CUDA_CALL                                                                                            \
+  HERMES_CHECK_LAST_CUDA_CALL                                                                                       \
   HERMES_CUDA_DEVICE_SYNCHRONIZE                                                                                    \
 }
 
 /// \brief Creates a 1-dimensional index based on current cuda thread index
 #define HERMES_CUDA_THREAD_INDEX_I                                                                                  \
-  u32 i = threadIdx.x + blockIdx.x * blockDim.x;
+  u32 i = threadIdx.x + blockIdx.x * blockDim.x
 
 /// \brief Creates a 2-dimensional index based on current cuda thread index
-#define HERMES_CUDA_THREAD_INDEX_IJ                                                                                \
+#define HERMES_CUDA_THREAD_INDEX_IJ                                                                                 \
   hermes::index2 ij(threadIdx.x + blockIdx.x * blockDim.x,                                                          \
-                    threadIdx.y + blockIdx.y * blockDim.y);
+                    threadIdx.y + blockIdx.y * blockDim.y)
 
 /// \brief Creates a 3-dimensional index based on current cuda thread index
-#define HERMES_CUDA_THREAD_INDEX_IJK                                                                               \
+#define HERMES_CUDA_THREAD_INDEX_IJK                                                                                \
   hermes::index3 ijk(threadIdx.x + blockIdx.x * blockDim.x,                                                         \
                      threadIdx.y + blockIdx.y * blockDim.y,                                                         \
                      threadIdx.z + blockIdx.z * blockDim.z);
 
 /// \brief Ensures just thread of index 0 is run
 #define HERMES_CUDA_RETURN_IF_NOT_THREAD_0                                                                          \
-{ HERMES_CUDA_THREAD_INDEX_IJK                                                                                     \
+{ HERMES_CUDA_THREAD_INDEX_IJK                                                                                      \
   if(ijk != hermes::index3(0,0,0))                                                                                  \
     return;                                                                                                         \
 }
@@ -305,7 +305,7 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
 /// \param BOUNDS - 1-dimensional bound (u32)
 #define HERMES_CUDA_THREAD_INDEX_LT(I, BOUNDS)                                                                      \
   u32 I = threadIdx.x + blockIdx.x * blockDim.x;                                                                    \
-  if(I >= (BOUNDS)) return;
+  if(I >= (BOUNDS)) return
 
 /// \brief Creates a 2-dimensional index and tests it against bounds
 /// \param IJ - index variable (hermes::index2) name
@@ -313,7 +313,7 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
 #define HERMES_CUDA_THREAD_INDEX2_LT(IJ, BOUNDS)                                                                    \
   hermes::index2 IJ(threadIdx.x + blockIdx.x * blockDim.x,                                                          \
                     threadIdx.y + blockIdx.y * blockDim.y);                                                         \
-  if(IJ >= (BOUNDS)) return;
+  if(IJ >= (BOUNDS)) return
 
 /// \brief Creates a 3-dimensional index and tests it against bounds
 /// \param IJK - index variable (hermes::index3) name
@@ -322,7 +322,7 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
   hermes::index3 IJK(threadIdx.x + blockIdx.x * blockDim.x,                                                         \
                      threadIdx.y + blockIdx.y * blockDim.y,                                                         \
                      threadIdx.z + blockIdx.z * blockDim.z);                                                        \
-  if(IJK >= (BOUNDS)) return;
+  if(IJK >= (BOUNDS)) return
 
 /// \brief Creates a 1-dimensional index variable i and tests it against bounds
 /// \param BOUNDS - 1-dimensional bound (u32)
@@ -338,7 +338,7 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
 //                                                                                                              ERROR
 // *********************************************************************************************************************
 /// \brief Checks (and logs) a CUDA method return code for errors
-#define HERMES_CHECK_CUDA(err)                                                                                      \
+#define HERMES_CHECK_CUDA_CALL(err)                                                                                      \
   {                                                                                                                 \
       auto hermes_cuda_result = (err);                                                                              \
       if(hermes_cuda_result != cudaSuccess) {                                                                       \
@@ -348,7 +348,7 @@ inline std::ostream &operator<<(std::ostream &o, const LaunchInfo &info) {
         }                                                                                                           \
   }
 /// \brief Checks (and logs) the last CUDA call for errors
-#define HERMES_CHECK_LAST_CUDA_CALL HERMES_CHECK_CUDA(cudaGetLastError());
+#define HERMES_CHECK_LAST_CUDA_CALL HERMES_CHECK_CUDA_CALL(cudaGetLastError());
 
 /// \brief Outputs in stdout information about all devices in the current machine
 inline void hermes_print_cuda_devices() {
@@ -403,7 +403,7 @@ inline void hermes_print_cuda_devices() {
 inline void hermes_print_cuda_memory_usage() {
   size_t free_byte;
   size_t total_byte;
-  HERMES_CHECK_CUDA(cudaMemGetInfo(&free_byte, &total_byte));
+  HERMES_CHECK_CUDA_CALL(cudaMemGetInfo(&free_byte, &total_byte));
   auto free_db = (double) free_byte;
   auto total_db = (double) total_byte;
   double used_db = total_db - free_db;
@@ -420,7 +420,7 @@ inline void hermes_print_cuda_memory_usage() {
   }
 #else
 
-#define HERMES_CHECK_CUDA(err)
+#define HERMES_CHECK_CUDA_CALL(err)
 #define CUDA_MEMORY_USAGE
 
 #endif
