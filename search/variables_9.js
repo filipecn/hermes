@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['level_476',['level',['../classhermes_1_1profiler_1_1Profiler_1_1Block.html#a9b13785ab22e9384bb0c0c137da5c560',1,'hermes::profiler::Profiler::Block']]],
-  ['line_477',['line',['../structhermes_1_1profiler_1_1Profiler_1_1BlockDescriptor.html#a3a298504aebaa3df49779677aa860c24',1,'hermes::profiler::Profiler::BlockDescriptor']]]
+  ['j_1180',['j',['../structhermes_1_1Index2.html#a17264577460f3a5d5d6e6248e6541dfc',1,'hermes::Index2::j()'],['../structhermes_1_1Index3.html#a69b0018cc0b3fb5268c36bcb1c622503',1,'hermes::Index3::j()']]]
 ];

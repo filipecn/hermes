@@ -185,6 +185,18 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a11018c35f26bb4c07e6131f7cc6f860e"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a11018c35f26bb4c07e6131f7cc6f860e"><td class="memTemplItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhermes_1_1Str.html#a11018c35f26bb4c07e6131f7cc6f860e">rjust</a> (const T &amp;value, size_t width, char fill_char=' ')</td></tr>
+<tr class="memdesc:a11018c35f26bb4c07e6131f7cc6f860e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Right justifies string value.  <a href="classhermes_1_1Str.html#a11018c35f26bb4c07e6131f7cc6f860e">More...</a><br /></td></tr>
+<tr class="separator:a11018c35f26bb4c07e6131f7cc6f860e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec3c111539c4f47dcca5d88858f5561c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aec3c111539c4f47dcca5d88858f5561c"><td class="memTemplItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhermes_1_1Str.html#aec3c111539c4f47dcca5d88858f5561c">ljust</a> (const T &amp;value, size_t width, char fill_char=' ')</td></tr>
+<tr class="memdesc:aec3c111539c4f47dcca5d88858f5561c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left justifies string value.  <a href="classhermes_1_1Str.html#aec3c111539c4f47dcca5d88858f5561c">More...</a><br /></td></tr>
+<tr class="separator:aec3c111539c4f47dcca5d88858f5561c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9df991210dee75a4f3ed35ecb43565da"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a9df991210dee75a4f3ed35ecb43565da"><td class="memTemplItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhermes_1_1Str.html#a9df991210dee75a4f3ed35ecb43565da">cjust</a> (const T &amp;value, size_t width, char fill_char=' ')</td></tr>
+<tr class="memdesc:a9df991210dee75a4f3ed35ecb43565da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Center justifies string value.  <a href="classhermes_1_1Str.html#a9df991210dee75a4f3ed35ecb43565da">More...</a><br /></td></tr>
+<tr class="separator:a9df991210dee75a4f3ed35ecb43565da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab232a63196f96feaab465dedd606e8bb"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
 <tr class="memitem:ab232a63196f96feaab465dedd606e8bb"><td class="memTemplItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classhermes_1_1Str.html#ab232a63196f96feaab465dedd606e8bb">format</a> (const std::string &amp;fmt, Ts &amp;&amp;... args)</td></tr>
 <tr class="separator:ab232a63196f96feaab465dedd606e8bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -635,6 +647,67 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="a9df991210dee75a4f3ed35ecb43565da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9df991210dee75a4f3ed35ecb43565da">&#9670;&nbsp;</a></span>cjust()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::string hermes::Str::cjust </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>fill_char</em> = <code>'&#160;'</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Center justifies string value. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>string-convertible type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td></td></tr>
+    <tr><td class="paramname">width</td><td>output size </td></tr>
+    <tr><td class="paramname">fill_char</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
 <a id="a00cf31f21cb8d1742daf105c8a0b689d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a00cf31f21cb8d1742daf105c8a0b689d">&#9670;&nbsp;</a></span>concat()</h2>
 
@@ -949,6 +1022,67 @@ template&lt;typename T &gt; </div>
   <table class="params">
     <tr><td class="paramname">v</td><td></td></tr>
     <tr><td class="paramname">separator</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="aec3c111539c4f47dcca5d88858f5561c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec3c111539c4f47dcca5d88858f5561c">&#9670;&nbsp;</a></span>ljust()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::string hermes::Str::ljust </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>fill_char</em> = <code>'&#160;'</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Left justifies string value. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>string-convertible type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td></td></tr>
+    <tr><td class="paramname">width</td><td>output size </td></tr>
+    <tr><td class="paramname">fill_char</td><td></td></tr>
   </table>
   </dd>
 </dl>
@@ -1456,6 +1590,67 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A copy of s with all replacements </dd></dl>
+
+</div>
+</div>
+<a id="a11018c35f26bb4c07e6131f7cc6f860e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11018c35f26bb4c07e6131f7cc6f860e">&#9670;&nbsp;</a></span>rjust()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::string hermes::Str::rjust </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>fill_char</em> = <code>'&#160;'</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Right justifies string value. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>string-convertible type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td></td></tr>
+    <tr><td class="paramname">width</td><td>output size </td></tr>
+    <tr><td class="paramname">fill_char</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>

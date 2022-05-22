@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['ls_5foptions_524',['ls_options',['../file__system_8h.html#af21338176f0d5e9369a9a4d09f917b4f',1,'hermes']]]
+  ['logging_5foptions_1268',['logging_options',['../logging_8h.html#a73551e37421cf342a5ff775fa200e95f',1,'hermes']]],
+  ['ls_5foptions_1269',['ls_options',['../file__system_8h.html#af21338176f0d5e9369a9a4d09f917b4f',1,'hermes']]]
 ];

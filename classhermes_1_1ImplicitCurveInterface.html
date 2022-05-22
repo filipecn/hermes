@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="Doxygen Awesome" />
 <meta name="twitter:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
 <!-- END twitter metadata -->
-<title>Hermes: Memory</title>
+<title>Hermes: hermes::ImplicitCurveInterface Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -87,7 +87,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
-$(document).ready(function(){initNavTree('md_docs_4_storage.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('classhermes_1_1ImplicitCurveInterface.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -105,18 +105,63 @@ $(document).ready(function(){initNavTree('md_docs_4_storage.html',''); initResiz
 </iframe>
 </div>
 
-<div class="PageDoc"><div class="header">
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="classhermes_1_1ImplicitCurveInterface-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">Memory </div>  </div>
+<div class="title">hermes::ImplicitCurveInterface Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"></div></div><!-- contents -->
-</div><!-- PageDoc -->
+<div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
+  <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Inheritance diagram for hermes::ImplicitCurveInterface:</div>
+<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
+</div>
+<div id="dynsection-0-content" class="dyncontent" style="display:none;">
+ <div class="center">
+  <img src="classhermes_1_1ImplicitCurveInterface.png" usemap="#hermes::ImplicitCurveInterface_map" alt=""/>
+  <map id="hermes::ImplicitCurveInterface_map" name="hermes::ImplicitCurveInterface_map">
+<area href="classhermes_1_1CurveInterface.html" alt="hermes::CurveInterface" shape="rect" coords="96,0,278,24"/>
+<area href="classhermes_1_1ImplicitCircle.html" alt="hermes::ImplicitCircle" shape="rect" coords="0,112,182,136"/>
+<area href="classhermes_1_1ImplicitPlane2D.html" alt="hermes::ImplicitPlane2D" shape="rect" coords="192,112,374,136"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:abeda99f87a82f10a863a842a4e6481ae"><td class="memItemLeft" align="right" valign="top"><a id="abeda99f87a82f10a863a842a4e6481ae"></a>
+virtual double&#160;</td><td class="memItemRight" valign="bottom"><b>signedDistance</b> (const <a class="el" href="classhermes_1_1Point2.html">point2</a> &amp;p) const =0</td></tr>
+<tr class="separator:abeda99f87a82f10a863a842a4e6481ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classhermes_1_1CurveInterface"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classhermes_1_1CurveInterface')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classhermes_1_1CurveInterface.html">hermes::CurveInterface</a></td></tr>
+<tr class="memitem:a295cfe1e79b6487b029ef40d26116192 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memItemLeft" align="right" valign="top"><a id="a295cfe1e79b6487b029ef40d26116192"></a>
+virtual <a class="el" href="classhermes_1_1Point2.html">point2</a>&#160;</td><td class="memItemRight" valign="bottom"><b>closestPoint</b> (const <a class="el" href="classhermes_1_1Point2.html">point2</a> &amp;p) const =0</td></tr>
+<tr class="separator:a295cfe1e79b6487b029ef40d26116192 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4685db4062c1274bc4efa791c181415c inherit pub_methods_classhermes_1_1CurveInterface"><td class="memItemLeft" align="right" valign="top"><a id="a4685db4062c1274bc4efa791c181415c"></a>
+virtual <a class="el" href="classhermes_1_1Normal2.html">normal2</a>&#160;</td><td class="memItemRight" valign="bottom"><b>closestNormal</b> (const <a class="el" href="classhermes_1_1Point2.html">point2</a> &amp;p) const =0</td></tr>
+<tr class="separator:a4685db4062c1274bc4efa791c181415c inherit pub_methods_classhermes_1_1CurveInterface"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade19f5d93becc216c0072c48256dc733 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memItemLeft" align="right" valign="top"><a id="ade19f5d93becc216c0072c48256dc733"></a>
+virtual <a class="el" href="classhermes_1_1BBox2.html">bbox2</a>&#160;</td><td class="memItemRight" valign="bottom"><b>boundingBox</b> () const =0</td></tr>
+<tr class="separator:ade19f5d93becc216c0072c48256dc733 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a2f4a8bcac36833c1dca0bc8ebafcb8 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memItemLeft" align="right" valign="top"><a id="a9a2f4a8bcac36833c1dca0bc8ebafcb8"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>closestIntersection</b> (const <a class="el" href="classhermes_1_1Ray2.html">Ray2</a> &amp;r, <a class="el" href="structhermes_1_1CurveRayIntersection.html">CurveRayIntersection</a> *i) const =0</td></tr>
+<tr class="separator:a9a2f4a8bcac36833c1dca0bc8ebafcb8 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a917f67de0daf68e1db90e160527221e8 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memItemLeft" align="right" valign="top"><a id="a917f67de0daf68e1db90e160527221e8"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>intersects</b> (const <a class="el" href="classhermes_1_1Ray2.html">Ray2</a> &amp;r) const</td></tr>
+<tr class="separator:a917f67de0daf68e1db90e160527221e8 inherit pub_methods_classhermes_1_1CurveInterface"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a298dfde4c79b921cfc2db2bc267359ca inherit pub_methods_classhermes_1_1CurveInterface"><td class="memItemLeft" align="right" valign="top"><a id="a298dfde4c79b921cfc2db2bc267359ca"></a>
+virtual <a class="el" href="group__common.html#ga4275fb3748fb56e4b4130fc244e7a6ed">real_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>closestDistance</b> (const <a class="el" href="classhermes_1_1Point2.html">point2</a> &amp;p) const</td></tr>
+<tr class="separator:a298dfde4c79b921cfc2db2bc267359ca inherit pub_methods_classhermes_1_1CurveInterface"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>hermes/geometry/<a class="el" href="surface_8h_source.html">surface.h</a></li>
+</ul>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- HTML footer for doxygen 1.9.1-->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><b>hermes</b></li><li class="navelem"><a class="el" href="classhermes_1_1ImplicitCurveInterface.html">ImplicitCurveInterface</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.17 </li>
   </ul>
 </div>

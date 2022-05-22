@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['i_472',['i',['../structhermes_1_1Index2.html#a0e560675c9a4e489b21b55abdfeae1d6',1,'hermes::Index2::i()'],['../structhermes_1_1Index3.html#ae20b9314416b2d569a5f89816810f75f',1,'hermes::Index3::i()']]],
-  ['id_473',['id',['../structhermes_1_1profiler_1_1Profiler_1_1BlockDescriptor.html#a1407492545f66c9f571e0a3d24f7c30f',1,'hermes::profiler::Profiler::BlockDescriptor']]]
+  ['green_1169',['green',['../classhermes_1_1ConsoleColors.html#a46d96feab41c46a4a839ddeba1705d73',1,'hermes::ConsoleColors']]],
+  ['grid_5fsize_1170',['grid_size',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#aaacc047ea81d695bcf248e206d030101',1,'hermes::cuda_utils::LaunchInfo']]]
 ];

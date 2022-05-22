@@ -28,38 +28,58 @@ var NAVTREE =
       [ "Download", "index.html#autotoc_md2", null ],
       [ "Contact", "index.html#autotoc_md3", null ]
     ] ],
+    [ "Memory", "md_docs_10_storage.html", null ],
     [ "Building Hermes", "md_docs_1_build_and_install.html", [
-      [ "cmake", "md_docs_1_build_and_install.html#autotoc_md5", null ],
-      [ "Build Options", "md_docs_1_build_and_install.html#autotoc_md6", null ],
-      [ "Dependencies", "md_docs_1_build_and_install.html#autotoc_md7", [
-        [ "CUDA", "md_docs_1_build_and_install.html#autotoc_md8", null ]
+      [ "cmake", "md_docs_1_build_and_install.html#autotoc_md6", null ],
+      [ "Build Options", "md_docs_1_build_and_install.html#autotoc_md7", null ],
+      [ "Dependencies", "md_docs_1_build_and_install.html#autotoc_md8", [
+        [ "CUDA", "md_docs_1_build_and_install.html#autotoc_md9", null ]
       ] ],
-      [ "Install", "md_docs_1_build_and_install.html#autotoc_md9", null ],
-      [ "Build", "md_docs_1_build_and_install.html#autotoc_md10", null ],
-      [ "Summary", "md_docs_1_build_and_install.html#autotoc_md11", null ],
-      [ "Troubleshooting", "md_docs_1_build_and_install.html#autotoc_md13", null ]
+      [ "Install", "md_docs_1_build_and_install.html#autotoc_md10", null ],
+      [ "Build", "md_docs_1_build_and_install.html#autotoc_md11", null ],
+      [ "Summary", "md_docs_1_build_and_install.html#autotoc_md12", null ],
+      [ "Troubleshooting", "md_docs_1_build_and_install.html#autotoc_md14", null ]
     ] ],
     [ "Linking Hermes", "md_docs_2_linking.html", [
-      [ "cmake", "md_docs_2_linking.html#autotoc_md15", null ],
-      [ "CUDA", "md_docs_2_linking.html#autotoc_md16", null ],
-      [ "Troubleshooting", "md_docs_2_linking.html#autotoc_md18", null ]
+      [ "cmake", "md_docs_2_linking.html#autotoc_md16", null ],
+      [ "CUDA", "md_docs_2_linking.html#autotoc_md17", null ],
+      [ "Troubleshooting", "md_docs_2_linking.html#autotoc_md19", null ]
     ] ],
     [ "Common Utilities", "md_docs_3_common.html", [
-      [ "Logging", "md_docs_3_common.html#autotoc_md20", null ],
-      [ "Debugging", "md_docs_3_common.html#autotoc_md21", null ],
-      [ "Profiling", "md_docs_3_common.html#autotoc_md22", null ],
-      [ "Parsing Arguments", "md_docs_3_common.html#autotoc_md23", null ],
-      [ "Indices and Sizes", "md_docs_3_common.html#autotoc_md24", null ],
-      [ "Strings", "md_docs_3_common.html#autotoc_md25", null ],
-      [ "Files", "md_docs_3_common.html#autotoc_md26", null ],
-      [ "CUDA", "md_docs_3_common.html#autotoc_md27", null ]
+      [ "Indices and Sizes", "md_docs_3_common.html#autotoc_md21", null ],
+      [ "Strings", "md_docs_3_common.html#autotoc_md22", null ],
+      [ "Files", "md_docs_3_common.html#autotoc_md23", null ],
+      [ "Parsing Arguments", "md_docs_3_common.html#autotoc_md24", null ]
     ] ],
-    [ "Memory", "md_docs_4_storage.html", null ],
-    [ "Logging", "md_docs_logging.html", null ],
+    [ "Logging", "md_docs_4_logging.html", [
+      [ "Memory Prints", "md_docs_4_logging.html#autotoc_md26", null ]
+    ] ],
+    [ "Debugging", "md_docs_5_debugging.html", null ],
+    [ "Profiling", "md_docs_6_profiling.html", null ],
+    [ "Numeric", "md_docs_7_numeric.html", [
+      [ "Numbers", "md_docs_7_numeric.html#autotoc_md30", [
+        [ "Trigonometry", "md_docs_7_numeric.html#autotoc_md31", null ],
+        [ "Checks", "md_docs_7_numeric.html#autotoc_md32", null ]
+      ] ],
+      [ "Interpolation", "md_docs_7_numeric.html#autotoc_md33", null ],
+      [ "Arithmetic Interval", "md_docs_7_numeric.html#autotoc_md34", null ],
+      [ "EFloat", "md_docs_7_numeric.html#autotoc_md35", null ]
+    ] ],
+    [ "Geometry", "md_docs_8_geometry.html", [
+      [ "Vectors", "md_docs_8_geometry.html#autotoc_md37", [
+        [ "Points", "md_docs_8_geometry.html#autotoc_md38", null ],
+        [ "Normals", "md_docs_8_geometry.html#autotoc_md39", null ]
+      ] ],
+      [ "Transforms", "md_docs_8_geometry.html#autotoc_md40", [
+        [ "Matrices", "md_docs_8_geometry.html#autotoc_md41", null ]
+      ] ]
+    ] ],
+    [ "CUDA", "md_docs_9_cuda.html", null ],
     [ "Modules", "modules.html", "modules" ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
+      [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
       [ "Class Members", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
@@ -83,8 +103,11 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-"file__system_8h.html#af21338176f0d5e9369a9a4d09f917b4fa334c4a4c42fdb79d7ebc3e73b517e6f8",
-"index_8h_source.html"
+"classhermes_1_1Matrix2x2.html#a729fe77756172ed8db4790dfa7d09ded",
+"classhermes_1_1Size3.html#a5532fd7055f383bb245fd4ccd7011e2f",
+"dir_b98a43f481fc30c5f1fa640528bad7f1.html",
+"group__logging.html#ga9f8966e7cf4b47602f0fd05a143c3e4c",
+"str_8h.html#af135993ada305f4bbeb509204bc5c48c"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

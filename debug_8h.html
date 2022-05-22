@@ -130,9 +130,6 @@ Macros</h2></td></tr>
 <tr class="memitem:gaae4d5f162bc69e2e91080e34dc7a9bf5"><td class="memItemLeft" align="right" valign="top">
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>ASSERTIONS_ENABLED</b></td></tr>
 <tr class="separator:gaae4d5f162bc69e2e91080e34dc7a9bf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga580f977f97ee7f7ceb91b1c42306f537"><td class="memItemLeft" align="right" valign="top">
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>INFO_ENABLED</b></td></tr>
-<tr class="separator:ga580f977f97ee7f7ceb91b1c42306f537"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga32b1bf5b4527416af48e655cfc859378"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga32b1bf5b4527416af48e655cfc859378">HERMES_UNUSED_VARIABLE</a>(x)&#160;&#160;&#160;((void)x);</td></tr>
 <tr class="memdesc:ga32b1bf5b4527416af48e655cfc859378"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies that variable is not used in this scope.  <a href="group__common.html#ga32b1bf5b4527416af48e655cfc859378">More...</a><br /></td></tr>
 <tr class="separator:ga32b1bf5b4527416af48e655cfc859378"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,40 +140,9 @@ Macros</h2></td></tr>
 <tr class="memitem:ga71ba5bfb909ea32cffdea6ab59ece1e9"><td class="memItemLeft" align="right" valign="top">
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>HERMES_DEBUG_CODE</b>(CODE_CONTENT)&#160;&#160;&#160;{CODE_CONTENT}</td></tr>
 <tr class="separator:ga71ba5bfb909ea32cffdea6ab59ece1e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga41577911f22f449f3656c08f5638343b"><td class="memItemLeft" align="right" valign="top">
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga41577911f22f449f3656c08f5638343b">HERMES_PING</a>&#160;&#160;&#160;hermes::Log::info(&quot;[{}][{}][{}]&quot;, __FILE__, __LINE__, __FUNCTION__);</td></tr>
-<tr class="memdesc:ga41577911f22f449f3656c08f5638343b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into info stream code location. <br /></td></tr>
-<tr class="separator:ga41577911f22f449f3656c08f5638343b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga8fb92829d690469e456157f6f47a8e94"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(FMT, ...)</td></tr>
-<tr class="memdesc:ga8fb92829d690469e456157f6f47a8e94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into info log stream.  <a href="group__common.html#ga8fb92829d690469e456157f6f47a8e94">More...</a><br /></td></tr>
-<tr class="separator:ga8fb92829d690469e456157f6f47a8e94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9f8966e7cf4b47602f0fd05a143c3e4c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a>(FMT, ...)</td></tr>
-<tr class="memdesc:ga9f8966e7cf4b47602f0fd05a143c3e4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into warning log stream.  <a href="group__common.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">More...</a><br /></td></tr>
-<tr class="separator:ga9f8966e7cf4b47602f0fd05a143c3e4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga28bfc9b82c33369adb061a960f986ec2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a>(FMT, ...)</td></tr>
-<tr class="memdesc:ga28bfc9b82c33369adb061a960f986ec2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into error log stream.  <a href="group__common.html#ga28bfc9b82c33369adb061a960f986ec2">More...</a><br /></td></tr>
-<tr class="separator:ga28bfc9b82c33369adb061a960f986ec2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3bb391c0f11f0a592b3d7fe0a6bf91d2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a>(FMT, ...)</td></tr>
-<tr class="memdesc:ga3bb391c0f11f0a592b3d7fe0a6bf91d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into critical log stream.  <a href="group__common.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">More...</a><br /></td></tr>
-<tr class="separator:ga3bb391c0f11f0a592b3d7fe0a6bf91d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaccc16b48ba5cf6639986f553cec074bb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gaccc16b48ba5cf6639986f553cec074bb">HERMES_LOG_VARIABLE</a>(A)</td></tr>
-<tr class="memdesc:gaccc16b48ba5cf6639986f553cec074bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs variable name and value into info log stream.  <a href="group__common.html#gaccc16b48ba5cf6639986f553cec074bb">More...</a><br /></td></tr>
-<tr class="separator:gaccc16b48ba5cf6639986f553cec074bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaaf2fa36058f958d335b2913b580c0ec5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gaaf2fa36058f958d335b2913b580c0ec5">HERMES_LOG_VARIABLES</a>(...)&#160;&#160;&#160;hermes::Log::info(&quot;[{}][{}][{}]: {}&quot;, __FILE__, __LINE__, __FUNCTION__, hermes_log_variables(__VA_ARGS__))</td></tr>
-<tr class="memdesc:gaaf2fa36058f958d335b2913b580c0ec5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs multiple variables into info log stream.  <a href="group__common.html#gaaf2fa36058f958d335b2913b580c0ec5">More...</a><br /></td></tr>
-<tr class="separator:gaaf2fa36058f958d335b2913b580c0ec5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga70f946b0b765e24239e1013485243ed1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(FMT, ...)</td></tr>
-<tr class="memdesc:ga70f946b0b765e24239e1013485243ed1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into stdout in printf style.  <a href="group__common.html#ga70f946b0b765e24239e1013485243ed1">More...</a><br /></td></tr>
-<tr class="separator:ga70f946b0b765e24239e1013485243ed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac6d0a5f83afa84d83d984a51e30ee82a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a>(FMT, ...)</td></tr>
-<tr class="memdesc:gac6d0a5f83afa84d83d984a51e30ee82a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into stderr in printf style.  <a href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">More...</a><br /></td></tr>
-<tr class="separator:gac6d0a5f83afa84d83d984a51e30ee82a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga7df7b88d9404767403b6de3e0b72daa2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga7df7b88d9404767403b6de3e0b72daa2">HERMES_C_DEVICE_LOG</a>(FMT, ...)</td></tr>
-<tr class="memdesc:ga7df7b88d9404767403b6de3e0b72daa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into info stdout from device code.  <a href="group__common.html#ga7df7b88d9404767403b6de3e0b72daa2">More...</a><br /></td></tr>
-<tr class="separator:ga7df7b88d9404767403b6de3e0b72daa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3aa32ccf1d66c3054099d448b210cddf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga3aa32ccf1d66c3054099d448b210cddf">HERMES_C_DEVICE_ERROR</a>(FMT, ...)</td></tr>
-<tr class="memdesc:ga3aa32ccf1d66c3054099d448b210cddf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs into stderr from device code.  <a href="group__common.html#ga3aa32ccf1d66c3054099d448b210cddf">More...</a><br /></td></tr>
-<tr class="separator:ga3aa32ccf1d66c3054099d448b210cddf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0ae789d0aad841c62b19bdf4fefad8ce"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#ga0ae789d0aad841c62b19bdf4fefad8ce">HERMES_CHECK_EQUAL</a>(A,  B)</td></tr>
+<tr class="memdesc:ga0ae789d0aad841c62b19bdf4fefad8ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Warns if values are different.  <a href="group__common.html#ga0ae789d0aad841c62b19bdf4fefad8ce">More...</a><br /></td></tr>
+<tr class="separator:ga0ae789d0aad841c62b19bdf4fefad8ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad8dedfb6f395b28f362e39fe7959315a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gad8dedfb6f395b28f362e39fe7959315a">HERMES_CHECK_EXP</a>(expr)</td></tr>
 <tr class="memdesc:gad8dedfb6f395b28f362e39fe7959315a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Warns if expression is false.  <a href="group__common.html#gad8dedfb6f395b28f362e39fe7959315a">More...</a><br /></td></tr>
 <tr class="separator:gad8dedfb6f395b28f362e39fe7959315a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -212,11 +178,13 @@ Macros</h2></td></tr>
 Enumerations</h2></td></tr>
 <tr class="memitem:gab9e170e339d3cc52d2d3662ea42ad0a6"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__common.html#gab9e170e339d3cc52d2d3662ea42ad0a6">HeResult</a> { <br />
 &#160;&#160;<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6ad0749aaba8b833466dfcbb0428e4f89c">HeResult::SUCCESS</a> = 0, 
-<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a3981a2fe9694845339e09eaa8fd9e608">HeResult::BAD_ALLOCATION</a> = 1, 
-<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a71e5e8b8caeedea08ea1f0e75143e047">HeResult::OUT_OF_BOUNDS</a> = 2, 
-<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6ac063281d4adc16ebccfec66aa885b4dd">HeResult::INVALID_INPUT</a> = 3, 
+<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6abb1ca97ec761fc37101737ba0aa2e7c5">HeResult::ERROR</a> = 1, 
+<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a3981a2fe9694845339e09eaa8fd9e608">HeResult::BAD_ALLOCATION</a> = 2, 
+<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a71e5e8b8caeedea08ea1f0e75143e047">HeResult::OUT_OF_BOUNDS</a> = 3, 
 <br />
-&#160;&#160;<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a53cdef5b374ac6a231b01fb4eb649c22">HeResult::BAD_OPERATION</a> = 4
+&#160;&#160;<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6ac063281d4adc16ebccfec66aa885b4dd">HeResult::INVALID_INPUT</a> = 4, 
+<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a53cdef5b374ac6a231b01fb4eb649c22">HeResult::BAD_OPERATION</a> = 5, 
+<a class="el" href="group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a3e860a081575fc82cc7b6ed2ca602947">HeResult::NOT_IMPLEMENTED</a> = 6
 <br />
  }</td></tr>
 <tr class="memdesc:gab9e170e339d3cc52d2d3662ea42ad0a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enum returned by functions.  <a href="group__common.html#gab9e170e339d3cc52d2d3662ea42ad0a6">More...</a><br /></td></tr>

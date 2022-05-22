@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['launchinfo_301',['LaunchInfo',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html',1,'hermes::cuda_utils']]],
-  ['lock_302',['Lock',['../classhermes_1_1cuda__utils_1_1Lock.html',1,'hermes::cuda_utils']]]
+  ['geometricpredicates_670',['GeometricPredicates',['../classhermes_1_1GeometricPredicates.html',1,'hermes']]],
+  ['geometricqueries_671',['GeometricQueries',['../classhermes_1_1GeometricQueries.html',1,'hermes']]]
 ];

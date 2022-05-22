@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['scopedblock_306',['ScopedBlock',['../classhermes_1_1profiler_1_1Profiler_1_1ScopedBlock.html',1,'hermes::profiler::Profiler']]],
-  ['size2_307',['Size2',['../classhermes_1_1Size2.html',1,'hermes']]],
-  ['size3_308',['Size3',['../classhermes_1_1Size3.html',1,'hermes']]],
-  ['str_309',['Str',['../classhermes_1_1Str.html',1,'hermes']]]
+  ['launchinfo_689',['LaunchInfo',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html',1,'hermes::cuda_utils']]],
+  ['line_690',['Line',['../classhermes_1_1Line.html',1,'hermes']]],
+  ['location_691',['Location',['../structhermes_1_1Log_1_1Location.html',1,'hermes::Log']]],
+  ['lock_692',['Lock',['../classhermes_1_1cuda__utils_1_1Lock.html',1,'hermes::cuda_utils']]],
+  ['log_693',['Log',['../classhermes_1_1Log.html',1,'hermes']]]
 ];

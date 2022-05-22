@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['height_471',['height',['../classhermes_1_1Size2.html#a91e286515c9e7f4ae2f1d399667004cb',1,'hermes::Size2::height()'],['../classhermes_1_1Size3.html#a99c3fb31946b4851652673a41af85a6d',1,'hermes::Size3::height()']]]
+  ['field_5fsize_5fin_5fbytes_1166',['field_size_in_bytes',['../structhermes_1_1MemoryDumper_1_1RegionLayout.html#ad964a51ccdbbd58c022d39b0430f7e5c',1,'hermes::MemoryDumper::RegionLayout']]],
+  ['file_5fname_1167',['file_name',['../structhermes_1_1Log_1_1Location.html#ab7b0366a9f355c1670ef352a12068eae',1,'hermes::Log::Location']]],
+  ['function_5fname_1168',['function_name',['../structhermes_1_1Log_1_1Location.html#a31f9297d72dbecd89435be715219c64d',1,'hermes::Log::Location']]]
 ];

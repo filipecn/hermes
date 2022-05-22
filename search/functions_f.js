@@ -1,11 +1,4 @@
 var searchData=
 [
-  ['read_427',['read',['../classhermes_1_1Path.html#a0385b0878090edd07fed744ec2956ec1',1,'hermes::Path']]],
-  ['readbinaryfile_428',['readBinaryFile',['../classhermes_1_1FileSystem.html#a2d0f2aa9e58b3490be4b43b212f7edca',1,'hermes::FileSystem']]],
-  ['readfile_429',['readFile',['../classhermes_1_1FileSystem.html#a26fa541eb93e187117b0e5994eda3666',1,'hermes::FileSystem::readFile(const char *filename, char **text)'],['../classhermes_1_1FileSystem.html#a80e59a3533a31f1aff07bc3b0a0f1012',1,'hermes::FileSystem::readFile(const Path &amp;filename)']]],
-  ['readlines_430',['readLines',['../classhermes_1_1FileSystem.html#a7917eff1349551200469834fd3ecafd0',1,'hermes::FileSystem']]],
-  ['redistribute_431',['redistribute',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#a285288c76e3890680b19463b4c0ee7d4',1,'hermes::cuda_utils::LaunchInfo']]],
-  ['replace_5fr_432',['replace_r',['../classhermes_1_1Str.html#a11fdcda594f97276330ff69ab71c2788',1,'hermes::Str']]],
-  ['reset_433',['reset',['../classhermes_1_1Optional.html#acbea66dff749f2eec86e3008427696c4',1,'hermes::Optional::reset()'],['../classhermes_1_1profiler_1_1Profiler.html#abf175418adfff9285098931890ba3209',1,'hermes::profiler::Profiler::reset()']]],
-  ['right_434',['right',['../structhermes_1_1Index2.html#a5b5fdec215cfe8eef8aef795f1b822fb',1,'hermes::Index2']]]
+  ['quaternion_1022',['Quaternion',['../classhermes_1_1Quaternion.html#ac23f288dcad6701128d08c0a6e971064',1,'hermes::Quaternion::Quaternion()'],['../classhermes_1_1Quaternion.html#a294eb66819c077c3b157a5ff02e8b921',1,'hermes::Quaternion::Quaternion(T x, T y, T z, T w)'],['../classhermes_1_1Quaternion.html#a705df0aba7ae6c4a471f21d653a09ad1',1,'hermes::Quaternion::Quaternion(const hermes::Vector3&lt; T &gt; &amp;v, T r=0)']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['filesystem_294',['FileSystem',['../classhermes_1_1FileSystem.html',1,'hermes']]]
+  ['efloat_666',['EFloat',['../classhermes_1_1EFloat.html',1,'hermes']]],
+  ['enablebitmaskoperators_667',['EnableBitMaskOperators',['../structhermes_1_1EnableBitMaskOperators.html',1,'hermes']]]
 ];

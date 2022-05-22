@@ -111,14 +111,10 @@ $(document).ready(function(){initNavTree('md_docs_3_common.html',''); initResiza
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md20">Logging</a></li>
-<li class="level1"><a href="#autotoc_md21">Debugging</a></li>
-<li class="level1"><a href="#autotoc_md22">Profiling</a></li>
-<li class="level1"><a href="#autotoc_md23">Parsing Arguments</a></li>
-<li class="level1"><a href="#autotoc_md24">Indices and Sizes</a></li>
-<li class="level1"><a href="#autotoc_md25">Strings</a></li>
-<li class="level1"><a href="#autotoc_md26">Files</a></li>
-<li class="level1"><a href="#autotoc_md27">CUDA</a></li>
+<ul><li class="level1"><a href="#autotoc_md21">Indices and Sizes</a></li>
+<li class="level1"><a href="#autotoc_md22">Strings</a></li>
+<li class="level1"><a href="#autotoc_md23">Files</a></li>
+<li class="level1"><a href="#autotoc_md24">Parsing Arguments</a></li>
 </ul>
 </div>
 <div class="textblock"><p>Welcome, here I will present the very basic tools that <code>hermes</code> provides to help you during development. The classes and data types listed here are used throughout the entire library and I hope you could use them in your code too.</p>
@@ -146,153 +142,7 @@ $(document).ready(function(){initNavTree('md_docs_3_common.html',''); initResiza
 <div class="line">  <a class="code" href="classhermes_1_1DataTypes.html#a0f13790757965b881e9b70cffd65d0ad">hermes::DataTypes::typeName</a>(u8_type);</div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md20"></a>
-Logging</h1>
-<p>Hermes provides 4 streams of log messages: <code>info</code>, <code>warn</code>, <code>error</code> and <code>critical</code>. In practice, they just have different console colors (although in the future I may actually add some features here). The class taking care of logging is <code>hermes::Log</code>, but the easiest and recommended way to perform logging is though the macros.</p>
-<div class="fragment"><div class="line"><a class="code" href="group__common.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(FMT, ...);</div>
-<div class="line"><a class="code" href="group__common.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a>(FMT, ...);</div>
-<div class="line"><a class="code" href="group__common.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a>(FMT, ...);</div>
-<div class="line"><a class="code" href="group__common.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a>(FMT, ...);</div>
-</div><!-- fragment --><p><code>FMT</code> is your logging message that can be formatted to include variable values - just like <code>printf</code>. However, it does not follow <code>printf</code>'s directives. <code>hermes::Log</code> functions format strings in a more simple way assuming that every argument will accept <code>std::stringstream</code> &lt;&lt; operator (i.e., your variables must work with <code>std::cout</code> for example). To put an argument inside your message, you use <code>{}</code>, like this: </p><div class="fragment"><div class="line"><a class="code" href="group__common.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a>(<span class="stringliteral">&quot;{} errors in {}&quot;</span>, 3, <span class="stringliteral">&quot;foo&quot;</span>);</div>
-<div class="line"><span class="comment">// this will log the message</span></div>
-<div class="line"><span class="comment">// &quot;3 errors in foo&quot;</span></div>
-</div><!-- fragment --><p>By using the macros above, Hermes will prefix your messages with a label containig file location, function name, line number, time and log stream. So the message above would probably appear like this: </p><div class="fragment"><div class="line">[2022-01-18 14:23:26] [error] [../my_code.cpp][35][foo] 3 errors in foo</div>
-</div><!-- fragment --><p>You can customize the label and the colors by configuring <code>hermes::Log</code> variables and options: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="debug_8h.html">hermes/common/debug.h</a>&gt;</span></div>
-<div class="line"><span class="keywordtype">int</span> main() {</div>
-<div class="line">  <span class="comment">// tell hermes to abbreviate file path locations and</span></div>
-<div class="line">  <span class="comment">// output colored messages</span></div>
-<div class="line">  hermes::Log::addOptions(hermes::log_options::abbreviate |</div>
-<div class="line">                          hermes::log_options::use_colors);</div>
-<div class="line">  <span class="comment">// choose warn message colors</span></div>
-<div class="line">  hermes::Log::warn_color = 123; <span class="comment">// value in [0,255]</span></div>
-<div class="line">  <a class="code" href="group__common.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a>(<span class="stringliteral">&quot;warning message!&quot;</span>);</div>
-<div class="line">  <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
-</div><!-- fragment --><blockquote class="doxtable">
-<p>You can choose among 256 colors, commonly used in terminals. You can consult them <a href="https://misc.flogisoft.com/bash/tip_colors_and_formatting">here</a> in the <em>88/256 Colors</em> section. </p>
-</blockquote>
-<p>Sometimes you just want to log a code location while debugging to check if the coding is getting there, or simply log variables. Here is what you can do in those situations: </p><div class="fragment"><div class="line"><span class="comment">// log just the code location</span></div>
-<div class="line"><a class="code" href="group__common.html#ga41577911f22f449f3656c08f5638343b">HERMES_PING</a></div>
-<div class="line"><span class="comment">// log a variable like: variable_name = value</span></div>
-<div class="line"><a class="code" href="group__common.html#gaccc16b48ba5cf6639986f553cec074bb">HERMES_LOG_VARIABLE</a>(variable_name);</div>
-<div class="line"><span class="comment">// log multiple variable values in the same line</span></div>
-<div class="line"><a class="code" href="group__common.html#gaaf2fa36058f958d335b2913b580c0ec5">HERMES_LOG_VARIABLES</a>(...);</div>
-</div><!-- fragment --><p>In case of logging in a <code>CUDA</code> code, you will not be able to use any of the macros above, you will have to use <code>printf</code>. The following macros do that for you: </p><div class="fragment"><div class="line"><span class="comment">// outputs to stdout</span></div>
-<div class="line"><a class="code" href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(FMT,...);</div>
-<div class="line"><span class="comment">// outputs to stderr</span></div>
-<div class="line"><a class="code" href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a>(FMT,...);</div>
-<div class="line"><span class="comment">// for convenience, the following macros do the same</span></div>
-<div class="line"><span class="comment">// outputs to stdout</span></div>
-<div class="line"><a class="code" href="group__common.html#ga7df7b88d9404767403b6de3e0b72daa2">HERMES_C_DEVICE_LOG</a>(FMT,...);</div>
-<div class="line"><span class="comment">// outputs to stderr</span></div>
-<div class="line"><a class="code" href="group__common.html#ga3aa32ccf1d66c3054099d448b210cddf">HERMES_C_DEVICE_ERROR</a>(FMT,...);</div>
-</div><!-- fragment --><blockquote class="doxtable">
-<p>Note that in <code>FMT</code> now follows <code>printf</code> format options! </p>
-</blockquote>
-<p>Finally, you may also intercept the log output as well. <code>hermes::Log</code> allows you to register callbacks to intercept log messages: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="debug_8h.html">hermes/common/debug.h</a>&gt;</span></div>
-<div class="line"><span class="keywordtype">int</span> main() {</div>
-<div class="line">  <span class="comment">// register a warn stream callback</span></div>
-<div class="line">  hermes::Log::warn_callback = [](<span class="keyword">const</span> <a class="code" href="classhermes_1_1Str.html">hermes::Str</a>&amp; message) {</div>
-<div class="line">    <span class="comment">// handle message</span></div>
-<div class="line">  };</div>
-<div class="line">  <span class="comment">// you can also fully redirect messages to your callbacks this way</span></div>
-<div class="line">  hermes::log::addOptions(hermes::log_options::callback_only);</div>
-<div class="line">  <a class="code" href="group__common.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a>(<span class="stringliteral">&quot;this message will not appear in console!&quot;</span>);</div>
-<div class="line">  <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md21"></a>
-Debugging</h1>
-<p>Assertions and checks can be done by using the following macros: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="debug_8h.html">hermes/common/debug.h</a>&gt;</span></div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// warns if expr is false</span></div>
-<div class="line"><a class="code" href="group__common.html#gad8dedfb6f395b28f362e39fe7959315a">HERMES_CHECK_EXP</a>(expr);</div>
-<div class="line"><span class="comment">// warns with message M if expr is false</span></div>
-<div class="line"><a class="code" href="group__common.html#gac484cff6909402c505a1248907a879be">HERMES_CHECK_EXP_WITH_LOG</a>(expr, M);</div>
-<div class="line"><span class="comment">// errors if expr is false</span></div>
-<div class="line"><a class="code" href="group__common.html#ga1c115720d5b704b94684e164e3ebf5e5">HERMES_ASSERT</a>(expr);</div>
-<div class="line"><span class="comment">// errors with message M if expr is false</span></div>
-<div class="line"><a class="code" href="group__common.html#ga99a91d4f512268c11db58d0827210e65">HERMES_ASSERT_WITH_LOG</a>(expr, M);</div>
-</div><!-- fragment --><p>Sometimes you want some piece of code to be compiled only in debug mode, this macro can be convenient in this situation: </p><div class="fragment"><div class="line">HERMES_DEBUG_CODE(CODE_CONTENT)</div>
-</div><!-- fragment --><p>Then use this way: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="debug_8h.html">hermes/common/debug.h</a>&gt;</span></div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">int</span> main() {</div>
-<div class="line">  HERMES_DEBUG_CODE(</div>
-<div class="line">      <span class="keywordtype">int</span> a = 3;</div>
-<div class="line">      printf(<span class="stringliteral">&quot;%d&quot;</span>, a);</div>
-<div class="line">      )</div>
-<div class="line">  <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
-</div><!-- fragment --><p>both lines will not be included in release.</p>
-<h1><a class="anchor" id="autotoc_md22"></a>
-Profiling</h1>
-<p>Hermes provides a profiling tool to track your code performance, the <a class="el" href="classhermes_1_1profiler_1_1Profiler.html" title="Singleton code profiler.">hermes::profiler::Profiler</a> singleton class. It works by registering blocks that represent execution time of code sections, scopes and functions. Each block receives a name (and a color if you want), so you can analyze your data later.</p>
-<p>You can profile your code by using a set of macros like this:</p>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="profiler_8h.html">hermes/common/profiler.h</a>&gt;</span></div>
-<div class="line"><span class="comment">// suppose you want to profile the following function</span></div>
-<div class="line"><span class="keywordtype">void</span> profiled_function() {</div>
-<div class="line">    <span class="comment">// register a block taking the function&#39;s name as the label</span></div>
-<div class="line">    <span class="comment">// the block is automatically finished after leaving this function</span></div>
-<div class="line">    <a class="code" href="group__common.html#ga3b575858098cc781817e38d1e9524cd3">HERMES_PROFILE_FUNCTION</a>()</div>
-<div class="line">    <span class="comment">// some code</span></div>
-<div class="line">    {</div>
-<div class="line">        <span class="comment">// register a block with the label &quot;code scope&quot;</span></div>
-<div class="line">        <span class="comment">// the block is automatically finished after leaving this function</span></div>
-<div class="line">        <a class="code" href="group__common.html#gaa16945305ad8e47bf3e0e40989dabf6a">HERMES_PROFILE_SCOPE</a>(<span class="stringliteral">&quot;code scope&quot;</span>)</div>
-<div class="line">    }</div>
-<div class="line">    <span class="comment">// you can also initiate and finish a block manually</span></div>
-<div class="line">    <a class="code" href="group__common.html#ga0dc65a7803881550109bbfc4aa71bae2">HERMES_PROFILE_START_BLOCK</a>(<span class="stringliteral">&quot;my block&quot;</span>)</div>
-<div class="line">    <span class="comment">// some code</span></div>
-<div class="line">    <span class="comment">// finish &quot;my block&quot; (always remember do finish your custom blocks!)</span></div>
-<div class="line">    <a class="code" href="group__common.html#ga0f6af0d60207d12138cd5ffbf8ca792f">HERMES_PROFILE_END_BLOCK</a></div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">int</span> main() {</div>
-<div class="line">  profiled_function();</div>
-<div class="line">  <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
-</div><!-- fragment --><blockquote class="doxtable">
-<p>The profiler uses with a simple stack to manage block creation and completion. So remember to finish blocks consistently. </p>
-</blockquote>
-<p>You can access the history of blocks as well: </p><div class="fragment"><div class="line"><span class="keyword">using</span> hermes::profiler;</div>
-<div class="line">Profiler::iterateBlocks([](<span class="keyword">const</span> Profiler::Block &amp;block {</div>
-<div class="line">      <span class="keyword">auto</span> block_desc = Profiler::blockDescriptor(block);</div>
-<div class="line">      <span class="comment">// block name</span></div>
-<div class="line">      block_desc.name;</div>
-<div class="line">      <span class="comment">// block start time</span></div>
-<div class="line">      block.begin();</div>
-<div class="line">      <span class="comment">// block duration</span></div>
-<div class="line">      block.duration();</div>
-<div class="line">    }));</div>
-</div><!-- fragment --><p>Sometimes you don't want to store all blocks created since the start of your program, maybe to save memory. You can limit the profiler to keep only the last <code>n</code> blocks by calling: </p><div class="fragment"><div class="line"><a class="code" href="classhermes_1_1profiler_1_1Profiler.html#a81d75caaca31ff0e0b7287a09a6c1897">hermes::profiler::Profiler::setMaxBlockCount</a>(n);</div>
-</div><!-- fragment --><p>You can also enable or disable the profiler in runtime with the following macros, respectively: </p><div class="fragment"><div class="line">HERMES_PROFILE_ENABLE</div>
-<div class="line">HERMES_PROFILE_DISABLE</div>
-</div><!-- fragment --><p>Sometimes, it is also useful to set colors for your blocks. The block label struct holds a field <code>u32 color;</code> for that purpose. You can encode your color in this unsigned integer the way you prefer, but <code>hermes</code> provide a namespace containing <code>u32</code> colors for you called [hermes::argb_colors](). You can set the block's color with the same profiling macros:</p>
-<div class="fragment"><div class="line"><a class="code" href="group__common.html#ga3b575858098cc781817e38d1e9524cd3">HERMES_PROFILE_FUNCTION</a>(hermes::argb_colors::GreenA200);</div>
-<div class="line"><a class="code" href="group__common.html#gaa16945305ad8e47bf3e0e40989dabf6a">HERMES_PROFILE_SCOPE</a>(<span class="stringliteral">&quot;my scoped block&quot;</span>, hermes::argb_colors::BlueA200);</div>
-<div class="line"><a class="code" href="group__common.html#ga0dc65a7803881550109bbfc4aa71bae2">HERMES_PROFILE_START_BLOCK</a>(<span class="stringliteral">&quot;my custom block&quot;</span>, hermes::argb_colors::Coral);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md23"></a>
-Parsing Arguments</h1>
-<p>Reading command line arguments or parsing command strings can be done with <a class="el" href="classhermes_1_1ArgParser.html" title="Command line argument parser.">hermes::ArgParser</a>: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="arg__parser_8h.html">hermes/common/arg_parser.h</a>&gt;</span></div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
-<div class="line">    <a class="code" href="classhermes_1_1ArgParser.html">hermes::ArgParser</a> parser(<span class="stringliteral">&quot;my program&quot;</span>, <span class="stringliteral">&quot;description&quot;</span>);</div>
-<div class="line">    <span class="comment">// define a simple float argument</span></div>
-<div class="line">    parser.addArgument(<span class="stringliteral">&quot;--float_argument&quot;</span>, <span class="stringliteral">&quot;description&quot;</span>);</div>
-<div class="line">    <span class="comment">// an required argument</span></div>
-<div class="line">    parser.addArgument(<span class="stringliteral">&quot;--int_argument&quot;</span>, <span class="stringliteral">&quot;argument description&quot;</span>, <span class="keyword">true</span>);</div>
-<div class="line">    <span class="comment">// parse arguments</span></div>
-<div class="line">    parser.parse(argc, argv);</div>
-<div class="line">    <span class="comment">// access argument value with default value</span></div>
-<div class="line">    parser.get&lt;<span class="keywordtype">int</span>&gt;(<span class="stringliteral">&quot;--int_argument&quot;</span>, 0);</div>
-<div class="line">    <span class="comment">// check if argument was given</span></div>
-<div class="line">    <span class="keywordflow">if</span>(parser.check(<span class="stringliteral">&quot;--float_argument&quot;</span>))</div>
-<div class="line">      <a class="code" href="group__common.html#gaccc16b48ba5cf6639986f553cec074bb">HERMES_LOG_VARIABLE</a>(parser.get&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;--float_argument&quot;</span>));</div>
-<div class="line">    <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
-</div><!-- fragment --><p>For the code above, you code pass arguments like this: </p><div class="fragment"><div class="line">./a.out --int_argument 3 --float_argument 2.0</div>
-</div><!-- fragment --><p>It works by parsing all arguments, in order, pairing tokens separated by spaces. So you don't need to explicitly put the names of the arguments if you don't want to: </p><div class="fragment"><div class="line">./a.out 3 --float_argument 2.0</div>
-</div><!-- fragment --><p>In that case, <code>3</code> will be parsed and considered to be the value of your <code>--int_argument</code>, because the parser will <b>follow the addArgument order</b>.</p>
-<h1><a class="anchor" id="autotoc_md24"></a>
 Indices and Sizes</h1>
 <p>A common task is the iteration over multi-dimensional arrays and index ranges. Hermes offers 2-dimensional and 3-dimensional index and size operations that may facilitate these tasks with the following types: </p><div class="fragment"><div class="line"><span class="comment">// integer based indices</span></div>
 <div class="line"><a class="code" href="structhermes_1_1Index2.html">hermes::index2</a>; <span class="comment">// (i,j)</span></div>
@@ -314,7 +164,7 @@ Indices and Sizes</h1>
 <div class="line">  }</div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md25"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md22"></a>
 Strings</h1>
 <p>Some functions of strings can be found in <code><a class="el" href="classhermes_1_1Str.html" title="String class and set of string functions.">hermes::Str</a></code>. Here are some examples of what you can do: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="str_8h.html">hermes/common/str.h</a>&gt;</span></div>
 <div class="line"> </div>
@@ -343,7 +193,7 @@ Strings</h1>
 <div class="line">}</div>
 </div><!-- fragment --><p>An instance of <code><a class="el" href="classhermes_1_1Str.html" title="String class and set of string functions.">hermes::Str</a></code> is just a <code>std::string</code> wrapper with an <code>&lt;&lt;</code> operator. So you can do stuff like: </p><div class="fragment"><div class="line"><a class="code" href="classhermes_1_1Str.html">hermes::Str</a> s;</div>
 <div class="line">s = s &lt;&lt; <span class="stringliteral">&quot;bla&quot;</span>;</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md26"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md23"></a>
 Files</h1>
 <p>The <code>hermes::Filesystem</code> provides some <em>shell</em>-like functions that can help you with files and directories. A auxiliary class is the <code><a class="el" href="classhermes_1_1Path.html" title="Representation of a directory/file in the filesystem.">hermes::Path</a></code>, which holds a filesystem path for a file or directory.</p>
 <p>With <code><a class="el" href="classhermes_1_1Path.html" title="Representation of a directory/file in the filesystem.">hermes::Path</a></code> in hands, you can ask all sorts of things like file extension, directory name, absolute path, etc. You can also test if your file or directory exists and create it if necessary. You can also construct your path like this: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;hermes/common/filesystem.h&gt;</span></div>
@@ -360,9 +210,9 @@ Files</h1>
 <div class="line">  <span class="keywordflow">if</span>(!file.exists())</div>
 <div class="line">    file.touch();</div>
 <div class="line">  <span class="comment">// you could, for example check the file extension</span></div>
-<div class="line">  <a class="code" href="group__common.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(file.extension());</div>
+<div class="line">  <a class="code" href="group__logging.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(file.extension());</div>
 <div class="line">  <span class="comment">// the file name</span></div>
-<div class="line">  <a class="code" href="group__common.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(file.name());</div>
+<div class="line">  <a class="code" href="group__logging.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(file.name());</div>
 <div class="line">  <span class="comment">// you can also check what type of path you have</span></div>
 <div class="line">  child.isDirectory();</div>
 <div class="line">  file.isFile();</div>
@@ -392,144 +242,60 @@ Files</h1>
 <div class="line">                         hermes::ls_options::group_directories_first);</div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md27"></a>
-CUDA</h1>
-<p>Hermes defines some macros to help you distinguish device code from host code. </p><div class="fragment"><div class="line"><span class="preprocessor">#define HERMES_HOST_FUNCTION __host__</span></div>
-<div class="line"><span class="preprocessor">#define HERMES_DEVICE_CALLABLE __device__ __host__</span></div>
-<div class="line"><span class="preprocessor">#define HERMES_DEVICE_FUNCTION __device__</span></div>
-<div class="line"><span class="comment">// you can check if there is CUDA support with:</span></div>
-<div class="line"><span class="preprocessor">#define HERMES_DEVICE_ENABLED</span></div>
-<div class="line"><span class="comment">// Wraps a block of code that gets compiled only when using CUDA</span></div>
-<div class="line"><span class="preprocessor">#define HERMES_CUDA_CODE(CODE) {CODE}</span></div>
-</div><!-- fragment --><blockquote class="doxtable">
-<p>When you build <code>hermes</code> without <code>CUDA</code> support, all macros listed in this section get empty or are simply not defined. </p>
-</blockquote>
-<p>Here is how you can declare a <code>CUDA</code> kernel: </p><div class="fragment"><div class="line"><span class="comment">// this macro creates a kernel called my_kernel_k</span></div>
-<div class="line"><a class="code" href="group__common.html#ga0cdc0182ec6123bc74f82d9dd21e6e1d">HERMES_CUDA_KERNEL</a>(my_kernel)(<span class="keywordtype">int</span> argument) {</div>
-<div class="line">  <span class="comment">// kernel code   </span></div>
-<div class="line">}</div>
-</div><!-- fragment --><blockquote class="doxtable">
-<p>Note that the macro appends <code>_k</code> to your kernel's name </p>
-</blockquote>
-<p>Usually your kernel will use thread indices that can be 1-dimensional, 2-dimensional or 3-dimensional depending on you launch configurations. Here are some macros that create those indices for you: </p><div class="fragment"><div class="line"><span class="comment">// creates a u32 i containing the thread index</span></div>
-<div class="line"><a class="code" href="group__common.html#ga609bcafb13ee429a59a0293a7865caf8">HERMES_CUDA_THREAD_INDEX_I</a>;</div>
-<div class="line"><span class="comment">// creates a hermes::index2 ij containing the thread index</span></div>
-<div class="line"><a class="code" href="group__common.html#ga4ef6fff657663b66f0d0f5e12ababcdb">HERMES_CUDA_THREAD_INDEX_IJ</a>;</div>
-<div class="line"><span class="comment">// creates a hermes::index3 ijk containing the thread index</span></div>
-<div class="line">HERMES_CUDA_THREAD_INDEX_IK;  </div>
-<div class="line"><span class="comment">// sometimes you may want the thread to execute only if its index is less then a size:</span></div>
-<div class="line"><a class="code" href="group__common.html#gaebebd1b8b054ad683d8285c02dedae50">HERMES_CUDA_THREAD_INDEX_I_LT</a>(BOUNDS);</div>
-<div class="line"><a class="code" href="group__common.html#gafc15510e76fea2a72a33c16239bb042b">HERMES_CUDA_THREAD_INDEX_IJ_LT</a>(BOUNDS);</div>
-<div class="line"><a class="code" href="group__common.html#ga4bf99862fa4007d991bf46f507b3264f">HERMES_CUDA_THREAD_INDEX_IJK_LT</a>(BOUNDS);</div>
-<div class="line"><span class="comment">// if you want to define the index variable name, use:</span></div>
-<div class="line"><a class="code" href="group__common.html#gadfa66b7f36fcbd95bbeed9b7cc324a37">HERMES_CUDA_THREAD_INDEX_LT</a>(I, BOUNDS);</div>
-<div class="line"><a class="code" href="group__common.html#gafb618bb840410eb6f01e79fe657827c2">HERMES_CUDA_THREAD_INDEX2_LT</a>(IJ, BOUNDS);</div>
-<div class="line"><a class="code" href="group__common.html#ga23f00d772be8060e66dde091871e159c">HERMES_CUDA_THREAD_INDEX3_LT</a>(IJK, BOUNDS);</div>
-</div><!-- fragment --><p>For debugging purposes, you may want to quickly make the first thread the only thread to execute, then you can use: </p><div class="fragment"><div class="line"><a class="code" href="group__common.html#gafc40680841ae084d7b06c3ace8871566">HERMES_CUDA_RETURN_IF_NOT_THREAD_0</a></div>
-</div><!-- fragment --><p>The most important thing you want to do is to check for errors, <code>hermes</code> lets you use: </p><div class="fragment"><div class="line"><span class="comment">// check CUDA function returns</span></div>
-<div class="line"><a class="code" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(err);</div>
-<div class="line"><span class="comment">// for functions that do not return error codes or for kernel launches</span></div>
-<div class="line"><span class="comment">// call it right after:</span></div>
-<div class="line"><a class="code" href="group__common.html#ga6d0b9a59602d23ef75413ac258c1273e">HERMES_CHECK_LAST_CUDA_CALL</a> </div>
-</div><!-- fragment --><p>When launching kernels, <code><a class="el" href="structhermes_1_1cuda__utils_1_1LaunchInfo.html" title="Holds CUDA launch parameters.">hermes::cuda_utils::LaunchInfo</a></code> holds launch information such as number of threads, blocks, shared memory size and stream. It also redistributes threads for you trying to optimize occupancy. The following macro can be used to launch kernels: </p><div class="fragment"><div class="line"><a class="code" href="group__common.html#ga160960b00f95a612a175ff2b070bf43a">HERMES_CUDA_LAUNCH_AND_SYNC</a>(LAUNCH_INFO, NAME, ...);</div>
-</div><!-- fragment --><p>In this case, LAUNCH_INFO is the constructor parameters, surrounded by <code>()</code>, of <code><a class="el" href="structhermes_1_1cuda__utils_1_1LaunchInfo.html" title="Holds CUDA launch parameters.">hermes::cuda_utils::LaunchInfo</a></code>. Here is a complete example: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;vector&gt;</span></div>
-<div class="line"><span class="preprocessor">#include &lt;<a class="code" href="cuda__utils_8h.html">hermes/common/cuda_utils.h</a>&gt;</span></div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md24"></a>
+Parsing Arguments</h1>
+<p>Reading command line arguments or parsing command strings can be done with <a class="el" href="classhermes_1_1ArgParser.html" title="Command line argument parser.">hermes::ArgParser</a>: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="arg__parser_8h.html">hermes/common/arg_parser.h</a>&gt;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="comment">// A kernel that stores in c, the sum of a and b</span></div>
-<div class="line"><span class="comment">// All vectors have n elements</span></div>
-<div class="line"><a class="code" href="group__common.html#ga0cdc0182ec6123bc74f82d9dd21e6e1d">HERMES_CUDA_KERNEL</a>(sum)(<span class="keywordtype">size_t</span> n, <span class="keywordtype">float</span>* a, <span class="keywordtype">float</span>* b, <span class="keywordtype">float</span>* c) {</div>
-<div class="line">  <a class="code" href="group__common.html#gaebebd1b8b054ad683d8285c02dedae50">HERMES_CUDA_THREAD_INDEX_I_LT</a>(n);</div>
-<div class="line">  c[i] = a[i] + b[i];</div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
+<div class="line">    <a class="code" href="classhermes_1_1ArgParser.html">hermes::ArgParser</a> parser(<span class="stringliteral">&quot;my program&quot;</span>, <span class="stringliteral">&quot;description&quot;</span>);</div>
+<div class="line">    <span class="comment">// define a simple float argument</span></div>
+<div class="line">    parser.addArgument(<span class="stringliteral">&quot;--float_argument&quot;</span>, <span class="stringliteral">&quot;description&quot;</span>);</div>
+<div class="line">    <span class="comment">// an required argument</span></div>
+<div class="line">    parser.addArgument(<span class="stringliteral">&quot;--int_argument&quot;</span>, <span class="stringliteral">&quot;argument description&quot;</span>, <span class="keyword">true</span>);</div>
+<div class="line">    <span class="comment">// parse arguments</span></div>
+<div class="line">    parser.parse(argc, argv);</div>
+<div class="line">    <span class="comment">// access argument value with default value</span></div>
+<div class="line">    parser.get&lt;<span class="keywordtype">int</span>&gt;(<span class="stringliteral">&quot;--int_argument&quot;</span>, 0);</div>
+<div class="line">    <span class="comment">// check if argument was given</span></div>
+<div class="line">    <span class="keywordflow">if</span>(parser.check(<span class="stringliteral">&quot;--float_argument&quot;</span>))</div>
+<div class="line">      <a class="code" href="group__logging.html#gaccc16b48ba5cf6639986f553cec074bb">HERMES_LOG_VARIABLE</a>(parser.get&lt;<span class="keywordtype">float</span>&gt;(<span class="stringliteral">&quot;--float_argument&quot;</span>));</div>
+<div class="line">    <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">int</span> main() {</div>
-<div class="line">  <span class="comment">// lets create 3 arrays of size n</span></div>
-<div class="line">  <span class="keywordtype">size_t</span> n = 1000;</div>
-<div class="line">  std::vector&lt;float&gt; host_a(n), host_b(n), host_c(n, 0);</div>
-<div class="line">  <span class="comment">// fill a and b with numbers</span></div>
-<div class="line">  <span class="comment">// ...</span></div>
-<div class="line">  <span class="comment">// lets now allocate memory in device</span></div>
-<div class="line">  <span class="keywordtype">float</span> *device_a, *device_b, *device_c;</div>
-<div class="line">  <a class="code" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaMalloc(&amp;device_a, n * <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>)));</div>
-<div class="line">  <a class="code" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaMalloc(&amp;device_b, n * <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>)));</div>
-<div class="line">  <a class="code" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaMalloc(&amp;device_c, n * <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>)));</div>
-<div class="line">  <span class="comment">// now lets send the data to device</span></div>
-<div class="line">  <a class="code" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaMemcpy(device_a, &amp;host_a[0], n * <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>), cudaMemcpyHostToDevice));</div>
-<div class="line">  <a class="code" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaMemcpy(device_b, &amp;host_b[0], n * <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>), cudaMemcpyHostToDevice));</div>
-<div class="line">  <a class="code" href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a>(cudaMemcpy(device_c, &amp;host_c[0], n * <span class="keyword">sizeof</span>(<span class="keywordtype">float</span>), cudaMemcpyHostToDevice));</div>
-<div class="line">  <span class="comment">// and finally call the kernel</span></div>
-<div class="line">  <a class="code" href="group__common.html#ga160960b00f95a612a175ff2b070bf43a">HERMES_CUDA_LAUNCH_AND_SYNC</a>((n), sum_k, n, device_a, device_b, device_c);</div>
-<div class="line">  <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
-</div><!-- fragment --><blockquote class="doxtable">
-<p>Please check storage classes for device arrays. </p>
-</blockquote>
+</div><!-- fragment --><p>For the code above, you code pass arguments like this: </p><div class="fragment"><div class="line">./a.out --int_argument 3 --float_argument 2.0</div>
+</div><!-- fragment --><p>It works by parsing all arguments, in order, pairing tokens separated by spaces. So you don't need to explicitly put the names of the arguments if you don't want to: </p><div class="fragment"><div class="line">./a.out 3 --float_argument 2.0</div>
+</div><!-- fragment --><p>In that case, <code>3</code> will be parsed and considered to be the value of your <code>--int_argument</code>, because the parser will <b>follow the addArgument order</b>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
-<div class="ttc" id="agroup__common_html_ga9f8966e7cf4b47602f0fd05a143c3e4c"><div class="ttname"><a href="group__common.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a></div><div class="ttdeci">#define HERMES_LOG_WARNING(FMT,...)</div><div class="ttdoc">Logs into warning log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:120</div></div>
-<div class="ttc" id="agroup__common_html_gafc40680841ae084d7b06c3ace8871566"><div class="ttname"><a href="group__common.html#gafc40680841ae084d7b06c3ace8871566">HERMES_CUDA_RETURN_IF_NOT_THREAD_0</a></div><div class="ttdeci">#define HERMES_CUDA_RETURN_IF_NOT_THREAD_0</div><div class="ttdoc">Ensures just thread of index 0 is run.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:297</div></div>
-<div class="ttc" id="agroup__common_html_ga3b575858098cc781817e38d1e9524cd3"><div class="ttname"><a href="group__common.html#ga3b575858098cc781817e38d1e9524cd3">HERMES_PROFILE_FUNCTION</a></div><div class="ttdeci">#define HERMES_PROFILE_FUNCTION(...)</div><div class="ttdoc">Starts a scoped block using the enclosing function as label.</div><div class="ttdef"><b>Definition:</b> profiler.h:390</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html_ac56bb9087ba8b66aa20728616fda68e6"><div class="ttname"><a href="classhermes_1_1Str.html#ac56bb9087ba8b66aa20728616fda68e6">hermes::Str::isInteger</a></div><div class="ttdeci">static bool isInteger(const std::string &amp;s)</div><div class="ttdoc">Checks if string represents an integer.</div><div class="ttdef"><b>Definition:</b> str.cpp:86</div></div>
 <div class="ttc" id="astr_8h_html"><div class="ttname"><a href="str_8h.html">str.h</a></div><div class="ttdoc">String utils.</div></div>
-<div class="ttc" id="agroup__common_html_ga0cdc0182ec6123bc74f82d9dd21e6e1d"><div class="ttname"><a href="group__common.html#ga0cdc0182ec6123bc74f82d9dd21e6e1d">HERMES_CUDA_KERNEL</a></div><div class="ttdeci">#define HERMES_CUDA_KERNEL(NAME)</div><div class="ttdoc">Defines a CUDA kernel function.</div><div class="ttdef"><b>Definition:</b> defs.h:53</div></div>
-<div class="ttc" id="agroup__common_html_gaccc16b48ba5cf6639986f553cec074bb"><div class="ttname"><a href="group__common.html#gaccc16b48ba5cf6639986f553cec074bb">HERMES_LOG_VARIABLE</a></div><div class="ttdeci">#define HERMES_LOG_VARIABLE(A)</div><div class="ttdoc">Logs variable name and value into info log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:150</div></div>
-<div class="ttc" id="agroup__common_html_ga6d0b9a59602d23ef75413ac258c1273e"><div class="ttname"><a href="group__common.html#ga6d0b9a59602d23ef75413ac258c1273e">HERMES_CHECK_LAST_CUDA_CALL</a></div><div class="ttdeci">#define HERMES_CHECK_LAST_CUDA_CALL</div><div class="ttdoc">Checks (and logs) the last CUDA call for errors.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:351</div></div>
-<div class="ttc" id="agroup__common_html_ga3aa32ccf1d66c3054099d448b210cddf"><div class="ttname"><a href="group__common.html#ga3aa32ccf1d66c3054099d448b210cddf">HERMES_C_DEVICE_ERROR</a></div><div class="ttdeci">#define HERMES_C_DEVICE_ERROR(FMT,...)</div><div class="ttdoc">Logs into stderr from device code.</div><div class="ttdef"><b>Definition:</b> debug.h:243</div></div>
-<div class="ttc" id="aclasshermes_1_1Str_html_ab232a63196f96feaab465dedd606e8bb"><div class="ttname"><a href="classhermes_1_1Str.html#ab232a63196f96feaab465dedd606e8bb">hermes::Str::format</a></div><div class="ttdeci">static std::string format(const std::string &amp;fmt, Ts &amp;&amp;... args)</div><div class="ttdef"><b>Definition:</b> str.h:61</div></div>
-<div class="ttc" id="aclasshermes_1_1Str_html_a2c10b48b37fd5fca41257459641be1f0"><div class="ttname"><a href="classhermes_1_1Str.html#a2c10b48b37fd5fca41257459641be1f0">hermes::Str::binaryToHex</a></div><div class="ttdeci">static std::string binaryToHex(T input_n, bool uppercase=true, bool strip_leading_zeros=false)</div><div class="ttdoc">Get ascii representation of raw bit data of input_n</div><div class="ttdef"><b>Definition:</b> str.h:198</div></div>
+<div class="ttc" id="aclasshermes_1_1Str_html_ab232a63196f96feaab465dedd606e8bb"><div class="ttname"><a href="classhermes_1_1Str.html#ab232a63196f96feaab465dedd606e8bb">hermes::Str::format</a></div><div class="ttdeci">static std::string format(const std::string &amp;fmt, Ts &amp;&amp;... args)</div><div class="ttdef"><b>Definition:</b> str.h:104</div></div>
+<div class="ttc" id="aclasshermes_1_1Str_html_a2c10b48b37fd5fca41257459641be1f0"><div class="ttname"><a href="classhermes_1_1Str.html#a2c10b48b37fd5fca41257459641be1f0">hermes::Str::binaryToHex</a></div><div class="ttdeci">static std::string binaryToHex(T input_n, bool uppercase=true, bool strip_leading_zeros=false)</div><div class="ttdoc">Get ascii representation of raw bit data of input_n</div><div class="ttdef"><b>Definition:</b> str.h:241</div></div>
 <div class="ttc" id="aclasshermes_1_1Index2Range_html"><div class="ttname"><a href="classhermes_1_1Index2Range.html">hermes::Index2Range</a></div><div class="ttdoc">Represents a closed-open range of indices [lower, upper)</div><div class="ttdef"><b>Definition:</b> index.h:281</div></div>
 <div class="ttc" id="aindex_8h_html"><div class="ttname"><a href="index_8h.html">index.h</a></div><div class="ttdoc">Set of multi-dimensional integer iterators.</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html_a4c01c0c17ce089bfa085920e43e7168c"><div class="ttname"><a href="classhermes_1_1Str.html#a4c01c0c17ce089bfa085920e43e7168c">hermes::Str::contains_r</a></div><div class="ttdeci">static bool contains_r(const std::string &amp;s, const std::string &amp;pattern, std::regex_constants::match_flag_type flags=std::regex_constants::match_default)</div><div class="ttdoc">Checks if any substring of s matches a regular expression.</div><div class="ttdef"><b>Definition:</b> str.cpp:148</div></div>
-<div class="ttc" id="aclasshermes_1_1Str_html_aa1a5ef38f2b66f0f2e112d62950d104a"><div class="ttname"><a href="classhermes_1_1Str.html#aa1a5ef38f2b66f0f2e112d62950d104a">hermes::Str::addressOf</a></div><div class="ttdeci">static std::string addressOf(uintptr_t ptr, u32 digit_count=8)</div><div class="ttdoc">Generates hexadecimal representation of memory address.</div><div class="ttdef"><b>Definition:</b> str.h:222</div></div>
+<div class="ttc" id="aclasshermes_1_1Str_html_aa1a5ef38f2b66f0f2e112d62950d104a"><div class="ttname"><a href="classhermes_1_1Str.html#aa1a5ef38f2b66f0f2e112d62950d104a">hermes::Str::addressOf</a></div><div class="ttdeci">static std::string addressOf(uintptr_t ptr, u32 digit_count=8)</div><div class="ttdoc">Generates hexadecimal representation of memory address.</div><div class="ttdef"><b>Definition:</b> str.h:265</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html_a7e3982b041802f86fc1733a01091ab4a"><div class="ttname"><a href="classhermes_1_1Str.html#a7e3982b041802f86fc1733a01091ab4a">hermes::Str::split</a></div><div class="ttdeci">static std::vector&lt; std::string &gt; split(const std::string &amp;s, const std::string &amp;delimiters=&quot; &quot;)</div><div class="ttdoc">Splits a string into tokens separated by delimiters.</div><div class="ttdef"><b>Definition:</b> str.cpp:69</div></div>
-<div class="ttc" id="agroup__common_html_ga0dc65a7803881550109bbfc4aa71bae2"><div class="ttname"><a href="group__common.html#ga0dc65a7803881550109bbfc4aa71bae2">HERMES_PROFILE_START_BLOCK</a></div><div class="ttdeci">#define HERMES_PROFILE_START_BLOCK(name,...)</div><div class="ttdoc">Starts a new non-scoped block with a given label.</div><div class="ttdef"><b>Definition:</b> profiler.h:369</div></div>
 <div class="ttc" id="aclasshermes_1_1Index3Range_html"><div class="ttname"><a href="classhermes_1_1Index3Range.html">hermes::Index3Range</a></div><div class="ttdoc">Represents a closed-open range of indices [lower, upper),.</div><div class="ttdef"><b>Definition:</b> index.h:530</div></div>
-<div class="ttc" id="agroup__common_html_ga4ef6fff657663b66f0d0f5e12ababcdb"><div class="ttname"><a href="group__common.html#ga4ef6fff657663b66f0d0f5e12ababcdb">HERMES_CUDA_THREAD_INDEX_IJ</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX_IJ</div><div class="ttdoc">Creates a 2-dimensional index based on current cuda thread index.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:286</div></div>
-<div class="ttc" id="agroup__common_html_gaaf2fa36058f958d335b2913b580c0ec5"><div class="ttname"><a href="group__common.html#gaaf2fa36058f958d335b2913b580c0ec5">HERMES_LOG_VARIABLES</a></div><div class="ttdeci">#define HERMES_LOG_VARIABLES(...)</div><div class="ttdoc">Logs multiple variables into info log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:192</div></div>
-<div class="ttc" id="aclasshermes_1_1Str_html_a00cf31f21cb8d1742daf105c8a0b689d"><div class="ttname"><a href="classhermes_1_1Str.html#a00cf31f21cb8d1742daf105c8a0b689d">hermes::Str::concat</a></div><div class="ttdeci">static std::string concat(const Args &amp;... args)</div><div class="ttdoc">Concatenates multiple elements_ into a single string.</div><div class="ttdef"><b>Definition:</b> str.h:103</div></div>
-<div class="ttc" id="agroup__common_html_ga160960b00f95a612a175ff2b070bf43a"><div class="ttname"><a href="group__common.html#ga160960b00f95a612a175ff2b070bf43a">HERMES_CUDA_LAUNCH_AND_SYNC</a></div><div class="ttdeci">#define HERMES_CUDA_LAUNCH_AND_SYNC(LAUNCH_INFO, NAME,...)</div><div class="ttdoc">Launches a CUDA kernel given its parameters and synchronizes with host.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:273</div></div>
+<div class="ttc" id="aclasshermes_1_1Str_html_a00cf31f21cb8d1742daf105c8a0b689d"><div class="ttname"><a href="classhermes_1_1Str.html#a00cf31f21cb8d1742daf105c8a0b689d">hermes::Str::concat</a></div><div class="ttdeci">static std::string concat(const Args &amp;... args)</div><div class="ttdoc">Concatenates multiple elements_ into a single string.</div><div class="ttdef"><b>Definition:</b> str.h:146</div></div>
 <div class="ttc" id="aclasshermes_1_1DataTypes_html_aa8e2df634574c4c6a81327936d37e9b5"><div class="ttname"><a href="classhermes_1_1DataTypes.html#aa8e2df634574c4c6a81327936d37e9b5">hermes::DataTypes::typeSize</a></div><div class="ttdeci">static u32 typeSize(DataType type)</div><div class="ttdoc">Computes number of bytes from DataType.</div><div class="ttdef"><b>Definition:</b> defs.h:163</div></div>
-<div class="ttc" id="agroup__common_html_gad8dedfb6f395b28f362e39fe7959315a"><div class="ttname"><a href="group__common.html#gad8dedfb6f395b28f362e39fe7959315a">HERMES_CHECK_EXP</a></div><div class="ttdeci">#define HERMES_CHECK_EXP(expr)</div><div class="ttdoc">Warns if expression is false.</div><div class="ttdef"><b>Definition:</b> debug.h:263</div></div>
-<div class="ttc" id="agroup__common_html_ga70f946b0b765e24239e1013485243ed1"><div class="ttname"><a href="group__common.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a></div><div class="ttdeci">#define HERMES_C_LOG(FMT,...)</div><div class="ttdoc">Logs into stdout in printf style.</div><div class="ttdef"><b>Definition:</b> debug.h:204</div></div>
-<div class="ttc" id="agroup__common_html_gadfa66b7f36fcbd95bbeed9b7cc324a37"><div class="ttname"><a href="group__common.html#gadfa66b7f36fcbd95bbeed9b7cc324a37">HERMES_CUDA_THREAD_INDEX_LT</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX_LT(I, BOUNDS)</div><div class="ttdoc">Creates a 1-dimensional index and tests it against bounds.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:306</div></div>
-<div class="ttc" id="aprofiler_8h_html"><div class="ttname"><a href="profiler_8h.html">profiler.h</a></div><div class="ttdoc">Code profiler.</div></div>
-<div class="ttc" id="agroup__common_html_ga23f00d772be8060e66dde091871e159c"><div class="ttname"><a href="group__common.html#ga23f00d772be8060e66dde091871e159c">HERMES_CUDA_THREAD_INDEX3_LT</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX3_LT(IJK, BOUNDS)</div><div class="ttdoc">Creates a 3-dimensional index and tests it against bounds.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:321</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html_aa43db20a66b1f2f48ef3007c6b01472d"><div class="ttname"><a href="classhermes_1_1Str.html#aa43db20a66b1f2f48ef3007c6b01472d">hermes::Str::strip</a></div><div class="ttdeci">static std::string strip(const std::string &amp;s, const std::string &amp;patterns)</div><div class="ttdef"><b>Definition:</b> str.cpp:48</div></div>
 <div class="ttc" id="aclasshermes_1_1FileSystem_html_a3a498edf322f2ceb5d475c065d7f6886"><div class="ttname"><a href="classhermes_1_1FileSystem.html#a3a498edf322f2ceb5d475c065d7f6886">hermes::FileSystem::ls</a></div><div class="ttdeci">static std::vector&lt; Path &gt; ls(const Path &amp;path, ls_options options=ls_options::none)</div><div class="ttdoc">Lists files inside a directory.</div><div class="ttdef"><b>Definition:</b> file_system.cpp:421</div></div>
-<div class="ttc" id="agroup__common_html_ga41577911f22f449f3656c08f5638343b"><div class="ttname"><a href="group__common.html#ga41577911f22f449f3656c08f5638343b">HERMES_PING</a></div><div class="ttdeci">#define HERMES_PING</div><div class="ttdoc">Logs into info stream code location.</div><div class="ttdef"><b>Definition:</b> debug.h:98</div></div>
-<div class="ttc" id="agroup__common_html_gac484cff6909402c505a1248907a879be"><div class="ttname"><a href="group__common.html#gac484cff6909402c505a1248907a879be">HERMES_CHECK_EXP_WITH_LOG</a></div><div class="ttdeci">#define HERMES_CHECK_EXP_WITH_LOG(expr, M)</div><div class="ttdoc">Warns if expression is false with message.</div><div class="ttdef"><b>Definition:</b> debug.h:272</div></div>
 <div class="ttc" id="aclasshermes_1_1Path_html"><div class="ttname"><a href="classhermes_1_1Path.html">hermes::Path</a></div><div class="ttdoc">Representation of a directory/file in the filesystem.</div><div class="ttdef"><b>Definition:</b> file_system.h:48</div></div>
 <div class="ttc" id="astructhermes_1_1Index3_html"><div class="ttname"><a href="structhermes_1_1Index3.html">hermes::Index3</a></div><div class="ttdoc">Holds 3-dimensional index coordinates.</div><div class="ttdef"><b>Definition:</b> index.h:360</div></div>
-<div class="ttc" id="agroup__common_html_gafc15510e76fea2a72a33c16239bb042b"><div class="ttname"><a href="group__common.html#gafc15510e76fea2a72a33c16239bb042b">HERMES_CUDA_THREAD_INDEX_IJ_LT</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX_IJ_LT(BOUNDS)</div><div class="ttdoc">Creates a 2-dimensional index variable ij and tests it against bounds.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:332</div></div>
-<div class="ttc" id="agroup__common_html_ga75561c2137a0fd59581d3698d9ffa0c4"><div class="ttname"><a href="group__common.html#ga75561c2137a0fd59581d3698d9ffa0c4">HERMES_CHECK_CUDA_CALL</a></div><div class="ttdeci">#define HERMES_CHECK_CUDA_CALL(err)</div><div class="ttdoc">Checks (and logs) a CUDA method return code for errors.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:341</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html_a44ad0039f7bc6a0e6af35a2783a8a40f"><div class="ttname"><a href="classhermes_1_1Str.html#a44ad0039f7bc6a0e6af35a2783a8a40f">hermes::Str::isNumber</a></div><div class="ttdeci">static bool isNumber(const std::string &amp;s)</div><div class="ttdoc">Checks if string represents a number.</div><div class="ttdef"><b>Definition:</b> str.cpp:104</div></div>
-<div class="ttc" id="agroup__common_html_ga609bcafb13ee429a59a0293a7865caf8"><div class="ttname"><a href="group__common.html#ga609bcafb13ee429a59a0293a7865caf8">HERMES_CUDA_THREAD_INDEX_I</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX_I</div><div class="ttdoc">Creates a 1-dimensional index based on current cuda thread index.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:282</div></div>
-<div class="ttc" id="agroup__common_html_gafb618bb840410eb6f01e79fe657827c2"><div class="ttname"><a href="group__common.html#gafb618bb840410eb6f01e79fe657827c2">HERMES_CUDA_THREAD_INDEX2_LT</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX2_LT(IJ, BOUNDS)</div><div class="ttdoc">Creates a 2-dimensional index and tests it against bounds.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:313</div></div>
+<div class="ttc" id="agroup__logging_html_gaccc16b48ba5cf6639986f553cec074bb"><div class="ttname"><a href="group__logging.html#gaccc16b48ba5cf6639986f553cec074bb">HERMES_LOG_VARIABLE</a></div><div class="ttdeci">#define HERMES_LOG_VARIABLE(A)</div><div class="ttdoc">Logs variable name and value into info log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:403</div></div>
 <div class="ttc" id="aclasshermes_1_1ArgParser_html"><div class="ttname"><a href="classhermes_1_1ArgParser.html">hermes::ArgParser</a></div><div class="ttdoc">Command line argument parser.</div><div class="ttdef"><b>Definition:</b> arg_parser.h:63</div></div>
-<div class="ttc" id="agroup__common_html_ga1c115720d5b704b94684e164e3ebf5e5"><div class="ttname"><a href="group__common.html#ga1c115720d5b704b94684e164e3ebf5e5">HERMES_ASSERT</a></div><div class="ttdeci">#define HERMES_ASSERT(expr)</div><div class="ttdoc">Errors if expression is false.</div><div class="ttdef"><b>Definition:</b> debug.h:293</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html_a3622a676b4f8bc4addcd4a765f3e8f84"><div class="ttname"><a href="classhermes_1_1Str.html#a3622a676b4f8bc4addcd4a765f3e8f84">hermes::Str::join</a></div><div class="ttdeci">static std::string join(const std::vector&lt; std::string &gt; &amp;v, const std::string &amp;separator=&quot;&quot;)</div><div class="ttdoc">Concatenate strings together separated by a separator.</div><div class="ttdef"><b>Definition:</b> str.cpp:36</div></div>
-<div class="ttc" id="agroup__common_html_gaebebd1b8b054ad683d8285c02dedae50"><div class="ttname"><a href="group__common.html#gaebebd1b8b054ad683d8285c02dedae50">HERMES_CUDA_THREAD_INDEX_I_LT</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX_I_LT(BOUNDS)</div><div class="ttdoc">Creates a 1-dimensional index variable i and tests it against bounds.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:329</div></div>
-<div class="ttc" id="agroup__common_html_ga0f6af0d60207d12138cd5ffbf8ca792f"><div class="ttname"><a href="group__common.html#ga0f6af0d60207d12138cd5ffbf8ca792f">HERMES_PROFILE_END_BLOCK</a></div><div class="ttdeci">#define HERMES_PROFILE_END_BLOCK</div><div class="ttdoc">Finishes the current top block.</div><div class="ttdef"><b>Definition:</b> profiler.h:377</div></div>
-<div class="ttc" id="agroup__common_html_ga99a91d4f512268c11db58d0827210e65"><div class="ttname"><a href="group__common.html#ga99a91d4f512268c11db58d0827210e65">HERMES_ASSERT_WITH_LOG</a></div><div class="ttdeci">#define HERMES_ASSERT_WITH_LOG(expr, M)</div><div class="ttdoc">Errors if expression is false with message.</div><div class="ttdef"><b>Definition:</b> debug.h:302</div></div>
+<div class="ttc" id="agroup__logging_html_ga8fb92829d690469e456157f6f47a8e94"><div class="ttname"><a href="group__logging.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a></div><div class="ttdeci">#define HERMES_LOG(FMT,...)</div><div class="ttdoc">Logs into info log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:362</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html"><div class="ttname"><a href="classhermes_1_1Str.html">hermes::Str</a></div><div class="ttdoc">String class and set of string functions.</div><div class="ttdef"><b>Definition:</b> str.h:50</div></div>
-<div class="ttc" id="agroup__common_html_ga3bb391c0f11f0a592b3d7fe0a6bf91d2"><div class="ttname"><a href="group__common.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a></div><div class="ttdeci">#define HERMES_LOG_CRITICAL(FMT,...)</div><div class="ttdoc">Logs into critical log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:142</div></div>
-<div class="ttc" id="agroup__common_html_gaa16945305ad8e47bf3e0e40989dabf6a"><div class="ttname"><a href="group__common.html#gaa16945305ad8e47bf3e0e40989dabf6a">HERMES_PROFILE_SCOPE</a></div><div class="ttdeci">#define HERMES_PROFILE_SCOPE(name,...)</div><div class="ttdoc">Starts a scoped block with a given label.</div><div class="ttdef"><b>Definition:</b> profiler.h:382</div></div>
 <div class="ttc" id="aclasshermes_1_1DataTypes_html_a0f13790757965b881e9b70cffd65d0ad"><div class="ttname"><a href="classhermes_1_1DataTypes.html#a0f13790757965b881e9b70cffd65d0ad">hermes::DataTypes::typeName</a></div><div class="ttdeci">static std::string typeName(DataType type)</div><div class="ttdoc">Gets DataType string name.</div><div class="ttdef"><b>Definition:</b> defs.h:183</div></div>
 <div class="ttc" id="aclasshermes_1_1Str_html_aeaff566f58707334e988777b1fd4ce4a"><div class="ttname"><a href="classhermes_1_1Str.html#aeaff566f58707334e988777b1fd4ce4a">hermes::Str::match_r</a></div><div class="ttdeci">static bool match_r(const std::string &amp;s, const std::string &amp;pattern, std::regex_constants::match_flag_type flags=std::regex_constants::match_default)</div><div class="ttdoc">Checks if a string s matches exactly a regular expression.</div><div class="ttdef"><b>Definition:</b> str.cpp:143</div></div>
 <div class="ttc" id="aclasshermes_1_1Size3_html"><div class="ttname"><a href="classhermes_1_1Size3.html">hermes::Size3</a></div><div class="ttdoc">Holds 2-dimensional size.</div><div class="ttdef"><b>Definition:</b> size.h:136</div></div>
-<div class="ttc" id="agroup__common_html_ga4bf99862fa4007d991bf46f507b3264f"><div class="ttname"><a href="group__common.html#ga4bf99862fa4007d991bf46f507b3264f">HERMES_CUDA_THREAD_INDEX_IJK_LT</a></div><div class="ttdeci">#define HERMES_CUDA_THREAD_INDEX_IJK_LT(BOUNDS)</div><div class="ttdoc">Creates a 3-dimensional index variable ijk and tests it against bounds.</div><div class="ttdef"><b>Definition:</b> cuda_utils.h:335</div></div>
-<div class="ttc" id="agroup__common_html_gac6d0a5f83afa84d83d984a51e30ee82a"><div class="ttname"><a href="group__common.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a></div><div class="ttdeci">#define HERMES_C_LOG_ERROR(FMT,...)</div><div class="ttdoc">Logs into stderr in printf style.</div><div class="ttdef"><b>Definition:</b> debug.h:217</div></div>
 <div class="ttc" id="astructhermes_1_1Index2_html"><div class="ttname"><a href="structhermes_1_1Index2.html">hermes::Index2</a></div><div class="ttdoc">Holds 2-dimensional integer index coordinates.</div><div class="ttdef"><b>Definition:</b> index.h:50</div></div>
-<div class="ttc" id="agroup__common_html_ga8fb92829d690469e456157f6f47a8e94"><div class="ttname"><a href="group__common.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a></div><div class="ttdeci">#define HERMES_LOG(FMT,...)</div><div class="ttdoc">Logs into info log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:109</div></div>
 <div class="ttc" id="adefs_8h_html"><div class="ttname"><a href="defs_8h.html">defs.h</a></div><div class="ttdoc">Data type definitions.</div></div>
-<div class="ttc" id="acuda__utils_8h_html"><div class="ttname"><a href="cuda__utils_8h.html">cuda_utils.h</a></div><div class="ttdoc">Auxiliary classes and macros for CUDA calls.</div></div>
-<div class="ttc" id="agroup__common_html_ga28bfc9b82c33369adb061a960f986ec2"><div class="ttname"><a href="group__common.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a></div><div class="ttdeci">#define HERMES_LOG_ERROR(FMT,...)</div><div class="ttdoc">Logs into error log stream.</div><div class="ttdef"><b>Definition:</b> debug.h:131</div></div>
 <div class="ttc" id="aarg__parser_8h_html"><div class="ttname"><a href="arg__parser_8h.html">arg_parser.h</a></div><div class="ttdoc">Simple argument parser.</div></div>
-<div class="ttc" id="adebug_8h_html"><div class="ttname"><a href="debug_8h.html">debug.h</a></div><div class="ttdoc">Debug, logging and assertion macros.</div></div>
-<div class="ttc" id="agroup__common_html_ga7df7b88d9404767403b6de3e0b72daa2"><div class="ttname"><a href="group__common.html#ga7df7b88d9404767403b6de3e0b72daa2">HERMES_C_DEVICE_LOG</a></div><div class="ttdeci">#define HERMES_C_DEVICE_LOG(FMT,...)</div><div class="ttdoc">Logs into info stdout from device code.</div><div class="ttdef"><b>Definition:</b> debug.h:230</div></div>
 <div class="ttc" id="aclasshermes_1_1Size2_html"><div class="ttname"><a href="classhermes_1_1Size2.html">hermes::Size2</a></div><div class="ttdoc">Holds 2-dimensional size.</div><div class="ttdef"><b>Definition:</b> size.h:47</div></div>
-<div class="ttc" id="aclasshermes_1_1profiler_1_1Profiler_html_a81d75caaca31ff0e0b7287a09a6c1897"><div class="ttname"><a href="classhermes_1_1profiler_1_1Profiler.html#a81d75caaca31ff0e0b7287a09a6c1897">hermes::profiler::Profiler::setMaxBlockCount</a></div><div class="ttdeci">static void setMaxBlockCount(size_t max_block_count)</div><div class="ttdoc">Sets a limit into the maximum number of stored blocks.</div><div class="ttdef"><b>Definition:</b> profiler.cpp:150</div></div>
 <!-- HTML footer for doxygen 1.9.1-->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

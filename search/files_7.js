@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['profiler_2ecpp_322',['profiler.cpp',['../profiler_8cpp.html',1,'']]],
-  ['profiler_2eh_323',['profiler.h',['../profiler_8h.html',1,'']]]
+  ['logging_2ecpp_766',['logging.cpp',['../logging_8cpp.html',1,'']]],
+  ['logging_2eh_767',['logging.h',['../logging_8h.html',1,'']]]
 ];

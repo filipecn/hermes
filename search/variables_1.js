@@ -1,4 +1,25 @@
 var searchData=
 [
-  ['color_466',['color',['../structhermes_1_1profiler_1_1Profiler_1_1BlockDescriptor.html#ac69ab93a362fbee191ca908c1eda6220',1,'hermes::profiler::Profiler::BlockDescriptor']]]
+  ['background_5fblack_1127',['background_black',['../classhermes_1_1ConsoleColors.html#a04f426dbb71e2a89074594989906590c',1,'hermes::ConsoleColors']]],
+  ['background_5fblue_1128',['background_blue',['../classhermes_1_1ConsoleColors.html#ade7b3411864466b5d29f289fd9307119',1,'hermes::ConsoleColors']]],
+  ['background_5fcyan_1129',['background_cyan',['../classhermes_1_1ConsoleColors.html#aa6d4548808186acc9c3f8212d11b0d72',1,'hermes::ConsoleColors']]],
+  ['background_5fdark_5fgray_1130',['background_dark_gray',['../classhermes_1_1ConsoleColors.html#aae45cd505b2b3723c280af2cee9658b1',1,'hermes::ConsoleColors']]],
+  ['background_5fdefault_5fcolor_1131',['background_default_color',['../classhermes_1_1ConsoleColors.html#a37a8028ab293e1859ba9c72d1fb4d2c8',1,'hermes::ConsoleColors']]],
+  ['background_5fgreen_1132',['background_green',['../classhermes_1_1ConsoleColors.html#a5de2826ac48b9c512e66ce8dda6f29ea',1,'hermes::ConsoleColors']]],
+  ['background_5flight_5fblue_1133',['background_light_blue',['../classhermes_1_1ConsoleColors.html#a44b61dd04e8a3964782dd4a3e6fd7643',1,'hermes::ConsoleColors']]],
+  ['background_5flight_5fcyan_1134',['background_light_cyan',['../classhermes_1_1ConsoleColors.html#a61791899494e0fe92973c747e1811bd5',1,'hermes::ConsoleColors']]],
+  ['background_5flight_5fgray_1135',['background_light_gray',['../classhermes_1_1ConsoleColors.html#ae813f13867b0eef55909bfe3d595ecc3',1,'hermes::ConsoleColors']]],
+  ['background_5flight_5fgreen_1136',['background_light_green',['../classhermes_1_1ConsoleColors.html#a6539adea0a6e6df545d39d4309774a6f',1,'hermes::ConsoleColors']]],
+  ['background_5flight_5fmagenta_1137',['background_light_magenta',['../classhermes_1_1ConsoleColors.html#acc906416a2d74964bcfff50ee06f9a10',1,'hermes::ConsoleColors']]],
+  ['background_5flight_5fred_1138',['background_light_red',['../classhermes_1_1ConsoleColors.html#ad7c21b4f78ac2158d30f902aef3a8074',1,'hermes::ConsoleColors']]],
+  ['background_5flight_5fyellow_1139',['background_light_yellow',['../classhermes_1_1ConsoleColors.html#abce1ca42ef76246d41ba9a7928eb5ed4',1,'hermes::ConsoleColors']]],
+  ['background_5fmagenta_1140',['background_magenta',['../classhermes_1_1ConsoleColors.html#af73a24b2aea58872fd6ea3e7afbdf5a9',1,'hermes::ConsoleColors']]],
+  ['background_5fred_1141',['background_red',['../classhermes_1_1ConsoleColors.html#a75a6501a147b183c3aca0925344b8471',1,'hermes::ConsoleColors']]],
+  ['background_5fwhite_1142',['background_white',['../classhermes_1_1ConsoleColors.html#aabba4ecea2d3099ae0004346f67179f7',1,'hermes::ConsoleColors']]],
+  ['background_5fyellow_1143',['background_yellow',['../classhermes_1_1ConsoleColors.html#a6f7968438e73f033b3006d24acc7fd38',1,'hermes::ConsoleColors']]],
+  ['black_1144',['black',['../classhermes_1_1ConsoleColors.html#a7d965597ef1ec66564552ecd14669ee1',1,'hermes::ConsoleColors']]],
+  ['blink_1145',['blink',['../classhermes_1_1ConsoleColors.html#a1234adf3254a64e013e19bac658e7435',1,'hermes::ConsoleColors']]],
+  ['block_5fsize_1146',['block_size',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#a311147c562e2341e0d75906d3bcd70bb',1,'hermes::cuda_utils::LaunchInfo']]],
+  ['blue_1147',['blue',['../classhermes_1_1ConsoleColors.html#a51ce7f44a7d587e69d704f00e93567b9',1,'hermes::ConsoleColors']]],
+  ['bold_1148',['bold',['../classhermes_1_1ConsoleColors.html#a1d7ba5835955b77a6cb688eaee54f9f3',1,'hermes::ConsoleColors']]]
 ];

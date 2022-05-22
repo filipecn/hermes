@@ -1,11 +1,25 @@
 var searchData=
 [
-  ['get_74',['get',['../classhermes_1_1ArgParser.html#a5e6c4d97ce683e64c28dd64f9e8cc19d',1,'hermes::ArgParser']]],
-  ['gpu_5fblock_5fsize_75',['GPU_BLOCK_SIZE',['../cuda__utils_8h.html#ab5b25fa89e62eff82772bb305acd1c4a',1,'cuda_utils.h']]],
-  ['gpu_5fblock_5fsize_5fx_76',['GPU_BLOCK_SIZE_X',['../cuda__utils_8h.html#a6329c94141996386a20930641ee6bf86',1,'cuda_utils.h']]],
-  ['gpu_5fblock_5fsize_5fy_77',['GPU_BLOCK_SIZE_Y',['../cuda__utils_8h.html#a9c739d635bb77b3390f44624d702eb50',1,'cuda_utils.h']]],
-  ['gpu_5fblock_5fsize_5fz_78',['GPU_BLOCK_SIZE_Z',['../cuda__utils_8h.html#afb70a88f0f1d53c0cae95566b1562056',1,'cuda_utils.h']]],
-  ['gpu_5fwarp_5fsize_79',['GPU_WARP_SIZE',['../cuda__utils_8h.html#a71bb45f0a9f8e3144a7041e3ec78d178',1,'cuda_utils.h']]],
-  ['grid_5fsize_80',['grid_size',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#aaacc047ea81d695bcf248e206d030101',1,'hermes::cuda_utils::LaunchInfo']]],
-  ['getting_20started_81',['Getting Started',['../index.html',1,'']]]
+  ['gamma_178',['gamma',['../structhermes_1_1Numbers.html#a2a711ef48816d93684f8de56d62b50ea',1,'hermes::Numbers']]],
+  ['geometricpredicates_179',['GeometricPredicates',['../classhermes_1_1GeometricPredicates.html',1,'hermes']]],
+  ['geometricqueries_180',['GeometricQueries',['../classhermes_1_1GeometricQueries.html',1,'hermes']]],
+  ['geometry_181',['Geometry',['../group__geometry.html',1,'']]],
+  ['get_182',['get',['../classhermes_1_1ArgParser.html#a5e6c4d97ce683e64c28dd64f9e8cc19d',1,'hermes::ArgParser']]],
+  ['getmatrix_183',['getMatrix',['../classhermes_1_1Transform2.html#a01436edc5016a4edf45fa36a550c28e9',1,'hermes::Transform2']]],
+  ['getscale_184',['getScale',['../classhermes_1_1Transform2.html#a12aa277d2aba68f8f47786edf1082bd6',1,'hermes::Transform2']]],
+  ['gettranslate_185',['getTranslate',['../classhermes_1_1Transform2.html#a0673f59864ffa8dfc5d9916da7cecd2d',1,'hermes::Transform2::getTranslate()'],['../classhermes_1_1Transform.html#a3002049e52315b47694c86707d3eb2df',1,'hermes::Transform::getTranslate()']]],
+  ['gluinvertmatrix_186',['gluInvertMatrix',['../matrix_8h.html#a7f0b65e61702652483634472c7e18b42',1,'hermes']]],
+  ['gpu_5fblock_5fsize_187',['GPU_BLOCK_SIZE',['../cuda__utils_8h.html#ab5b25fa89e62eff82772bb305acd1c4a',1,'cuda_utils.h']]],
+  ['gpu_5fblock_5fsize_5fx_188',['GPU_BLOCK_SIZE_X',['../cuda__utils_8h.html#a6329c94141996386a20930641ee6bf86',1,'cuda_utils.h']]],
+  ['gpu_5fblock_5fsize_5fy_189',['GPU_BLOCK_SIZE_Y',['../cuda__utils_8h.html#a9c739d635bb77b3390f44624d702eb50',1,'cuda_utils.h']]],
+  ['gpu_5fblock_5fsize_5fz_190',['GPU_BLOCK_SIZE_Z',['../cuda__utils_8h.html#afb70a88f0f1d53c0cae95566b1562056',1,'cuda_utils.h']]],
+  ['gpu_5fwarp_5fsize_191',['GPU_WARP_SIZE',['../cuda__utils_8h.html#a71bb45f0a9f8e3144a7041e3ec78d178',1,'cuda_utils.h']]],
+  ['greatest_192',['greatest',['../structhermes_1_1Numbers.html#a2c86507f433aebd321eb1f835e2c7c62',1,'hermes::Numbers::greatest()'],['../structhermes_1_1Numbers.html#a088d9e8a48ddd32f1474116ae5536539',1,'hermes::Numbers::greatest()']]],
+  ['greatest_5ff32_193',['greatest_f32',['../structhermes_1_1Numbers.html#a216eb6c9a570d1fcb6c79a32c88b12ac',1,'hermes::Numbers']]],
+  ['greatest_5ff64_194',['greatest_f64',['../structhermes_1_1Numbers.html#ac8eb88008bdad0f38308ad79960d84e8',1,'hermes::Numbers']]],
+  ['greatest_5fint_195',['greatest_int',['../structhermes_1_1Numbers.html#ab23d4f7a12278dc40351b50d02a1ccb6',1,'hermes::Numbers']]],
+  ['green_196',['green',['../classhermes_1_1ConsoleColors.html#a46d96feab41c46a4a839ddeba1705d73',1,'hermes::ConsoleColors']]],
+  ['grid_5fsize_197',['grid_size',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#aaacc047ea81d695bcf248e206d030101',1,'hermes::cuda_utils::LaunchInfo']]],
+  ['getting_20started_198',['Getting Started',['../index.html',1,'']]],
+  ['geometry_199',['Geometry',['../md_docs_8_geometry.html',1,'']]]
 ];

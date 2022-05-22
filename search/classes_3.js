@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['enablebitmaskoperators_293',['EnableBitMaskOperators',['../structhermes_1_1EnableBitMaskOperators.html',1,'hermes']]]
+  ['datatypes_665',['DataTypes',['../classhermes_1_1DataTypes.html',1,'hermes']]]
 ];

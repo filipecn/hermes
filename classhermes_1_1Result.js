@@ -1,0 +1,25 @@
+var classhermes_1_1Result =
+[
+    [ "Result", "classhermes_1_1Result.html#afd656b44ba7e7a512d2550bdfb38cfdd", null ],
+    [ "Result", "classhermes_1_1Result.html#abc5506b0fe0923adaf0d0ceafb78b2c2", null ],
+    [ "Result", "classhermes_1_1Result.html#a33d4d2364680f9f50b05af3ecb60ba27", null ],
+    [ "Result", "classhermes_1_1Result.html#a61ebf3a11b7027221da74d41caae3ffb", null ],
+    [ "Result", "classhermes_1_1Result.html#a58d4fc549b1838928fcd438d101a9331", null ],
+    [ "good", "classhermes_1_1Result.html#a17e40f3abbe000920ead4be465969459", null ],
+    [ "operator bool", "classhermes_1_1Result.html#af3320e361ef8b93957dbea7ac181acd2", null ],
+    [ "operator*", "classhermes_1_1Result.html#aca422e0c9a723e189631569e66c119cd", null ],
+    [ "operator*", "classhermes_1_1Result.html#a7d3885a83ffaad0f748268e910f7d7d9", null ],
+    [ "operator->", "classhermes_1_1Result.html#a7ebe514201fef9fce4f5077c81a64c81", null ],
+    [ "operator->", "classhermes_1_1Result.html#ad2ddd14b8112bed4ac7e248b4e39519d", null ],
+    [ "operator=", "classhermes_1_1Result.html#a5cc24a624e34ddaafbe471a722e0fcb2", null ],
+    [ "operator=", "classhermes_1_1Result.html#ae56ef82302324937459f28d48cdbfd3e", null ],
+    [ "operator=", "classhermes_1_1Result.html#a040ed3c3420725caa9669e6c8dbbbcde", null ],
+    [ "operator=", "classhermes_1_1Result.html#a53140f96f9495ade9cf19f8c38aa47ad", null ],
+    [ "reset", "classhermes_1_1Result.html#af34777a54f7b4e4fd561fd103cdd0eb0", null ],
+    [ "status", "classhermes_1_1Result.html#a9a7d7db59c4de32f5e869cfad93377e0", null ],
+    [ "value", "classhermes_1_1Result.html#afd47d175fe407fbed143bbea95ca056b", null ],
+    [ "value", "classhermes_1_1Result.html#a80dcbf4d77ef618eaddc0ef422cd851d", null ],
+    [ "valueOr", "classhermes_1_1Result.html#a7c94b0793a765fb049b44bc0f7debcc6", null ],
+    [ "err_", "classhermes_1_1Result.html#a887862a44c769c2b87d201632763b0c3", null ],
+    [ "value_", "classhermes_1_1Result.html#a616ce611ccb086be29a34d1890f957d7", null ]
+];

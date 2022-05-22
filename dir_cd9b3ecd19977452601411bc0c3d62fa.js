@@ -15,6 +15,7 @@ var dir_cd9b3ecd19977452601411bc0c3d62fa =
     [ "optional.h", "optional_8h.html", "optional_8h" ],
     [ "profiler.cpp", "profiler_8cpp.html", "profiler_8cpp" ],
     [ "profiler.h", "profiler_8h.html", "profiler_8h" ],
+    [ "result.h", "result_8h_source.html", null ],
     [ "size.h", "size_8h.html", "size_8h" ],
     [ "str.cpp", "str_8cpp.html", null ],
     [ "str.h", "str_8h.html", "str_8h" ],

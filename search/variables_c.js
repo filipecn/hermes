@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['width_482',['width',['../classhermes_1_1Size2.html#ac714086f25b5b9c20ce42b5eb73f4d70',1,'hermes::Size2::width()'],['../classhermes_1_1Size3.html#a0d4e572836cad044cffc447546874d69',1,'hermes::Size3::width()']]]
+  ['m_1193',['m',['../classhermes_1_1Transform.html#a86f04e9250c535df427491039a3d34aa',1,'hermes::Transform']]],
+  ['magenta_1194',['magenta',['../classhermes_1_1ConsoleColors.html#a51c4ce80160dd39066251be1e44dc757',1,'hermes::ConsoleColors']]]
 ];

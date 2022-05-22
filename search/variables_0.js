@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['block_5fsize_465',['block_size',['../structhermes_1_1cuda__utils_1_1LaunchInfo.html#a311147c562e2341e0d75906d3bcd70bb',1,'hermes::cuda_utils::LaunchInfo']]]
+  ['a_1125',['a',['../classhermes_1_1Line.html#a727b758cb2c9600a3e0a6ec97701576f',1,'hermes::Line']]],
+  ['abbreviation_5fsize_1126',['abbreviation_size',['../classhermes_1_1Log.html#a5be5c8f792df31c92febcda53fb8d7e3',1,'hermes::Log']]]
 ];
