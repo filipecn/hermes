@@ -42,7 +42,7 @@ namespace hermes {
 HERMES_DEVICE_CALLABLE StackAllocatorView::StackAllocatorView(byte *data,
                                                               std::size_t capacity_in_bytes,
                                                               std::size_t marker)
-    : data_(data), capacity_in_bytes_(capacity_in_bytes), marker_(marker) {
+    : capacity_in_bytes_(capacity_in_bytes), data_(data), marker_(marker) {
 
 }
 

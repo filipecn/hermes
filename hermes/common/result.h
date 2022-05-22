@@ -1,4 +1,4 @@
-/// Copyright (c) 2021, FilipeCN.
+/// Copyright (c) 2022, FilipeCN.
 ///
 /// The MIT License (MIT)
 ///
@@ -19,78 +19,57 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 /// IN THE SOFTWARE.
 ///
-///\file optional.h
+///\file result_or.h
 ///\author FilipeCN (filipedecn@gmail.com)
-///\date 2021-10-09
+///\date 2022-05-20
 ///
-///\note This code is based in pbrt's optional class, that carries the license:
-/// pbrt is Copyright(c) 1998-2020 Matt Pharr, Wenzel Jakob, and Greg Humphreys.
-/// The pbrt source code is licensed under the Apache License, Version 2.0.
-/// SPDX: Apache-2.0
-///
-///\brief Optional value holder
-///
-///\ingroup common
-///\addtogroup common
-/// @{
+///\brief
 
-#ifndef HERMES_HERMES_COMMON_OPTIONAL_H
-#define HERMES_HERMES_COMMON_OPTIONAL_H
+#ifndef HERMES_HERMES_COMMON_RESULT_H
+#define HERMES_HERMES_COMMON_RESULT_H
 
 #include <hermes/common/defs.h>
-#include <iostream>
+#include <hermes/common/debug.h>
 
 namespace hermes {
 
+template<class T>
+struct UnexpectedResultType {
+  T value{};
+};
+
 // *********************************************************************************************************************
-//                                                                                                              Optional
+//                                                                                                              Result
 // *********************************************************************************************************************
-/// \brief Works just as std::optional, but supports GPU code. It may contain a value or not.
-///
-/// - Example:
-/// \code{.cpp}
-///     Optional<int> a;
-///     // check if a is currently holding an int
-///     if(a.hasValue()) {}
-///     // assign a value to a
-///     a = 1;
-///     // access like this
-///     a.value();
-///     // if you are not sure if value is there, you can access this way
-///     a.valueOr(-1); // you will get -1 if there is no value in a
-/// \endcode
-///
-/// \tparam T
-template<typename T>
-class Optional {
+/// \brief Holds a valid object or an error
+template<class T, class E = HeResult>
+class Result {
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
-  //                                                                                                              new
-  /// \brief Default constructor
-  HERMES_DEVICE_CALLABLE Optional() {}
+  HERMES_DEVICE_CALLABLE explicit Result(const UnexpectedResultType<E> &err = {}) : ok_(false) {
+    new(reinterpret_cast<E *>(&err_)) E(err.value);
+  }
   /// \brief Value constructor
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Optional(const T &v) : has_value_(true) {
+  HERMES_DEVICE_CALLABLE explicit Result(const T &v) : ok_(true) {
     new(reinterpret_cast<T *>(&value_)) T(v);
   }
   /// \brief Move value constructor
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Optional(T &&v) : has_value_(true) {
+  HERMES_DEVICE_CALLABLE explicit Result(T &&v) : ok_(true) {
     new(reinterpret_cast<T *>(&value_)) T(std::move(v));
   }
-  ///
-  HERMES_DEVICE_CALLABLE ~Optional() { reset(); }
   //                                                                                                       assignment
   /// \brief Copy constructor
   /// \param other
-  HERMES_DEVICE_CALLABLE Optional(const Optional &other) {
+  HERMES_DEVICE_CALLABLE Result(const Result &other) {
     *this = other;
   }
   /// \brief Move constructor
   /// \param other
-  HERMES_DEVICE_CALLABLE Optional(Optional &&other) noexcept {
+  HERMES_DEVICE_CALLABLE Result(Result &&other) noexcept {
     *this = std::move(other);
   }
   // *******************************************************************************************************************
@@ -98,46 +77,48 @@ public:
   // *******************************************************************************************************************
   /// \brief Casts to bool (indicates whether this contains value)
   /// \return
-  HERMES_DEVICE_CALLABLE explicit operator bool() const { return has_value_; }
+  HERMES_DEVICE_CALLABLE explicit operator bool() const noexcept { return ok_; }
   //                                                                                                       assignment
   /// \brief Copy assignment
   /// \param other
   /// \return
-  HERMES_DEVICE_CALLABLE Optional &operator=(const Optional &other) {
+  HERMES_DEVICE_CALLABLE Result &operator=(const Result &other) {
     reset();
-    if (other.has_value_) {
-      has_value_ = true;
+    ok_ = other.ok_;
+    if (other.ok_)
       new(reinterpret_cast<T *>(&value_)) T(other.value());
-    }
+    else
+      new(reinterpret_cast<E *>(&err_)) E(other.status());
     return *this;
   }
-  /// \brief Move assinment
+  /// \brief Move assignment
   /// \param other
   /// \return
-  HERMES_DEVICE_CALLABLE Optional &operator=(Optional &&other) noexcept {
+  HERMES_DEVICE_CALLABLE Result &operator=(Result &&other) noexcept {
     reset();
-    if (other.has_value_) {
-      has_value_ = true;
+    ok_ = other.ok_;
+    if (other.ok_)
       new(reinterpret_cast<T *>(&value_)) T(std::move(other.value()));
-    }
+    else
+      new(reinterpret_cast<E *>(&err_)) E(std::move(other.status()));
     return *this;
   }
   /// \brief Value assignment
   /// \param v
   /// \return
-  HERMES_DEVICE_CALLABLE Optional &operator=(const T &v) {
+  HERMES_DEVICE_CALLABLE Result &operator=(const T &v) {
     reset();
+    ok_ = true;
     new(reinterpret_cast<T *>(&value_)) T(v);
-    has_value_ = true;
     return *this;
   }
   /// \brief Move value assignment
   /// \param v
   /// \return
-  HERMES_DEVICE_CALLABLE Optional &operator=(T &&v) {
+  HERMES_DEVICE_CALLABLE Result &operator=(T &&v) {
     reset();
+    ok_ = true;
     new(reinterpret_cast<T *>(&value_)) T(std::move(v));
-    has_value_ = true;
     return *this;
   }
   //                                                                                                           access
@@ -156,21 +137,20 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  [[nodiscard]] HERMES_DEVICE_CALLABLE bool good() const { return ok_; }
+  [[nodiscard]] HERMES_DEVICE_CALLABLE E status() const { return err_; }
   /// \brief Destroys stored value (if present)
   HERMES_DEVICE_CALLABLE void reset() {
-    if (has_value_) {
+    if (good()) {
       value().~T();
-      has_value_ = false;
+      ok_ = false;
     }
   }
-  /// \brief Checks if this holds a value
-  /// \return
-  [[nodiscard]] HERMES_DEVICE_CALLABLE bool hasValue() const { return has_value_; }
   //                                                                                                           access
   /// \brief Gets value copy (if present)
   /// \param v value returned in case of empty
   /// \return
-  HERMES_DEVICE_CALLABLE T valueOr(const T &v) const { return has_value_ ? value() : v; }
+  HERMES_DEVICE_CALLABLE T valueOr(const T &v) const { return good() ? value() : v; }
   /// \brief Gets value's reference
   /// \return
   HERMES_DEVICE_CALLABLE T &value() {
@@ -181,28 +161,17 @@ public:
   HERMES_DEVICE_CALLABLE const T &value() const {
     return *reinterpret_cast<const T *>(&value_);
   }
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
 private:
-  bool has_value_{false};
-  typename std::aligned_storage<sizeof(T), alignof(T)>::type value_;
+  union {
+    E err_{};
+    typename std::aligned_storage<sizeof(T), alignof(T)>::type value_;
+  };
+  bool ok_{false};
 };
 
-// *********************************************************************************************************************
-//                                                                                                                 IO
-// *********************************************************************************************************************
-/// \brief Support of hermes::Optional to `std::ostream`'s << operator
-/// \tparam T
-/// \param o
-/// \param optional
-/// \return
-template<typename T>
-inline std::ostream &operator<<(std::ostream &o, const Optional<T> &optional) {
-  if (optional.hasValue())
-    return o << "Optional<" << typeid(T).name() << "> = " << optional.hasValue();
-  return o << "Optional<" << typeid(T).name() << "> = [no value]";
 }
 
-}
-
-#endif //HERMES_HERMES_COMMON_OPTIONAL_H
-
-/// @}
+#endif //HERMES_HERMES_COMMON_RESULT_H

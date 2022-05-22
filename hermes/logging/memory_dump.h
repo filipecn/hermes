@@ -24,6 +24,10 @@
 ///\date 2021-03-14
 ///
 ///\brief
+///
+///\ingroup logging
+///\addtogroup logging
+/// @{
 
 #ifndef HERMES_LOG_MEMORY_DUMP_H
 #define HERMES_LOG_MEMORY_DUMP_H
@@ -40,47 +44,91 @@
 
 namespace hermes {
 
+/// \brief MemoryDumper output options
+/// \note You may use bitwise operators to combine these options
 enum class memory_dumper_options {
-  none = 0x0,
-  // data format
-  binary = 0x1,
-  decimal = 0x2,
-  hexadecimal = 0x4,
-  hexii = 0x8,
-  // display options_
-  hide_header = 0x10,
-  cache_align = 0x20,
-  hide_zeros = 0x40,
-  show_ascii = 0x80,
-  save_to_string = 0x100,
-  write_to_console = 0x200,
-  colored_output = 0x400,
-  type_values = 0x800
+  none = 0x0,                    //!< default usage
+  binary = 0x1,                  //!< output memory contents in binary
+  decimal = 0x2,                 //!< output memory contents in decimal
+  hexadecimal = 0x4,             //!< output memory contents in hexadecimal
+  hexii = 0x8,                   //!< output memory contents in hexii
+  hide_header = 0x10,            //!< hide memory column names
+  cache_align = 0x20,            //!< aligns starting address to cache size
+  hide_zeros = 0x40,             //!< do not output bytes with 0 as value
+  show_ascii = 0x80,             //!< show ascii characters for each memory byte
+  save_to_string = 0x100,        //!< redirect output to string
+  write_to_console = 0x200,      //!< directly dump into stdout
+  colored_output = 0x400,        //!< use terminal colors
+  type_values = 0x800            //!< cast values and output their values properly
 };
+/// \brief Adds bitwise operator support to memory_dumper_options
 HERMES_ENABLE_BITMASK_OPERATORS(memory_dumper_options);
 
-/// Auxiliary class for analysing blocks of memory
+// *********************************************************************************************************************
+//                                                                                                       MemoryDumper
+// *********************************************************************************************************************
+/// \brief Auxiliary logging class for printing blocks of memory
 class MemoryDumper {
 public:
+  /// \brief Memory region description
+  ///
+  /// A RegionLayout describes how data is laid out in a specific portion of memory. The memory region
+  /// can be composed of multiple sub-regions recursively. Each final sub-region will contain one or
+  /// more elements of the same type. You can pick a different color for each sub-region and also
+  /// repeat them over the layout (when you have arrays).
+  ///
+  /// - Example
+  /// \code{cpp}
+  /// // suppose you have an array of structs S
+  /// struct S {
+  ///     hermes::vec3 v;
+  ///     hermes::point2 p;
+  /// };
+  /// S v[3];
+  /// // a layout describing this array can be created like this:
+  /// // start by setting the entire memory size (3 S structs)
+  /// auto layout = MemoryDumper::RegionLayout().withSizeOf<S>(3)
+  ///    // the first subregion is the field v, which we paint blue
+  ///    .withSubRegion(vec3::memoryDumpLayout().withColor(ConsoleColors::blue))
+  ///    // the second subregion is the field p, which we paint blue
+  ///    .withSubRegion(point2::memoryDumpLayout().withColor(ConsoleColors::yellow));
+  /// \endcode
+  /// \note Most types in hermes, such as `point2` and `vec3`, provide their RegionLayout for you
   struct RegionLayout {
+    /// \brief Default constructor
     RegionLayout() = default;
-
+    /// \brief Modifies layout offset
+    /// \param offset_in_bytes
+    /// \return
     RegionLayout &withOffset(std::size_t offset_in_bytes) {
       offset = offset_in_bytes;
       return *this;
     }
+    /// \brief Modifies layout color
+    /// \param console_color
+    /// \return
     RegionLayout &withColor(const std::string &console_color) {
       color = console_color;
       return *this;
     }
+    /// \brief Modifies layout count
+    /// \param region_count
+    /// \return
     RegionLayout &withCount(std::size_t region_count) {
       count = region_count;
       return *this;
     }
+    /// \brief Modifies layout base data type
+    /// \param t
+    /// \return
     RegionLayout &withType(DataType t) {
       type = t;
       return *this;
     }
+    /// \brief Appends a layout representing a sub-region of this layout
+    /// \param sub_region
+    /// \param increment_to_parent_size
+    /// \return
     RegionLayout &withSubRegion(const RegionLayout &sub_region, bool increment_to_parent_size = false) {
       std::size_t new_offset = 0;
       if (!sub_regions.empty())
@@ -91,6 +139,9 @@ public:
         field_size_in_bytes += sub_region.field_size_in_bytes * sub_region.count;
       return *this;
     }
+    /// \brief Appends a layout representing a sub-region of this layout
+    /// \param sub_region
+    /// \param increment_to_parent_size
     void pushSubRegion(const RegionLayout &sub_region, bool increment_to_parent_size = false) {
       std::size_t new_offset = 0;
       if (!sub_regions.empty())
@@ -100,44 +151,61 @@ public:
       if (increment_to_parent_size)
         field_size_in_bytes += sub_region.field_size_in_bytes * sub_region.count;
     }
-
+    /// \brief Modifies layout base data type based on a given type
+    /// \tparam T
+    /// \return
     template<typename T>
     RegionLayout &withTypeFrom() {
       type = DataTypes::typeFrom<T>();
       return *this;
     }
+    /// \brief Modifies layout size based on given type and count
+    /// \tparam T
+    /// \param element_count
+    /// \return
     template<typename T>
     RegionLayout &withSizeOf(std::size_t element_count = 1) {
       count = element_count;
       field_size_in_bytes = sizeof(T);
       return *this;
     }
+    /// \brief Modifies layout size based on given quantities
+    /// \param size_in_bytes
+    /// \param element_count
+    /// \return
     RegionLayout &withSize(std::size_t size_in_bytes, std::size_t element_count = 1) {
       count = element_count;
       field_size_in_bytes = size_in_bytes;
       return *this;
     }
+    /// \brief Gets layout size in bytes
+    /// \return
     [[nodiscard]] std::size_t sizeInBytes() const { return field_size_in_bytes * count; }
-
+    /// \brief Resizes number of sub-regions of this layout
+    /// \param sub_regions_count
     void resizeSubRegions(size_t sub_regions_count) {
       sub_regions.resize(sub_regions_count);
       field_size_in_bytes = 0;
       for (auto &s : sub_regions)
         field_size_in_bytes += s.field_size_in_bytes * s.count;
     }
-
+    /// \brief Removes all description
     void clear() {
       *this = RegionLayout();
     }
 
-    std::size_t offset{0};
-    std::size_t field_size_in_bytes{0};
-    std::size_t count{1};
-    std::string color = ConsoleColors::default_color;
-    std::vector<RegionLayout> sub_regions;
-    DataType type{DataType::CUSTOM};
+    std::size_t offset{0};                               //!< Layout offset in bytes
+    std::size_t field_size_in_bytes{0};                  //!< Region size
+    std::size_t count{1};                                //!< Region count
+    std::string color = ConsoleColors::default_color;    //!< Region color
+    std::vector<RegionLayout> sub_regions;               //!< Sub-region descriptions
+    DataType type{DataType::CUSTOM};                     //!< Base data type
   };
-  ///
+
+  // *******************************************************************************************************************
+  //                                                                                                   STATIC METHODS
+  // *******************************************************************************************************************
+  /// \brief Dumps memory info about a given memory region
   /// \tparam T
   /// \param data
   /// \param size
@@ -159,11 +227,12 @@ public:
     s.appendLine("    Total Block Size:\t", size_in_bytes, " bytes");
     return s.str();
   }
-  ///
+  /// \brief Dumps memory region
   /// \tparam T
   /// \param data
   /// \param size
   /// \param bytes_per_row
+  /// \param region
   /// \param options
   /// \return
   template<typename T>
@@ -383,6 +452,10 @@ private:
 
 };
 
+/// \brief Adds MemoryDumper::RegionLayout support for `std::ostream` `<<` operator
+/// \param os
+/// \param layout
+/// \return
 inline std::ostream &operator<<(std::ostream &os, const MemoryDumper::RegionLayout &layout) {
   os << layout.color << "MemoryRegionLayout [offset = " << layout.offset;
   os << " field size (bytes) = " << layout.field_size_in_bytes;
@@ -401,3 +474,5 @@ inline std::ostream &operator<<(std::ostream &os, const MemoryDumper::RegionLayo
 }
 
 #endif //HERMES_HERMES_HERMES_LOG_MEMORY_DUMP_H
+
+/// @}

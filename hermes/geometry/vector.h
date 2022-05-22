@@ -23,7 +23,11 @@
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date 2017-08-19
 ///
-///\brief
+///\brief Geometric vector classes
+///
+///\ingroup geometry
+///\addtogroup geometry
+/// @{
 
 #ifndef HERMES_GEOMETRY_VECTOR_H
 #define HERMES_GEOMETRY_VECTOR_H
@@ -45,6 +49,7 @@ template<typename T> class Point2;
 // *********************************************************************************************************************
 //                                                                                                            Vector2
 // *********************************************************************************************************************
+/// \brief Geometric 2-dimensional vector (x, y)
 /// \tparam T
 template<typename T> class Vector2 : public MathElement<T, 2u> {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
@@ -55,10 +60,20 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Vector2() : x{0}, y{0} {};
+  /// \brief Constructs from component values
+  /// \param _x
+  /// \param _y
   HERMES_DEVICE_CALLABLE Vector2(T _x, T _y) : x(_x), y(_y) {}
+  /// \brief Constructs from geometric point
+  /// \param p
   HERMES_DEVICE_CALLABLE explicit Vector2(const Point2<T> &p) : x(p.x), y(p.y) {}
+  /// \brief Constructs from single component value
+  /// \param f
   HERMES_DEVICE_CALLABLE explicit Vector2(T f) { x = y = f; }
+  /// \brief Constructs from component array
+  /// \param f
   HERMES_DEVICE_CALLABLE explicit Vector2(T *f) {
     x = f[0];
     y = f[1];
@@ -67,7 +82,15 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                           access
+  /// \brief Get i-th component
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 1]
+  /// \return
   HERMES_DEVICE_CALLABLE T operator[](size_t i) const { return (&x)[i]; }
+  /// \brief Get i-th component reference
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 1]
+  /// \return
   HERMES_DEVICE_CALLABLE T &operator[](size_t i) { return (&x)[i]; }
   //                                                                                                       arithmetic
 #define ARITHMETIC_OP(OP)                                                                                           \
@@ -101,20 +124,36 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  /// \brief Computes squared magnitude
+  /// \return
   HERMES_DEVICE_CALLABLE T length2() const { return x * x + y * y; }
+  /// \brief Computes magnitude
+  /// \return
   HERMES_DEVICE_CALLABLE T length() const { return sqrtf(length2()); }
+  /// \brief Gets orthogonal vector in _right_ direction
+  /// \return
   HERMES_DEVICE_CALLABLE Vector2 right() const { return Vector2(y, -x); }
+  /// \brief Gets orthogonal vector in _left_ direction
+  /// \return
   HERMES_DEVICE_CALLABLE Vector2 left() const { return Vector2(-y, x); }
   //                                                                                                          swizzle
+  /// \brief Gets swizzle form (x, y)
+  /// \return
   Vector2 xy() const { return {x, y}; }
+  /// \brief Gets swizzle form (y, x)
+  /// \return
   Vector2 yx() const { return {y, x}; }
+  /// \brief Gets swizzle form (x, x)
+  /// \return
   Vector2 xx() const { return {x, x}; }
+  /// \brief Gets swizzle form (y, y)
+  /// \return
   Vector2 yy() const { return {y, y}; }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
-  T x = T(0.0);
-  T y = T(0.0);
+  T x = T(0.0); //!< 0-th component
+  T y = T(0.0); //!< 1-th component
 };
 
 template<typename T> class Point3;
@@ -122,6 +161,8 @@ template<typename T> class Point3;
 // *********************************************************************************************************************
 //                                                                                                            Vector3
 // *********************************************************************************************************************
+/// \brief Geometric 3-dimensional vector (x, y, z)
+/// \tparam T
 template<typename T> class Vector3 : public MathElement<T, 3u> {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
@@ -131,16 +172,31 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Vector3() : x{0}, y{0}, z{0} {}
+  /// \brief Constructs from single component value
+  /// \param _f
   HERMES_DEVICE_CALLABLE explicit Vector3(T _f) : x(_f), y(_f), z(_f) {}
+  /// \brief Constructs from component values
+  /// \param _x
+  /// \param _y
+  /// \param _z
   HERMES_DEVICE_CALLABLE Vector3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
+  /// \brief Constructs from component array
+  /// \param v
   HERMES_DEVICE_CALLABLE explicit Vector3(const T *v) {
     x = v[0];
     y = v[1];
     z = v[2];
   }
   //                                                                                                       conversion
+  /// \brief Casts from geometric point
+  /// \param p
   HERMES_DEVICE_CALLABLE explicit Vector3(const Point3<T> &p) : x(p.x), y(p.y), z(p.z) {}
+  /// \brief Constructs from interval
+  /// \tparam S
+  /// \tparam C
+  /// \param vi
   template<typename S, typename C = T>
   HERMES_DEVICE_CALLABLE explicit Vector3(const Vector3<Interval<S>> &vi,
                                           typename std::enable_if_t<
@@ -151,6 +207,9 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                       assignment
+  /// \brief Copy assign
+  /// \param v
+  /// \return
   HERMES_DEVICE_CALLABLE Vector3 &operator=(const T &v) {
     x = y = z = v;
     return *this;
@@ -216,18 +275,32 @@ public:
   // *******************************************************************************************************************
   //                                                                                                           ACCESS
   // *******************************************************************************************************************
+  /// \brief Get i-th component
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 2]
+  /// \return
   HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&x)[i]; }
+  /// \brief Get i-th component reference
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 2]
+  /// \return
   HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&x)[i]; }
+  /// \brief Gets 2-dimensional swizzle form
+  /// \param i
+  /// \param j
+  /// \return
   HERMES_DEVICE_CALLABLE Vector2<T> xy(int i = 0, int j = 1) const {
     return Vector2<T>((&x)[i], (&x)[j]);
   }
   // *******************************************************************************************************************
   //                                                                                                          METRICS
   // *******************************************************************************************************************
+  /// \brief Computes Manhattan distance
   /// \note Also called L1-norm, taxicab norm, Manhattan norm
   /// \note Defined as ||v||_1 = sum_i(|v_i|)
   /// \return L1-norm of this vector
   HERMES_DEVICE_CALLABLE T mLength() const { return std::abs(x) + std::abs(y) + std::abs(z); }
+  /// \brief Computes vector magnitude
   /// \note Also called L2-norm, Euclidean norm, Euclidean distance, 2-norm
   /// \note Defined as ||v|| = (v_i * v_i)^(1/2)
   /// \return 2-norm of this vector
@@ -237,16 +310,21 @@ public:
                                                                                    Interval<f64>>> * = nullptr) const {
     return std::sqrt(length2());
   }
+  /// \brief Computes vector magnitude
+  /// \tparam C
+  /// \return
   template<typename C = T>
   HERMES_DEVICE_CALLABLE T length(typename std::enable_if_t<std::is_same_v<C, Interval<f32>>
                                                                 || std::is_same_v<C,
                                                                                   Interval<f64>>> * = nullptr) const {
     return length2().sqrt();
   }
+  /// \brief Computes vector squared magnitude
   /// \note Also called squared Euclidean distance
   /// \note Defined as ||v||^2 = v_i * v_i
   /// \return squared 2-norm of this vector
   HERMES_DEVICE_CALLABLE T length2() const { return x * x + y * y + z * z; }
+  /// \brief Gets maximum absolute component value
   /// \note Also called maximum norm, infinity norm
   /// \note Defined as ||v||_inf = argmax max(|v_i|)
   /// \return greatest absolute component value
@@ -257,6 +335,7 @@ public:
       return y;
     return z;
   }
+  /// \brief Gets maximum component value
   /// \note Defined as argmax v_i
   /// \return greatest component value
   HERMES_DEVICE_CALLABLE T max() const {
@@ -266,6 +345,7 @@ public:
       return y;
     return z;
   }
+  /// \brief Gets index of component with maximum value
   /// \note Defined as argmax_i v_i
   /// \return Index of component with greatest value
   [[nodiscard]] HERMES_DEVICE_CALLABLE int maxDimension() const {
@@ -275,6 +355,7 @@ public:
       return 1;
     return 2;
   }
+  /// \brief Gets index of component with maximum absolute value
   /// \note Defined as argmax_i |v_i|
   /// \return Index of dimension with greatest value
   [[nodiscard]] HERMES_DEVICE_CALLABLE int maxAbsDimension() const {
@@ -287,6 +368,7 @@ public:
   // *******************************************************************************************************************
   //                                                                                                       OPERATIONS
   // *******************************************************************************************************************
+  /// \brief Normalizes this vector
   /// \note Normalization by vector length
   /// \note Defined as v / ||v||
   HERMES_DEVICE_CALLABLE void normalize() {
@@ -297,6 +379,7 @@ public:
       z /= l;
     }
   }
+  /// \brief Gets a normalized copy of this vector
   /// \note Normalization by vector length
   /// \note Defined as v / ||v||
   /// \return Normalized vector of this vector
@@ -304,12 +387,14 @@ public:
     auto l = length();
     return (*this) / l;
   }
+  /// \brief Projects this vector onto b
   /// \note b * dot(v,b) / ||b||
   /// \param b vector to project onto
   /// \return projection of this vector onto **b**
   HERMES_DEVICE_CALLABLE Vector3 projectOnto(const Vector3 &b) {
     return (dot(b, *this) / b.length2()) * b;
   }
+  /// \brief Rejects this vector on b
   /// \note v - b * dot(v,b) / ||b||
   /// \param b vector of rejection
   /// \return rejection of this vector on **b**
@@ -317,22 +402,38 @@ public:
     return *this - (dot(b, *this) / b.length2()) * b;
   }
   // *******************************************************************************************************************
+  //                                                                                                            DEBUG
+  // *******************************************************************************************************************
+  /// \brief Check for nans
+  /// \return
+  HERMES_DEVICE_CALLABLE [[nodiscard]] bool hasNaNs() const {
+    return Check::is_nan(x) || Check::is_nan(y) || Check::is_nan(z);
+  }
+  // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
-  T x = T(0.0);
-  T y = T(0.0);
-  T z = T(0.0);
+  T x = T(0.0);  //!< 0-th component
+  T y = T(0.0);  //!< 1-th component
+  T z = T(0.0);  //!< 2-th component
 };
 
 // *********************************************************************************************************************
 //                                                                                                            Vector4
 // *********************************************************************************************************************
+/// \brief Geometric 4-dimensional point (x, y, z, w)
+/// \tparam T
 template<typename T> class Vector4 : public MathElement<T, 4> {
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Vector4() : x{0}, y{0}, z{0}, w{0} {}
+  /// \brief Construct from component values
+  /// \param _x
+  /// \param _y
+  /// \param _z
+  /// \param _w
   HERMES_DEVICE_CALLABLE Vector4(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_z), w(_w) {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
@@ -384,59 +485,114 @@ public:
   // *******************************************************************************************************************
   //                                                                                                           ACCESS
   // *******************************************************************************************************************
+  /// \brief Get i-th component
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 3]
+  /// \return
   HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&x)[i]; }
+  /// \brief Get i-th component reference
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 3]
+  /// \return
   HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&x)[i]; }
+  /// \brief Gets first 2 components
+  /// \return
   HERMES_DEVICE_CALLABLE Vector2<T> xy() { return Vector2<T>(x, y); }
+  /// \brief Gets first 3 components
+  /// \return
   HERMES_DEVICE_CALLABLE Vector3<T> xyz() { return Vector3<T>(x, y, z); }
   // *******************************************************************************************************************
   //                                                                                                          METRICS
   // *******************************************************************************************************************
+  /// \brief Computes vector squared magnitude
+  /// \return
   HERMES_DEVICE_CALLABLE T length2() const { return x * x + y * y + z * z + w * w; }
+  /// \brief Computes vector magnitude
+  /// \return
   HERMES_DEVICE_CALLABLE T length() const { return sqrtf(length2()); }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
-  T x = T(0.0);
-  T y = T(0.0);
-  T z = T(0.0);
-  T w = T(0.0);
+  T x = T(0.0); //!< 0-th component
+  T y = T(0.0); //!< 1-th component
+  T z = T(0.0); //!< 2-th component
+  T w = T(0.0); //!< 3-th component
 };
 
 // *********************************************************************************************************************
 //                                                                                                 EXTERNAL FUNCTIONS
 // *********************************************************************************************************************
 //                                                                                                           geometry
+/// \brief Computes the dot product between two vectors
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  T dot(const Vector2<T> &a, const Vector2<T> &b) {
   return a.x * b.x + a.y * b.y;
 }
+/// \brief Computes the dot product between two vectors
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  T dot(const Vector3<T> &a, const Vector3<T> &b) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+/// \brief Computes the cross product between two vectors
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  T cross(const Vector2<T> &a, const Vector2<T> &b) {
   return a.x * b.y - a.y * b.x;
 }
+/// \brief Computes the cross product between two vectors
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  Vector3<T> cross(const Vector3<T> &a, const Vector3<T> &b) {
   return Vector3<T>((a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z),
                     (a.x * b.y) - (a.y * b.x));
 }
+/// \brief Computes the triple product between 3 vectors
+/// \tparam T
+/// \param a
+/// \param b
+/// \param c
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  T triple(const Vector3<T> &a, const Vector3<T> &b, const Vector3<T> &c) {
   return dot(a, cross(b, c));
 }
+/// \brief Computes normalized copy from vector
+/// \tparam T
+/// \param v
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  Vector2<T> normalize(const Vector2<T> &v) {
   return v / v.length();
 }
+/// \brief Computes normalized copy from vector
+/// \tparam T
+/// \param v
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  Vector3<T> normalize(const Vector3<T> &v) {
   if (v.length2() == 0.f)
     return v;
   return v / v.length();
 }
+/// \brief Computes vector orthonormal to given vector
+/// \tparam T
+/// \param v
+/// \param first
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE  Vector2<T> orthonormal(const Vector2<T> &v, bool first = true) {
   Vector2<T> n = normalize(v);
@@ -444,7 +600,7 @@ HERMES_DEVICE_CALLABLE  Vector2<T> orthonormal(const Vector2<T> &v, bool first =
     return Vector2<T>(-n.y, n.x);
   return Vector2<T>(n.y, -n.x);
 }
-/// Projects a vector onto another.
+/// \brief Projects a vector onto another.
 /// \param a **[in]**
 /// \param b **[in]**
 /// \returns the projection of **a** onto **b**
@@ -452,6 +608,7 @@ template<typename T>
 HERMES_DEVICE_CALLABLE  Vector2<T> project(const Vector2<T> &a, const Vector2<T> &b) {
   return (dot(b, a) / b.length2()) * b;
 }
+/// \brief Projects one vector into another
 /// \note b * dot(a,b) / ||b||
 /// \tparam T
 /// \param a
@@ -460,6 +617,15 @@ HERMES_DEVICE_CALLABLE  Vector2<T> project(const Vector2<T> &a, const Vector2<T>
 template<typename T>
 HERMES_DEVICE_CALLABLE  Vector3<T> project(const Vector3<T> &a, const Vector3<T> &b) {
   return (dot(b, a) / b.length2()) * b;
+}
+/// \brief Rejects one vector on another
+/// \tparam T
+/// \param a
+/// \param b
+/// \return rejection of **a** onto **b**
+template<typename T>
+HERMES_DEVICE_CALLABLE  Vector3<T> reject(const Vector3<T> &a, const Vector3<T> &b) {
+  return a - (dot(b, a) / b.length2()) * b;
 }
 /// \brief compute the two orthogonal-tangential vectors from a
 /// \param a **[in]** normal
@@ -575,7 +741,12 @@ using vec3i = Vector3<Interval<real_t>>;
 // std hash support
 namespace std {
 
+/// \brief Hash support for vector2
+/// \tparam T
 template<typename T> struct hash<hermes::Vector2<T>> {
+  /// \brief Computes hash for a given vector
+  /// \param v
+  /// \return
   size_t operator()(hermes::Vector2<T> const &v) const {
     hash<T> hasher;
     size_t s = 0;
@@ -591,7 +762,12 @@ template<typename T> struct hash<hermes::Vector2<T>> {
   }
 };
 
+/// \brief Hash support for vector3
+/// \tparam T
 template<typename T> struct hash<hermes::Vector3<T>> {
+  /// \brief Computes hash for a given vector
+  /// \param v
+  /// \return
   size_t operator()(hermes::Vector3<T> const &v) const {
     hash<T> hasher;
     size_t s = 0;
@@ -614,3 +790,5 @@ template<typename T> struct hash<hermes::Vector3<T>> {
 } // namespace std
 
 #endif
+
+/// @}

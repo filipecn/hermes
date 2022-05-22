@@ -37,242 +37,6 @@ int main() {
 }
 ```
 
-## Logging
-Hermes provides 4 streams of log messages: `info`, `warn`, `error` and
-`critical`. In practice, they just have different console colors
-(although in the future I may actually add some features here). The
-class taking care of logging is `hermes::Log`, but the easiest and
-recommended way to perform logging is though the macros.
-
-```cpp
-HERMES_LOG(FMT, ...);
-HERMES_LOG_WARNING(FMT, ...);
-HERMES_LOG_ERROR(FMT, ...);
-HERMES_LOG_CRITICAL(FMT, ...);
-```
-
-`FMT` is your logging message that can be formatted to include variable
-values - just like `printf`. However, it does not follow `printf`'s
-directives. `hermes::Log` functions format strings in a more simple way
-assuming that every argument will accept `std::stringstream` << operator
-(i.e., your variables must work with `std::cout` for example). To put
-an argument inside your message, you use `{}`, like this:
-```cpp
-HERMES_LOG_ERROR("{} errors in {}", 3, "foo");
-// this will log the message
-// "3 errors in foo"
-```
-
-By using the macros above, Hermes will prefix your messages with a label
-containig file location, function name, line number, time and log stream.
-So the message above would probably appear like this:
-```text
-[2022-01-18 14:23:26] [error] [../my_code.cpp][35][foo] 3 errors in foo
-```
-You can customize the label and the colors by configuring `hermes::Log`
-variables and options:
-```cpp
-#include <hermes/common/debug.h>
-int main() {
-  // tell hermes to abbreviate file path locations and
-  // output colored messages
-  hermes::Log::addOptions(hermes::log_options::abbreviate |
-                          hermes::log_options::use_colors);
-  // choose warn message colors
-  hermes::Log::warn_color = 123; // value in [0,255]
-  HERMES_LOG_WARNING("warning message!");
-  return 0;
-}
-```
-> You can choose among 256 colors, commonly used in terminals. You can consult them [here](https://misc.flogisoft.com/bash/tip_colors_and_formatting) in the _88/256 Colors_ section.
-
-Sometimes you just want to log a code location while debugging to check if the
-coding is getting there, or simply log variables. Here is what you can do in
-those situations:
-```cpp
-// log just the code location
-HERMES_PING
-// log a variable like: variable_name = value
-HERMES_LOG_VARIABLE(variable_name);
-// log multiple variable values in the same line
-HERMES_LOG_VARIABLES(...);
-```
-
-In case of logging in a `CUDA` code, you will not be able to use any of the
-macros above, you will have to use `printf`. The following macros do that
-for you:
-```cpp
-// outputs to stdout
-HERMES_C_LOG(FMT,...);
-// outputs to stderr
-HERMES_C_LOG_ERROR(FMT,...);
-// for convenience, the following macros do the same
-// outputs to stdout
-HERMES_C_DEVICE_LOG(FMT,...);
-// outputs to stderr
-HERMES_C_DEVICE_ERROR(FMT,...);
-```
-> Note that in `FMT` now follows `printf` format options!
-
-Finally, you may also intercept the log output as well. `hermes::Log`
-allows you to register callbacks to intercept log messages:
-```cpp
-#include <hermes/common/debug.h>
-int main() {
-  // register a warn stream callback
-  hermes::Log::warn_callback = [](const hermes::Str& message) {
-    // handle message
-  };
-  // you can also fully redirect messages to your callbacks this way
-  hermes::log::addOptions(hermes::log_options::callback_only);
-  HERMES_LOG_WARNING("this message will not appear in console!");
-  return 0;
-}
-```
-
-## Debugging
-Assertions and checks can be done by using the following macros:
-```cpp
-#include <hermes/common/debug.h>
-
-// warns if expr is false
-HERMES_CHECK_EXP(expr);
-// warns with message M if expr is false
-HERMES_CHECK_EXP_WITH_LOG(expr, M);
-// errors if expr is false
-HERMES_ASSERT(expr);
-// errors with message M if expr is false
-HERMES_ASSERT_WITH_LOG(expr, M);
-```
-Sometimes you want some piece of code to be compiled only in debug mode,
-this macro can be convenient in this situation:
-```cpp
-HERMES_DEBUG_CODE(CODE_CONTENT)
-```
-Then use this way:
-```cpp
-#include <hermes/common/debug.h>
-
-int main() {
-  HERMES_DEBUG_CODE(
-      int a = 3;
-      printf("%d", a);
-      )
-  return 0;
-}
-```
-both lines will not be included in release.
-
-## Profiling
-Hermes provides a profiling tool to track your code performance,
-the hermes::profiler::Profiler singleton class. It works by
-registering blocks that represent execution time of code sections,
-scopes and functions. Each block receives a name (and a color if you want),
-so you can analyze your data later.
-
-You can profile your code by using a set of macros
-like this:
-
-```cpp
-#include <hermes/common/profiler.h>
-// suppose you want to profile the following function
-void profiled_function() {
-    // register a block taking the function's name as the label
-    // the block is automatically finished after leaving this function
-    HERMES_PROFILE_FUNCTION()
-    // some code
-    {
-        // register a block with the label "code scope"
-        // the block is automatically finished after leaving this function
-        HERMES_PROFILE_SCOPE("code scope")
-    }
-    // you can also initiate and finish a block manually
-    HERMES_PROFILE_START_BLOCK("my block")
-    // some code
-    // finish "my block" (always remember do finish your custom blocks!)
-    HERMES_PROFILE_END_BLOCK
-}
-
-int main() {
-  profiled_function();
-  return 0;
-}
-```
-> The profiler uses with a simple stack to manage block creation and completion.
-> So remember to finish blocks consistently.
-
-You can access the history of blocks as well:
-```cpp
-using hermes::profiler;
-Profiler::iterateBlocks([](const Profiler::Block &block {
-      auto block_desc = Profiler::blockDescriptor(block);
-      // block name
-      block_desc.name;
-      // block start time
-      block.begin();
-      // block duration
-      block.duration();
-    }));
-```
-Sometimes you don't want to store all blocks created since the start of your
-program, maybe to save memory. You can limit the profiler to keep only the
-last `n` blocks by calling:
-```cpp
-hermes::profiler::Profiler::setMaxBlockCount(n);
-```
-You can also enable or disable the profiler in runtime with the following
-macros, respectively:
-```cpp
-HERMES_PROFILE_ENABLE
-HERMES_PROFILE_DISABLE
-```
-Sometimes, it is also useful to set colors for your blocks. The block label
-struct holds a field `u32 color;` for that purpose. You can encode your color
-in this unsigned integer the way you prefer, but `hermes` provide a namespace
-containing `u32` colors for you called [hermes::argb_colors](). You can
-set the block's color with the same profiling macros:
-
-```cpp
-HERMES_PROFILE_FUNCTION(hermes::argb_colors::GreenA200);
-HERMES_PROFILE_SCOPE("my scoped block", hermes::argb_colors::BlueA200);
-HERMES_PROFILE_START_BLOCK("my custom block", hermes::argb_colors::Coral);
-```
-
-## Parsing Arguments
-Reading command line arguments or parsing command strings can be done
-with hermes::ArgParser:
-```cpp
-#include <hermes/common/arg_parser.h>
-
-int main(int argc, char** argv) {
-    hermes::ArgParser parser("my program", "description");
-    // define a simple float argument
-    parser.addArgument("--float_argument", "description");
-    // an required argument
-    parser.addArgument("--int_argument", "argument description", true);
-    // parse arguments
-    parser.parse(argc, argv);
-    // access argument value with default value
-    parser.get<int>("--int_argument", 0);
-    // check if argument was given
-    if(parser.check("--float_argument"))
-      HERMES_LOG_VARIABLE(parser.get<float>("--float_argument"));
-    return 0;
-}
-```
-For the code above, you code pass arguments like this:
-```shell
-./a.out --int_argument 3 --float_argument 2.0
-```
-It works by parsing all arguments, in order, pairing tokens separated
-by spaces. So you don't need to explicitly put the names of the arguments
-if you don't want to:
-```shell
-./a.out 3 --float_argument 2.0
-```
-In that case, `3` will be parsed and considered to be the value of your `--int_argument`,
-because the parser will **follow the addArgument order**.
-
 ## Indices and Sizes
 A common task is the iteration over multi-dimensional arrays and index ranges.
 Hermes offers 2-dimensional and 3-dimensional index and size operations that
@@ -406,100 +170,37 @@ int main() {
   return 0;
 }
 ```
-
-## CUDA
-Hermes defines some macros to help you distinguish device code from
-host code. 
+## Parsing Arguments
+Reading command line arguments or parsing command strings can be done
+with hermes::ArgParser:
 ```cpp
-#define HERMES_HOST_FUNCTION __host__
-#define HERMES_DEVICE_CALLABLE __device__ __host__
-#define HERMES_DEVICE_FUNCTION __device__
-// you can check if there is CUDA support with:
-#define HERMES_DEVICE_ENABLED
-// Wraps a block of code that gets compiled only when using CUDA
-#define HERMES_CUDA_CODE(CODE) {CODE}
-```
-> When you build `hermes` without `CUDA` support, all macros listed in this section get empty or are simply not defined.
+#include <hermes/common/arg_parser.h>
 
-Here is how you can declare a `CUDA` kernel:
-```cpp
-// this macro creates a kernel called my_kernel_k
-HERMES_CUDA_KERNEL(my_kernel)(int argument) {
-  // kernel code   
+int main(int argc, char** argv) {
+    hermes::ArgParser parser("my program", "description");
+    // define a simple float argument
+    parser.addArgument("--float_argument", "description");
+    // an required argument
+    parser.addArgument("--int_argument", "argument description", true);
+    // parse arguments
+    parser.parse(argc, argv);
+    // access argument value with default value
+    parser.get<int>("--int_argument", 0);
+    // check if argument was given
+    if(parser.check("--float_argument"))
+      HERMES_LOG_VARIABLE(parser.get<float>("--float_argument"));
+    return 0;
 }
 ```
-> Note that the macro appends `_k` to your kernel's name
-
-Usually your kernel will use thread indices that can be 1-dimensional, 2-dimensional or 3-dimensional
-depending on you launch configurations. Here are some macros that create those indices for you:
-```cpp
-// creates a u32 i containing the thread index
-HERMES_CUDA_THREAD_INDEX_I;
-// creates a hermes::index2 ij containing the thread index
-HERMES_CUDA_THREAD_INDEX_IJ;
-// creates a hermes::index3 ijk containing the thread index
-HERMES_CUDA_THREAD_INDEX_IK;  
-// sometimes you may want the thread to execute only if its index is less then a size:
-HERMES_CUDA_THREAD_INDEX_I_LT(BOUNDS);
-HERMES_CUDA_THREAD_INDEX_IJ_LT(BOUNDS);
-HERMES_CUDA_THREAD_INDEX_IJK_LT(BOUNDS);
-// if you want to define the index variable name, use:
-HERMES_CUDA_THREAD_INDEX_LT(I, BOUNDS);
-HERMES_CUDA_THREAD_INDEX2_LT(IJ, BOUNDS);
-HERMES_CUDA_THREAD_INDEX3_LT(IJK, BOUNDS);
+For the code above, you code pass arguments like this:
+```shell
+./a.out --int_argument 3 --float_argument 2.0
 ```
-For debugging purposes, you may want to quickly make the first thread the only thread to execute,
-then you can use:
-```cpp
-HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+It works by parsing all arguments, in order, pairing tokens separated
+by spaces. So you don't need to explicitly put the names of the arguments
+if you don't want to:
+```shell
+./a.out 3 --float_argument 2.0
 ```
-The most important thing you want to do is to check for errors, `hermes` lets you use:
-```cpp
-// check CUDA function returns
-HERMES_CHECK_CUDA_CALL(err);
-// for functions that do not return error codes or for kernel launches
-// call it right after:
-HERMES_CHECK_LAST_CUDA_CALL 
-```
-When launching kernels, `hermes::cuda_utils::LaunchInfo` holds launch information such
-as number of threads, blocks, shared memory size and stream. It also 
-redistributes threads for you trying to optimize occupancy. The following macro
-can be used to launch kernels:
-```cpp
-HERMES_CUDA_LAUNCH_AND_SYNC(LAUNCH_INFO, NAME, ...);
-```
-In this case, LAUNCH_INFO is the constructor parameters, surrounded by `()`, of `hermes::cuda_utils::LaunchInfo`.
-Here is a complete example:
-```cpp
-#include <vector>
-#include <hermes/common/cuda_utils.h>
-
-// A kernel that stores in c, the sum of a and b
-// All vectors have n elements
-HERMES_CUDA_KERNEL(sum)(size_t n, float* a, float* b, float* c) {
-  HERMES_CUDA_THREAD_INDEX_I_LT(n);
-  c[i] = a[i] + b[i];
-}
-
-int main() {
-  // lets create 3 arrays of size n
-  size_t n = 1000;
-  std::vector<float> host_a(n), host_b(n), host_c(n, 0);
-  // fill a and b with numbers
-  // ...
-  // lets now allocate memory in device
-  float *device_a, *device_b, *device_c;
-  HERMES_CHECK_CUDA_CALL(cudaMalloc(&device_a, n * sizeof(float)));
-  HERMES_CHECK_CUDA_CALL(cudaMalloc(&device_b, n * sizeof(float)));
-  HERMES_CHECK_CUDA_CALL(cudaMalloc(&device_c, n * sizeof(float)));
-  // now lets send the data to device
-  HERMES_CHECK_CUDA_CALL(cudaMemcpy(device_a, &host_a[0], n * sizeof(float), cudaMemcpyHostToDevice));
-  HERMES_CHECK_CUDA_CALL(cudaMemcpy(device_b, &host_b[0], n * sizeof(float), cudaMemcpyHostToDevice));
-  HERMES_CHECK_CUDA_CALL(cudaMemcpy(device_c, &host_c[0], n * sizeof(float), cudaMemcpyHostToDevice));
-  // and finally call the kernel
-  HERMES_CUDA_LAUNCH_AND_SYNC((n), sum_k, n, device_a, device_b, device_c);
-  return 0;
-}
-```
-> Please check [storage classes](4_storage.md) for device arrays.
-
+In that case, `3` will be parsed and considered to be the value of your `--int_argument`,
+because the parser will **follow the addArgument order**.

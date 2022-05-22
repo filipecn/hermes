@@ -21,9 +21,13 @@
 ///
 ///\file point.h
 ///\author FilipeCN (filipedecn@gmail.com)
-///\date 2019-08-18
+///\date 2017-08-18
 ///
-///\brief
+///\brief Geometric point classes
+///
+///\ingroup geometry
+///\addtogroup geometry
+/// @{
 
 #ifndef HERMES_GEOMETRY_POINT_H
 #define HERMES_GEOMETRY_POINT_H
@@ -40,7 +44,8 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                                             Point2
 // *********************************************************************************************************************
-///\tparam T
+/// \brief Geometric 2-dimensional point (x, y)
+/// \tparam T
 template<typename T> class Point2 : public MathElement<T, 2u> {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
@@ -49,20 +54,37 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Constructs from single component value
+  /// \param f
   HERMES_DEVICE_CALLABLE explicit Point2(T f = T(0)) { x = y = f; }
+  /// \brief Constructs from component array
+  /// \param v
   HERMES_DEVICE_CALLABLE explicit Point2(const real_t *v) : x(v[0]), y(v[1]) {}
+  /// \brief Constructs from component values
+  /// \param _x
+  /// \param _y
   HERMES_DEVICE_CALLABLE Point2(real_t _x, real_t _y) : x(_x), y(_y) {}
+  /// \brief Constructs from index2
+  /// \tparam U
+  /// \param index
   template<typename U>
   HERMES_DEVICE_CALLABLE Point2(const Index2<U> &index) : x{static_cast<T>(index.i)}, y{static_cast<T>(index.j)} {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                          casting
+  /// \brief Casts to index2
+  /// \tparam U
+  /// \return
   template<typename U>
   HERMES_DEVICE_CALLABLE operator Index2<U>() const {
     return Index2<U>(x, y);
   }
   //                                                                                                       assignment
+  /// \brief Copy assigns from index 2
+  /// \tparam U
+  /// \param index
+  /// \return
   template<typename U>
   HERMES_DEVICE_CALLABLE Point2 &operator=(const Index2<U> &index) {
     x = index.i;
@@ -70,7 +92,15 @@ public:
     return *this;
   }
   //                                                                                                           access
-  HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&x)[i]; }
+  /// \brief Get i-th component
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 1]
+  /// \return
+  HERMES_DEVICE_CALLABLE const T& operator[](int i) const { return (&x)[i]; }
+  /// \brief Get i-th component reference
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 1]
+  /// \return
   HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&x)[i]; }
   //                                                                                                       arithmetic
 #define ARITHMETIC_OP(OP)                                                                                           \
@@ -106,13 +136,15 @@ public:
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
-  T x = T(0.0);
-  T y = T(0.0);
+  T x = T(0.0); //!< 0-th component
+  T y = T(0.0); //!< 1-th component
 };
 
 // *********************************************************************************************************************
 //                                                                                                             Point3
 // *********************************************************************************************************************
+/// \brief Geometric 3-dimensional vector (x, y, z)
+/// \tparam T
 template<typename T> class Point3 : public MathElement<T, 3u> {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
@@ -121,11 +153,27 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Point3() : x{0}, y{0}, z{0} {}
+  /// \brief Constructs from single component value
+  /// \param v
   HERMES_DEVICE_CALLABLE explicit Point3(T v) { x = y = z = v; }
+  /// \brief Constructs from component values
+  /// \param _x
+  /// \param _y
+  /// \param _z
   HERMES_DEVICE_CALLABLE Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
+  /// \brief Constructs from point2
+  /// \param p
   HERMES_DEVICE_CALLABLE explicit Point3(const Point2<T> &p) : x(p.x), y(p.y), z(0) {}
+  /// \brief Constructs from component array
+  /// \param v
   HERMES_DEVICE_CALLABLE explicit Point3(const real_t *v) : x(v[0]), y(v[1]), z(v[2]) {}
+  /// \brief Constructs from interval center and radius
+  /// \tparam S
+  /// \tparam C
+  /// \param c
+  /// \param r
   template<typename S, typename C = T>
   HERMES_DEVICE_CALLABLE explicit Point3(const Point3<S> &c, const Vector3<S> &r,
                                          typename std::enable_if_t<
@@ -134,14 +182,22 @@ public:
       :      x(Interval<S>::withRadius(c.x, r.x)),
              y(Interval<S>::withRadius(c.y, r.y)), z(Interval<S>::withRadius(c.z, r.z)) {}
   //                                                                                                       conversion
+  /// \brief Constructs from vector
+  /// \param v
   HERMES_DEVICE_CALLABLE explicit Point3(const Vector3<T> &v) : x(v.x), y(v.y), z(v.z) {}
+  /// \brief Constructs from interval point3
+  /// \tparam S
+  /// \tparam C
+  /// \param vi
   template<typename S, typename C = T>
   HERMES_DEVICE_CALLABLE explicit Point3(const Point3<Interval<S>> &vi,
                                          typename std::enable_if_t<
                                              !std::is_same_v<C, Interval<f32>>
                                                  && !std::is_same_v<C, Interval<f64>>> * = nullptr) :
       x(vi.x), y(vi.y), z(vi.z) {}
-
+  /// \brief Constructs from index3
+  /// \tparam U
+  /// \param index
   template<typename U>
   HERMES_DEVICE_CALLABLE Point3(const Index3<U> &index) : x{static_cast<T>(index.i)}, y{static_cast<T>(index.j)},
                                                           z{static_cast<T>(index.k)} {}
@@ -149,9 +205,19 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                          casting
+  /// \brief Converts to vector3
+  /// \return
   HERMES_DEVICE_CALLABLE explicit operator Vector3<T>() const { return Vector3<T>(x, y, z); }
   //                                                                                                           access
+  /// \brief Get i-th component
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 2]
+  /// \return
   HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&x)[i]; }
+  /// \brief Get i-th component reference
+  /// \warning `i` is not checked
+  /// \param i component index in [0, 2]
+  /// \return
   HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&x)[i]; }
   //                                                                                                       arithmetic
 #define ARITHMETIC_OP(OP)                                                                                           \
@@ -189,38 +255,69 @@ public:
   //                                                                                                          METHODS
   // *******************************************************************************************************************
   //                                                                                                           access
+  /// \brief Gets 2-dimensional swizzle (x, y)
+  /// \return
   HERMES_DEVICE_CALLABLE Point2<T> xy() const { return Point2<T>(x, y); }
+  /// \brief Gets 2-dimensional swizzle (y, z)
+  /// \return
   HERMES_DEVICE_CALLABLE Point2<T> yz() const { return Point2<T>(y, z); }
+  /// \brief Gets 2-dimensional swizzle (x, z)
+  /// \return
   HERMES_DEVICE_CALLABLE Point2<T> xz() const { return Point2<T>(x, z); }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
-  T x = T(0.0);
-  T y = T(0.0);
-  T z = T(0.0);
+  T x = T(0.0); //!< 0-th component
+  T y = T(0.0); //!< 1-th component
+  T z = T(0.0); //!< 2-th component
 };
 
 // *********************************************************************************************************************
 //                                                                                                 EXTERNAL FUNCTIONS
 // *********************************************************************************************************************
 //                                                                                                         arithmetic
+/// \brief Scalar multiplication operator
+/// \tparam T
+/// \param f
+/// \param a
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE Point2<T> operator*(real_t f, const Point2<T> &a) {
   return Point2<T>(a.x * f, a.y * f);
 }
 //                                                                                                           geometry
+/// \brief Computes the Euclidean distance between two points
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE real_t distance(const Point2<T> &a, const Point2<T> &b) {
   return (a - b).length();
 }
+/// \brief Computes the squared Euclidean distance between two points
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE real_t distance2(const Point2<T> &a, const Point2<T> &b) {
   return (a - b).length2();
 }
+/// \brief Computes the Euclidean distance between two points
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE real_t distance(const Point3<T> &a, const Point3<T> &b) {
   return (a - b).length();
 }
+/// \brief Computes the squared Euclidean distance between two points
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE real_t distance2(const Point3<T> &a, const Point3<T> &b) {
   return (a - b).length2();
@@ -272,7 +369,12 @@ using point3i = Point3<Interval<real_t>>;
 // std hash support
 namespace std {
 
+/// brief Hash support for point2
+/// \tparam T
 template<typename T> struct hash<hermes::Point2<T>> {
+  /// \brief Computes hash for a given vector
+  /// \param v
+  /// \return
   size_t operator()(hermes::Point2<T> const &v) const {
     hash<T> hasher;
     size_t s = 0;
@@ -288,7 +390,12 @@ template<typename T> struct hash<hermes::Point2<T>> {
   }
 };
 
+/// brief Hash support for point3
+/// \tparam T
 template<typename T> struct hash<hermes::Point3<T>> {
+  /// \brief Computes hash for a given vector
+  /// \param v
+  /// \return
   size_t operator()(hermes::Point3<T> const &v) const {
     hash<T> hasher;
     size_t s = 0;
@@ -309,4 +416,7 @@ template<typename T> struct hash<hermes::Point3<T>> {
 };
 
 } // namespace std
+
 #endif
+
+/// @}

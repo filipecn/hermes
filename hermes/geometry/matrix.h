@@ -1,26 +1,33 @@
-/*
- * Copyright (c) 2017 FilipeCN
- *
- * The MIT License (MIT)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
+/// Copyright (c) 2017, FilipeCN.
+///
+/// The MIT License (MIT)
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to
+/// deal in the Software without restriction, including without limitation the
+/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+/// sell copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+/// IN THE SOFTWARE.
+///
+///\file matrix.h
+///\author FilipeCN (filipedecn@gmail.com)
+///\date 2017-08-18
+///
+///\brief Math matrix classes
+///
+///\ingroup geometry
+///\addtogroup geometry
+/// @{
 
 #ifndef HERMES_GEOMETRY_MATRIX_H
 #define HERMES_GEOMETRY_MATRIX_H
@@ -34,7 +41,12 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                                AUXILIARY FUNCTIONS
 // *********************************************************************************************************************
-// function extracted from MESA implementation of the GLU library
+/// \brief Inverts a 4x4 matrix
+/// \note function extracted from MESA implementation of the GLU library
+/// \tparam T
+/// \param m
+/// \param invOut
+/// \return
 template<typename T>
 HERMES_DEVICE_CALLABLE bool gluInvertMatrix(const T m[16], T invOut[16]) {
   T inv[16], det;
@@ -104,13 +116,25 @@ HERMES_DEVICE_CALLABLE bool gluInvertMatrix(const T m[16], T invOut[16]) {
 // *********************************************************************************************************************
 //                                                                                                          Matrix4x4
 // *********************************************************************************************************************
-/// 4x4 Matrix representation
-/// Access: m[ROW][COLUMN]
+/// \brief 4x4 Matrix representation
+/// \tparam T
 template<typename T> class Matrix4x4 : public MathElement<T, 16> {
 public:
   // *******************************************************************************************************************
+  //                                                                                                           STATIC
+  // *******************************************************************************************************************
+  /// \brief Creates an identity matrix
+  /// \return
+  HERMES_DEVICE_CALLABLE static inline Matrix4x4 I() {
+    return {1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1};
+  }
+  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief
   /// \param is_identity [optional | def = true] initialize as an identity matrix
   HERMES_DEVICE_CALLABLE explicit Matrix4x4(bool is_identity = false) {
     std::memset(m_, 0, sizeof(m_));
@@ -208,6 +232,12 @@ public:
         r[i] += m_[i][j] * v[j];
     return r;
   }
+  HERMES_DEVICE_CALLABLE Matrix4x4<T> &operator*=(T s) {
+    for (int i = 0; i < 4; i++)
+      for (int j = 0; j < 4; j++)
+        m_[i][j] *= s;
+    return *this;
+  }
   //                                                                                                          boolean
   HERMES_DEVICE_CALLABLE bool operator==(const Matrix4x4<T> &B) const {
     for (int i = 0; i < 4; i++)
@@ -273,11 +303,18 @@ private:
 // *********************************************************************************************************************
 //                                                                                                          Matrix3x3
 // *********************************************************************************************************************
+/// \brief 3x3 Matrix representation
+/// \tparam T
 template<typename T> class Matrix3x3 : public MathElement<T, 9> {
 public:
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
+  HERMES_DEVICE_CALLABLE static inline Matrix3x3 I() {
+    return {1, 0, 0,
+            0, 1, 0,
+            0, 0, 1};
+  }
   HERMES_DEVICE_CALLABLE static inline Matrix3x3 diag(T m00, T m11, T m22) {
     return Matrix3x3(m00, 0, 0, //
                      0, m11, 0,//
@@ -321,11 +358,34 @@ public:
             m_[i][0] * B[0][j] + m_[i][1] * B[1][j] + m_[i][2] * B[2][j];
     return r;
   }
+
+#define ARITHMETIC_OP(OP) \
+    HERMES_DEVICE_CALLABLE Matrix3x3<T> operator OP##=(const Matrix3x3<T> &B) const {                               \
+    for (int i = 0; i < 3; ++i)                                                                                     \
+      for (int j = 0; j < 3; ++j)                                                                                   \
+        m_[i][j] OP##= B[i][j];                                                                                     \
+    }                                                                                                               \
+    HERMES_DEVICE_CALLABLE Matrix3x3<T> operator OP(const Matrix3x3<T> &B) const {                                  \
+    Matrix3x3<T> r;                                                                                                 \
+    for (int i = 0; i < 3; ++i)                                                                                     \
+      for (int j = 0; j < 3; ++j)                                                                                   \
+        r[i][j] = m_[i][j] OP B[i][j];                                                                              \
+    return r; }
+  ARITHMETIC_OP(+)
+  ARITHMETIC_OP(-)
+#undef ARITHMETIC_OP
+
   HERMES_DEVICE_CALLABLE
   Matrix3x3<T> operator*(const T &f) const {
     return Matrix3x3<T>(m_[0][0] * f, m_[0][1] * f, m_[0][2] * f, m_[1][0] * f,
                         m_[1][1] * f, m_[1][2] * f, m_[2][0] * f, m_[2][1] * f,
                         m_[2][2] * f);
+  }
+  HERMES_DEVICE_CALLABLE
+  Matrix3x3<T> operator/(const T &f) const {
+    return Matrix3x3<T>(m_[0][0] / f, m_[0][1] / f, m_[0][2] / f, m_[1][0] / f,
+                        m_[1][1] / f, m_[1][2] / f, m_[2][0] / f, m_[2][1] / f,
+                        m_[2][2] / f);
   }
   // *******************************************************************************************************************
   //                                                                                                          METHODS
@@ -353,6 +413,8 @@ private:
 // *********************************************************************************************************************
 //                                                                                                          Matrix2x2
 // *********************************************************************************************************************
+/// \brief 2x2 Matrix representation
+/// \tparam T
 template<typename T> class Matrix2x2 : public MathElement<T, 4> {
 public:
   // *******************************************************************************************************************
@@ -381,7 +443,7 @@ public:
     return r;
   }
   HERMES_DEVICE_CALLABLE Matrix2x2<T> operator*(const Matrix2x2<T> &B) const {
-    Matrix2x2<T> r;
+    Matrix2x2 <T> r;
     for (int i = 0; i < 2; ++i)
       for (int j = 0; j < 2; ++j)
         r[i][j] = m_[i][0] * B[0][j] + m_[i][1] * B[1][j];
@@ -584,7 +646,7 @@ HERMES_DEVICE_CALLABLE  Matrix2x2<T> operator*(T f, const Matrix2x2<T> &m) {
 //                                                                                                          algebra
 template<typename T>
 HERMES_DEVICE_CALLABLE Matrix2x2<T> inverse(const Matrix2x2<T> &m) {
-  Matrix2x2<T> r;
+  Matrix2x2 <T> r;
   T det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
   if (det == 0.f)
     return r;
@@ -636,6 +698,10 @@ template<typename T>
 HERMES_DEVICE_CALLABLE  Matrix3x3<T> operator*(T f, const Matrix3x3<T> &m) {
   return m * f;
 }
+template<typename T>
+HERMES_DEVICE_CALLABLE  Matrix4x4<T> operator*(T f, const Matrix4x4<T> &m) {
+  return m * f;
+}
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************
@@ -677,3 +743,5 @@ typedef Matrix2x2<real_t> mat2;
 } // namespace hermes
 
 #endif
+
+/// @}

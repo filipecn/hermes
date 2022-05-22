@@ -23,7 +23,11 @@
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date 2021-07-01
 ///
-///\brief
+///\brief Numeric interval
+///
+///\ingroup numeric
+///\addtogroup numeric
+/// @{
 
 #ifndef HERMES_HERMES_NUMERIC_INTERVAL_H
 #define HERMES_HERMES_NUMERIC_INTERVAL_H
@@ -36,6 +40,7 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                                           Interval
 // *********************************************************************************************************************
+/// \brief Represents a numeric interval that supports interval arithmetic
 template<typename T>
 class Interval : public MathElement<T, 2u> {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value || std::is_same<T, float>::value
@@ -45,6 +50,10 @@ public:
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
+  /// \brief Constructs interval from center and radius
+  /// \param c
+  /// \param r
+  /// \return
   HERMES_DEVICE_CALLABLE static Interval withRadius(real_t c, real_t r) {
     if (r == 0)
       return {c, c};
@@ -53,23 +62,42 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Interval() : low(0), high(0) {}
+  /// \brief Constructs from center value
+  /// \param v
   HERMES_DEVICE_CALLABLE Interval(T v) : low(v), high(v) {}
+  /// \brief Construct from interval values
+  /// \param l
+  /// \param h
   HERMES_DEVICE_CALLABLE Interval(T l, T h) : low(l), high(h) {}
   //                                                                                                       assignment
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                            unary
+  /// \brief Gets interval center value
+  /// \return
   HERMES_DEVICE_CALLABLE explicit operator T() const { return center(); }
+  /// \brief Negates interval
+  /// \return
   HERMES_DEVICE_CALLABLE Interval operator-() const { return {-high, -low}; }
   //                                                                                                       arithmetic
+  /// \brief Uses interval arithmetic addition
+  /// \param i
+  /// \return
   HERMES_DEVICE_CALLABLE Interval operator+(const Interval &i) const {
     return Interval(Numbers::addRoundDown(low, i.low), Numbers::addRoundUp(high, i.high));
   }
+  /// \brief Uses interval arithmetic subtraction
+  /// \param i
+  /// \return
   HERMES_DEVICE_CALLABLE Interval operator-(const Interval &i) const {
     return Interval(Numbers::subRoundDown(low, i.low), Numbers::subRoundUp(high, i.high));
   }
+  /// \brief Uses interval arithmetic multiplication
+  /// \param i
+  /// \return
   HERMES_DEVICE_CALLABLE Interval operator*(const Interval &i) const {
     T lp[4] = {Numbers::mulRoundDown(low, i.low), Numbers::mulRoundDown(high, i.low),
                Numbers::mulRoundDown(low, i.high), Numbers::mulRoundDown(high, i.high)};
@@ -78,6 +106,9 @@ public:
     return {Numbers::min({lp[0], lp[1], lp[2], lp[3]}),
             Numbers::max({hp[0], hp[1], hp[2], hp[3]})};
   }
+  /// \brief Uses interval arithmetic division
+  /// \param i
+  /// \return
   HERMES_DEVICE_CALLABLE Interval operator/(const Interval &i) const {
     Interval r = i;
     if (r.low < 0 && r.high > 0)
@@ -95,11 +126,24 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  /// \brief Checks if this interval contains v
+  /// \param v
+  /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(T v) const { return v >= low && v <= high; }
+  /// \brief Gets interval center value
+  /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE T center() const { return (low + high) / 2; }
+  /// \brief Gets interval radius
+  /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE T radius() const { return (high - low) / 2; }
+  /// \brief Gets interval diameter
+  /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE T width() const { return high - low; }
+  /// \brief Checks if interval contains a single value
+  /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE bool isExact() const { return high - low == 0; }
+  /// \brief Computes arithmetic interval square
+  /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE Interval sqr() const {
     real_t alow = std::abs(low), ahigh = std::abs(high);
     if (alow > ahigh)
@@ -108,13 +152,16 @@ public:
       return Interval(0, Numbers::mulRoundUp(ahigh, ahigh));
     return Interval(Numbers::mulRoundDown(alow, alow), Numbers::mulRoundUp(ahigh, ahigh));
   }
+  /// \brief Computes arithmetic interval square root
+  /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE Interval sqrt() const {
     return {Numbers::sqrtRoundDown(low), Numbers::sqrtRoundUp(high)};
   }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
-  T low{0}, high{0};
+  T low{0};      //!< lowest interval value
+  T high{0};     //!< greatest interval value
 };
 
 // *********************************************************************************************************************
@@ -135,6 +182,11 @@ ARITHMETIC_OP(/)
 // *********************************************************************************************************************
 //                                                                                                                 IO
 // *********************************************************************************************************************
+/// \brief Interval support for `std::ostream::operator <<`
+/// \tparam T
+/// \param os
+/// \param i
+/// \return
 template<typename T>
 std::ostream &operator<<(std::ostream &os, const Interval<T> &i) {
   os << "[" << i.low << " " << i.high << "]";
@@ -144,3 +196,5 @@ std::ostream &operator<<(std::ostream &os, const Interval<T> &i) {
 }
 
 #endif //HERMES_HERMES_NUMERIC_INTERVAL_H
+
+/// @}

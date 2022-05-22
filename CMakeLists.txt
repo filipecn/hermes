@@ -56,6 +56,7 @@ set(HERMES_HEADERS
         hermes/common/index.h
         hermes/common/profiler.h
         hermes/common/optional.h
+        hermes/common/result.h
         hermes/common/size.h
         hermes/common/str.h
         hermes/common/timer.h
@@ -71,6 +72,7 @@ set(HERMES_HEADERS
         hermes/geometry/parametric_surface.h
         hermes/geometry/plane.h
         hermes/geometry/point.h
+        hermes/geometry/quaternion.h
         hermes/geometry/queries.h
         hermes/geometry/ray.h
         hermes/geometry/segment.h
@@ -80,7 +82,7 @@ set(HERMES_HEADERS
         hermes/geometry/transform.h
         hermes/geometry/utils.h
         hermes/geometry/vector.h
-        hermes/logging/argb_colors.h
+        hermes/colors/argb_colors.h
         hermes/logging/console_colors.h
         hermes/logging/logging.h
         hermes/logging/memory_dump.h

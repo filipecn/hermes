@@ -20,10 +20,14 @@ documentation for each of these groups here:
 
 | group | description |
 |--------------|--------|
-| [common](3_common.md) | auxiliary classes for debugging, time profiling, iterating, logging, strings, files, argument parsing, etc  |
-| [geometry](4_geometry.md) | geometry related objects, functions and utilities such as vector, point, matrix, transforms, intersection tests, line, plane, etc   |
-| [storage](5_storage.md) | memory classes: allocators, memory blocks, array of structs, etc  |
-| [numeric](6_numeric.md) | math operations, interpolation, intervals   |
+| [common](3_common.md) | auxiliary classes iterating, strings, files, argument parsing, etc  |
+| [logging](4_logging.md) | logging messages  |
+| [debugging](5_debugging.md) | debugging utilities and macros  |
+| [profiling](6_profiling.md) | time profiling tools  |
+| [numeric](7_numeric.md) | math operations, interpolation, intervals   |
+| [geometry](8_geometry.md) | geometry related objects, functions and utilities such as vector, point, matrix, transforms, intersection tests, line, plane, etc   |
+| [storage](10_storage.md) | memory classes: allocators, memory blocks, array of structs, etc  |
+| [CUDA](9_cuda.md) | CUDA utilites and integration  |
 
 ## Download 
 

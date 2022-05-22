@@ -48,6 +48,10 @@ public:
     normal = n;
     offset = o;
   }
+  Plane(normal3 n, point3 p) {
+    normal = n;
+    offset = dot(n, (vec3) p);
+  }
   /// \param invert_normal
   /// \return a plane with offset = 0 and normal(0,0,1)
   static Plane XY(bool invert_normal = false) {

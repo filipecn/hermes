@@ -23,7 +23,11 @@
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date 2020-17-09
 ///
-///\brief
+///\brief Base class for all geometric objects
+///
+///\ingroup numeric
+///\addtogroup numeric
+/// @{
 
 #ifndef HERMES_GEOMETRY_MATH_ELEMENT_H
 #define HERMES_GEOMETRY_MATH_ELEMENT_H
@@ -33,14 +37,22 @@
 
 namespace hermes {
 
-/// Interface used by all basic geometric entities, such as point and vector.
+/// \brief Interface used by all basic geometric entities
+/// \tparam NUMERIC_TYPE
+/// \tparam COMPONENT_COUNT
 template<typename NUMERIC_TYPE, u64 COMPONENT_COUNT>
 class MathElement {
 public:
+  /// \brief Underlying data type
   static NUMERIC_TYPE numeric_data;
+  /// \brief Gets the number of dimensional components
+  /// \return
   static inline constexpr u64 componentCount() { return COMPONENT_COUNT; };
+  /// \brief Gets the size in bytes of underlying data type
+  /// \return
   static inline constexpr u64 numericTypeSizeInBytes() { return sizeof(NUMERIC_TYPE); };
-
+  /// \brief Gets memory layout
+  /// \return
   [[nodiscard]] static MemoryDumper::RegionLayout memoryDumpLayout() {
     return {
         .offset = 0,
@@ -56,3 +68,5 @@ public:
 }
 
 #endif //HERMES_GEOMETRY_MATH_ELEMENT_H
+
+/// @}

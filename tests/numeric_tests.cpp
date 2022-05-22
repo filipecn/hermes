@@ -97,11 +97,23 @@ TEST_CASE("Check") {
 }
 
 TEST_CASE("interval") {
-  HERMES_NOT_IMPLEMENTED
+  SECTION("sanity") {
+    hermes::Interval<f32> a(-1, 1), b(0, 2);
+    auto c = a * b;
+    HERMES_LOG_VARIABLE(c);
+    HERMES_LOG_VARIABLE(c.sqr());
+    HERMES_LOG_VARIABLE(c.sqrt());
+  }//
 }
 
 TEST_CASE("EFloat") {
-  EFloat ef;
+  SECTION("sanity") {
+    EFloat a(3.f), b(-1.f);
+    auto c = 3.f * a + a * b - 4 * b + a / b;
+    HERMES_LOG_VARIABLE(c.absoluteError());
+    HERMES_LOG_VARIABLE(c.upperBound());
+    HERMES_LOG_VARIABLE(c.lowerBound());
+  } //
 }
 
 TEST_CASE("interpolation", "[numeric][interpolation]") {

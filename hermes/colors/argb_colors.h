@@ -24,9 +24,12 @@
 ///\date 2022-01-06
 ///
 ///\brief
-///\note
-/// This file was inspired on Sergey Yagovtsev's Easy Profiler source code
-/// https://github.com/yse/easy_profiler/blob/develop/easy_profiler_core/include/easy/details/profiler_colors.h
+///\note This file was inspired on Sergey Yagovtsev's Easy Profiler source code
+///\note https://github.com/yse/easy_profiler/blob/develop/easy_profiler_core/include/easy/details/profiler_colors.h
+///
+///\ingroup logging
+///\addtogroup logging
+/// @{
 
 #ifndef HERMES_HERMES_LOGGING_ARGB_COLORS_H
 #define HERMES_HERMES_LOGGING_ARGB_COLORS_H
@@ -375,3 +378,5 @@ constexpr u32 Default = Red300;
 }
 
 #endif //HERMES_HERMES_LOGGING_ARGB_COLORS_H
+
+/// @}

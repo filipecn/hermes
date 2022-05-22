@@ -875,7 +875,10 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = docs \
-                         hermes/common
+                         hermes/common \
+                         hermes/logging \
+                         hermes/geometry \
+                         hermes/numeric
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -965,7 +968,15 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = hermes/common/parallel.h  \
-                         docs/doxygen-custom
+                         docs/doxygen-custom \
+                         hermes/numeric/cuda_field.h \
+                         hermes/numeric/cuda_grid_kernels.h \
+                         hermes/numeric/cuda_interpolation.h \
+                         hermes/numeric/cuda_numeric.h \
+                         hermes/numeric/cuda_staggered_grid.h \
+                         hermes/numeric/grid.h \
+                         hermes/numeric/fd_matrix.h \
+                         hermes/numeric/vector_grid.h
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -1018,7 +1029,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             =
+IMAGE_PATH             = docs
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program

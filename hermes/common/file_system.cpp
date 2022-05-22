@@ -276,8 +276,8 @@ u64 FileSystem::readFile(const char *filename, char **text) {
 
 #endif
 
-std::vector<unsigned char> FileSystem::readBinaryFile(const char *filename) {
-  std::ifstream file(filename, std::ios::binary | std::ios::ate);
+std::vector<unsigned char> FileSystem::readBinaryFile(const Path &filename) {
+  std::ifstream file(filename.fullName().c_str(), std::ios::binary | std::ios::ate);
   if (!file.is_open())
     return std::vector<unsigned char>();
   const auto size = file.tellg();

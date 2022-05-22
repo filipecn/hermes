@@ -7,6 +7,7 @@
 #include <hermes/geometry/bbox.h>
 #include <hermes/geometry/matrix.h>
 #include <hermes/geometry/transform.h>
+#include <hermes/geometry/quaternion.h>
 
 using namespace hermes;
 
@@ -229,7 +230,47 @@ TEST_CASE("Transform", "[geometry]") {
       ));
     }//
   }//
+  SECTION("align vectors") {
+    vec3 a = {1, 0, 0};
+    vec3 b = {0, 0, 1};
+    auto t = Transform::alignVectors(a, b);
+    REQUIRE(t(a) == b);
+    a = {0, 1, 0};
+    b = {0, 0, 1};
+    t = Transform::alignVectors(a, b);
+    REQUIRE(t(a) == b);
+    a = {0, 0, 1};
+    b = {0, 0, 1};
+    t = Transform::alignVectors(a, b);
+    REQUIRE(t(a) == b);
+    a = {1, 0, 0};
+    b = {0, 1, 0};
+    t = Transform::alignVectors(a, b);
+    REQUIRE(t(a) == b);
+    a = {0, 1, 0};
+    b = {0, 1, 0};
+    t = Transform::alignVectors(a, b);
+    REQUIRE(t(a) == b);
+    a = {0, 0, 1};
+    b = {1, 0, 0};
+    t = Transform::alignVectors(a, b);
+    REQUIRE(t(a) == b);
+  } //
+  SECTION("rotation") {
+    REQUIRE(Transform::rotate(Constants::pi_over_two, {1, 0, 0})(vec3(0, 1, 0)) == vec3(0, 0, 1));
+  }//
 }
+
+TEST_CASE("Quaternion") {
+  SECTION("rotation") {
+    auto angle = Trigonometry::degrees2radians(90);
+    quat q({std::sin(angle / 2), 0, 0}, std::cos(angle / 2));
+    Transform t(q.matrix());
+    REQUIRE(t(vec3(0, 1, 0)) == vec3(0, 0, 1));
+  }//
+}
+
+
 /*
 TEST_CASE("Geometric Predicates", "[geometry]") {
   SECTION("ray_triangle") {

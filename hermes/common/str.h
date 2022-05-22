@@ -53,6 +53,49 @@ public:
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
   //                                                                                                       formatting
+  /// \brief Right justifies string value
+  /// \tparam T string-convertible type
+  /// \param value
+  /// \param width output size
+  /// \param fill_char
+  /// \return
+  template<typename T>
+  static std::string rjust(const T &value, size_t width, char fill_char = ' ') {
+    Str s;
+    s = s << value;
+    if (s.str().size() >= width)
+      return s.str();
+    return std::string(width - s.str().size(), fill_char) + s.str();
+  }
+  /// \brief Left justifies string value
+  /// \tparam T string-convertible type
+  /// \param value
+  /// \param width output size
+  /// \param fill_char
+  /// \return
+  template<typename T>
+  static std::string ljust(const T &value, size_t width, char fill_char = ' ') {
+    Str s;
+    s = s << value;
+    if (s.str().size() >= width)
+      return s.str();
+    return s.str() + std::string(width - s.str().size(), fill_char);
+  }
+  /// \brief Center justifies string value
+  /// \tparam T string-convertible type
+  /// \param value
+  /// \param width output size
+  /// \param fill_char
+  /// \return
+  template<typename T>
+  static std::string cjust(const T &value, size_t width, char fill_char = ' ') {
+    Str s;
+    s = s << value;
+    if (s.str().size() >= width)
+      return s.str();
+    size_t pad = (width - s.str().size()) / 2;
+    return std::string(pad, fill_char) + s.str() + std::string(pad, fill_char);
+  }
   /// \tparam Ts
   /// \param fmt
   /// \param args

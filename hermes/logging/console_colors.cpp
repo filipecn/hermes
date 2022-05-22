@@ -19,7 +19,7 @@
 /// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 /// IN THE SOFTWARE.
 ///
-///\file console_colors.cpp.c
+///\file console_colors.cpp
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date 2021-03-19
 ///

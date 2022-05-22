@@ -36,7 +36,7 @@
 #define HERMES_HERMES_COMMON_PROFILER_H
 
 #include <hermes/common/defs.h>
-#include <hermes/logging/argb_colors.h>
+#include <hermes/colors/argb_colors.h>
 #include <functional>
 #include <chrono>
 #include <vector>

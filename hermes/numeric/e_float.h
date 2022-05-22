@@ -23,7 +23,11 @@
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date 2021-07-01
 ///
-///\brief
+///\brief Floating-point with attached error
+///
+///\ingroup numeric
+///\addtogroup numeric
+/// @{
 
 #ifndef HERMES_HERMES_NUMERIC_E_FLOAT_H
 #define HERMES_HERMES_NUMERIC_E_FLOAT_H
@@ -35,6 +39,8 @@ namespace hermes {
 // *********************************************************************************************************************
 //                                                                                                             EFloat
 // *********************************************************************************************************************
+/// \brief Represents a value with error bounds
+///
 /// Implements the running error analysis by carrying the error bounds
 /// accumulated by a floating point value. It keeps track of the interval of
 /// uncertainty of the computed value.
@@ -54,7 +60,9 @@ public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  /// \brief Default constructor
   HERMES_DEVICE_CALLABLE EFloat() {}
+  /// \brief Constructs from value and error size
   /// \param v floating point value
   /// \param e absolute error bound
   HERMES_DEVICE_CALLABLE explicit EFloat(f32 v, f32 e = 0.f) : v(v) {
@@ -73,7 +81,11 @@ public:
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
   //                                                                                                          casting
+  /// \brief Casts to 32 bit floating point
+  /// \return
   HERMES_DEVICE_CALLABLE explicit operator float() const { return v; }
+  /// \brief Casts to 64 bit floating point
+  /// \return
   HERMES_DEVICE_CALLABLE explicit operator double() const { return v; }
   //                                                                                                       assignment
   //                                                                                                       arithmetic
@@ -126,15 +138,20 @@ public:
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************
+  /// \brief Computes the absolute error carried by this number
   /// \return a bound for the absolute error
   [[nodiscard]] HERMES_DEVICE_CALLABLE f32 absoluteError() const { return err.high - err.low; }
+  /// \brief Computes the upper error bound carried by this number
   /// \return lower error interval bound
   [[nodiscard]] HERMES_DEVICE_CALLABLE f32 upperBound() const { return err.high; }
+  /// \brief Computes the lower error bound carried by this number
   /// \return upper error interval bound
   [[nodiscard]] HERMES_DEVICE_CALLABLE f32 lowerBound() const { return err.low; }
 #ifdef NDEBUG
+  /// \brief Gets relative error
   /// \return relative error
   f64 relativeError() const;
+  /// \brief Gets highly precise value
   /// \return highly precise value
   long double preciseValue() const;
 #endif
@@ -152,3 +169,5 @@ private:
 }
 
 #endif //HERMES_HERMES_NUMERIC_E_FLOAT_H
+
+/// @}

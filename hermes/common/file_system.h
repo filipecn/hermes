@@ -230,7 +230,7 @@ public:
   /// \brief loads binary content from file
   /// \param filename **[in]** path/to/file.ext
   /// \return vector of bytes read
-  static std::vector<unsigned char> readBinaryFile(const char *filename);
+  static std::vector<unsigned char> readBinaryFile(const Path &filename);
   /// \brief Read file's contents separated by line breaks
   /// \param path
   /// \return

@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 /*
  * Copyright (c) 2018 FilipeCN
  *
@@ -24,6 +26,7 @@
 
 #include <hermes/geometry/transform.h>
 #include <hermes/numeric/numeric.h>
+#include <hermes/geometry/quaternion.h>
 
 namespace hermes {
 
@@ -224,38 +227,40 @@ HERMES_DEVICE_CALLABLE Transform Transform::scale(real_t x, real_t y, real_t z) 
   return {m};
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotateX(real_t
-                                                    angle) {
-  real_t sin_a = sinf(Trigonometry::degrees2radians(angle));
-  real_t cos_a = cosf(Trigonometry::degrees2radians(angle));
+HERMES_DEVICE_CALLABLE Transform Transform::rotateX(real_t angle_in_radians) {
+  real_t sin_a = sinf(angle_in_radians);
+  real_t cos_a = cosf(angle_in_radians);
   mat4 m(1.f, 0.f, 0.f, 0.f, 0.f, cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f,
          0.f, 0.f, 0.f, 1.f);
 //  return {m, transpose(m)};
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotateY(real_t angle) {
-  real_t sin_a = sinf(Trigonometry::degrees2radians(angle));
-  real_t cos_a = cosf(Trigonometry::degrees2radians(angle));
+HERMES_DEVICE_CALLABLE Transform Transform::rotateY(real_t angle_in_radians) {
+  real_t sin_a = sinf(angle_in_radians);
+  real_t cos_a = cosf(angle_in_radians);
   mat4 m(cos_a, 0.f, sin_a, 0.f, 0.f, 1.f, 0.f, 0.f, -sin_a, 0.f, cos_a, 0.f,
          0.f, 0.f, 0.f, 1.f);
 //  return {m, transpose(m)};
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotateZ(real_t angle) {
-  real_t sin_a = sinf(Trigonometry::degrees2radians(angle));
-  real_t cos_a = cosf(Trigonometry::degrees2radians(angle));
+HERMES_DEVICE_CALLABLE Transform Transform::rotateZ(real_t angle_in_radians) {
+  real_t sin_a = sinf(angle_in_radians);
+  real_t cos_a = cosf(angle_in_radians);
   mat4 m(cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f,
          0.f, 0.f, 0.f, 1.f);
 //  return {m, transpose(m)};
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotate(real_t angle, const vec3 &axis) {
+HERMES_DEVICE_CALLABLE Transform Transform::rotate(real_t angle_in_radians, const vec3 &axis) {
+  quat q(sinf(angle_in_radians / 2) * axis, cosf(angle_in_radians / 2));
+  return {q.normalized().matrix()};
+
   vec3 a = normalize(axis);
-  real_t s = sinf(Trigonometry::degrees2radians(angle));
-  real_t c = cosf(Trigonometry::degrees2radians(angle));
+  real_t s = sinf(angle_in_radians);
+  real_t c = cosf(angle_in_radians);
   real_t m[4][4];
 
   m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
@@ -279,8 +284,58 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotate(real_t angle, const vec3 &axi
   m[3][3] = 1;
 
   mat4 mat(m);
-//  return {mat, transpose(mat)};
   return mat;
 }
 
+HERMES_DEVICE_CALLABLE Transform Transform::alignVectors(const vec3 &a, const vec3 &b) {
+  // based on
+  // https://www.theochem.ru.nl/%7Epwormer/Knowino/knowino.org/wiki/Rotation_matrix.html#Vector_rotation
+
+  auto m = mat4::I();
+
+  vec3 na = normalize(a);
+  vec3 nb = normalize(b);
+
+  vec3 u = cross(na, nb);
+  auto c = dot(na, nb);
+  // parallel case
+  if (Check::is_equal(1.f, c))
+    return Transform();
+  // anti-parallel case
+  if (Check::is_equal(-1.f, c)) {
+    if (Check::is_equal(na.z, 1.f)) {
+      m[0][0] = -1;
+      m[2][2] = -1;
+    } else {
+      auto fxx = na.x * na.x;
+      auto fyy = na.y * na.y;
+      auto fzz = na.z * na.z;
+      auto fxy = na.x * na.y;
+      auto h = 1 / (1 - fzz);
+      m[0][0] = -(fxx - fyy);
+      m[0][1] = -2 * fxy;
+      m[1][0] = -2 * fxy;
+      m[1][1] = (fxx - fyy);
+      m[2][2] = -(1 - fzz);
+      m *= h;
+    }
+  } else {
+    auto h = (1 - c) / (1 - c * c);
+    m[0][0] = c + h * u.x * u.x;
+    m[0][1] = h * u.x * u.y - u.z;
+    m[0][2] = h * u.x * u.z + u.y;
+
+    m[1][0] = h * u.x * u.y + u.z;
+    m[1][1] = c + h * u.y * u.y;
+    m[1][2] = h * u.y * u.z - u.x;
+
+    m[2][0] = h * u.x * u.z - u.y;
+    m[2][1] = h * u.y * u.z + u.x;
+    m[2][2] = c + h * u.z * u.z;
+  }
+  return {m};
+}
+
 } // namespace hermes
+
+#pragma clang diagnostic pop

@@ -38,6 +38,7 @@
 #include <hermes/common/bitmask_operators.h>
 #include <hermes/common/file_system.h>
 #include <hermes/common/cuda_utils.h>
+#include <hermes/common/result.h>
 #include <hermes/storage/array.h>
 #include <hermes/common/optional.h>
 #include <hermes/common/profiler.h>
@@ -156,6 +157,14 @@ TEST_CASE("bitmask operators") {
 }
 
 TEST_CASE("Str", "[common]") {
+  SECTION("justify") {
+    REQUIRE("  asd" == Str::rjust("asd", 5));
+    REQUIRE("abcdef" == Str::rjust("abcdef", 5));
+    REQUIRE("asd  " == Str::ljust("asd", 5));
+    REQUIRE("abcdef" == Str::ljust("abcdef", 5));
+    REQUIRE(" asd " == Str::cjust("asd", 5));
+    REQUIRE("abcdef" == Str::cjust("abcdef", 5));
+  }//
   SECTION("strip") {
     REQUIRE(Str::strip(" asd ", "") == " asd ");
     REQUIRE(Str::strip(" asd ", " ") == "asd");
@@ -559,6 +568,22 @@ HERMES_CUDA_KERNEL(check_optional)(bool *result) {
   *result = true;
 }
 #endif
+
+TEST_CASE("result or") {
+  Result<int> result;
+  REQUIRE(!result);
+  result = Result<int>(1);
+  REQUIRE(result);
+  REQUIRE(*result == 1);
+  result = Result<int>({HeResult::BAD_ALLOCATION});
+  REQUIRE(!result);
+  REQUIRE(!result.good());
+  REQUIRE(result.status() == HeResult::BAD_ALLOCATION);
+  result = 1;
+  REQUIRE(result);
+  REQUIRE(result.status() == HeResult::SUCCESS);
+  REQUIRE(*result == 1);
+}
 
 TEST_CASE("optional") {
   Optional<int> a;
