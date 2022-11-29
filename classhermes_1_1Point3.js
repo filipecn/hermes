@@ -3,7 +3,7 @@ var classhermes_1_1Point3 =
     [ "Point3", "classhermes_1_1Point3.html#a3540879f44d5ea5f176298660e80ff14", null ],
     [ "Point3", "classhermes_1_1Point3.html#a48cef9e31118aa30fb74b215586dc668", null ],
     [ "Point3", "classhermes_1_1Point3.html#ae2925a49c45fcbabbd0eee4e8d2df758", null ],
-    [ "Point3", "classhermes_1_1Point3.html#a24f237032b4def834a9b9ea1c4e74807", null ],
+    [ "Point3", "classhermes_1_1Point3.html#aebbc38653dbcd9d0c20645535b5dd6bf", null ],
     [ "Point3", "classhermes_1_1Point3.html#ad434e152cb99a28c4848dc20c2836102", null ],
     [ "Point3", "classhermes_1_1Point3.html#a6505b078d2c141e9f9b4f1bafeabbbe5", null ],
     [ "Point3", "classhermes_1_1Point3.html#ada977d91a0876f2353af005549f8a78b", null ],

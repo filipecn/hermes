@@ -1,24 +1,26 @@
 /*
-@licstart  The following is the entire license notice for the
-JavaScript code in this file.
+ @licstart  The following is the entire license notice for the JavaScript code in this file.
 
-Copyright (C) 1997-2019 by Dimitri van Heesch
+ The MIT License (MIT)
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 2 of the GNU General Public License as published by
-the Free Software Foundation
+ Copyright (C) 1997-2020 by Dimitri van Heesch
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ and associated documentation files (the "Software"), to deal in the Software without restriction,
+ including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ The above copyright notice and this permission notice shall be included in all copies or
+ substantial portions of the Software.
 
-@licend  The above is the entire license notice
-for the JavaScript code in this file
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ @licend  The above is the entire license notice for the JavaScript code in this file
 */
 var NAVTREE =
 [
@@ -38,11 +40,13 @@ var NAVTREE =
       [ "Install", "md_docs_1_build_and_install.html#autotoc_md10", null ],
       [ "Build", "md_docs_1_build_and_install.html#autotoc_md11", null ],
       [ "Summary", "md_docs_1_build_and_install.html#autotoc_md12", null ],
+      [ "@code{shell}", "md_docs_1_build_and_install.html#autotoc_md13", null ],
       [ "Troubleshooting", "md_docs_1_build_and_install.html#autotoc_md14", null ]
     ] ],
     [ "Linking Hermes", "md_docs_2_linking.html", [
       [ "cmake", "md_docs_2_linking.html#autotoc_md16", null ],
       [ "CUDA", "md_docs_2_linking.html#autotoc_md17", null ],
+      [ "@code{cmake}", "md_docs_2_linking.html#autotoc_md18", null ],
       [ "Troubleshooting", "md_docs_2_linking.html#autotoc_md19", null ]
     ] ],
     [ "Common Utilities", "md_docs_3_common.html", [
@@ -84,6 +88,7 @@ var NAVTREE =
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
         [ "Variables", "functions_vars.html", null ],
+        [ "Enumerations", "functions_enum.html", null ],
         [ "Related Functions", "functions_rela.html", null ]
       ] ]
     ] ],
@@ -93,21 +98,21 @@ var NAVTREE =
         [ "All", "globals.html", null ],
         [ "Functions", "globals_func.html", null ],
         [ "Typedefs", "globals_type.html", null ],
-        [ "Enumerations", "globals_enum.html", null ],
         [ "Macros", "globals_defs.html", null ]
       ] ]
-    ] ]
+    ] ],
+    [ "Examples", "examples.html", "examples" ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-".html",
-"classhermes_1_1Matrix2x2.html#a729fe77756172ed8db4790dfa7d09ded",
-"classhermes_1_1Size3.html#a5532fd7055f383bb245fd4ccd7011e2f",
-"dir_b98a43f481fc30c5f1fa640528bad7f1.html",
-"group__logging.html#ga9f8966e7cf4b47602f0fd05a143c3e4c",
-"str_8h.html#af135993ada305f4bbeb509204bc5c48c"
+"_01_0ct_0cn-example.html",
+"classhermes_1_1Line2.html#a81d21bef15f4943bfe736009a4e4365e",
+"classhermes_1_1Segment.html#ae588b3761f693d177e90057711ec5a00",
+"cuda__utils_8h.html#a71bb45f0a9f8e3144a7041e3ec78d178",
+"group__common.html#gafb618bb840410eb6f01e79fe657827c2",
+"ray_8h.html#a16b443c53b1f58a611c989cc6b53d824"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

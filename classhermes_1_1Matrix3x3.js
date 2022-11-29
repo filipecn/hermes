@@ -9,6 +9,6 @@ var classhermes_1_1Matrix3x3 =
     [ "operator*", "classhermes_1_1Matrix3x3.html#a3a7fc78bff5269d31361a1724513e581", null ],
     [ "operator/", "classhermes_1_1Matrix3x3.html#a3c601bb42dedcdb200713410c5106f21", null ],
     [ "operator[]", "classhermes_1_1Matrix3x3.html#acdc046c759aa58e67b20fcf081a0508b", null ],
-    [ "operator[]", "classhermes_1_1Matrix3x3.html#a684a1011388093a50111a30cb7d7f63b", null ],
+    [ "operator[]", "classhermes_1_1Matrix3x3.html#a35662a2676700dcfb0937f44442986c4", null ],
     [ "setIdentity", "classhermes_1_1Matrix3x3.html#a89eb313c37e0a1f5a50b0bb4a52df595", null ]
 ];

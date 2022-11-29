@@ -1,8 +1,6 @@
 var vector_8h =
 [
-    [ "Point2", "classhermes_1_1Point2.html", "classhermes_1_1Point2" ],
     [ "Vector2", "classhermes_1_1Vector2.html", "classhermes_1_1Vector2" ],
-    [ "Point3", "classhermes_1_1Point3.html", "classhermes_1_1Point3" ],
     [ "Vector3", "classhermes_1_1Vector3.html", "classhermes_1_1Vector3" ],
     [ "Vector4", "classhermes_1_1Vector4.html", "classhermes_1_1Vector4" ],
     [ "hash< hermes::Vector2< T > >", "structstd_1_1hash_3_01hermes_1_1Vector2_3_01T_01_4_01_4.html", "structstd_1_1hash_3_01hermes_1_1Vector2_3_01T_01_4_01_4" ],

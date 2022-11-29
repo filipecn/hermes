@@ -7,6 +7,7 @@ var classhermes_1_1Size2 =
     [ "operator!=", "classhermes_1_1Size2.html#a40a1e1021744b01850a505db4e4d4d24", null ],
     [ "operator*", "classhermes_1_1Size2.html#ae9843e7bbbc84972554981fa2409916c", null ],
     [ "operator+", "classhermes_1_1Size2.html#a2226b7c548512a9f6eea0ca3dab2cd1e", null ],
+    [ "operator/", "classhermes_1_1Size2.html#ac87b029ca214ef660ae485c75d0a8fd0", null ],
     [ "operator==", "classhermes_1_1Size2.html#a3fcfd5184aa0e00351fdfc918cbf1dbe", null ],
     [ "operator[]", "classhermes_1_1Size2.html#a49945f7171e5445fd73e813b48b86525", null ],
     [ "operator[]", "classhermes_1_1Size2.html#a11b90d1f5d81b627d1110b92e0fe7d8d", null ],

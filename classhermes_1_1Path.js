@@ -12,6 +12,7 @@ var classhermes_1_1Path =
     [ "exists", "classhermes_1_1Path.html#a46ef9f823daff4a6c5e4ed26e023e860", null ],
     [ "extension", "classhermes_1_1Path.html#a70c0263cfb5a59a0efbb48abb2da0b83", null ],
     [ "fullName", "classhermes_1_1Path.html#a69104237bfac3dbbfa232fd158041f62", null ],
+    [ "hasExtension", "classhermes_1_1Path.html#a3d62b3593b0e17bc2ef74478571f9007", null ],
     [ "isDirectory", "classhermes_1_1Path.html#ac97b73e78354b1ac4e00e261e02d4238", null ],
     [ "isFile", "classhermes_1_1Path.html#ae5c8bca12dada66c648128ee899b0a33", null ],
     [ "join", "classhermes_1_1Path.html#a838768138511d52e92117c75037470a4", null ],

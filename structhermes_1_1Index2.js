@@ -7,6 +7,7 @@ var structhermes_1_1Index2 =
     [ "clampTo", "structhermes_1_1Index2.html#a04cc3085de3d547ca30867d717c62d8a", null ],
     [ "down", "structhermes_1_1Index2.html#a818cd32937f98560f2106ee22d57a0a7", null ],
     [ "left", "structhermes_1_1Index2.html#a1da7363cadc0edd4f5083ee1c01ab363", null ],
+    [ "operator-", "structhermes_1_1Index2.html#ad89d0dfdae7cf7b3e1573a68731be449", null ],
     [ "operator[]", "structhermes_1_1Index2.html#a624534cbbde1d50afcf8d28a991489b8", null ],
     [ "operator[]", "structhermes_1_1Index2.html#af95ad0e34adeb68afc8fb720eac69c91", null ],
     [ "plus", "structhermes_1_1Index2.html#ab99c9119016ef8a8ff07e71fae9f2e92", null ],

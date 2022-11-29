@@ -1,5 +1,6 @@
 var classhermes_1_1Str =
 [
+    [ "regex", "structhermes_1_1Str_1_1regex.html", null ],
     [ "Str", "classhermes_1_1Str.html#a236857887c7361722b1ba3b4054eda6b", null ],
     [ "Str", "classhermes_1_1Str.html#ae673080f3bf5901792328cdcf7b19091", null ],
     [ "Str", "classhermes_1_1Str.html#a62b7ac59a3b1f328882279a60f930ddd", null ],
@@ -9,6 +10,7 @@ var classhermes_1_1Str =
     [ "append", "classhermes_1_1Str.html#a459e72829b3f54dcb827cff53529585a", null ],
     [ "appendLine", "classhermes_1_1Str.html#acb78df476b35550a4d5a936aa7dc8427", null ],
     [ "c_str", "classhermes_1_1Str.html#a07b884e65e8fdbb2869f704d369aa847", null ],
+    [ "empty", "classhermes_1_1Str.html#aead220b3fd8e5a0c11128f1b5469e6d3", null ],
     [ "operator+", "classhermes_1_1Str.html#a9738912f592a926320970023745972e0", null ],
     [ "operator+=", "classhermes_1_1Str.html#a6bc683bc064cf2f597741b2ba60faaca", null ],
     [ "operator+=", "classhermes_1_1Str.html#a955e143073efc4098fb204f340c33725", null ],
@@ -18,7 +20,9 @@ var classhermes_1_1Str =
     [ "operator==", "classhermes_1_1Str.html#af80cd247556176b34bcbaef942fbaf9c", null ],
     [ "operator==", "classhermes_1_1Str.html#a6b14066d750d9457372f77176736572e", null ],
     [ "operator==", "classhermes_1_1Str.html#a484f57c2f970050b14668b5d97bf276b", null ],
+    [ "size", "classhermes_1_1Str.html#a342067fe6a81f8057e506ce9715711ef", null ],
     [ "str", "classhermes_1_1Str.html#acaf6407b300e8e9d08e643ed73ff4993", null ],
+    [ "substr", "classhermes_1_1Str.html#a36ccdf0a108cb826389a35c89e4338e6", null ],
     [ "operator+", "classhermes_1_1Str.html#ad213f7beccaa0c84724f99a7bbb582e1", null ],
     [ "operator<<", "classhermes_1_1Str.html#aff74cfde1a7d0c7d1f39c8c24bc35fea", null ],
     [ "operator==", "classhermes_1_1Str.html#ac69d7c9ddd17278f7487d91d98eac7fe", null ]

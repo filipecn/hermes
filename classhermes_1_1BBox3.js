@@ -15,7 +15,7 @@ var classhermes_1_1BBox3 =
     [ "maxExtent", "classhermes_1_1BBox3.html#ae6d9efe0eca8b468fe7ae7337bc449a5", null ],
     [ "offset", "classhermes_1_1BBox3.html#a38efe870d3b42c0216c84b811a8a473a", null ],
     [ "operator[]", "classhermes_1_1BBox3.html#a6d49166e4c751a28bb9e0af3b9c18754", null ],
-    [ "operator[]", "classhermes_1_1BBox3.html#a9fc5e3e1da256c68d6c9ee363a4ad77e", null ],
+    [ "operator[]", "classhermes_1_1BBox3.html#a8870b646304b0029b39bba82f21a1e63", null ],
     [ "size", "classhermes_1_1BBox3.html#af319276a54a55b5639daf562c1320da1", null ],
     [ "splitBy8", "classhermes_1_1BBox3.html#a039b39635c4ddae1c30a73c756c9e6f9", null ],
     [ "surfaceArea", "classhermes_1_1BBox3.html#a42a45dbeeea25b8c394826b845f59bbd", null ],

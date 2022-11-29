@@ -13,7 +13,7 @@ var classhermes_1_1BBox2 =
     [ "operator=", "classhermes_1_1BBox2.html#ab8db1154b63af5527e12eda9cdcfc49e", null ],
     [ "operator==", "classhermes_1_1BBox2.html#ac5a755c2c3be45f63fcc56a760d27d56", null ],
     [ "operator[]", "classhermes_1_1BBox2.html#af8717fde6b9078767bfb97ab26f49f68", null ],
-    [ "operator[]", "classhermes_1_1BBox2.html#a50bdfcb9f663a586d00932268befbf7f", null ],
+    [ "operator[]", "classhermes_1_1BBox2.html#a803c87f78de381f51fa53d70ea4b6444", null ],
     [ "size", "classhermes_1_1BBox2.html#ad809042c971c0caddc2846d72b892529", null ],
     [ "lower", "classhermes_1_1BBox2.html#a8d198afec4bf705401929b656609b691", null ],
     [ "upper", "classhermes_1_1BBox2.html#aeed6d6a7754da012838da0437bd9b836", null ]

@@ -9,7 +9,7 @@ var classhermes_1_1Point2 =
     [ "operator=", "classhermes_1_1Point2.html#a4b7a450403cba1f788e1fb703b97bd47", null ],
     [ "operator==", "classhermes_1_1Point2.html#a9e8bfd86d4d91a27fdb4e9204444ee3d", null ],
     [ "operator[]", "classhermes_1_1Point2.html#a4e0e3cde2441f08a763728abe17f43b7", null ],
-    [ "operator[]", "classhermes_1_1Point2.html#a65c98da5778b56994bd41f2873c3f0e8", null ],
+    [ "operator[]", "classhermes_1_1Point2.html#a5ee22c9a27c421ae2a758bf8f24a1a84", null ],
     [ "x", "classhermes_1_1Point2.html#a975543103d3e5aadff6f96b38d7abc65", null ],
     [ "y", "classhermes_1_1Point2.html#a49937ff5db4103d6997e4e380ee3496f", null ]
 ];

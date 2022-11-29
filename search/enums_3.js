@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['logging_5foptions_1268',['logging_options',['../logging_8h.html#a73551e37421cf342a5ff775fa200e95f',1,'hermes']]],
-  ['ls_5foptions_1269',['ls_options',['../file__system_8h.html#af21338176f0d5e9369a9a4d09f917b4f',1,'hermes']]]
+  ['memory_5fdumper_5foptions_1385',['memory_dumper_options',['../memory__dump_8h.html#aef03804037efec00aeed83a10197444f',1,'hermes']]],
+  ['memorylocation_1386',['MemoryLocation',['../defs_8h.html#ab8d92c2aa7a799516f03db0728158da0',1,'hermes']]]
 ];

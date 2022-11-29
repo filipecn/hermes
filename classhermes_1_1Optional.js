@@ -9,15 +9,15 @@ var classhermes_1_1Optional =
     [ "hasValue", "classhermes_1_1Optional.html#a4c3cc6b317c452a095d966b1b934c244", null ],
     [ "operator bool", "classhermes_1_1Optional.html#a580d42a1889211a0036b40b3d8f7fe62", null ],
     [ "operator*", "classhermes_1_1Optional.html#a54066fdc211b7973efd631c23c5cdebb", null ],
-    [ "operator*", "classhermes_1_1Optional.html#a1efdf8d8bd504ade03b62cf199e0200e", null ],
+    [ "operator*", "classhermes_1_1Optional.html#a2a81add89d31645d9dc82bea895c9e90", null ],
     [ "operator->", "classhermes_1_1Optional.html#afe64f5d43ac232fc30f59009de2806f1", null ],
-    [ "operator->", "classhermes_1_1Optional.html#af45f8cbfb607d35e9cc343872ca4deb8", null ],
+    [ "operator->", "classhermes_1_1Optional.html#a89f95318883a06b7fdbaedf469197e52", null ],
     [ "operator=", "classhermes_1_1Optional.html#a46b1fbcba730836a23c4100d5e00d324", null ],
     [ "operator=", "classhermes_1_1Optional.html#ab48e864a1e93a999c4d5f6e1361308b6", null ],
     [ "operator=", "classhermes_1_1Optional.html#a9a4b4b53a88dab0a0fd2b5eb8c0e2891", null ],
     [ "operator=", "classhermes_1_1Optional.html#a8842a965485cb2912aa3d3b2ce4ede92", null ],
     [ "reset", "classhermes_1_1Optional.html#acbea66dff749f2eec86e3008427696c4", null ],
     [ "value", "classhermes_1_1Optional.html#ab8d679e1a1adb70a04ca5deba050dae8", null ],
-    [ "value", "classhermes_1_1Optional.html#ace81058e020ee6885b362a0f7abc2bb7", null ],
+    [ "value", "classhermes_1_1Optional.html#ab026c664bd7a1f7689a7119404faf6cb", null ],
     [ "valueOr", "classhermes_1_1Optional.html#af9fb0b9dd95a50219258803124b7406d", null ]
 ];

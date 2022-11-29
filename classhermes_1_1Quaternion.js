@@ -11,7 +11,7 @@ var classhermes_1_1Quaternion =
     [ "matrix", "classhermes_1_1Quaternion.html#ae53ee0daa0e39c86aba9183dc6dfed00", null ],
     [ "normalized", "classhermes_1_1Quaternion.html#a8a40decbd175735b36aa99d646292e42", null ],
     [ "operator[]", "classhermes_1_1Quaternion.html#aaea66119f0cc471ca5662dc5a1dc8595", null ],
-    [ "operator[]", "classhermes_1_1Quaternion.html#a853d019dea0b99054a18e6e052871be8", null ],
+    [ "operator[]", "classhermes_1_1Quaternion.html#a56917a5e472d647f7bd3f38e1d1bb10f", null ],
     [ "r", "classhermes_1_1Quaternion.html#a28a7616cc7f165f75c66b3347f1e73dd", null ],
     [ "v", "classhermes_1_1Quaternion.html#a635f278c3e676fb4f65373c865b4fdfe", null ]
 ];

@@ -13,7 +13,7 @@ var classhermes_1_1Matrix4x4 =
     [ "operator*=", "classhermes_1_1Matrix4x4.html#a2dc6203c09410b8549392735a55d13ab", null ],
     [ "operator==", "classhermes_1_1Matrix4x4.html#a0d7e1d632532aaf8811074e85fc1c4b1", null ],
     [ "operator[]", "classhermes_1_1Matrix4x4.html#a66c2a50076b0f69f2da6a0eb5981f01b", null ],
-    [ "operator[]", "classhermes_1_1Matrix4x4.html#a8b59a7d860ddb7b56fd8570f5efc954d", null ],
+    [ "operator[]", "classhermes_1_1Matrix4x4.html#ab10580a928548d359e7dbf612a7f2369", null ],
     [ "row_major", "classhermes_1_1Matrix4x4.html#af594163f79b3a2be3516b660506ea973", null ],
     [ "setIdentity", "classhermes_1_1Matrix4x4.html#ad98247d17a314abca0c012dd5ce75a5c", null ]
 ];

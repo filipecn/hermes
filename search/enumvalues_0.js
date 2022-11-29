@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['bad_5fallocation_1273',['BAD_ALLOCATION',['../group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a3981a2fe9694845339e09eaa8fd9e608',1,'debug.h']]],
-  ['bad_5foperation_1274',['BAD_OPERATION',['../group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a53cdef5b374ac6a231b01fb4eb649c22',1,'debug.h']]]
+  ['abbreviate_1389',['abbreviate',['../logging_8h.html#a73551e37421cf342a5ff775fa200e95faa2be6c9a39d7b8ca11a8148e4b9ab344',1,'hermes']]]
 ];

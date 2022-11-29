@@ -28,6 +28,13 @@ var group__common =
       [ "lock", "classhermes_1_1cuda__utils_1_1Lock.html#ae0da7c363ab0173c1dd0b3dd0377da71", null ],
       [ "unlock", "classhermes_1_1cuda__utils_1_1Lock.html#a6d970d89c74977e86c350dc18c1be925", null ]
     ] ],
+    [ "Profiler", "classhermes_1_1profiler_1_1Profiler.html", [
+      [ "~Profiler", "classhermes_1_1profiler_1_1Profiler.html#af3610c263a44c9214cbecc12cc4f5c63", null ],
+      [ "Profiler", "classhermes_1_1profiler_1_1Profiler.html#a2f50f3a81e697b67eb7dc9eb3b8f6b71", null ],
+      [ "Profiler", "classhermes_1_1profiler_1_1Profiler.html#abfe075d5910bba63aa2016d31fcc91c7", null ],
+      [ "operator=", "classhermes_1_1profiler_1_1Profiler.html#afeb986d4678957ee934c677b03bbadc7", null ],
+      [ "operator=", "classhermes_1_1profiler_1_1Profiler.html#a9bf3f824415549865e9534fe5e0ecc09", null ]
+    ] ],
     [ "BlockDescriptor", "structhermes_1_1profiler_1_1Profiler_1_1BlockDescriptor.html", [
       [ "BlockDescriptor", "structhermes_1_1profiler_1_1Profiler_1_1BlockDescriptor.html#a767e5c5060fc38dcde49aae3ecd4f94b", null ],
       [ "BlockDescriptor", "structhermes_1_1profiler_1_1Profiler_1_1BlockDescriptor.html#a3e3120a8fff5283272bb7f04023c292c", null ],
@@ -48,13 +55,6 @@ var group__common =
     [ "ScopedBlock", "classhermes_1_1profiler_1_1Profiler_1_1ScopedBlock.html", [
       [ "ScopedBlock", "classhermes_1_1profiler_1_1Profiler_1_1ScopedBlock.html#a76ec260da116da98b66ff8f5672a46d6", null ],
       [ "~ScopedBlock", "classhermes_1_1profiler_1_1Profiler_1_1ScopedBlock.html#a733e303c84bc5ea49e9683223965862e", null ]
-    ] ],
-    [ "Profiler", "classhermes_1_1profiler_1_1Profiler.html", [
-      [ "~Profiler", "classhermes_1_1profiler_1_1Profiler.html#af3610c263a44c9214cbecc12cc4f5c63", null ],
-      [ "Profiler", "classhermes_1_1profiler_1_1Profiler.html#a2f50f3a81e697b67eb7dc9eb3b8f6b71", null ],
-      [ "Profiler", "classhermes_1_1profiler_1_1Profiler.html#abfe075d5910bba63aa2016d31fcc91c7", null ],
-      [ "operator=", "classhermes_1_1profiler_1_1Profiler.html#afeb986d4678957ee934c677b03bbadc7", null ],
-      [ "operator=", "classhermes_1_1profiler_1_1Profiler.html#a9bf3f824415549865e9534fe5e0ecc09", null ]
     ] ],
     [ "CUDA_MEMORY_USAGE", "group__common.html#gae79415bf34734d92ff241c1cb1eef6a4", null ],
     [ "HERMES_ASSERT", "group__common.html#ga1c115720d5b704b94684e164e3ebf5e5", null ],
@@ -86,6 +86,7 @@ var group__common =
     [ "HERMES_DISABLE_PROFILER", "group__common.html#ga2f1ac030c5df1896ca664bf9937c2206", null ],
     [ "HERMES_ENABLE_PROFILER", "group__common.html#ga733142ba54aa778673682eeebed9e0e5", null ],
     [ "HERMES_HOST_FUNCTION", "group__common.html#gad826e86c01ed0d3ab4222eb4967aa9de", null ],
+    [ "HERMES_LOG_AND_RETURN_IF_NOT", "group__common.html#gae6876eebcefc54e80fd278696a78ff41", null ],
     [ "HERMES_LOG_AND_RETURN_VALUE_IF_NOT", "group__common.html#ga3facb947bcf6e391f23567f5a0a15688", null ],
     [ "HERMES_NOT_IMPLEMENTED", "group__common.html#gac47838d9dbd6c6fcef9ede7da3726421", null ],
     [ "HERMES_PROFILE_END_BLOCK", "group__common.html#ga0f6af0d60207d12138cd5ffbf8ca792f", null ],
@@ -116,15 +117,6 @@ var group__common =
     [ "uint", "group__common.html#ga69aa29b598b851b0640aa225a9e5d61d", null ],
     [ "ulong", "group__common.html#ga441b2f7db117201ab36246e7692a5974", null ],
     [ "ushort", "group__common.html#gae666ff9c44d45e6b7b6b8ed4340dd9c0", null ],
-    [ "HeResult", "group__common.html#gab9e170e339d3cc52d2d3662ea42ad0a6", [
-      [ "SUCCESS", "group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6ad0749aaba8b833466dfcbb0428e4f89c", null ],
-      [ "ERROR", "group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6abb1ca97ec761fc37101737ba0aa2e7c5", null ],
-      [ "BAD_ALLOCATION", "group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a3981a2fe9694845339e09eaa8fd9e608", null ],
-      [ "OUT_OF_BOUNDS", "group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a71e5e8b8caeedea08ea1f0e75143e047", null ],
-      [ "INVALID_INPUT", "group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6ac063281d4adc16ebccfec66aa885b4dd", null ],
-      [ "BAD_OPERATION", "group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a53cdef5b374ac6a231b01fb4eb649c22", null ],
-      [ "NOT_IMPLEMENTED", "group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a3e860a081575fc82cc7b6ed2ca602947", null ]
-    ] ],
     [ "hermes_print_cuda_devices", "group__common.html#ga9b85e0758b41fb312836791fabafe4b7", null ],
     [ "hermes_print_cuda_memory_usage", "group__common.html#ga05941f41fca76d0abaf481a34d777b42", null ]
 ];

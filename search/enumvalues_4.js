@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['out_5fof_5fbounds_1278',['OUT_OF_BOUNDS',['../group__common.html#ggab9e170e339d3cc52d2d3662ea42ad0a6a71e5e8b8caeedea08ea1f0e75143e047',1,'debug.h']]]
+  ['error_1400',['error',['../logging_8h.html#a73551e37421cf342a5ff775fa200e95facb5e100e5a9a3e7f6d1fd97512215282',1,'hermes']]]
 ];

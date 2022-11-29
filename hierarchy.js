@@ -9,6 +9,7 @@ var hierarchy =
     [ "hermes::Check", "structhermes_1_1Check.html", null ],
     [ "hermes::ConsoleColors", "classhermes_1_1ConsoleColors.html", null ],
     [ "hermes::Constants", "structhermes_1_1Constants.html", null ],
+    [ "hermes::ConstStrView", "classhermes_1_1ConstStrView.html", null ],
     [ "hermes::CurveInterface", "classhermes_1_1CurveInterface.html", [
       [ "hermes::ImplicitCurveInterface", "classhermes_1_1ImplicitCurveInterface.html", [
         [ "hermes::ImplicitCircle", "classhermes_1_1ImplicitCircle.html", null ],
@@ -21,8 +22,8 @@ var hierarchy =
     [ "hermes::EnableBitMaskOperators< Enum >", "structhermes_1_1EnableBitMaskOperators.html", null ],
     [ "hermes::FileSystem", "classhermes_1_1FileSystem.html", null ],
     [ "hermes::Frustum", "classhermes_1_1Frustum.html", null ],
-    [ "hermes::GeometricPredicates", "classhermes_1_1GeometricPredicates.html", null ],
-    [ "hermes::GeometricQueries", "classhermes_1_1GeometricQueries.html", null ],
+    [ "hermes::GeometricPredicates", "structhermes_1_1GeometricPredicates.html", null ],
+    [ "hermes::GeometricQueries", "structhermes_1_1GeometricQueries.html", null ],
     [ "std::hash< hermes::Point2< T > >", "structstd_1_1hash_3_01hermes_1_1Point2_3_01T_01_4_01_4.html", null ],
     [ "std::hash< hermes::Point3< T > >", "structstd_1_1hash_3_01hermes_1_1Point3_3_01T_01_4_01_4.html", null ],
     [ "std::hash< hermes::Vector2< T > >", "structstd_1_1hash_3_01hermes_1_1Vector2_3_01T_01_4_01_4.html", null ],
@@ -35,28 +36,20 @@ var hierarchy =
     [ "hermes::Index3Range< T >", "classhermes_1_1Index3Range.html", null ],
     [ "hermes::cuda_utils::LaunchInfo", "structhermes_1_1cuda__utils_1_1LaunchInfo.html", null ],
     [ "hermes::Line", "classhermes_1_1Line.html", null ],
+    [ "hermes::Line2", "classhermes_1_1Line2.html", null ],
     [ "hermes::Log::Location", "structhermes_1_1Log_1_1Location.html", null ],
     [ "hermes::cuda_utils::Lock", "classhermes_1_1cuda__utils_1_1Lock.html", null ],
     [ "hermes::Log", "classhermes_1_1Log.html", null ],
-    [ "hermes::MathElement< NUMERIC_TYPE, COMPONENT_COUNT >", "classhermes_1_1MathElement.html", null ],
-    [ "hermes::MathElement< f32, 2u >", "classhermes_1_1MathElement.html", [
-      [ "hermes::Interval< f32 >", "classhermes_1_1Interval.html", null ]
-    ] ],
-    [ "hermes::MathElement< real_t, 16 >", "classhermes_1_1MathElement.html", [
-      [ "hermes::Matrix4x4< real_t >", "classhermes_1_1Matrix4x4.html", null ]
-    ] ],
-    [ "hermes::MathElement< real_t, 2u >", "classhermes_1_1MathElement.html", [
+    [ "hermes::MathElement< NUMERIC_TYPE, COMPONENT_COUNT >", "classhermes_1_1MathElement.html", [
+      [ "hermes::Interval< f32 >", "classhermes_1_1Interval.html", null ],
+      [ "hermes::Matrix3x3< real_t >", "classhermes_1_1Matrix3x3.html", null ],
+      [ "hermes::Matrix4x4< real_t >", "classhermes_1_1Matrix4x4.html", null ],
       [ "hermes::Normal2< real_t >", "classhermes_1_1Normal2.html", null ],
-      [ "hermes::Point2< real_t >", "classhermes_1_1Point2.html", null ],
-      [ "hermes::Vector2< real_t >", "classhermes_1_1Vector2.html", null ]
-    ] ],
-    [ "hermes::MathElement< real_t, 3u >", "classhermes_1_1MathElement.html", [
       [ "hermes::Normal3< real_t >", "classhermes_1_1Normal3.html", null ],
+      [ "hermes::Point2< real_t >", "classhermes_1_1Point2.html", null ],
       [ "hermes::Point3< real_t >", "classhermes_1_1Point3.html", null ],
+      [ "hermes::Vector2< real_t >", "classhermes_1_1Vector2.html", null ],
       [ "hermes::Vector3< real_t >", "classhermes_1_1Vector3.html", null ]
-    ] ],
-    [ "hermes::MathElement< real_t, 9 >", "classhermes_1_1MathElement.html", [
-      [ "hermes::Matrix3x3< real_t >", "classhermes_1_1Matrix3x3.html", null ]
     ] ],
     [ "hermes::MathElement< T, 16 >", "classhermes_1_1MathElement.html", [
       [ "hermes::Matrix4x4< T >", "classhermes_1_1Matrix4x4.html", null ]
@@ -80,17 +73,20 @@ var hierarchy =
       [ "hermes::Matrix3x3< T >", "classhermes_1_1Matrix3x3.html", null ]
     ] ],
     [ "hermes::MemoryDumper", "classhermes_1_1MemoryDumper.html", null ],
+    [ "hermes::ParseTree::Node", "structhermes_1_1ParseTree_1_1Node.html", null ],
     [ "hermes::Numbers", "structhermes_1_1Numbers.html", null ],
     [ "hermes::Optional< T >", "classhermes_1_1Optional.html", null ],
     [ "hermes::ParametricCurveInterface", "classhermes_1_1ParametricCurveInterface.html", [
       [ "hermes::ParametricCircle", "classhermes_1_1ParametricCircle.html", null ]
     ] ],
+    [ "hermes::ParseTree", "classhermes_1_1ParseTree.html", null ],
     [ "hermes::Path", "classhermes_1_1Path.html", null ],
     [ "hermes::Plane", "classhermes_1_1Plane.html", null ],
     [ "hermes::profiler::Profiler", "classhermes_1_1profiler_1_1Profiler.html", null ],
     [ "hermes::Quaternion< T >", "classhermes_1_1Quaternion.html", null ],
     [ "hermes::Ray2", "classhermes_1_1Ray2.html", null ],
     [ "hermes::Ray3", "classhermes_1_1Ray3.html", null ],
+    [ "hermes::Str::regex", "structhermes_1_1Str_1_1regex.html", null ],
     [ "hermes::MemoryDumper::RegionLayout", "structhermes_1_1MemoryDumper_1_1RegionLayout.html", null ],
     [ "hermes::Result< T, E >", "classhermes_1_1Result.html", null ],
     [ "hermes::profiler::Profiler::ScopedBlock", "classhermes_1_1profiler_1_1Profiler_1_1ScopedBlock.html", null ],
@@ -103,6 +99,7 @@ var hierarchy =
     [ "hermes::Size2< T >", "classhermes_1_1Size2.html", null ],
     [ "hermes::Size3< T >", "classhermes_1_1Size3.html", null ],
     [ "hermes::Str", "classhermes_1_1Str.html", null ],
+    [ "hermes::StringParser", "classhermes_1_1StringParser.html", null ],
     [ "hermes::SurfaceInterface", "classhermes_1_1SurfaceInterface.html", [
       [ "hermes::ImplicitSurfaceInterface", "classhermes_1_1ImplicitSurfaceInterface.html", [
         [ "hermes::ImplicitSphere", "classhermes_1_1ImplicitSphere.html", null ]
