@@ -144,11 +144,62 @@ bool GeometricQueries::intersect(const bbox3 &box, const Ray3 &ray, real_t &hit0
   return intersect(box, ray, hit0, hit1);
 }
 
-std::optional<real_t> GeometricPredicates::intersect(const bbox3 &bounds,
-                                                     const ray3 &ray,
-                                                     const vec3 &inv_dir,
-                                                     const i32 *dir_is_neg,
-                                                     real_t max_t) {
+bool GeometricQueries::intersect(const hermes::Line2 &line, const ray2 &ray) {
+  // the ray's equation is r = r0 + t*dr
+  // the line's equation is l = l0 + u*dl
+  // we want to find which values of t and u so that r0 + t*dr == l0 + u*dl
+  // Since we are interested in the parametric coordinate t, lets get rid of u by crossing both sides
+  // by dl and use the fact that dl x dl = 0
+  // so we start with (r0 + t*dr) x dl = (l0 + u*dl) x dl
+  // and get r0 x dl + t*(dr x dl) = l0 x dl
+  // and end up with
+  //                      t =  (l0 - r0) x dl
+  //                              dr x dl
+
+  real_t numerator = cross(line.a - ray.o, line.direction());
+  real_t denominator = cross(ray.d, line.direction());
+
+  if (Check::is_zero(denominator) && Check::is_zero(numerator))
+    // both lines are collinear
+    return true;
+  if (Check::is_zero(denominator))
+    // both lines are parallel
+    return false;
+  return (numerator > 0 && denominator > 0) || (numerator < 0 && denominator < 0);
+}
+
+Result<real_t> GeometricPredicates::intersect(const hermes::Line2 &line, const ray2 &ray) {
+  // the ray's equation is r = r0 + t*dr
+  // the line's equation is l = l0 + u*dl
+  // we want to find which values of t and u so that r0 + t*dr == l0 + u*dl
+  // Since we are interested in the parametric coordinate t, lets get rid of u by crossing both sides
+  // by dl and use the fact that dl x dl = 0
+  // so we start with (r0 + t*dr) x dl = (l0 + u*dl) x dl
+  // and get r0 x dl + t*(dr x dl) = l0 x dl
+  // and end up with
+  //                      t =  (l0 - r0) x dl
+  //                              dr x dl
+
+  real_t numerator = cross(line.a - ray.o, line.direction());
+  real_t denominator = cross(ray.d, line.direction());
+
+  if (Check::is_zero(denominator) && Check::is_zero(numerator))
+    // both lines are collinear
+    return Result<real_t>(0);
+  if (Check::is_zero(denominator))
+    // both lines are parallel
+    return Result<real_t>();
+  auto t = numerator / denominator;
+  if (t >= 0)
+    return Result<real_t>(t);
+  return Result<real_t>();
+}
+
+Result<real_t> GeometricPredicates::intersect(const bbox3 &bounds,
+                                              const ray3 &ray,
+                                              const vec3 &inv_dir,
+                                              const i32 *dir_is_neg,
+                                              real_t max_t) {
   // check for ray intersection against x and y slabs
   real_t t_min = (bounds[dir_is_neg[0]].x - ray.o.x) * inv_dir.x;
   real_t t_max = (bounds[1 - dir_is_neg[0]].x - ray.o.x) * inv_dir.x;
@@ -156,7 +207,7 @@ std::optional<real_t> GeometricPredicates::intersect(const bbox3 &bounds,
   real_t ty_max = (bounds[1 - dir_is_neg[1]].y - ray.o.y) * inv_dir.y;
   // update t_max and tyMax to ensure robust bounds intersection
   if (t_min > ty_max || ty_min > t_max)
-    return std::nullopt;
+    return Result<real_t>();
   if (ty_min > t_min)
     t_min = ty_min;
   if (ty_max < t_max)
@@ -165,18 +216,18 @@ std::optional<real_t> GeometricPredicates::intersect(const bbox3 &bounds,
   real_t tz_min = (bounds[dir_is_neg[2]].z - ray.o.z) * inv_dir.z;
   real_t tz_max = (bounds[1 - dir_is_neg[2]].z - ray.o.z) * inv_dir.z;
   if (t_min > tz_max || tz_min > t_max)
-    return std::nullopt;
+    return Result<real_t>();
   if (tz_min > t_min)
     t_min = tz_min;
   if (tz_max < t_max)
     t_max = tz_max;
   if ((t_min < max_t) && (t_max > 0))
-    return std::optional<real_t>{t_min};
-  return std::nullopt;
+    return Result<real_t>{t_min};
+  return Result<real_t>();
 }
 
-std::optional<real_t> GeometricPredicates::intersect(const hermes::bbox3 &bounds,
-                                                     const ray3 &ray, real_t *second_hit) {
+Result<real_t> GeometricPredicates::intersect(const hermes::bbox3 &bounds,
+                                              const ray3 &ray, real_t *second_hit) {
 
   real_t t0 = 0.f, t1 = Constants::real_infinity;
   for (int i = 0; i < 3; i++) {
@@ -188,20 +239,20 @@ std::optional<real_t> GeometricPredicates::intersect(const hermes::bbox3 &bounds
     t0 = t_near > t0 ? t_near : t0;
     t1 = t_far < t1 ? t_far : t1;
     if (t0 > t1)
-      return std::nullopt;
+      return Result<real_t>();
   }
-  std::optional<real_t> hit(t0);
+  Result<real_t> hit(t0);
   if (second_hit)
     *second_hit = t1;
   return hit;
 }
 
-std::optional<real_t> GeometricPredicates::intersect(const point3 &p1,
-                                                     const point3 &p2,
-                                                     const point3 &p3,
-                                                     const Ray3 &ray,
-                                                     real_t *b0,
-                                                     real_t *b1) {
+Result<real_t> GeometricPredicates::intersect(const point3 &p1,
+                                              const point3 &p2,
+                                              const point3 &p3,
+                                              const Ray3 &ray,
+                                              real_t *b0,
+                                              real_t *b1) {
   real_t max_t = Constants::real_infinity;
   // transform triangle vertices to ray coordinate space
   //    translate vertices based on ray origin
@@ -238,10 +289,10 @@ std::optional<real_t> GeometricPredicates::intersect(const point3 &p1,
   }
   // perform triangle edge and determinant tests
   if ((e0 < 0 || e1 < 0 || e2 < 0) && (e0 > 0 || e1 > 0 || e2 > 0))
-    return std::nullopt;
+    return Result<real_t>();
   real_t det = e0 + e1 + e2;
   if (det == 0)
-    return std::nullopt;
+    return Result<real_t>();
   // compute scaled hit distance to triangle and test against ray t range
   p0t.z *= sz;
   p1t.z *= sz;
@@ -249,7 +300,7 @@ std::optional<real_t> GeometricPredicates::intersect(const point3 &p1,
   real_t t_scaled = e0 * p0t.z + e1 * p1t.z + e2 * p2t.z;
   if ((det < 0 && (t_scaled >= 0 || t_scaled < max_t * det)) ||
       (det > 0 && (t_scaled <= 0 || t_scaled > max_t * det)))
-    return std::nullopt;
+    return Result<real_t>();
   // compute barycentric coordinates and t value for triangle intersection
   real_t inv_det = 1 / det;
   if (b0)
@@ -274,8 +325,17 @@ std::optional<real_t> GeometricPredicates::intersect(const point3 &p1,
   real_t
       delta_t = 3 * (Numbers::gamma(3) * max_e * max_z_t + delta_e * max_z_t + delta_z * max_e) * std::abs(inv_det);
   if (t <= delta_t)
-    return std::nullopt;
-  return std::optional<real_t>(t);
+    return Result<real_t>();
+  return Result<real_t>(t);
+}
+
+Result<real_t> GeometricPredicates::intersect(const Plane &plane, const Ray3 &ray) {
+  vec3 n_vector = vec3(plane.normal.x, plane.normal.y, plane.normal.z);
+  real_t k = dot(n_vector, ray.d);
+  if (Check::is_zero(k))
+    return Result<real_t>::error(HeResult::BAD_OPERATION);
+  real_t r = (plane.offset - dot(n_vector, vec3(ray.o.x, ray.o.y, ray.o.z))) / k;
+  return Result<real_t>(r);
 }
 
 } // namespace hermes

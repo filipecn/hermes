@@ -117,12 +117,15 @@ public:
   /// \brief Check if this path exists in filesystem
   /// \return
   [[nodiscard]] bool exists() const;
-  /// \brief Check if this path represents a folder
+  /// \brief Check if this path exists and represents a folder
   /// \return
   [[nodiscard]] bool isDirectory() const;
-  /// \brief Check if this path represents a file
+  /// \brief Check if this path exists and represents a file
   /// \return
   [[nodiscard]] bool isFile() const;
+  ///
+  /// \return
+  [[nodiscard]] bool hasExtension() const;
   /// \brief Splits this path into a list
   /// \return
   [[nodiscard]] std::vector<std::string> parts() const;
@@ -208,7 +211,7 @@ public:
   /// \return {filename1, filename2, ...}
   static std::vector<std::string> basename(const std::vector<std::string> &paths, const std::string &suffix = "");
   /// \brief Strips directory and suffix from filename
-  /// \param path **[in]** /path/to/filenamesuffix
+  /// \param path **[in]** /path/to/filename<suffix>
   /// \param suffix **[in | optional]**
   /// \return filename
   static std::string basename(const std::string &path, const std::string &suffix = "");

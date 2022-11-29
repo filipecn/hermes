@@ -111,7 +111,7 @@ Path &Path::cd(const std::string &path) {
 
 Path &Path::join(const Path &path) {
   path_ = Str::join({path_.str(), path.path_.str()}, separator);
-  path_ = Str::replace_r(path_.str(), separator + separator, separator);
+  path_ = Str::regex::replace(path_.str(), separator + separator, separator);
   return *this;
 }
 
@@ -125,6 +125,11 @@ bool Path::isDirectory() const {
 
 bool Path::isFile() const {
   return FileSystem::isFile(path_.str());
+}
+
+bool Path::hasExtension() const {
+  auto n = name();
+  return n.find('.') != n.npos;
 }
 
 std::vector<std::string> Path::parts() const {
@@ -581,7 +586,7 @@ std::vector<Path> FileSystem::find(const Path &path, const std::string &pattern,
     lso = lso | ls_options::sort;
   const auto &l = ls(path, lso);
   for (const auto &p : l)
-    if (Str::contains_r(p.fullName(), pattern))
+    if (Str::regex::contains(p.fullName(), pattern))
       found.emplace_back(p);
   return found;
 }

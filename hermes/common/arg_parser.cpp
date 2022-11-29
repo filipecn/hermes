@@ -26,6 +26,7 @@
 ///\brief Simple argument parser
 
 #include <hermes/common/arg_parser.h>
+#include <hermes/common/debug.h>
 
 #include <iostream>
 #include <iomanip>
@@ -38,6 +39,8 @@ ArgParser::ArgParser(std::string bin, std::string description)
     : bin_{std::move(bin)}, description_{std::move(description)} {}
 
 bool ArgParser::parse(int argc, const char **argv, bool verbose_parsing) {
+  // TODO support multiple list of values... right now the vectors names and values
+  // expect only one value!
   if (verbose_parsing) {
     std::cout << "parsing arguments:\n\t";
     for (int i = 0; i < argc; ++i)
@@ -77,8 +80,13 @@ bool ArgParser::parse(int argc, const char **argv, bool verbose_parsing) {
       }
   }
   // check if all required arguments were given
-  return std::all_of(arguments_.begin(), arguments_.end(),
-                     [](const auto &a) { return !(a.required && !a.given); });
+  if(!std::all_of(arguments_.begin(), arguments_.end(),
+                     [](const auto &a) { return !(a.required && !a.given); })) {
+    printHelp();
+    HERMES_LOG_ERROR("Required arguments not given in argument parser.");
+    return false;
+  }
+  return true;
 }
 
 void ArgParser::addArgument(const std::string &name, const std::string &description, bool is_required) {

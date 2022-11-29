@@ -33,6 +33,7 @@
 #include <catch2/catch.hpp>
 
 #include <hermes/common/arg_parser.h>
+#include <hermes/common/parsers.h>
 #include <hermes/common/size.h>
 #include <hermes/common/index.h>
 #include <hermes/common/bitmask_operators.h>
@@ -138,6 +139,109 @@ TEST_CASE("ArgParser") {
     parser.addArgument("a3", "a3 description", true);
     parser.printHelp();
   }//
+  SECTION("list 1") {
+    const char *argv[3] = {"bin", "list", "-1,2,-3"};
+    ArgParser parser("test bin", "test bin description.");
+    parser.addArgument("list");
+    REQUIRE(parser.parse(3, argv, true));
+    auto l = parser.getList<int>("list");
+    for (int i = 0; i < 3; ++i)
+      REQUIRE(l[i] == ((i % 2 == 0) ? -(i + 1) : (i + 1)));
+  }
+}
+
+TEST_CASE("StringParser") {
+  /*
+  SECTION("consume any characters") {
+    //                                            12345
+    std::string text = "      \t     \n\n\n\n     text\n";
+    auto n = StringParser::matchPrefixWithAny(" \t\n", text);
+    REQUIRE(n == text.size() - 5);
+    REQUIRE(text.substr(n) == "text\n");
+  } //
+  SECTION("block") {
+    //                                               123456
+    std::string text = "( text  \t\t\n\n\n\n\\n((( ))_after";
+    size_t block_start = 0, block_end = 0;
+    auto n = StringParser::matchPrefixWithAny({{"(", ")"}}, text, block_start, block_end);
+    REQUIRE(StringParser::startsWith({{"(", ")"}}, text) == 0);
+    REQUIRE(StringParser::startsWith({{"open", ")"}}, text) == 1);
+    REQUIRE(n == text.size() - 6);
+    REQUIRE(text.substr(n) == "_after");
+  } //
+  SECTION("block - big delimiter") {
+    std::string text = "begin0123456789end!";
+    size_t block_start = 0, block_end = 0;
+    auto n = StringParser::matchPrefixWithAny({{"begin", "end"}}, text, block_start, block_end);
+    REQUIRE(StringParser::startsWith({{"begin", ")"}}, text) == 0);
+    REQUIRE(StringParser::startsWith({{"open", ")"}}, text) == 1);
+    REQUIRE(n == text.size() - 1);
+    REQUIRE(text.substr(n) == "!");
+  } //
+  SECTION("tokens") {
+    StringParser parser;
+    parser.pushTokenPattern("number", "[-+]?[0-9]*\\.?[0-9]*e?[-+]?[0-9]+");
+    //                                     01234567890123
+    auto parse_tree = parser.parse("      123     ");
+    size_t token_count = 0;
+    parse_tree->iterate([&](const ParseTree::Node &node) {
+      if (node.type == ParseTree::NodeType::TOKEN) {
+        REQUIRE(node.value == "123");
+        REQUIRE(node.size == 3);
+        REQUIRE(node.name == "number");
+        token_count++;
+      }
+      return true;
+    });
+    REQUIRE(token_count == 1);
+  } //
+  */
+  SECTION("c-like-language") {
+    auto parser = StringParser::cLanguage();
+    //           0         1         2         3
+    //           012345678901234567890123456789012
+    auto text = "int main(int argc, char** argv) {"
+    //                  4         5
+    //           345678901234567890123456
+                " int array[3] = {1,2,3};"
+                //              6         7
+                //           789012345678901234
+                " float a = 1.3e-4;"
+                //                8
+                //           5678901234
+                " return 0;"
+                //           5
+                "}";
+    auto parse_tree = parser.parse(text);
+    HERMES_LOG_VARIABLE(*parse_tree);
+  }//
+  return;
+  SECTION("msh") {
+    StringParser msh_parser;
+    msh_parser.setBlankCharacters(" \t\n");
+    msh_parser.pushBlockDelimiters("\\$MeshFormat", "\\$EndMeshFormat");
+    msh_parser.pushBlockDelimiters("\\$Nodes", "\\$EndNodes");
+    msh_parser.pushBlockDelimiters("\\$Elements", "\\$EndElements");
+    msh_parser.pushTokenPattern("integer", hermes::Str::regex::integer_number);
+    msh_parser.pushTokenPattern("real", hermes::Str::regex::floating_point_number);
+    auto r = msh_parser.parse("$MeshFormat\n"
+                              "2.2 0 8\n"
+                              "$EndMeshFormat\n"
+                              "$Nodes\n"
+                              "4874\n"
+                              "1 133.927 1776.79 2492.81\n"
+                              "2 137.904 1771.07 1323.23\n"
+                              "$EndNodes\n"
+                              "$Elements\n"
+                              "20975\n"
+                              "1 4 0 1393 232 2270 414 \n"
+                              "2 4 0 5 1839 75 1036 \n"
+                              "3 4 0 2310 1836 4850 2354 \n"
+                              "$EndElements"
+    );
+    HERMES_LOG_VARIABLE(*r);
+  }
+
 }
 
 namespace hermes {
@@ -156,7 +260,72 @@ TEST_CASE("bitmask operators") {
   REQUIRE(HERMES_MASK_BIT(Test::a1 | Test::a2, Test::a1));
 }
 
+TEST_CASE("ConstStrView") {
+  std::string s = "0123456789";
+  REQUIRE(ConstStrView::from(s)->size() == s.size());
+  REQUIRE(ConstStrView::from(s, 1, 3)->size() == 3);
+  REQUIRE((*ConstStrView::from(s, 1, 3)) == std::string("123"));
+  REQUIRE((*ConstStrView::from(s, 8, 3)).size() == 2);
+  REQUIRE((*ConstStrView::from(s, 9, 3)).size() == 1);
+  REQUIRE((*ConstStrView::from(s, 10, 3)).size() == 0);
+  REQUIRE(ConstStrView::from(s, 11, 3).status() == HeResult::OUT_OF_BOUNDS);
+}
+
 TEST_CASE("Str", "[common]") {
+  SECTION("abbreviation") {
+    REQUIRE(Str::abbreviate("123456789", 5, "..s") == "...89");
+    REQUIRE(Str::abbreviate("12345678", 5, "..s") == "...78");
+    REQUIRE(Str::abbreviate("123456789", 4, "..s") == "...9");
+    REQUIRE(Str::abbreviate("12345678", 4, "..s") == "...8");
+
+    REQUIRE(Str::abbreviate("123456789", 5, "s..") == "12...");
+    REQUIRE(Str::abbreviate("12345678", 5, "s..") == "12...");
+    REQUIRE(Str::abbreviate("123456789", 4, "s..") == "1...");
+    REQUIRE(Str::abbreviate("12345678", 4, "s..") == "1...");
+
+    REQUIRE(Str::abbreviate("123456789", 5, ".s.") == ".456.");
+    REQUIRE(Str::abbreviate("12345678", 5, ".s.") == ".456.");
+    REQUIRE(Str::abbreviate("123456789", 4, ".s.") == ".45.");
+    REQUIRE(Str::abbreviate("12345678", 4, ".s.") == ".45.");
+
+    REQUIRE(Str::abbreviate("123456789", 5, "s.s") == "12.89");
+    REQUIRE(Str::abbreviate("12345678", 5, "s.s") == "12.78");
+    REQUIRE(Str::abbreviate("123456789", 4, "s.s") == "1..9");
+    REQUIRE(Str::abbreviate("12345678", 4, "s.s") == "1..8");
+
+    // big cases
+    REQUIRE(Str::abbreviate("123456789", 6, "..s") == "...789");
+    REQUIRE(Str::abbreviate("123456789", 6, "s.s") == "12..89");
+    REQUIRE(Str::abbreviate("123456789", 6, "s..") == "123...");
+    REQUIRE(Str::abbreviate("123456789", 6, ".s.") == ".3456.");
+
+    REQUIRE(Str::abbreviate("123456789", 7, "..s") == "...6789");
+    REQUIRE(Str::abbreviate("123456789", 7, "s.s") == "123.789");
+    REQUIRE(Str::abbreviate("123456789", 7, "s..") == "1234...");
+    REQUIRE(Str::abbreviate("123456789", 7, ".s.") == "..456..");
+
+
+    // small cases
+    REQUIRE(Str::abbreviate("123456789", 3, "..s") == "..9");
+    REQUIRE(Str::abbreviate("123456789", 3, "s.s") == "1.9");
+    REQUIRE(Str::abbreviate("123456789", 3, "s..") == "1..");
+    REQUIRE(Str::abbreviate("123456789", 3, ".s.") == ".5.");
+
+    REQUIRE(Str::abbreviate("123456789", 2, "..s") == ".9");
+    REQUIRE(Str::abbreviate("123456789", 2, "s.s") == "19");
+    REQUIRE(Str::abbreviate("123456789", 2, "s..") == "1.");
+    REQUIRE(Str::abbreviate("123456789", 2, ".s.") == "45");
+
+    REQUIRE(Str::abbreviate("123456789", 1, "..s") == "9");
+    REQUIRE(Str::abbreviate("123456789", 1, "s.s") == "1");
+    REQUIRE(Str::abbreviate("123456789", 1, "s..") == "1");
+    REQUIRE(Str::abbreviate("123456789", 1, ".s.") == "5");
+
+    REQUIRE(Str::abbreviate("123456789", 0, "..s").empty());
+    REQUIRE(Str::abbreviate("123456789", 0, "s.s").empty());
+    REQUIRE(Str::abbreviate("123456789", 0, ".s.").empty());
+    REQUIRE(Str::abbreviate("123456789", 0, "s..").empty());
+  }//
   SECTION("justify") {
     REQUIRE("  asd" == Str::rjust("asd", 5));
     REQUIRE("abcdef" == Str::rjust("abcdef", 5));
@@ -244,36 +413,79 @@ TEST_CASE("Str", "[common]") {
     std::string a = Str::concat("a", " ", 2, "b");
     REQUIRE(a == "a 2b");
   }//
-  SECTION("regex match") {
-    REQUIRE(Str::match_r("subsequence123", "\\b(sub)([^ ]*)"));
-    REQUIRE(!Str::match_r("susequence123", "\\b(sub)([^ ]*)"));
-    REQUIRE(Str::match_r("sub-sequence123", "\\b(sub)([^ ]*)"));
-  }//
-  SECTION("regex contains") {
-    REQUIRE(Str::contains_r("subsequence123", "\\b(sub)"));
-    REQUIRE(!Str::contains_r("subsequence123", "\\b(qen)"));
-    REQUIRE(Str::contains_r("/usr/local/lib.a", ".*\\.a"));
-  }//
-  SECTION("regex search") {
-    std::string s("this subject has a submarine as a subsequence");
-    auto result = Str::search_r(s, "\\b(sub)([^ ]*)");
-    REQUIRE(result.size() == 3);
-    REQUIRE(result[0] == "subject");
-    REQUIRE(result[1] == "sub");
-    REQUIRE(result[2] == "ject");
-    int index = 0;
-    std::string expected[3] = {"subject", "submarine", "subsequence"};
-    Str::search_r(s, "\\b(sub)([^ ]*)", [&](const std::smatch &m) {
-      REQUIRE(m[0] == expected[index++]);
-    });
-  }//
-  SECTION("regex replace") {
-    std::string s("there is a subsequence in the string");
-    REQUIRE(Str::replace_r(s, "\\b(sub)([^ ]*)", "sub-$2") == "there is a sub-sequence in the string");
-    REQUIRE(Str::replace_r(s, "\\b(sub)([^ ]*)", "$2") == "there is a sequence in the string");
-    std::string s2("/home//usr/local");
-    REQUIRE(Str::replace_r(s2, "\\b//", "/") == "/home/usr/local");
-  }//
+  SECTION("regex") {
+    SECTION("alpha numeric word") {
+      REQUIRE(Str::regex::match("abc", Str::regex::alpha_numeric_word));
+      REQUIRE(Str::regex::match("abc123", Str::regex::alpha_numeric_word));
+      REQUIRE(Str::regex::match("123abc", Str::regex::alpha_numeric_word));
+      REQUIRE(Str::regex::match("123", Str::regex::alpha_numeric_word));
+    } //
+    SECTION("c identifier") {
+      REQUIRE(Str::regex::match("abc", Str::regex::c_identifier));
+      REQUIRE(Str::regex::match("abc123", Str::regex::c_identifier));
+      REQUIRE(Str::regex::match("_abc123", Str::regex::c_identifier));
+      REQUIRE(Str::regex::match("_abc123__", Str::regex::c_identifier));
+      REQUIRE(Str::regex::match("_", Str::regex::c_identifier));
+      REQUIRE_FALSE(Str::regex::match("123abc", Str::regex::c_identifier));
+      REQUIRE_FALSE(Str::regex::match("123", Str::regex::c_identifier));
+    } //
+    SECTION("floating point number") {
+      REQUIRE(Str::regex::match("123", Str::regex::floating_point_number));
+      REQUIRE(Str::regex::match("+123", Str::regex::floating_point_number));
+      REQUIRE(Str::regex::match("-123", Str::regex::floating_point_number));
+      REQUIRE(Str::regex::match("123.234", Str::regex::floating_point_number));
+      REQUIRE(Str::regex::match("123.34e-23", Str::regex::floating_point_number));
+      REQUIRE(Str::regex::match("123.34e+23", Str::regex::floating_point_number));
+      REQUIRE(Str::regex::match(".34", Str::regex::floating_point_number));
+      REQUIRE_FALSE(Str::regex::match("1e", Str::regex::floating_point_number));
+    }//
+    SECTION("integer number") {
+      REQUIRE(Str::regex::match("123", Str::regex::integer_number));
+      REQUIRE(Str::regex::match("+123", Str::regex::integer_number));
+      REQUIRE(Str::regex::match("-123", Str::regex::integer_number));
+      REQUIRE_FALSE(Str::regex::match("123.234", Str::regex::integer_number));
+      REQUIRE_FALSE(Str::regex::match("123.34e+23", Str::regex::integer_number));
+      REQUIRE_FALSE(Str::regex::match(".34", Str::regex::integer_number));
+      REQUIRE_FALSE(Str::regex::match("-", Str::regex::integer_number));
+      REQUIRE_FALSE(Str::regex::match("+", Str::regex::integer_number));
+    }//
+    SECTION("regex match") {
+      REQUIRE(Str::regex::match("subsequence123", "\\b(sub)([^ ]*)"));
+      REQUIRE(!Str::regex::match("susequence123", "\\b(sub)([^ ]*)"));
+      REQUIRE(Str::regex::match("sub-sequence123", "\\b(sub)([^ ]*)"));
+    }//
+    SECTION("regex contains") {
+      REQUIRE(Str::regex::contains("subsequence123", "\\b(sub)"));
+      REQUIRE(!Str::regex::contains("subsequence123", "\\b(qen)"));
+      REQUIRE(Str::regex::contains("/usr/local/lib.a", ".*\\.a"));
+    }//
+    SECTION("regex search") {
+      std::string s("this subject has a submarine as a subsequence");
+      auto result = Str::regex::search(s, "\\b(sub)([^ ]*)");
+      REQUIRE(result.size() == 3);
+      REQUIRE(result[0] == "subject");
+      REQUIRE(result[1] == "sub");
+      REQUIRE(result[2] == "ject");
+      int index = 0;
+      std::string expected[3] = {"subject", "submarine", "subsequence"};
+      Str::regex::search(s, "\\b(sub)([^ ]*)", [&](const std::smatch &m) {
+        REQUIRE(m[0] == expected[index++]);
+      });
+    }//
+    SECTION("regex replace") {
+      std::string s("there is a subsequence in the string");
+      REQUIRE(Str::regex::replace(s, "\\b(sub)([^ ]*)", "sub-$2") == "there is a sub-sequence in the string");
+      REQUIRE(Str::regex::replace(s, "\\b(sub)([^ ]*)", "$2") == "there is a sequence in the string");
+      std::string s2("/home//usr/local");
+      REQUIRE(Str::regex::replace(s2, "\\b//", "/") == "/home/usr/local");
+    }//
+    SECTION("regex string begin") {
+      auto result = Str::regex::search("ssssubsequence123", "sub");
+      REQUIRE(result.size() == 1);
+      result = Str::regex::search("ssssubsequence123", "^sub");
+      REQUIRE(result.empty());
+    }//
+  } //
   SECTION("string class") {
     Str s;
     REQUIRE((s += "abc") == "abc");
@@ -281,6 +493,11 @@ TEST_CASE("Str", "[common]") {
     REQUIRE(s + 2 == "abc2");
     s = "3";
     REQUIRE(s == 3);
+  }//
+  SECTION("prefix") {
+    REQUIRE(Str::isPrefix("0123", "0123456"));
+    REQUIRE(Str::isPrefix("", "0123456"));
+    REQUIRE_FALSE(Str::isPrefix("01234", "01"));
   }//
 }
 
@@ -293,6 +510,8 @@ TEST_CASE("Path", "[common]") {
   REQUIRE(folder.mkdir());
   REQUIRE(FileSystem::touch(folder + "file.txt"));
   REQUIRE(FileSystem::touch("path_test_folder/file.txt"));
+  REQUIRE(!Path("/test/test").hasExtension());
+  REQUIRE(Path("/test/test.ext").hasExtension());
   SECTION("dir") {
     Path path("folder_path");
     REQUIRE(static_cast<std::string>(path) == "folder_path");
@@ -460,7 +679,7 @@ TEST_CASE("FileSystem", "[common]") {
     REQUIRE(lines.size() == 10);
     for (int i = 2; i < 10; ++i)
       REQUIRE(lines[i] == "line" + std::to_string(i + 1));
-  }
+  }//
 }
 
 TEST_CASE("size", "[common]") {}
@@ -581,7 +800,7 @@ TEST_CASE("result or") {
   REQUIRE(result.status() == HeResult::BAD_ALLOCATION);
   result = 1;
   REQUIRE(result);
-  REQUIRE(result.status() == HeResult::SUCCESS);
+  REQUIRE(result.status() != HeResult::SUCCESS);
   REQUIRE(*result == 1);
 }
 

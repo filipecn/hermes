@@ -17,6 +17,7 @@ option(BUILD_DOCS "build library documentation" OFF)
 ##########################################
 ##                project               ##
 ##########################################
+
 project(HERMES CXX)
 set(CMAKE_CUDA_COMPILER /usr/local/cuda-11.0/bin/nvcc)
 if (BUILD_WITH_CUDA)
@@ -54,12 +55,16 @@ set(HERMES_HEADERS
         hermes/common/defs.h
         hermes/common/file_system.h
         hermes/common/index.h
+        hermes/common/parsers.h
         hermes/common/profiler.h
         hermes/common/optional.h
         hermes/common/result.h
         hermes/common/size.h
         hermes/common/str.h
+        hermes/common/str_view.h
         hermes/common/timer.h
+        hermes/data_structures/cartesian_hash.h
+        hermes/data_structures/multi_hash_map.h
         hermes/data_structures/n_mesh.h
         hermes/data_structures/p_mesh.h
         hermes/data_structures/raw_mesh.h

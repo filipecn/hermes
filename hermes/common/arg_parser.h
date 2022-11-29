@@ -32,6 +32,7 @@
 #define HERMES_COMMON_ARG_PARSER_H
 
 #include <hermes/common/defs.h>
+#include <hermes/common/str.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -70,14 +71,13 @@ public:
   /// \param description program description
   explicit ArgParser(std::string bin = "", std::string description = "");
   // *******************************************************************************************************************
-  //                                                                                                     METHODS
+  //                                                                                                          METHODS
   // *******************************************************************************************************************
   //                                                                                                          parsing
   /// \brief Parse program arguments
   /// \param argc
   /// \param argv
   /// \param verbose_parsing
-  /// \return
   bool parse(int argc, const char **argv, bool verbose_parsing = false);
   //                                                                                                        arguments
   /// \brief Define program argument
@@ -101,6 +101,28 @@ public:
     T t{};
     in >> t;
     return t;
+  }
+  /// \brief Get argument value as list
+  /// \tparam T list data type
+  /// \param name
+  /// \param default_value
+  /// \return
+  template<typename T>
+  std::vector<T> getList(const std::string &name, const std::vector<T> &default_value = {}) const {
+    const auto &it = m_.find(name);
+    if (it == m_.end() || !arguments_[it->second].given || arguments_[it->second].values.empty())
+      return default_value;
+    // expect a list separated by ',' or ' '
+    // expect string: "v1 ... vn" or "v1,...,vn" with no enclosing characters
+    auto s_values = hermes::Str::split(arguments_[it->second].values[0], " ,");
+    std::vector<T> values;
+    for (auto &value : s_values) {
+      std::istringstream in(value);
+      T t{};
+      in >> t;
+      values.template emplace_back(t);
+    }
+    return values;
   }
   /// \brief Checks if an argument was given
   /// \param name argument's name

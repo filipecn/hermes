@@ -140,7 +140,7 @@ inline float sinPhi(const vec3 &w) {
 }
 /* spherical coordinate
  * @w **[in]** vector
- * @return fliped z coordinate
+ * @return flipped z coordinate
  */
 inline vec3 otherHemisphere(const vec3 &w) { return vec3(w.x, w.y, -w.z); }
 } // namespace hermes

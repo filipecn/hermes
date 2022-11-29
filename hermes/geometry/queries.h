@@ -36,17 +36,21 @@
 #include <hermes/geometry/line.h>
 #include <hermes/geometry/plane.h>
 #include <hermes/geometry/sphere.h>
-#include <optional>
+#include <hermes/common/result.h>
 
 namespace hermes {
 
-class GeometricQueries {
-public:
+struct GeometricQueries {
   ///
   /// \param box
   /// \param p
   /// \return
   static point3 closestPoint(const bbox3 &box, const point3 &p);
+  ///
+  /// \param pl
+  /// \param l
+  /// \param p
+  /// \return
   static bool intersect(const Plane &pl, const Line &l, point3 &p);
   ///  \brief  intersection test
   /// \param s **[in]** sphere
@@ -106,10 +110,23 @@ public:
  * /return **true** if intersection exists
  */
   static bool intersect(const bbox3 &box, const Ray3 &ray, real_t &hit1);
+  /// \brief Intersects a line by a ray
+  /// \param line
+  /// \param ray
+  /// \return true if intersection exists
+  static bool intersect(const hermes::Line2& line, const ray2& ray);
 };
 
-class GeometricPredicates {
-public:
+// *********************************************************************************************************************
+//                                                                                                GeometricPredicates
+// *********************************************************************************************************************
+/// \brief Set of geometric predicates
+struct GeometricPredicates {
+  /// \brief Intersects a line by a ray
+  /// \param line
+  /// \param ray
+  /// \return the ray parametric coordinate of the intersection
+  static Result<real_t> intersect(const hermes::Line2& line, const ray2& ray);
   ///
   /// \param bounds
   /// \param ray
@@ -117,7 +134,7 @@ public:
   /// \param dir_is_neg
   /// \param max_t
   /// \return
-  static std::optional<real_t> intersect(const hermes::bbox3 &bounds,
+  static Result<real_t> intersect(const hermes::bbox3 &bounds,
                                          const ray3 &ray,
                                          const hermes::vec3 &inv_dir,
                                          const i32 dir_is_neg[3],
@@ -127,7 +144,7 @@ public:
   /// \param ray
   /// \param second_hit
   /// \return
-  static std::optional<real_t> intersect(const hermes::bbox3 &bounds,
+  static Result<real_t> intersect(const hermes::bbox3 &bounds,
                                          const ray3 &ray, real_t *second_hit = nullptr);
 
   /// BBox / Ray3 intersection test.
@@ -141,9 +158,14 @@ public:
   /// \param b1 **[out]** barycentric coordinate
   /// \param b2 **[out]** barycentric coordinate
   /// return **true** if intersection exists
-  static std::optional<real_t> intersect(const point3 &p1, const point3 &p2,
+  static Result<real_t> intersect(const point3 &p1, const point3 &p2,
                                          const point3 &p3, const Ray3 &ray,
                                          real_t *b1 = nullptr, real_t *b2 = nullptr);
+  ///
+  /// \param plane
+  /// \param ray
+  /// \return
+  static Result<real_t> intersect(const Plane& plane, const Ray3& ray);
 };
 
 } // namespace hermes

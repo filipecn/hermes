@@ -50,17 +50,6 @@
 #define ASSERTIONS_ENABLED
 #endif
 
-/// \brief Enum returned by functions
-enum class HeResult {
-  SUCCESS = 0,           //!< no errors occurred
-  ERROR = 1,             //!< unknown error
-  BAD_ALLOCATION = 2,    //!< memory related errors
-  OUT_OF_BOUNDS = 3,     //!< invalid index access attempt
-  INVALID_INPUT = 4,     //!< function received invalid parameters
-  BAD_OPERATION = 5,     //!< function pre-conditions were not fulfilled
-  NOT_IMPLEMENTED = 6,   //!< function not implemented
-};
-
 // *********************************************************************************************************************
 //                                                                                                              UTILS
 // *********************************************************************************************************************
@@ -129,7 +118,7 @@ enum class HeResult {
 #ifdef ASSERTIONS_ENABLED
 
 //#define debugBreak() asm ("int 3")
-#define debugBreak()
+#define debugBreak() exit(-1)
 
 /// \brief Errors if expression is false
 /// \param expr expression
@@ -191,6 +180,14 @@ enum class HeResult {
   if (!(A)) {                                                                                                       \
     HERMES_LOG(M);                                                                                                  \
     return R;                                                                                                       \
+  }
+/// \brief Logs and return if condition is false
+/// \param A condition
+/// \param M log message
+#define HERMES_LOG_AND_RETURN_IF_NOT(A, M)                                                                          \
+  if (!(A)) {                                                                                                       \
+    HERMES_LOG(M);                                                                                                  \
+    return;                                                                                                         \
   }
 
 #endif

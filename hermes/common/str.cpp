@@ -25,13 +25,114 @@
 ///
 ///\brief String utils
 
-#include "str.h"
+#include <hermes/common/str.h>
 #include <hermes/common/debug.h>
-
 #include <iostream>
 #include <utility>
 
 namespace hermes {
+
+const char Str::regex::floating_point_number[] = "[-+]?[0-9]*\\.?[0-9]*e?[-+]?[0-9]+";
+const char Str::regex::integer_number[] = "[-+]?[0-9]+";
+const char Str::regex::alpha_numeric_word[] = "[a-zA-Z0-9]+";
+const char Str::regex::c_identifier[] = "[_a-zA-Z]+[0-9a-zA-Z_]*";
+
+bool Str::regex::match(const std::string &s, const std::string &pattern, std::regex_constants::match_flag_type flags) {
+  std::smatch m;
+  return std::regex_match(s, m, std::regex(pattern), flags);
+}
+
+bool Str::regex::contains(const std::string &s,
+                          const std::string &pattern,
+                          std::regex_constants::match_flag_type flags) {
+  std::smatch m;
+  return std::regex_search(s, m, std::regex(pattern), flags);
+}
+
+std::smatch Str::regex::search(const std::string &s,
+                               const std::string &pattern,
+                               std::regex_constants::match_flag_type flags) {
+  std::smatch result;
+  std::regex_search(s, result, std::regex(pattern), flags);
+  return result;
+}
+
+bool Str::regex::search(std::string s,
+                        const std::string &pattern,
+                        const std::function<void(const std::smatch &)> &callback,
+                        std::regex_constants::match_flag_type flags) {
+  std::smatch result;
+  std::regex r(pattern);
+  bool found = false;
+  while (std::regex_search(s, result, r, flags)) {
+    callback(result);
+    s = result.suffix().str();
+    found = true;
+  }
+  return found;
+}
+
+std::string Str::regex::replace(const std::string &s,
+                                const std::string &pattern,
+                                const std::string &format,
+                                std::regex_constants::match_flag_type flags) {
+  return std::regex_replace(s, std::regex(pattern), format, flags);
+}
+
+bool Str::isPrefix(const std::string &p, const std::string &s) {
+  if(s.size() < p.size())
+    return false;
+  if(p.empty())
+    return true;
+  for(size_t i = 0; i < p.size(); ++i)
+    if(s[i] != p[i])
+      return false;
+  return true;
+}
+
+std::string Str::abbreviate(const std::string &s, size_t width, const char fmt[4]) {
+  if (!width || s.empty())
+    return "";
+  if (width >= s.size())
+    return s;
+
+  // case .s.
+  if (fmt[0] == '.' && fmt[1] == 's' && fmt[2] == '.') {
+    // here the number of dots must be pair
+    //                                     0  1  2  3  4  5  6  7  8  9 10 11 12
+    size_t dot_sizes_for_small_widths[] = {0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
+    size_t number_of_dots = width <= 12 ? dot_sizes_for_small_widths[width] : 3;
+    std::string dots = number_of_dots > 0 ? std::string(number_of_dots, '.') : "";
+    auto s_size = width - 2 * dots.size();
+    return dots + s.substr(s.size() / 2 - s_size / 2, s_size) + dots;
+  }
+
+  // case s.s
+  if (fmt[0] == 's' && fmt[1] == '.' && fmt[2] == 's') {
+    if (width == 1)
+      return s.substr(0, 1);
+    //                                     0  1  2  3  4  5  6  7  8
+    size_t dot_sizes_for_small_widths[] = {0, 0, 0, 1, 2, 1, 2, 1, 2};
+    size_t number_of_dots = width <= 8 ? dot_sizes_for_small_widths[width] : 3;
+    std::string dots = number_of_dots > 0 ? std::string(number_of_dots, '.') : "";
+    size_t half_width = (width - dots.size()) / 2;
+    return s.substr(0, half_width) + dots + s.substr(s.size() - half_width);
+  }
+
+  // for the remaining cases the number of dots is computed as
+  auto number_of_dots = std::min(3, std::max((int) width - 1, 0));
+  std::string dots = number_of_dots > 0 ? std::string(number_of_dots, '.') : "";
+
+  // case ..s
+  if (fmt[0] == '.' && fmt[1] == '.' && fmt[2] == 's')
+    return dots + s.substr(s.size() - width + dots.size());
+
+  // case s..
+  if (fmt[0] == 's' && fmt[1] == '.' && fmt[2] == '.')
+    return s.substr(0, width - dots.size()) + dots;
+
+  return s;
+}
 
 std::string Str::join(const std::vector<std::string> &s, const std::string &separator) {
   std::string r;
@@ -140,46 +241,6 @@ bool Str::isNumber(const std::string &s) {
   return true;
 }
 
-bool Str::match_r(const std::string &s, const std::string &pattern, std::regex_constants::match_flag_type flags) {
-  std::smatch m;
-  return std::regex_match(s, m, std::regex(pattern), flags);
-}
-
-bool Str::contains_r(const std::string &s, const std::string &pattern, std::regex_constants::match_flag_type flags) {
-  std::smatch m;
-  return std::regex_search(s, m, std::regex(pattern), flags);
-}
-
-std::smatch Str::search_r(const std::string &s,
-                          const std::string &pattern,
-                          std::regex_constants::match_flag_type flags) {
-  std::smatch result;
-  std::regex_search(s, result, std::regex(pattern), flags);
-  return result;
-}
-
-bool Str::search_r(std::string s,
-                   const std::string &pattern,
-                   const std::function<void(const std::smatch &)> &callback,
-                   std::regex_constants::match_flag_type flags) {
-  std::smatch result;
-  std::regex r(pattern);
-  bool found = false;
-  while (std::regex_search(s, result, r, flags)) {
-    callback(result);
-    s = result.suffix().str();
-    found = true;
-  }
-  return found;
-}
-
-std::string Str::replace_r(const std::string &s,
-                           const std::string &pattern,
-                           const std::string &format,
-                           std::regex_constants::match_flag_type flags) {
-  return std::regex_replace(s, std::regex(pattern), format, flags);
-}
-
 Str::Str() = default;
 
 Str::Str(std::string s) : s_{std::move(s)} {}
@@ -191,6 +252,10 @@ Str::Str(Str &&other) noexcept: s_{std::move(other.s_)} {}
 Str::Str(const Str &other) = default;
 
 Str::~Str() = default;
+
+Result<ConstStrView> Str::substr(size_t pos, i64 len) {
+  return ConstStrView::from(s_, pos, len);
+}
 
 }
 

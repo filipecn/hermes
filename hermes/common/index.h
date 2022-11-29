@@ -59,13 +59,15 @@ template<typename T> struct Index2 {
 #define ARITHMETIC_OP(OP)                                                                                           \
   template<typename U>                                                                                              \
   HERMES_DEVICE_CALLABLE friend Index2<T> operator OP (const Size2<U> &b, const Index2<T> &a) {                     \
-    return Index2<T>(b.width OP a.i, b.height OP a.j);  }
+    return Index2<T>(b.width OP a.i, b.height OP a.j);  }                                                           \
+  HERMES_DEVICE_CALLABLE friend Index2<T> operator OP (const Index2<T> &b, const T &a) {                            \
+    return Index2<T>(b.i OP a, b.j OP a);  }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
   ARITHMETIC_OP(*)
   ARITHMETIC_OP(/)
 #undef ARITHMETIC_OP
-  //                                                                                                         geometry
+  HERMES_DEVICE_CALLABLE Index2<T> operator-() const { return {-i, -j}; }
   /// \brief Computes the manhattan distance between two indices
   ///
   /// \f$\sum_i |a_i - b_i|  \f$
@@ -636,6 +638,7 @@ std::ostream &operator<<(std::ostream &o, const Index3<T> &ijk) {
 //                                                                                                           TYPEDEFS
 // *********************************************************************************************************************
 using range2 = Index2Range<i32>;    //!< i32
+using range2_64 = Index2Range<i64>;    //!< i64
 using range3 = Index3Range<i32>;    //!< i32
 using index2 = Index2<i32>;         //!< i32
 using index2_8 = Index2<i8>;        //!< i8

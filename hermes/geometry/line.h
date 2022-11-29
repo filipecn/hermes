@@ -30,9 +30,65 @@
 
 namespace hermes {
 
-/// Represents a line built from a point and a vector.
+// *********************************************************************************************************************
+//                                                                                                               Line
+// *********************************************************************************************************************
+/// \brief Represents a 2D line by a point and a vector.
+class Line2 {
+public:
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
+  Line2() = default;
+  /// \param _a line point
+  /// \param _d direction
+  Line2(point2 _a, vec2 _d) {
+    a = _a;
+    d = normalize(_d);
+  }
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  /// \param t parametric coordinate
+  /// \return euclidean point from parametric coordinate **t**
+  point2 operator()(float t) const { return a + d * t; }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  //                                                                                                           access
+  /// \return unit vector representing line direction
+  [[nodiscard]] vec2 direction() const { return normalize(d); }
+  //                                                                                                          queries
+  /// \param p point
+  /// \return parametric coordinate of **p** projection into line
+  [[nodiscard]] float projection(point2 p) const { return dot((p - a), d); }
+  /// \param p point
+  /// \return closest point in line from **p**
+  [[nodiscard]] point2 closestPoint(point2 p) const { return (*this)(projection(p)); }
+  // *******************************************************************************************************************
+  //                                                                                                            DEBUG
+  // *******************************************************************************************************************
+  friend std::ostream &operator<<(std::ostream &os, const Line2 &p) {
+    os << "[Line]\n";
+    os << p.a << p.d;
+    return os;
+  }
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  point2 a; //!< line point
+  vec2 d;   //!< line direction
+};
+
+// *********************************************************************************************************************
+//                                                                                                               Line
+// *********************************************************************************************************************
+/// \brief Represents a line by a point and a vector.
 class Line {
 public:
+  // *******************************************************************************************************************
+  //                                                                                                     CONSTRUCTORS
+  // *******************************************************************************************************************
   Line() = default;
   /// \param _a line point
   /// \param _d direction
@@ -40,25 +96,38 @@ public:
     a = _a;
     d = normalize(_d);
   }
-  /// \return unit vector representing line direction
-  vec3 direction() const { return normalize(d); }
-  /// \param t parametric coordiante
-  /// \return euclidian point from parametric coordinate **t**
+  // *******************************************************************************************************************
+  //                                                                                                        OPERATORS
+  // *******************************************************************************************************************
+  /// \param t parametric coordinate
+  /// \return euclidean point from parametric coordinate **t**
   point3 operator()(float t) const { return a + d * t; }
+  // *******************************************************************************************************************
+  //                                                                                                          METHODS
+  // *******************************************************************************************************************
+  //                                                                                                           access
+  /// \return unit vector representing line direction
+  [[nodiscard]] vec3 direction() const { return normalize(d); }
+  //                                                                                                          queries
   /// \param p point
   /// \return parametric coordinate of **p** projection into line
-  float projection(point3 p) const { return dot((p - a), d); }
+  [[nodiscard]] float projection(point3 p) const { return dot((p - a), d); }
   /// \param p point
   /// \return closest point in line from **p**
-  point3 closestPoint(point3 p) const { return (*this)(projection(p)); }
-
+  [[nodiscard]] point3 closestPoint(point3 p) const { return (*this)(projection(p)); }
+  // *******************************************************************************************************************
+  //                                                                                                            DEBUG
+  // *******************************************************************************************************************
   friend std::ostream &operator<<(std::ostream &os, const Line &p) {
     os << "[Line]\n";
     os << p.a << p.d;
     return os;
   }
-  point3 a; ///< line point
-  vec3 d; ///< line direction
+  // *******************************************************************************************************************
+  //                                                                                                    PUBLIC FIELDS
+  // *******************************************************************************************************************
+  point3 a; //!< line point
+  vec3 d;   //!< line direction
 };
 
 } // hermes namespace

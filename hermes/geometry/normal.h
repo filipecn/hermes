@@ -75,6 +75,11 @@ public:
     y *= f;
     return *this;
   }
+  HERMES_DEVICE_CALLABLE Normal2 &operator/=(T f) {
+    x /= f;
+    y /= f;
+    return *this;
+  }
   // *******************************************************************************************************************
   //                                                                                                    PUBLIC FIELDS
   // *******************************************************************************************************************
@@ -120,10 +125,22 @@ public:
   }
   //                                                                                                       arithmetic
   HERMES_DEVICE_CALLABLE Normal3 operator-() const { return Normal3(-x, -y, -z); }
+  HERMES_DEVICE_CALLABLE Normal3 &operator+=(const Vector3<T>& v) {
+    x += v.x;
+    y += v.y;
+    z += v.z;
+    return *this;
+  }
   HERMES_DEVICE_CALLABLE Normal3 &operator*=(T f) {
     x *= f;
     y *= f;
     z *= f;
+    return *this;
+  }
+  HERMES_DEVICE_CALLABLE Normal3 &operator/=(T f) {
+    x /= f;
+    y /= f;
+    z /= f;
     return *this;
   }
   //                                                                                                          boolean

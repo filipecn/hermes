@@ -40,6 +40,7 @@
 #include <iomanip>
 #include <iostream>
 #include <hermes/common/defs.h>
+#include <hermes/common/str_view.h>
 
 namespace hermes {
 
@@ -50,9 +51,72 @@ namespace hermes {
 class Str {
 public:
   // *******************************************************************************************************************
+  //                                                                                                    STATIC FIELDS
+  // *******************************************************************************************************************
+  struct regex {
+    static const char floating_point_number[];
+    static const char integer_number[];
+    static const char alpha_numeric_word[];
+    static const char c_identifier[];
+    //                                                                                                            regex
+    /// \brief Checks if a string s matches exactly a regular expression
+    /// \param s input string
+    /// \param pattern regex pattern
+    /// \param flags [optional] controls how pattern is matched
+    /// \return true if s matches exactly the pattern
+    static bool match(const std::string &s, const std::string &pattern,
+                      std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+    /// \brief Checks if any substring of s matches a regular expression
+    /// \param s input string
+    /// \param pattern regex pattern
+    /// \param flags [optional] controls how pattern is matched
+    /// \return true if s contains the pattern
+    static bool contains(const std::string &s, const std::string &pattern,
+                         std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+    /// \brief Search the first substrings of s that matches the pattern
+    /// \param s input string
+    /// \param pattern regular expression pattern
+    /// \param flags [optional] controls how pattern is matched
+    /// \return std match object containing the first match
+    static std::smatch search(const std::string &s, const std::string &pattern,
+                              std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+    /// \brief Iterate over all substrings of s that match the pattern
+    /// \param s input string
+    /// \param pattern regular expression pattern
+    /// \param callback called for each match
+    /// \param flags [optional] controls how pattern is matched
+    /// \return true if any match occurred
+    static bool search(std::string s,
+                       const std::string &pattern,
+                       const std::function<void(const std::smatch &)> &callback,
+                       std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+    /// \brief Replaces all matches of pattern in s by format
+    /// \param s input string
+    /// \param pattern regular expression pattern
+    /// \param format replacement format
+    /// \param flags [optional] controls how pattern is matched and how format is replaced
+    /// \return A copy of s with all replacements
+    static std::string replace(const std::string &s, const std::string &pattern, const std::string &format,
+                               std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+  };
+  // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
+  //                                                                                                          queries
+  /// \brief Checks if s has prefix p.
+  /// \param p prefix string
+  /// \param s string
+  /// \return true if p is prefix of s
+  static bool isPrefix(const std::string& p, const std::string& s);
   //                                                                                                       formatting
+  /// \brief Abbreviates a string to fit in a string of width characters.
+  /// \note If width >= string size, no abbreviation occurs.
+  /// \param s input string
+  /// \param width final character count
+  /// \param fmt a three-character string describing the abbreviation type: ("..s", "s.s", ".s.", or "..s").
+  ///         where 's' represents the input string contents and '.' the abbreviated portion of s.
+  /// \return abbreviated string
+  static std::string abbreviate(const std::string &s, size_t width, const char fmt[4] = "s.s");
   /// \brief Right justifies string value
   /// \tparam T string-convertible type
   /// \param value
@@ -136,7 +200,7 @@ public:
   /// \param s
   /// \param patterns
   /// \return
-  static std::string strip(const std::string &s, const std::string &patterns);
+  static std::string strip(const std::string &s, const std::string &patterns = " \t\n");
   //                                                                                                   concatenation
   /// \brief Concatenates multiple elements_ into a single string.
   /// \tparam Args
@@ -178,46 +242,6 @@ public:
   /// \return a vector of substrings
   static std::vector<std::string> split(const std::string &s,
                                         const std::string &delimiters = " ");
-  //                                                                                                            regex
-  /// \brief Checks if a string s matches exactly a regular expression
-  /// \param s input string
-  /// \param pattern regex pattern
-  /// \param flags [optional] controls how pattern is matched
-  /// \return true if s matches exactly the pattern
-  static bool match_r(const std::string &s, const std::string &pattern,
-                      std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// \brief Checks if any substring of s matches a regular expression
-  /// \param s input string
-  /// \param pattern regex pattern
-  /// \param flags [optional] controls how pattern is matched
-  /// \return true if s contains the pattern
-  static bool contains_r(const std::string &s, const std::string &pattern,
-                         std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// \brief Search the first substrings of s that matches the pattern
-  /// \param s input string
-  /// \param pattern regular expression pattern
-  /// \param flags [optional] controls how pattern is matched
-  /// \return std match object containing the first match
-  static std::smatch search_r(const std::string &s, const std::string &pattern,
-                              std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// \brief Iterate over all substrings of s that match the pattern
-  /// \param s input string
-  /// \param pattern regular expression pattern
-  /// \param callback called for each match
-  /// \param flags [optional] controls how pattern is matched
-  /// \return true if any match occurred
-  static bool search_r(std::string s,
-                       const std::string &pattern,
-                       const std::function<void(const std::smatch &)> &callback,
-                       std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-  /// \brief Replaces all matches of pattern in s by format
-  /// \param s input string
-  /// \param pattern regular expression pattern
-  /// \param format replacement format
-  /// \param flags [optional] controls how pattern is matched and how format is replaced
-  /// \return A copy of s with all replacements
-  static std::string replace_r(const std::string &s, const std::string &pattern, const std::string &format,
-                               std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
   //                                                                                                          numeric
   /// \brief Print bits in big-endian order
   /// \param n
@@ -356,6 +380,17 @@ public:
   /// \brief Get `const char*` pointer
   /// \return
   [[nodiscard]] inline const char *c_str() const { return s_.c_str(); }
+  /// \brief Get the number of characters on the string.
+  /// \return number of characters on the string.
+  [[nodiscard]] inline size_t size() const { return s_.size(); }
+  /// \brief Checks if string is empty.
+  /// \return true if string size is zero.
+  [[nodiscard]] inline bool empty() const { return s_.empty(); }
+  /// \brief Get a sub-string view from this object
+  /// \param pos position of the first character of the sub-string in str.
+  /// \param len number of characters of the sub-string. If len = -1, then the size is str.size() - pos.
+  /// \return const view reference of the sub-string
+  Result<ConstStrView> substr(size_t pos = 0, i64 len = -1);
   // *******************************************************************************************************************
   //                                                                                                          METHODS
   // *******************************************************************************************************************

@@ -9390,7 +9390,7 @@ namespace detail {
 
         auto validate() const -> Result override {
             if( m_optNames.empty() )
-                return Result::logicError( "No options supplied to Opt" );
+                return Result::logicError( "No options_ supplied to Opt" );
             for( auto const &name : m_optNames ) {
                 if( name.empty() )
                     return Result::logicError( "Option name cannot be empty" );
@@ -9487,8 +9487,8 @@ namespace detail {
                 if( !required )
                     os << "]";
                 if( !m_options.empty() )
-                    os << " options";
-                os << "\n\nwhere options are:" << std::endl;
+                    os << " options_";
+                os << "\n\nwhere options_ are:" << std::endl;
             }
 
             auto rows = getHelpColumns();
@@ -9571,7 +9571,7 @@ namespace detail {
                 if( !tokenParsed )
                     return InternalParseResult::runtimeError( "Unrecognised token: " + result.value().remainingTokens()->token );
             }
-            // !TBD Check missing required options
+            // !TBD Check missing required options_
             return result;
         }
     };
@@ -9586,7 +9586,7 @@ namespace detail {
 // A Combined parser
 using detail::Parser;
 
-// A parser for options
+// A parser for options_
 using detail::Opt;
 
 // A parser for arguments
@@ -16298,7 +16298,7 @@ void ConsoleReporter::lazyPrintRunInfo() {
     Colour colour(Colour::SecondaryText);
     stream << currentTestRunInfo->name
         << " is a Catch v" << libraryVersion() << " host application.\n"
-        << "Run with -? for options\n\n";
+        << "Run with -? for options_\n\n";
 
     if (m_config->rngSeed() != 0)
         stream << "Randomness seeded to: " << m_config->rngSeed() << "\n\n";

@@ -8,6 +8,7 @@
 #include <hermes/geometry/matrix.h>
 #include <hermes/geometry/transform.h>
 #include <hermes/geometry/quaternion.h>
+#include <hermes/geometry/queries.h>
 
 using namespace hermes;
 
@@ -270,9 +271,24 @@ TEST_CASE("Quaternion") {
   }//
 }
 
-
-/*
-TEST_CASE("Geometric Predicates", "[geometry]") {
+TEST_CASE("Geometric Queries/Predicates", "[geometry]") {
+  SECTION("line_ray") {
+    {
+      Line2 line({0, 0}, {1, 0});
+      Ray2 ray({0, 1}, {0, -1});
+      auto i = GeometricPredicates::intersect(line, ray);
+      REQUIRE(i);
+      REQUIRE(*i == Approx(1));
+      REQUIRE(GeometricQueries::intersect(line, ray));
+    }
+    {
+      Line2 line({0, 0}, {1, 0});
+      Ray2 ray({0, 1}, {0, 1});
+      auto i = GeometricPredicates::intersect(line, ray);
+      REQUIRE_FALSE(i);
+      REQUIRE_FALSE(GeometricQueries::intersect(line, ray));
+    }
+  }//
   SECTION("ray_triangle") {
     {
       point3 a{6.46322, 0.400573, 5.2238};
@@ -281,7 +297,7 @@ TEST_CASE("Geometric Predicates", "[geometry]") {
       auto i = GeometricPredicates::intersect(a, b, c,
                                               {{20., 1., 0.},
                                                {-1., 0., 0.}});
-      REQUIRE(i.has_value());
+      REQUIRE(i.good());
     }
     {
       point3 a = {-8.04074, 2.8569, -0.486101};
@@ -290,7 +306,7 @@ TEST_CASE("Geometric Predicates", "[geometry]") {
       auto i = GeometricPredicates::intersect(a, b, c,
                                               {{20., 1., 0.},
                                                {-1., 0., 0.}});
-      REQUIRE(i.has_value());
+      REQUIRE(i.good());
     }
     real_t b0{}, b1{};
     point3 p0 = {-1., -1., 0.};
@@ -299,20 +315,20 @@ TEST_CASE("Geometric Predicates", "[geometry]") {
     auto i = GeometricPredicates::intersect(p0, p1, p2,
                                             {{0., 0., 1.},
                                              {0., 0., -1.}}, &b0, &b1);
-    REQUIRE(i.has_value());
+    REQUIRE(i.good());
     REQUIRE(i.value() == Approx(1));
     REQUIRE(p0 * b0 + vec3(p1) * b1 + vec3(p2) * (1 - b0 - b1) == point3(0, 0, 0));
     i = GeometricPredicates::intersect(p0, p1, p2,
                                        {{-1., -1., 1.},
                                         {0., 0., -1.}}, &b0, &b1);
-    REQUIRE(i.has_value());
+    REQUIRE(i.good());
     REQUIRE(i.value() == Approx(1));
     REQUIRE(p0 * b0 + vec3(p1) * b1 + vec3(p2) * (1 - b0 - b1) == point3(-1, -1, 0));
     i = GeometricPredicates::intersect(p0, p1, p2,
                                        {{0., -1., -1.},
                                         {0., 0., 1.}}, &b0, &b1);
-    REQUIRE(i.has_value());
+    REQUIRE(i.good());
     REQUIRE(i.value() == Approx(1));
     REQUIRE(p0 * b0 + vec3(p1) * b1 + vec3(p2) * (1 - b0 - b1) == point3(0, -1, 0));
   }
-}*/
+}

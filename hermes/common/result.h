@@ -29,7 +29,17 @@
 #define HERMES_HERMES_COMMON_RESULT_H
 
 #include <hermes/common/defs.h>
-#include <hermes/common/debug.h>
+
+/// \brief Enum returned by functions
+enum class HeResult {
+  SUCCESS = 0,           //!< no errors occurred
+  ERROR = 1,             //!< unknown error
+  BAD_ALLOCATION = 2,    //!< memory related errors
+  OUT_OF_BOUNDS = 3,     //!< invalid index access attempt
+  INVALID_INPUT = 4,     //!< function received invalid parameters
+  BAD_OPERATION = 5,     //!< function pre-conditions were not fulfilled
+  NOT_IMPLEMENTED = 6,   //!< function not implemented
+};
 
 namespace hermes {
 
@@ -46,8 +56,19 @@ template<class T, class E = HeResult>
 class Result {
 public:
   // *******************************************************************************************************************
+  //                                                                                                 STATIC FUNCTIONS
+  // *******************************************************************************************************************
+  ///
+  /// \param e
+  /// \return
+  HERMES_DEVICE_CALLABLE static Result<T, E> error(E e) {
+    return Result<T, E>(UnexpectedResultType<E>{e});
+  }
+  // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
   // *******************************************************************************************************************
+  ///
+  /// \param err
   HERMES_DEVICE_CALLABLE explicit Result(const UnexpectedResultType<E> &err = {}) : ok_(false) {
     new(reinterpret_cast<E *>(&err_)) E(err.value);
   }

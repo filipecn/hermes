@@ -96,7 +96,7 @@ public:
   /// \warning `i` is not checked
   /// \param i component index in [0, 1]
   /// \return
-  HERMES_DEVICE_CALLABLE const T& operator[](int i) const { return (&x)[i]; }
+  HERMES_DEVICE_CALLABLE const T &operator[](int i) const { return (&x)[i]; }
   /// \brief Get i-th component reference
   /// \warning `i` is not checked
   /// \param i component index in [0, 1]
@@ -165,7 +165,7 @@ public:
   HERMES_DEVICE_CALLABLE Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
   /// \brief Constructs from point2
   /// \param p
-  HERMES_DEVICE_CALLABLE explicit Point3(const Point2<T> &p) : x(p.x), y(p.y), z(0) {}
+  HERMES_DEVICE_CALLABLE explicit Point3(const Point2<T> &p, T _z = 0) : x(p.x), y(p.y), z(_z) {}
   /// \brief Constructs from component array
   /// \param v
   HERMES_DEVICE_CALLABLE explicit Point3(const real_t *v) : x(v[0]), y(v[1]), z(v[2]) {}

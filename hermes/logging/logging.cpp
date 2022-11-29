@@ -30,7 +30,8 @@
 namespace hermes {
 
 logging_options
-    Log::options_ = logging_options::use_colors | logging_options::location | logging_options::full_path_location;
+    Log::options_ = logging_options::use_colors | logging_options::location | logging_options::full_path_location
+    | logging_options::abbreviate;
 
 u8 Log::info_color = 247;//253;
 u8 Log::warn_color = 191;//215;

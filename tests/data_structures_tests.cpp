@@ -24,11 +24,90 @@
 ///\date 2021-07-24
 ///
 ///\brief
+
 #include <catch2/catch.hpp>
 
 #include <hermes/data_structures/n_mesh.h>
+#include <hermes/data_structures/multi_hash_map.h>
+#include <hermes/random/rng.h>
+#include <hermes/data_structures/cartesian_hash.h>
 
 using namespace hermes;
+
+TEST_CASE("CartesianHashMap") {
+  SECTION("Sanity") {
+    std::vector<point2> point_set;
+    RNGSampler sampler;
+    bbox2 region({-100, -100}, {100, 100});
+    for (size_t i = 0; i < 1000; ++i)
+      point_set.emplace_back(sampler.sample(region));
+    SECTION("cell 10") {
+      auto chm = CartesianHashMap2::from(point_set, 10);
+      HERMES_LOG_VARIABLE(chm);
+      for (auto ij : range2({-100, -100}, {100, 100})) {
+        bbox2 r({ij.i - 10.f, ij.j - 10.f}, {ij.i + 10.f, ij.j + 10.f});
+        std::vector<size_t> search_result, brute_result;
+        chm.search(r, [&](size_t i) {
+          search_result.emplace_back(i);
+          return true;
+        });
+        // brute force
+        for (size_t i = 0; i < point_set.size(); ++i)
+          if (r.contains(point_set[i]))
+            brute_result.emplace_back(i);
+        if (search_result.size() != brute_result.size())
+          HERMES_LOG_VARIABLES(search_result.size(), brute_result.size());
+        REQUIRE(search_result.size() == brute_result.size());
+      }
+    } //
+  } //
+}
+
+TEST_CASE("Multi Hash Map") {
+  SECTION("Sanity") {
+    MultiHashMap<size_t, size_t> mhm;
+    mhm.insert({0, 1, 2, 3}, 0);
+    mhm.insert({4, 5}, 1);
+    mhm.insert({0, 1, 3}, 2);
+    mhm.insert({0, 1, 2, 3, 4, 5}, 3);
+    // size
+    REQUIRE(mhm.size() == 4);
+    // contains
+    REQUIRE(mhm.contains({0, 1, 2, 3}));
+    REQUIRE(mhm.contains({4, 5}));
+    REQUIRE(mhm.contains({0, 1, 3}));
+    REQUIRE(mhm.contains({0, 1, 2, 3, 4, 5}));
+    // does not contains
+    REQUIRE(!mhm.contains({3, 2, 1, 0}));
+    REQUIRE(!mhm.contains({5, 4}));
+    REQUIRE(!mhm.contains({3, 1, 0}));
+    REQUIRE(!mhm.contains({1, 4, 5, 2, 3, 0}));
+    // get
+    REQUIRE(mhm.get({0, 1, 2, 3}));
+    REQUIRE(mhm.get({4, 5}));
+    REQUIRE(mhm.get({0, 1, 3}));
+    REQUIRE(mhm.get({0, 1, 2, 3, 4, 5}));
+    // get value
+    REQUIRE(*mhm.get({0, 1, 2, 3}) == 0);
+    REQUIRE(*mhm.get({4, 5}) == 1);
+    REQUIRE(*mhm.get({0, 1, 3}) == 2);
+    REQUIRE(*mhm.get({0, 1, 2, 3, 4, 5}) == 3);
+  } //
+  SECTION("operator") {
+    MultiHashMap<size_t, size_t> mhm;
+    mhm[{0, 1, 2, 3}] = 0;
+    mhm[{4, 5}] = 1;
+    mhm[{0, 1, 3}] = 2;
+    mhm[{0, 1, 2, 3, 4, 5}] = 3;
+    // size
+    REQUIRE(mhm.size() == 4);
+    // contains
+    REQUIRE(mhm.contains({0, 1, 2, 3}));
+    REQUIRE(mhm.contains({4, 5}));
+    REQUIRE(mhm.contains({0, 1, 3}));
+    REQUIRE(mhm.contains({0, 1, 2, 3, 4, 5}));
+  }
+}
 
 TEST_CASE("NMesh", "[mesh]") {
   SECTION("Sanity") {

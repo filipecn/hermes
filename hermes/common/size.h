@@ -87,6 +87,12 @@ public:
   HERMES_DEVICE_CALLABLE Size2<T> operator+(const Size2<T> &b) const {
     return Size2<T>(width + b.width, height + b.height);
   }
+  ///
+  /// \param n
+  /// \return
+  HERMES_DEVICE_CALLABLE Size2<T> operator/(T n) const {
+    return Size2<T>(width / n, height / n);
+  }
   /// \brief Scalar multiplication
   /// \param s
   /// \return
