@@ -204,7 +204,7 @@ Macros</h2></td></tr>
 <p>Logs into stderr from device code. </p>
 <div class="fragment"><div class="line"><a class="code" href="group__logging.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(<span class="stringliteral">&quot;my log with %d as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
 <div class="line"><a class="code" href="group__logging.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a>(&quot;simple log&quot;)</div>
-<div class="ttc" id="agroup__logging_html_ga70f946b0b765e24239e1013485243ed1"><div class="ttname"><a href="group__logging.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a></div><div class="ttdeci">#define HERMES_C_LOG(FMT,...)</div><div class="ttdoc">Logs into stdout in printf style.</div><div class="ttdef"><b>Definition:</b> logging.h:466</div></div>
+<div class="ttc" id="agroup__logging_html_ga70f946b0b765e24239e1013485243ed1"><div class="ttname"><a href="group__logging.html#ga70f946b0b765e24239e1013485243ed1">HERMES_C_LOG</a></div><div class="ttdeci">#define HERMES_C_LOG(FMT,...)</div><div class="ttdoc">Logs into stdout in printf style.</div><div class="ttdef"><b>Definition:</b> logging.h:467</div></div>
 </div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">FMT</td><td>string format following printf format </td></tr>
@@ -337,7 +337,7 @@ Macros</h2></td></tr>
 <p>Logs into stderr in printf style. </p>
 <div class="fragment"><div class="line"><a class="code" href="group__logging.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a>(<span class="stringliteral">&quot;my log with %d as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
 <div class="line"><a class="code" href="group__logging.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a>(&quot;simple log&quot;)</div>
-<div class="ttc" id="agroup__logging_html_gac6d0a5f83afa84d83d984a51e30ee82a"><div class="ttname"><a href="group__logging.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a></div><div class="ttdeci">#define HERMES_C_LOG_ERROR(FMT,...)</div><div class="ttdoc">Logs into stderr in printf style.</div><div class="ttdef"><b>Definition:</b> logging.h:479</div></div>
+<div class="ttc" id="agroup__logging_html_gac6d0a5f83afa84d83d984a51e30ee82a"><div class="ttname"><a href="group__logging.html#gac6d0a5f83afa84d83d984a51e30ee82a">HERMES_C_LOG_ERROR</a></div><div class="ttdeci">#define HERMES_C_LOG_ERROR(FMT,...)</div><div class="ttdoc">Logs into stderr in printf style.</div><div class="ttdef"><b>Definition:</b> logging.h:480</div></div>
 </div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">FMT</td><td>string format following printf format </td></tr>
@@ -377,13 +377,13 @@ Macros</h2></td></tr>
 <p><code>#include &lt;<a class="el" href="logging_8h.html">hermes/logging/logging.h</a>&gt;</code></p>
 <b>Value:</b><div class="fragment"><div class="line">  <a class="code" href="classhermes_1_1Log.html#a731d9cf21a04f89e08c7f7d75bbef77a">hermes::Log::logMessage</a>(hermes::logging_options::info, FMT, \</div>
 <div class="line">  <a class="code" href="structhermes_1_1Log_1_1Location.html">hermes::Log::Location</a>{__FILE__, __LINE__, __FUNCTION__} __VA_OPT__(,) __VA_ARGS__)</div>
-<div class="ttc" id="aclasshermes_1_1Log_html_a731d9cf21a04f89e08c7f7d75bbef77a"><div class="ttname"><a href="classhermes_1_1Log.html#a731d9cf21a04f89e08c7f7d75bbef77a">hermes::Log::logMessage</a></div><div class="ttdeci">static HERMES_DEVICE_CALLABLE void logMessage(logging_options message_options, const char *fmt, Location location, Ts &amp;&amp;...args)</div><div class="ttdoc">Logs a formatted message with code location information.</div><div class="ttdef"><b>Definition:</b> logging.h:79</div></div>
-<div class="ttc" id="astructhermes_1_1Log_1_1Location_html"><div class="ttname"><a href="structhermes_1_1Log_1_1Location.html">hermes::Log::Location</a></div><div class="ttdoc">Holds information about log code location.</div><div class="ttdef"><b>Definition:</b> logging.h:66</div></div>
+<div class="ttc" id="aclasshermes_1_1Log_html_a731d9cf21a04f89e08c7f7d75bbef77a"><div class="ttname"><a href="classhermes_1_1Log.html#a731d9cf21a04f89e08c7f7d75bbef77a">hermes::Log::logMessage</a></div><div class="ttdeci">static HERMES_DEVICE_CALLABLE void logMessage(logging_options message_options, const char *fmt, Location location, Ts &amp;&amp;...args)</div><div class="ttdoc">Logs a formatted message with code location information.</div><div class="ttdef"><b>Definition:</b> logging.h:80</div></div>
+<div class="ttc" id="astructhermes_1_1Log_1_1Location_html"><div class="ttname"><a href="structhermes_1_1Log_1_1Location.html">hermes::Log::Location</a></div><div class="ttdoc">Holds information about log code location.</div><div class="ttdef"><b>Definition:</b> logging.h:67</div></div>
 </div><!-- fragment -->
 <p>Logs into info log stream. </p>
 <div class="fragment"><div class="line"><a class="code" href="group__logging.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(<span class="stringliteral">&quot;my log with {} as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
 <div class="line"><a class="code" href="group__logging.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a>(&quot;simple log&quot;)</div>
-<div class="ttc" id="agroup__logging_html_ga8fb92829d690469e456157f6f47a8e94"><div class="ttname"><a href="group__logging.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a></div><div class="ttdeci">#define HERMES_LOG(FMT,...)</div><div class="ttdoc">Logs into info log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:362</div></div>
+<div class="ttc" id="agroup__logging_html_ga8fb92829d690469e456157f6f47a8e94"><div class="ttname"><a href="group__logging.html#ga8fb92829d690469e456157f6f47a8e94">HERMES_LOG</a></div><div class="ttdeci">#define HERMES_LOG(FMT,...)</div><div class="ttdoc">Logs into info log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:363</div></div>
 </div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">FMT</td><td>a const char* following hermes format (use "{}" to place each value in the string) </td></tr>
@@ -459,7 +459,7 @@ Macros</h2></td></tr>
 <p>Logs into critical log stream. </p>
 <div class="fragment"><div class="line"><a class="code" href="group__logging.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a>(<span class="stringliteral">&quot;my log with {} as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
 <div class="line"><a class="code" href="group__logging.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a>(&quot;simple log&quot;)</div>
-<div class="ttc" id="agroup__logging_html_ga3bb391c0f11f0a592b3d7fe0a6bf91d2"><div class="ttname"><a href="group__logging.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a></div><div class="ttdeci">#define HERMES_LOG_CRITICAL(FMT,...)</div><div class="ttdoc">Logs into critical log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:395</div></div>
+<div class="ttc" id="agroup__logging_html_ga3bb391c0f11f0a592b3d7fe0a6bf91d2"><div class="ttname"><a href="group__logging.html#ga3bb391c0f11f0a592b3d7fe0a6bf91d2">HERMES_LOG_CRITICAL</a></div><div class="ttdeci">#define HERMES_LOG_CRITICAL(FMT,...)</div><div class="ttdoc">Logs into critical log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:396</div></div>
 </div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">FMT</td><td>a const char* following hermes format (use "{}" to place each value in the string) </td></tr>
@@ -503,7 +503,7 @@ Macros</h2></td></tr>
 <p>Logs into error log stream. </p>
 <div class="fragment"><div class="line"><a class="code" href="group__logging.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a>(<span class="stringliteral">&quot;my log with {} as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
 <div class="line"><a class="code" href="group__logging.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a>(&quot;simple log&quot;)</div>
-<div class="ttc" id="agroup__logging_html_ga28bfc9b82c33369adb061a960f986ec2"><div class="ttname"><a href="group__logging.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a></div><div class="ttdeci">#define HERMES_LOG_ERROR(FMT,...)</div><div class="ttdoc">Logs into error log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:384</div></div>
+<div class="ttc" id="agroup__logging_html_ga28bfc9b82c33369adb061a960f986ec2"><div class="ttname"><a href="group__logging.html#ga28bfc9b82c33369adb061a960f986ec2">HERMES_LOG_ERROR</a></div><div class="ttdeci">#define HERMES_LOG_ERROR(FMT,...)</div><div class="ttdoc">Logs into error log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:385</div></div>
 </div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">FMT</td><td>a const char* following hermes format (use "{}" to place each value in the string) </td></tr>
@@ -607,7 +607,7 @@ Macros</h2></td></tr>
 <p>Logs into warning log stream. </p>
 <div class="fragment"><div class="line"><a class="code" href="group__logging.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a>(<span class="stringliteral">&quot;my log with {} as value&quot;</span>, 3) <span class="comment">// produces &quot;my log with 3 as value&quot;</span></div>
 <div class="line"><a class="code" href="group__logging.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a>(&quot;simple log&quot;)</div>
-<div class="ttc" id="agroup__logging_html_ga9f8966e7cf4b47602f0fd05a143c3e4c"><div class="ttname"><a href="group__logging.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a></div><div class="ttdeci">#define HERMES_LOG_WARNING(FMT,...)</div><div class="ttdoc">Logs into warning log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:373</div></div>
+<div class="ttc" id="agroup__logging_html_ga9f8966e7cf4b47602f0fd05a143c3e4c"><div class="ttname"><a href="group__logging.html#ga9f8966e7cf4b47602f0fd05a143c3e4c">HERMES_LOG_WARNING</a></div><div class="ttdeci">#define HERMES_LOG_WARNING(FMT,...)</div><div class="ttdoc">Logs into warning log stream.</div><div class="ttdef"><b>Definition:</b> logging.h:374</div></div>
 </div><!-- fragment --> <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">FMT</td><td>a const char* following hermes format (use "{}" to place each value in the string) </td></tr>
