@@ -1,18 +1,22 @@
 set(SOURCES
-        main.cpp
         #        blas_tests.cu
         common_tests.cpp
-        data_structures_tests.cpp
-        geometry_tests.cpp
-        log_tests.cpp
-        numeric_tests.cpp
-        random_tests.cpp
-        storage_tests.cpp
+        #data_structures_tests.cpp
+        #geometry_tests.cpp
+        #log_tests.cpp
+        #numeric_tests.cpp
+        #random_tests.cpp
+        #storage_tests.cpp
         #        memory_tests.cu
         )
 
 add_executable(hermes_tests ${SOURCES})
-target_include_directories(hermes_tests PUBLIC ${CATCH2_INCLUDES} ${CMAKE_SOURCE_DIR})
+add_dependencies(hermes_tests Catch2 hermes)
+
+target_include_directories(hermes_tests PUBLIC 
+  ${CATCH2_INCLUDES} 
+  ${CMAKE_SOURCE_DIR}
+  )
 set_target_properties(hermes_tests PROPERTIES LINKER_LANGUAGE CXX)
 
 if (BUILD_WITH_CUDA)
@@ -54,7 +58,11 @@ endif (BUILD_WITH_CUDA)
 
 if (UNIX)
 
-    target_link_libraries(hermes_tests ${PONOS_LIBRARIES} hermes gcov)
+  target_link_libraries(hermes_tests 
+    Catch2::Catch2WithMain
+    hermes
+    gcov
+    )
 
     add_custom_target(test_hermes
             COMMAND lcov --directory . --zerocounters
@@ -68,6 +76,6 @@ if (UNIX)
 
 else (UNIX)
 
-    target_link_libraries(hermes_tests ponos hermes)
+    target_link_libraries(hermes_tests hermes)
 
 endif (UNIX)

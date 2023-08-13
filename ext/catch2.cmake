@@ -1,5 +1,11 @@
-set(CATCH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-# add_library(Catch2::Catch IMPORTED INTERFACE)
-# set_property(Catch2::Catch PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CATCH_INCLUDE_DIR}")
+include(FetchContent)
 
-set(CATCH2_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/ext")
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v3.1.1
+)
+
+FetchContent_MakeAvailable(Catch2)
+
+SET(CATCH2_INCLUDES ${Catch2_SOURCE_DIR}/src)

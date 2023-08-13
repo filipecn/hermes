@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <hermes/logging/memory_dump.h>
 #include <hermes/logging/console_colors.h>

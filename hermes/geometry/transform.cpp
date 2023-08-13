@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnreachableCode"
 /*
  * Copyright (c) 2018 FilipeCN
  *

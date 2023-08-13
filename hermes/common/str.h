@@ -39,6 +39,8 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <cstring>
+#include <cstdint>
 #include <hermes/common/defs.h>
 #include <hermes/common/str_view.h>
 

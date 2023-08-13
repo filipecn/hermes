@@ -198,7 +198,7 @@ public:
     std::size_t field_size_in_bytes{0};                  //!< Region size
     std::size_t count{1};                                //!< Region count
     std::string color = ConsoleColors::default_color;    //!< Region color
-    std::vector<RegionLayout> sub_regions;               //!< Sub-region descriptions
+    std::vector<RegionLayout> sub_regions{};               //!< Sub-region descriptions
     DataType type{DataType::CUSTOM};                     //!< Base data type
   };
 

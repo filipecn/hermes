@@ -3,10 +3,11 @@
 ##########################################
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 set(CMAKE_VERBOSE_MAKEFILE ON)
-# avoid policy warning message
+# avoid policy warning messages
 cmake_policy(SET CMP0104 NEW)
+cmake_policy(SET CMP0135 NEW)
 ##########################################
-##               options_                ##
+##               options                ##
 ##########################################
 option(BUILD_ALL "build all libraries" OFF)
 option(BUILD_WITH_CUDA "build with cuda" OFF)
@@ -17,7 +18,6 @@ option(BUILD_DOCS "build library documentation" OFF)
 ##########################################
 ##                project               ##
 ##########################################
-
 project(HERMES CXX)
 set(CMAKE_CUDA_COMPILER /usr/local/cuda-11.0/bin/nvcc)
 if (BUILD_WITH_CUDA)
@@ -36,7 +36,9 @@ include(ConfigCompilerFlags)
 # include external libraries path
 include(ExternalProject)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext")
-include(catch2)
+if (BUILD_TESTS)
+  include(catch2)
+endif (BUILD_TESTS)
 ##########################################
 ##              source                  ##
 ##########################################

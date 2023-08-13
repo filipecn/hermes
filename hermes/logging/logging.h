@@ -38,6 +38,7 @@
 #include <hermes/common/file_system.h>
 #include <cstdarg>
 #include <chrono>
+#include <cstring>
 
 namespace hermes {
 
@@ -316,7 +317,7 @@ private:
   static inline Str abbreviate(logging_options message_options, const char *str) {
     Str s;
     if (HERMES_MASK_BIT(message_options, logging_options::abbreviate)) {
-      size_t l = strlen(str);
+      size_t l = std::strlen(str);
       if (l > abbreviation_size + 3) {
         s += "...";
         s += &str[l - abbreviation_size];

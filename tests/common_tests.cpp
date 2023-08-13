@@ -1,8 +1,3 @@
-//
-// Created by filipecn on 26/06/2021.
-//
-
-
 /// Copyright (c) 2021, FilipeCN.
 ///
 /// The MIT License (MIT)
@@ -30,7 +25,8 @@
 ///
 ///\brief
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <hermes/common/arg_parser.h>
 #include <hermes/common/parsers.h>
@@ -898,10 +894,10 @@ TEST_CASE("cuda utils", "[cuda]") {
 
 void profiledFunc() {
   HERMES_PROFILE_FUNCTION();
-  for (int i = 0; i < 100000; ++i);
+  for (int i = 0; i < 100000; ++i){}
   {
     HERMES_PROFILE_SCOPE("scope");
-    for (int i = 0; i < 100000000; ++i);
+    for (int i = 0; i < 100000000; ++i){}
   }
   HERMES_PROFILE_START_BLOCK("fors");
   for (int i = 0; i < 5; ++i) {
