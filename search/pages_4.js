@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['linking_20hermes_1479',['Linking Hermes',['../md_docs_2_linking.html',1,'']]],
-  ['logging_1480',['Logging',['../md_docs_4_logging.html',1,'']]]
+  ['hermes_0',['hermes',['../md_docs_21__build__and__install.html',1,'Building Hermes'],['../md_docs_22__linking.html',1,'Linking Hermes']]]
 ];

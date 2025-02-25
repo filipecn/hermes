@@ -1,17 +1,11 @@
 var defs_8h =
 [
-    [ "DataTypes", "classhermes_1_1DataTypes.html", null ],
-    [ "DATA_TYPE_NAME", "defs_8h.html#a7110ed721c0338086c6af0ae8cf8d8a2", null ],
-    [ "ENUM_NAME", "defs_8h.html#ab7d175fd1bfafdb0f79be32da725dbb4", null ],
     [ "HERMES_CUDA_CODE", "group__common.html#ga4ebd7e8a2b952dda6b84adac386af33f", null ],
     [ "HERMES_CUDA_KERNEL", "group__common.html#ga0cdc0182ec6123bc74f82d9dd21e6e1d", null ],
     [ "HERMES_DEVICE_CALLABLE", "group__common.html#ga4591d4d07ad58c3cd4b4e592f146e7c2", null ],
     [ "HERMES_DEVICE_ENABLED", "group__common.html#ga4b1a23a3ea0ae0a10151f3d81251391b", null ],
     [ "HERMES_DEVICE_FUNCTION", "group__common.html#ga67d01a459871f1979fcaed83fad02f58", null ],
     [ "HERMES_HOST_FUNCTION", "group__common.html#gad826e86c01ed0d3ab4222eb4967aa9de", null ],
-    [ "MATCH_TYPE", "defs_8h.html#a9352dc9bf7c4ae6b3e1b99311484a677", null ],
-    [ "MATCH_TYPE", "defs_8h.html#a5ce0655b1747ce5b9eb1a073332c2655", null ],
-    [ "TYPE_SIZE", "defs_8h.html#a6766bdf8dfbd3fa6a992e695401bae85", null ],
     [ "byte", "group__common.html#ga3eca60932ee4119828944ccd69a6272b", null ],
     [ "f32", "group__common.html#gad34d88453d37b65a09797bad37f2f527", null ],
     [ "f64", "group__common.html#gabc2f107791bd7c1d49ecf0f168c085a3", null ],
@@ -48,5 +42,5 @@ var defs_8h =
       [ "UNIFIED", "defs_8h.html#ab8d92c2aa7a799516f03db0728158da0ae12ab2013376ab01a1cdf04277af2399", null ]
     ] ],
     [ "memoryLocationName", "defs_8h.html#a0a5c6bb511f43719b4d20f4fcf2dbc85", null ],
-    [ "operator<<", "defs_8h.html#a4e5bf567f0980891dd99bb4836fc2466", null ]
+    [ "operator<<", "defs_8h.html#a62e21ca0c599c46aa5b51084abf86ef8", null ]
 ];

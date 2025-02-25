@@ -12,7 +12,6 @@ var classhermes_1_1Interval =
     [ "operator-", "classhermes_1_1Interval.html#a03447bbe826acd39d9892e89f1b11889", null ],
     [ "operator-", "classhermes_1_1Interval.html#a0b09965eb1c2c94918663b8c2c8da92c", null ],
     [ "operator/", "classhermes_1_1Interval.html#a4a20699f11cc3998f4f83743194f5e48", null ],
-    [ "operator==", "classhermes_1_1Interval.html#acf2a53e34e8037678e16d51e3cc7d16a", null ],
     [ "radius", "classhermes_1_1Interval.html#ab313bf77a1933a3691ada07369106685", null ],
     [ "sqr", "classhermes_1_1Interval.html#ae606fccf38846cdb99826a5fedf431df", null ],
     [ "sqrt", "classhermes_1_1Interval.html#a1c129fb5aa502e0650e2ca219f62be0f", null ],

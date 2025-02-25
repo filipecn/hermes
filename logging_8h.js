@@ -1,7 +1,5 @@
 var logging_8h =
 [
-    [ "Log", "classhermes_1_1Log.html", "classhermes_1_1Log" ],
-    [ "Location", "structhermes_1_1Log_1_1Location.html", "structhermes_1_1Log_1_1Location" ],
     [ "HERMES_C_DEVICE_ERROR", "group__logging.html#ga3aa32ccf1d66c3054099d448b210cddf", null ],
     [ "HERMES_C_DEVICE_LOG", "group__logging.html#ga7df7b88d9404767403b6de3e0b72daa2", null ],
     [ "HERMES_C_LOG", "group__logging.html#ga70f946b0b765e24239e1013485243ed1", null ],
@@ -14,7 +12,6 @@ var logging_8h =
     [ "HERMES_LOG_VARIABLES", "group__logging.html#gaaf2fa36058f958d335b2913b580c0ec5", null ],
     [ "HERMES_LOG_WARNING", "group__logging.html#ga9f8966e7cf4b47602f0fd05a143c3e4c", null ],
     [ "HERMES_PING", "group__logging.html#ga41577911f22f449f3656c08f5638343b", null ],
-    [ "INFO_ENABLED", "group__logging.html#ga580f977f97ee7f7ceb91b1c42306f537", null ],
     [ "logging_options", "logging_8h.html#a73551e37421cf342a5ff775fa200e95f", [
       [ "none", "logging_8h.html#a73551e37421cf342a5ff775fa200e95fa334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
       [ "info", "logging_8h.html#a73551e37421cf342a5ff775fa200e95facaf9b6b99962bf5c2264824231d7a40c", null ],
@@ -27,6 +24,5 @@ var logging_8h =
       [ "use_colors", "logging_8h.html#a73551e37421cf342a5ff775fa200e95faf57ee0f0bad65b4d7519eba91f37c3ee", null ],
       [ "full_path_location", "logging_8h.html#a73551e37421cf342a5ff775fa200e95fa78f07015f6b2c0389e7b1e8dd6317f1a", null ],
       [ "callback_only", "logging_8h.html#a73551e37421cf342a5ff775fa200e95fa059c4c9a8f84e2e0e4399edbe31409ca", null ]
-    ] ],
-    [ "HERMES_ENABLE_BITMASK_OPERATORS", "logging_8h.html#a8619293e1580dd34d45dcb8bea2760bb", null ]
+    ] ]
 ];

@@ -1,18 +1,9 @@
 var index_8h =
 [
-    [ "Index2", "structhermes_1_1Index2.html", "structhermes_1_1Index2" ],
-    [ "Index2Iterator", "classhermes_1_1Index2Iterator.html", "classhermes_1_1Index2Iterator" ],
-    [ "Index2Range", "classhermes_1_1Index2Range.html", "classhermes_1_1Index2Range" ],
-    [ "Index3", "structhermes_1_1Index3.html", "structhermes_1_1Index3" ],
-    [ "Index3Iterator", "classhermes_1_1Index3Iterator.html", "classhermes_1_1Index3Iterator" ],
-    [ "Index3Range", "classhermes_1_1Index3Range.html", "classhermes_1_1Index3Range" ],
     [ "ARITHMETIC_OP", "index_8h.html#a0c575fa7bf511f31b467cb8c98333c22", null ],
     [ "ARITHMETIC_OP", "index_8h.html#a0c575fa7bf511f31b467cb8c98333c22", null ],
     [ "ARITHMETIC_OP", "index_8h.html#a0c575fa7bf511f31b467cb8c98333c22", null ],
     [ "ARITHMETIC_OP", "index_8h.html#a0c575fa7bf511f31b467cb8c98333c22", null ],
-    [ "MATH_OP", "index_8h.html#a92fd6838b8eb1d568062f64b30757097", null ],
-    [ "RELATIONAL_OP", "index_8h.html#a684fce154d50e65504ceca50b78bfdbb", null ],
-    [ "RELATIONAL_OP", "index_8h.html#a684fce154d50e65504ceca50b78bfdbb", null ],
     [ "index2", "index_8h.html#a6874bf0ca8af1f0438eeef195457a1ea", null ],
     [ "index2_16", "index_8h.html#a8752e48b89441d6abcbc68264a10e2dd", null ],
     [ "index2_32", "index_8h.html#abafae001c6a076d0c13cf6c22827fd8b", null ],
@@ -26,6 +17,6 @@ var index_8h =
     [ "range2", "index_8h.html#a1bff621444588cedd569c2aab7f7a23e", null ],
     [ "range2_64", "index_8h.html#ab6ad4b971eea0877f5fc674177acf85e", null ],
     [ "range3", "index_8h.html#ae5d2daf3fb1f92935cfbc46b7234a92d", null ],
-    [ "operator<<", "index_8h.html#adc17ea81315a605bce3e9c0eef341e43", null ],
-    [ "operator<<", "index_8h.html#ae33b79bd31ba240adca64a6395c9b5d2", null ]
+    [ "operator<<", "index_8h.html#a94fcab62e342c79e9230ff5f6c533ed3", null ],
+    [ "operator<<", "index_8h.html#af1f86c3c067f2fe5ee9863ca5712095a", null ]
 ];

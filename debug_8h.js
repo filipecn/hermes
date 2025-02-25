@@ -1,15 +1,10 @@
 var debug_8h =
 [
-    [ "ASSERTIONS_ENABLED", "group__common.html#gaae4d5f162bc69e2e91080e34dc7a9bf5", null ],
-    [ "CHECKS_ENABLED", "group__common.html#ga34df1eb2da1c8112fb8b6654bd586764", null ],
-    [ "debugBreak", "group__common.html#ga13bf501f420bb63f3cf9b62b06b03574", null ],
     [ "HERMES_ASSERT", "group__common.html#ga1c115720d5b704b94684e164e3ebf5e5", null ],
     [ "HERMES_ASSERT_WITH_LOG", "group__common.html#ga99a91d4f512268c11db58d0827210e65", null ],
     [ "HERMES_CHECK_EQUAL", "group__common.html#ga0ae789d0aad841c62b19bdf4fefad8ce", null ],
     [ "HERMES_CHECK_EXP", "group__common.html#gad8dedfb6f395b28f362e39fe7959315a", null ],
     [ "HERMES_CHECK_EXP_WITH_LOG", "group__common.html#gac484cff6909402c505a1248907a879be", null ],
-    [ "HERMES_DEBUG", "group__common.html#ga26f6b27ab177035bd7335567d56c8725", null ],
-    [ "HERMES_DEBUG_CODE", "group__common.html#ga71ba5bfb909ea32cffdea6ab59ece1e9", null ],
     [ "HERMES_LOG_AND_RETURN_IF_NOT", "group__common.html#gae6876eebcefc54e80fd278696a78ff41", null ],
     [ "HERMES_LOG_AND_RETURN_VALUE_IF_NOT", "group__common.html#ga3facb947bcf6e391f23567f5a0a15688", null ],
     [ "HERMES_NOT_IMPLEMENTED", "group__common.html#gac47838d9dbd6c6fcef9ede7da3726421", null ],

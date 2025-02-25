@@ -1,7 +1,5 @@
 var file__system_8h =
 [
-    [ "Path", "classhermes_1_1Path.html", "classhermes_1_1Path" ],
-    [ "FileSystem", "classhermes_1_1FileSystem.html", null ],
     [ "find_options", "file__system_8h.html#a179a9f11e2b265ca29a903c6b960e6ad", [
       [ "none", "file__system_8h.html#a179a9f11e2b265ca29a903c6b960e6ada334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
       [ "recursive", "file__system_8h.html#a179a9f11e2b265ca29a903c6b960e6adaf8e45531a3ea3d5c1247b004985175a4", null ],
@@ -16,7 +14,5 @@ var file__system_8h =
       [ "group_directories_first", "file__system_8h.html#af21338176f0d5e9369a9a4d09f917b4fa48c0602c212f1b194cbaec43393d0304", null ],
       [ "recursive", "file__system_8h.html#af21338176f0d5e9369a9a4d09f917b4faf8e45531a3ea3d5c1247b004985175a4", null ]
     ] ],
-    [ "HERMES_ENABLE_BITMASK_OPERATORS", "file__system_8h.html#ace8a0c1fbc3914fcb609049b6547e833", null ],
-    [ "HERMES_ENABLE_BITMASK_OPERATORS", "file__system_8h.html#ae6f5c2896662f5ab807acf6a51b22c11", null ],
     [ "operator<<", "file__system_8h.html#a87b1c4e6fbd010df3a8c15302b5bcb57", null ]
 ];

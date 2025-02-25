@@ -51,6 +51,11 @@ var hierarchy =
       [ "hermes::Vector2< real_t >", "classhermes_1_1Vector2.html", null ],
       [ "hermes::Vector3< real_t >", "classhermes_1_1Vector3.html", null ]
     ] ],
+    [ "hermes::MathElement< f32, 2u >", "classhermes_1_1MathElement.html", null ],
+    [ "hermes::MathElement< real_t, 16 >", "classhermes_1_1MathElement.html", null ],
+    [ "hermes::MathElement< real_t, 2u >", "classhermes_1_1MathElement.html", null ],
+    [ "hermes::MathElement< real_t, 3u >", "classhermes_1_1MathElement.html", null ],
+    [ "hermes::MathElement< real_t, 9 >", "classhermes_1_1MathElement.html", null ],
     [ "hermes::MathElement< T, 16 >", "classhermes_1_1MathElement.html", [
       [ "hermes::Matrix4x4< T >", "classhermes_1_1Matrix4x4.html", null ]
     ] ],

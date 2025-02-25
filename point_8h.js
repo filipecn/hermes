@@ -1,27 +1,8 @@
 var point_8h =
 [
-    [ "Point2", "classhermes_1_1Point2.html", "classhermes_1_1Point2" ],
-    [ "Point3", "classhermes_1_1Point3.html", "classhermes_1_1Point3" ],
-    [ "hash< hermes::Point2< T > >", "structstd_1_1hash_3_01hermes_1_1Point2_3_01T_01_4_01_4.html", "structstd_1_1hash_3_01hermes_1_1Point2_3_01T_01_4_01_4" ],
-    [ "hash< hermes::Point3< T > >", "structstd_1_1hash_3_01hermes_1_1Point3_3_01T_01_4_01_4.html", "structstd_1_1hash_3_01hermes_1_1Point3_3_01T_01_4_01_4" ],
-    [ "ARITHMETIC_OP", "point_8h.html#a0c575fa7bf511f31b467cb8c98333c22", null ],
-    [ "ARITHMETIC_OP", "point_8h.html#a0c575fa7bf511f31b467cb8c98333c22", null ],
-    [ "MATH_OP", "point_8h.html#a92fd6838b8eb1d568062f64b30757097", null ],
-    [ "RELATIONAL_OP", "point_8h.html#a684fce154d50e65504ceca50b78bfdbb", null ],
-    [ "RELATIONAL_OP", "point_8h.html#a684fce154d50e65504ceca50b78bfdbb", null ],
-    [ "point2", "point_8h.html#a69e4bf80d0176faf44090758343822f8", null ],
-    [ "point2d", "point_8h.html#a1af7d8fc26b31e0140d59478df73154d", null ],
-    [ "point2f", "point_8h.html#a2729a0fd0e2b4964026182bde8049c08", null ],
-    [ "point2i", "point_8h.html#a8a6961957f08307eb8f9d4d780cc9a94", null ],
-    [ "point3", "point_8h.html#add949efaf2bbad49f1bca74d1c63410f", null ],
-    [ "point3d", "point_8h.html#a6978a4ef4673d0e0b6d625d3c8eef9bf", null ],
-    [ "point3f", "point_8h.html#a12fafd1f071b4306d2041c825857a15c", null ],
-    [ "point3i", "point_8h.html#acedb850dda1a3c95f531fdbec01c9461", null ],
     [ "distance", "point_8h.html#a708ec582684c9d75e1d7ff053a12fb7e", null ],
     [ "distance", "point_8h.html#adf8fc44909792954d1338d06b3e43753", null ],
     [ "distance2", "point_8h.html#a4d065e210ebc1e4bf6ec7f6422fe35c1", null ],
     [ "distance2", "point_8h.html#ab014b7c99d5c06b281813b15dabc9767", null ],
-    [ "operator*", "point_8h.html#addc81ec0f9d697af21b94cc525776a6d", null ],
-    [ "operator<<", "point_8h.html#a756e43fbbfc3312414a04e364a322adc", null ],
-    [ "operator<<", "point_8h.html#adebc03672dfb2fb749c6ce77a7b9d01d", null ]
+    [ "operator*", "point_8h.html#a5c08687c3b19e6c5194dcdea4ecb634b", null ]
 ];

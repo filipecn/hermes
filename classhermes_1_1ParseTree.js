@@ -6,7 +6,5 @@ var classhermes_1_1ParseTree =
       [ "TOKEN", "classhermes_1_1ParseTree.html#acf425ec331bc3716a03feacff6858c1ea94c8aa2452bccd82ee129b46f7c4be79", null ],
       [ "BLOCK", "classhermes_1_1ParseTree.html#acf425ec331bc3716a03feacff6858c1ea4d34f53389ed7f28ca91fc31ea360a66", null ]
     ] ],
-    [ "iterate", "classhermes_1_1ParseTree.html#a5ac93cb26c95e1a82ead5c1ebb1568eb", null ],
-    [ "operator<<", "classhermes_1_1ParseTree.html#a300bab3892e1e5fd9f7ff7a81dca8d99", null ],
-    [ "StringParser", "classhermes_1_1ParseTree.html#a8252ec99fb4541e55d04497911492c25", null ]
+    [ "operator<<", "classhermes_1_1ParseTree.html#af283ef67ddef44cf341972a16d08baf7", null ]
 ];

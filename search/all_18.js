@@ -1,13 +1,21 @@
 var searchData=
 [
-  ['y_727',['y',['../classhermes_1_1Normal2.html#a50721a82314cb741ff33a39ed7b3aaaa',1,'hermes::Normal2::y()'],['../classhermes_1_1Normal3.html#a70aff1a66bfbbd6f7d4db0cfed7b25b0',1,'hermes::Normal3::y()'],['../classhermes_1_1Point2.html#a49937ff5db4103d6997e4e380ee3496f',1,'hermes::Point2::y()'],['../classhermes_1_1Point3.html#a9e0408765b5daf5b07f64ff77796d8af',1,'hermes::Point3::y()'],['../classhermes_1_1Vector2.html#af740b28c30209eaafbfc88d8a264af6a',1,'hermes::Vector2::y()'],['../classhermes_1_1Vector3.html#ae0f2c520404370298915297a44ba2853',1,'hermes::Vector3::y()'],['../classhermes_1_1Vector4.html#a0d92d68da2575ad0d3218911d88c2b10',1,'hermes::Vector4::y()']]],
-  ['y_5fdown_728',['y_down',['../transform_8h.html#a5fc298327d7f9137c76730b2eab78d85a4c6889cbc0111759cc2d4f3ce6d3a618',1,'hermes']]],
-  ['y_5fleft_729',['y_left',['../transform_8h.html#a5fc298327d7f9137c76730b2eab78d85aa94b2fd23177d57fd05cc58f05079f67',1,'hermes']]],
-  ['y_5fright_730',['y_right',['../transform_8h.html#a5fc298327d7f9137c76730b2eab78d85a0825cd90c1265a5666eeccb49b79bcad',1,'hermes']]],
-  ['y_5fup_731',['y_up',['../transform_8h.html#a5fc298327d7f9137c76730b2eab78d85a035dc82a4ef8d2d63c04ef9e15e073a9',1,'hermes']]],
-  ['yellow_732',['yellow',['../classhermes_1_1ConsoleColors.html#aecf049db9a043190b05713cb8f7ad82a',1,'hermes::ConsoleColors']]],
-  ['yx_733',['yx',['../classhermes_1_1Vector2.html#a3888b148c8ceaef790688aa90c256ee8',1,'hermes::Vector2']]],
-  ['yy_734',['yy',['../classhermes_1_1Vector2.html#ad04b78039c43334bfe644f86ce5a25c6',1,'hermes::Vector2']]],
-  ['yz_735',['yz',['../classhermes_1_1Point3.html#a913058489edee5e3398af31af847cbaa',1,'hermes::Point3']]],
-  ['yz_736',['YZ',['../classhermes_1_1Plane.html#adaecfb2badea119040d6e48f8931bcbb',1,'hermes::Plane']]]
+  ['u16_0',['u16',['../group__common.html#ga6dbf9516e516c901604625282c174aa4',1,'u16:&#160;defs.h'],['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0aef9ef3ebca4d2b64b6ec83808bafa5f2',1,'U16hermes']]],
+  ['u32_1',['u32',['../group__common.html#ga70c1fcc1a4e96af8f6580f708657cd41',1,'u32:&#160;defs.h'],['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0ac8bd5bedff8ef192d39a962afc0e19ee',1,'U32hermes']]],
+  ['u64_2',['u64',['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0a31d65cccd6593e4101db93fb878abcaa',1,'U64hermes'],['../group__common.html#ga1af9f95651e921615e75917a6dd1b574',1,'u64:&#160;defs.h']]],
+  ['u8_3',['u8',['../group__common.html#ga987e4d6cf789cb59dbb390728271e4d6',1,'u8:&#160;defs.h'],['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0a6669348b484e3008dca2bfa8e85e40b5',1,'U8hermes']]],
+  ['uchar_4',['uchar',['../group__common.html#gae48ac2456c5ad6c956fef86e7bef3a21',1,'defs.h']]],
+  ['uint_5',['uint',['../group__common.html#ga69aa29b598b851b0640aa225a9e5d61d',1,'defs.h']]],
+  ['ulong_6',['ulong',['../group__common.html#ga441b2f7db117201ab36246e7692a5974',1,'defs.h']]],
+  ['underlined_7',['underlined',['../classhermes_1_1ConsoleColors.html#a98818dd10602d4976c16db702aaafa21',1,'hermes::ConsoleColors']]],
+  ['unexpectedresulttype_8',['UnexpectedResultType',['../structhermes_1_1UnexpectedResultType.html',1,'hermes']]],
+  ['unified_9',['UNIFIED',['../defs_8h.html#ab8d92c2aa7a799516f03db0728158da0ae12ab2013376ab01a1cdf04277af2399',1,'hermes']]],
+  ['unlock_10',['unlock',['../classhermes_1_1cuda__utils_1_1Lock.html#a6d970d89c74977e86c350dc18c1be925',1,'hermes::cuda_utils::Lock']]],
+  ['up_11',['up',['../structhermes_1_1Index2.html#a75a8b709992adbe1774b31bc862a81b3',1,'hermes::Index2']]],
+  ['upper_12',['upper',['../classhermes_1_1Index2Range.html#a35a0ae249d728d912339d4d4b0c424c4',1,'hermes::Index2Range']]],
+  ['upperbound_13',['upperBound',['../classhermes_1_1EFloat.html#a5ee06ddead35de271dc846fbf376eb9f',1,'hermes::EFloat']]],
+  ['upperleftmatrix_14',['upperLeftMatrix',['../classhermes_1_1Transform.html#a2e9c94e0c8c8fde13bb1e918f5310c0e',1,'hermes::Transform']]],
+  ['use_5fcolors_15',['use_colors',['../logging_8h.html#a73551e37421cf342a5ff775fa200e95faf57ee0f0bad65b4d7519eba91f37c3ee',1,'hermes']]],
+  ['ushort_16',['ushort',['../group__common.html#gae666ff9c44d45e6b7b6b8ed4340dd9c0',1,'defs.h']]],
+  ['utilities_17',['Common Utilities',['../md_docs_23__common.html',1,'']]]
 ];

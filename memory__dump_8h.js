@@ -1,8 +1,5 @@
 var memory__dump_8h =
 [
-    [ "MemoryDumper", "classhermes_1_1MemoryDumper.html", "classhermes_1_1MemoryDumper" ],
-    [ "RegionLayout", "structhermes_1_1MemoryDumper_1_1RegionLayout.html", "structhermes_1_1MemoryDumper_1_1RegionLayout" ],
-    [ "RETURN_TYPE", "memory__dump_8h.html#aeb068d9fe792b36b8d625768c8d28e40", null ],
     [ "memory_dumper_options", "memory__dump_8h.html#aef03804037efec00aeed83a10197444f", [
       [ "none", "memory__dump_8h.html#aef03804037efec00aeed83a10197444fa334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
       [ "binary", "memory__dump_8h.html#aef03804037efec00aeed83a10197444fa9d7183f16acce70658f686ae7f1a4d20", null ],
@@ -19,5 +16,5 @@ var memory__dump_8h =
       [ "type_values", "memory__dump_8h.html#aef03804037efec00aeed83a10197444fac75220c74a64bd8eb51228a571fe695f", null ]
     ] ],
     [ "HERMES_ENABLE_BITMASK_OPERATORS", "memory__dump_8h.html#ad83a21f7a22a95dafe535a1944111315", null ],
-    [ "operator<<", "memory__dump_8h.html#a0422fb7187c6f3fc406898104241962e", null ]
+    [ "operator<<", "memory__dump_8h.html#ad3e91c75751f37c7652df10f5baaf2c9", null ]
 ];

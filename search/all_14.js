@@ -1,24 +1,8 @@
 var searchData=
 [
-  ['u16_664',['u16',['../group__common.html#ga6dbf9516e516c901604625282c174aa4',1,'defs.h']]],
-  ['u16_665',['U16',['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0aef9ef3ebca4d2b64b6ec83808bafa5f2',1,'hermes']]],
-  ['u32_666',['u32',['../group__common.html#ga70c1fcc1a4e96af8f6580f708657cd41',1,'defs.h']]],
-  ['u32_667',['U32',['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0ac8bd5bedff8ef192d39a962afc0e19ee',1,'hermes']]],
-  ['u64_668',['U64',['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0a31d65cccd6593e4101db93fb878abcaa',1,'hermes']]],
-  ['u64_669',['u64',['../group__common.html#ga1af9f95651e921615e75917a6dd1b574',1,'defs.h']]],
-  ['u8_670',['u8',['../group__common.html#ga987e4d6cf789cb59dbb390728271e4d6',1,'defs.h']]],
-  ['u8_671',['U8',['../defs_8h.html#a1669f4fd3d1b2debcb6056a32b0329c0a6669348b484e3008dca2bfa8e85e40b5',1,'hermes']]],
-  ['uchar_672',['uchar',['../group__common.html#gae48ac2456c5ad6c956fef86e7bef3a21',1,'defs.h']]],
-  ['uint_673',['uint',['../group__common.html#ga69aa29b598b851b0640aa225a9e5d61d',1,'defs.h']]],
-  ['ulong_674',['ulong',['../group__common.html#ga441b2f7db117201ab36246e7692a5974',1,'defs.h']]],
-  ['underlined_675',['underlined',['../classhermes_1_1ConsoleColors.html#a98818dd10602d4976c16db702aaafa21',1,'hermes::ConsoleColors']]],
-  ['unexpectedresulttype_676',['UnexpectedResultType',['../structhermes_1_1UnexpectedResultType.html',1,'hermes']]],
-  ['unified_677',['UNIFIED',['../defs_8h.html#ab8d92c2aa7a799516f03db0728158da0ae12ab2013376ab01a1cdf04277af2399',1,'hermes']]],
-  ['unlock_678',['unlock',['../classhermes_1_1cuda__utils_1_1Lock.html#a6d970d89c74977e86c350dc18c1be925',1,'hermes::cuda_utils::Lock']]],
-  ['up_679',['up',['../structhermes_1_1Index2.html#ab13470765bc484982662c3925c086c1f',1,'hermes::Index2']]],
-  ['upper_680',['upper',['../classhermes_1_1Index2Range.html#a07d4a0aac89b229cc28300f92b467ec7',1,'hermes::Index2Range']]],
-  ['upperbound_681',['upperBound',['../classhermes_1_1EFloat.html#a5ee06ddead35de271dc846fbf376eb9f',1,'hermes::EFloat']]],
-  ['upperleftmatrix_682',['upperLeftMatrix',['../classhermes_1_1Transform.html#a2e9c94e0c8c8fde13bb1e918f5310c0e',1,'hermes::Transform']]],
-  ['use_5fcolors_683',['use_colors',['../logging_8h.html#a73551e37421cf342a5ff775fa200e95faf57ee0f0bad65b4d7519eba91f37c3ee',1,'hermes']]],
-  ['ushort_684',['ushort',['../group__common.html#gae666ff9c44d45e6b7b6b8ed4340dd9c0',1,'defs.h']]]
+  ['quaternion_0',['quaternion',['../classhermes_1_1Quaternion.html',1,'hermes::Quaternion&lt; T &gt;'],['../classhermes_1_1Quaternion.html#ac23f288dcad6701128d08c0a6e971064',1,'hermes::Quaternion::Quaternion()'],['../classhermes_1_1Quaternion.html#a294eb66819c077c3b157a5ff02e8b921',1,'hermes::Quaternion::Quaternion(T x, T y, T z, T w)'],['../classhermes_1_1Quaternion.html#a705df0aba7ae6c4a471f21d653a09ad1',1,'hermes::Quaternion::Quaternion(const hermes::Vector3&lt; T &gt; &amp;v, T r=0)']]],
+  ['quaternion_2ecpp_1',['quaternion.cpp',['../quaternion_8cpp.html',1,'']]],
+  ['quaternion_2eh_2',['quaternion.h',['../quaternion_8h.html',1,'']]],
+  ['queries_2ecpp_3',['queries.cpp',['../queries_8cpp.html',1,'']]],
+  ['queries_2eh_4',['queries.h',['../queries_8h.html',1,'']]]
 ];

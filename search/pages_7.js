@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['profiling_1483',['Profiling',['../md_docs_6_profiling.html',1,'']]]
+  ['numeric_0',['Numeric',['../md_docs_27__numeric.html',1,'']]]
 ];

@@ -1,7 +1,5 @@
 var transform_8h =
 [
-    [ "Transform2", "classhermes_1_1Transform2.html", "classhermes_1_1Transform2" ],
-    [ "Transform", "classhermes_1_1Transform.html", "classhermes_1_1Transform" ],
     [ "transform_options", "transform_8h.html#a5fc298327d7f9137c76730b2eab78d85", [
       [ "none", "transform_8h.html#a5fc298327d7f9137c76730b2eab78d85a334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
       [ "x_right", "transform_8h.html#a5fc298327d7f9137c76730b2eab78d85a106523a18638d668ec02e592f6dc4881", null ],
@@ -24,9 +22,7 @@ var transform_8h =
       [ "flip_y", "transform_8h.html#a5fc298327d7f9137c76730b2eab78d85a95e07fe5cbe5f61beebe1b6058bf545d", null ],
       [ "flip_z", "transform_8h.html#a5fc298327d7f9137c76730b2eab78d85ad2623fd69a2ee4476194251d69cc53ed", null ]
     ] ],
-    [ "HERMES_ENABLE_BITMASK_OPERATORS", "transform_8h.html#a83fc9bd6d9d06ebceab8c10e1e0b7dfd", null ],
-    [ "inverse", "transform_8h.html#a9b38e203ddcf4b9df2671ed4ef2a1f3c", null ],
     [ "inverse", "transform_8h.html#ae6237d1835effa59f91e48b5fa998ad5", null ],
-    [ "operator<<", "transform_8h.html#a42c7ee16eb03dddeaa9e9e0c30f263a0", null ],
-    [ "operator<<", "transform_8h.html#a7204e2290790380ff93cb8474580d3ea", null ]
+    [ "operator<<", "transform_8h.html#afee7a51a4bb5e0eeb2ff2d8b0ce054ab", null ],
+    [ "operator<<", "transform_8h.html#a4d1f289c6b667854bfbccf27abf5b473", null ]
 ];

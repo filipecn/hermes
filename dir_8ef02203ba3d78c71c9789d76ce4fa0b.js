@@ -11,10 +11,7 @@ var dir_8ef02203ba3d78c71c9789d76ce4fa0b =
     [ "quaternion.cpp", "quaternion_8cpp.html", null ],
     [ "quaternion.h", "quaternion_8h.html", "quaternion_8h" ],
     [ "queries.cpp", "queries_8cpp.html", null ],
-    [ "queries.h", "queries_8h.html", [
-      [ "GeometricQueries", "structhermes_1_1GeometricQueries.html", null ],
-      [ "GeometricPredicates", "structhermes_1_1GeometricPredicates.html", null ]
-    ] ],
+    [ "queries.h", "queries_8h.html", "queries_8h" ],
     [ "ray.cpp", "ray_8cpp.html", null ],
     [ "ray.h", "ray_8h.html", "ray_8h" ],
     [ "segment.h", "segment_8h_source.html", null ],

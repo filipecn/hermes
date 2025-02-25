@@ -25,5 +25,5 @@ var cuda__utils_8h =
     [ "copyDirection", "cuda__utils_8h.html#aff0971df2365cfb4a08e40e65df5e75a", null ],
     [ "hermes_print_cuda_devices", "group__common.html#ga9b85e0758b41fb312836791fabafe4b7", null ],
     [ "hermes_print_cuda_memory_usage", "group__common.html#ga05941f41fca76d0abaf481a34d777b42", null ],
-    [ "operator<<", "cuda__utils_8h.html#a3820876cc1a8245308c1c5c859dcbb2b", null ]
+    [ "operator<<", "cuda__utils_8h.html#aaf2712d960317a6b46ee32b5908f3983", null ]
 ];

@@ -13,8 +13,8 @@ var classhermes_1_1Transform2 =
     [ "operator()", "classhermes_1_1Transform2.html#a682147b363de60b2ab59ed54f7060ded", null ],
     [ "operator()", "classhermes_1_1Transform2.html#aeffdb67e5633c160828946d8f0e055d2", null ],
     [ "operator*", "classhermes_1_1Transform2.html#ae42ea12bf13b86c5eaab2306a982939c", null ],
-    [ "operator[]", "classhermes_1_1Transform2.html#ad8cfeb668946f41c1a75ce466867ee0b", null ],
-    [ "operator[]", "classhermes_1_1Transform2.html#a8fccff711b8a44ef0e589fe33482a64e", null ],
+    [ "operator[]", "classhermes_1_1Transform2.html#a504b2d8c214812a4038260cbac00eef8", null ],
+    [ "operator[]", "classhermes_1_1Transform2.html#a8e12ce5f8b7855b1099be794ccb98d68", null ],
     [ "reset", "classhermes_1_1Transform2.html#a11e723b2acfdc1d8a404dc2dd67db5c6", null ],
     [ "inverse", "classhermes_1_1Transform2.html#abea24b09c19d2ec7055ebe932878c881", null ]
 ];
