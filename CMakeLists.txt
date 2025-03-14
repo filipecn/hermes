@@ -27,7 +27,7 @@ endif(BUILD_WITH_CUDA)
 # compilation               ##
 # ##############################################################################
 # cmake modules
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake" ${CMAKE_MODULE_PATH})
 # check for specific machine/compiler options_.
 include(ConfigCompilerFlags)
 # ##############################################################################
@@ -35,7 +35,7 @@ include(ConfigCompilerFlags)
 # ##############################################################################
 # include external libraries path
 include(ExternalProject)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ext")
 if(BUILD_TESTS)
   include(catch2)
 endif(BUILD_TESTS)
@@ -137,7 +137,7 @@ include(SetupHermesTarget)
 # install config             ##
 # ##############################################################################
 install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/hermes
+  DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/hermes
   DESTINATION ${INSTALL_PATH}/include
   FILES_MATCHING
   REGEX "(.*\\.[inl|h])")
