@@ -25,23 +25,56 @@
 ///
 ///\brief Data type definitions
 ///
-///\ingroup common
-///\addtogroup common
+///\ingroup core
+///\addtogroup core
 /// @{
 
-#ifndef HERMES_COMMON_DEFS_H
-#define HERMES_COMMON_DEFS_H
+#pragma once
 
-// *********************************************************************************************************************
-//                                                                                                       CUDA SUPPORT
-// *********************************************************************************************************************
+#include <cstdint>
+#include <string>
+#include <type_traits>
+
+// *****************************************************************************
+//                                                               INTEGRAL TYPES
+// *****************************************************************************
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+using real_t = double; //!< default floating point type
+#else
+using real_t = float; //!< default floating point type
+#endif
+
+using f32 = float;  //!< 32 bit size floating point type
+using f64 = double; //!< 64 bit size floating point type
+
+using i8 = int8_t;   //!<  8 bit size integer type
+using i16 = int16_t; //!< 16 bit size integer type
+using i32 = int32_t; //!< 32 bit size integer type
+using i64 = int64_t; //!< 64 bit size integer type
+
+using u8 = uint8_t;   //!<  8 bit size unsigned integer type
+using u16 = uint16_t; //!< 16 bit size unsigned integer type
+using u32 = uint32_t; //!< 32 bit size unsigned integer type
+using u64 = uint64_t; //!< 64 bit size unsigned integer type
+
+using ulong = unsigned long;   //!< unsigned long type
+using uint = unsigned int;     //!< unsigned int type
+using ushort = unsigned short; //!< unsigned short type
+using uchar = unsigned char;   //!< unsigned char type
+
+using byte = uint8_t; //!< unsigned byte
+
+// *****************************************************************************
+//                                                                 CUDA SUPPORT
+// *****************************************************************************
 #if defined(ENABLE_CUDA)
 
 #include <cuda_runtime.h>
 
 /// \brief Specifies that the function can only be called from host side
 #define HERMES_HOST_FUNCTION __host__
-/// \brief Specifies that the function can be called from both host and device sides
+/// \brief Specifies that the function can be called from both host and device
+/// sides
 #define HERMES_DEVICE_CALLABLE __device__ __host__
 /// \brief Specifies that the function can only be called from device side
 #define HERMES_DEVICE_FUNCTION __device__
@@ -50,7 +83,7 @@
 /// \brief Defines a CUDA kernel function
 /// \param NAME kernel name
 /// \note the kernel's name receives a suffix _k
-#define HERMES_CUDA_KERNEL(NAME) __global__ void NAME ## _k
+#define HERMES_CUDA_KERNEL(NAME) __global__ void NAME##_k
 /// \brief Wraps a block of code intended to be compiled only when using CUDA
 #define HERMES_CUDA_CODE(CODE) {CODE}
 
@@ -63,54 +96,22 @@
 
 #endif
 
-#include <cstdint>
-#include <type_traits>
-#include <string>
-// *********************************************************************************************************************
-//                                                                                                         DATA TYPES
-// *********************************************************************************************************************
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-using real_t = double;                       //!< default floating point type
-#else
-using real_t = float;                        //!< default floating point type
-#endif
-
-using f32 = float;                           //!< 32 bit size floating point type
-using f64 = double;                          //!< 64 bit size floating point type
-
-using i8 = int8_t;                           //!<  8 bit size integer type
-using i16 = int16_t;                         //!< 16 bit size integer type
-using i32 = int32_t;                         //!< 32 bit size integer type
-using i64 = int64_t;                         //!< 64 bit size integer type
-
-using u8 = uint8_t;                          //!<  8 bit size unsigned integer type
-using u16 = uint16_t;                        //!< 16 bit size unsigned integer type
-using u32 = uint32_t;                        //!< 32 bit size unsigned integer type
-using u64 = uint64_t;                        //!< 64 bit size unsigned integer type
-
-using ulong = unsigned long;                 //!< unsigned long type
-using uint = unsigned int;                   //!< unsigned int type
-using ushort = unsigned short;               //!< unsigned short type
-using uchar = unsigned char;                 //!< unsigned char type
-
-using byte = uint8_t;                        //!< unsigned byte
-
 namespace hermes {
 
 /// \brief Enum class for integral types
 enum class DataType : u8 {
-  I8 = 0,         //!< i8 type identifier
-  I16 = 1,        //!< i16 type identifier
-  I32 = 2,        //!< i32 type identifier
-  I64 = 3,        //!< i64 type identifier
-  U8 = 4,         //!< u8 type identifier
-  U16 = 5,        //!< u16 type identifier
-  U32 = 6,        //!< u32 type identifier
-  U64 = 7,        //!< u64 type identifier
-  F16 = 8,        //!< f16 type identifier
-  F32 = 9,        //!< f32 type identifier
-  F64 = 10,       //!< f64 type identifier
-  CUSTOM = 11     //!< unidentified type
+  I8 = 0,     //!< i8 type identifier
+  I16 = 1,    //!< i16 type identifier
+  I32 = 2,    //!< i32 type identifier
+  I64 = 3,    //!< i64 type identifier
+  U8 = 4,     //!< u8 type identifier
+  U16 = 5,    //!< u16 type identifier
+  U32 = 6,    //!< u32 type identifier
+  U64 = 7,    //!< u64 type identifier
+  F16 = 8,    //!< f16 type identifier
+  F32 = 9,    //!< f32 type identifier
+  F64 = 10,   //!< f64 type identifier
+  CUSTOM = 11 //!< unidentified type
 };
 
 /// \brief DataType set of auxiliary functions
@@ -120,8 +121,8 @@ public:
   /// \param index
   /// \return
   HERMES_DEVICE_CALLABLE static DataType typeFrom(u8 index) {
-#define MATCH_TYPE(Type) \
-  if((u8)DataType::Type == index) \
+#define MATCH_TYPE(Type)                                                       \
+  if ((u8)DataType::Type == index)                                             \
     return DataType::Type;
     MATCH_TYPE(I8)
     MATCH_TYPE(I16)
@@ -139,10 +140,9 @@ public:
   /// \brief Translates template type T to DataType
   /// \tparam T
   /// \return
-  template<typename T>
-  HERMES_DEVICE_CALLABLE static DataType typeFrom() {
-#define MATCH_TYPE(Type, R) \
-  if(std::is_same_v<T, Type>) \
+  template <typename T> HERMES_DEVICE_CALLABLE static DataType typeFrom() {
+#define MATCH_TYPE(Type, R)                                                    \
+  if (std::is_same_v<T, Type>)                                                 \
     return DataType::R;
     MATCH_TYPE(i8, I8)
     MATCH_TYPE(i16, I16)
@@ -161,9 +161,9 @@ public:
   /// \param type
   /// \return
   static u32 typeSize(DataType type) {
-#define TYPE_SIZE(Size, Type) \
-        if(DataType::Type == type) \
-        return Size;
+#define TYPE_SIZE(Size, Type)                                                  \
+  if (DataType::Type == type)                                                  \
+    return Size;
     TYPE_SIZE(sizeof(i8), I8)
     TYPE_SIZE(sizeof(i16), I16)
     TYPE_SIZE(sizeof(i32), I32)
@@ -181,8 +181,8 @@ public:
   /// \param type
   /// \return
   static std::string typeName(DataType type) {
-#define DATA_TYPE_NAME(Type) \
-      if(DataType::Type == type) \
+#define DATA_TYPE_NAME(Type)                                                   \
+  if (DataType::Type == type)                                                  \
     return #Type;
     DATA_TYPE_NAME(I8)
     DATA_TYPE_NAME(I16)
@@ -202,17 +202,17 @@ public:
 };
 /// \brief Specifies where memory is stored
 enum class MemoryLocation {
-  DEVICE,     //!< GPU side
-  HOST,       //!< CPU side
-  UNIFIED     //!< unified memory
+  DEVICE, //!< GPU side
+  HOST,   //!< CPU side
+  UNIFIED //!< unified memory
 };
 /// \brief Gets MemoryLocation value string name
 /// \param location
 /// \return
 inline std::string memoryLocationName(MemoryLocation location) {
-#define ENUM_NAME(E)                  \
-    if(MemoryLocation::E == location) \
-      return #E;
+#define ENUM_NAME(E)                                                           \
+  if (MemoryLocation::E == location)                                           \
+    return #E;
   ENUM_NAME(DEVICE)
   ENUM_NAME(HOST)
   ENUM_NAME(UNIFIED)
@@ -220,9 +220,9 @@ inline std::string memoryLocationName(MemoryLocation location) {
 #undef ENUM_NAME
 }
 
-// *********************************************************************************************************************
-//                                                                                                                 IO
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                           IO
+// *****************************************************************************
 /// \brief MemoryLocation support for `std::ostream` << operator
 /// \param o
 /// \param location
@@ -233,7 +233,5 @@ inline std::ostream &operator<<(std::ostream &o, MemoryLocation location) {
 }
 
 } // namespace hermes
-
-#endif
 
 /// @}

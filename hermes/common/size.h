@@ -29,31 +29,29 @@
 ///\addtogroup common
 /// @{
 
-#ifndef HERMES_COMMON_SIZE_H
-#define HERMES_COMMON_SIZE_H
+#pragma once
 
-#include <hermes/common/defs.h>
-#include <type_traits>
+#include <hermes/core/types.h>
 #include <iostream>
+#include <type_traits>
 
 namespace hermes {
 
-// *********************************************************************************************************************
-//                                                                                                              Size2
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                        Size2
+// *****************************************************************************
 /// \brief Holds 2-dimensional size
 /// \pre T must be an unsigned integer type
 ///\tparam T
-template<typename T> class Size2 {
-  static_assert(std::is_same<T, u8>::value
-                    || std::is_same<T, u16>::value ||
+template <typename T> class Size2 {
+  static_assert(std::is_same<T, u8>::value || std::is_same<T, u16>::value ||
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size2 must hold an unsigned integer type!");
 
 public:
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                               CONSTRUCTORS
+  // ***************************************************************************
   /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Size2() : width{0}, height{0} {};
   /// \brief Single value constructor
@@ -64,10 +62,10 @@ public:
   /// \param height
   HERMES_DEVICE_CALLABLE Size2(T width, T height)
       : width(width), height(height) {}
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  //                                                                                                           access
+  // ***************************************************************************
+  //                                                                  OPERATORS
+  // ***************************************************************************
+  //                                                                     access
   /// \brief Dimension size const access
   /// \pre i must be inside interval [0,1]
   /// \warning This method does not check input value
@@ -80,7 +78,7 @@ public:
   /// \param i
   /// \return
   HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&width)[i]; }
-  //                                                                                                       arithmetic
+  //                                                                 arithmetic
   /// \brief Addition
   /// \param b
   /// \return
@@ -99,7 +97,7 @@ public:
   HERMES_DEVICE_CALLABLE Size2<T> operator*(T s) const {
     return Size2<T>(width * s, height * s);
   }
-  //                                                                                                          boolean
+  //                                                                    boolean
   /// \brief Comparison
   /// \param b
   /// \return
@@ -112,9 +110,9 @@ public:
   HERMES_DEVICE_CALLABLE bool operator!=(const Size2<T> &b) const {
     return width != b.width || height != b.height;
   }
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                                    METHODS
+  // ***************************************************************************
   /// \brief Computes total size area
   /// \return width * height
   HERMES_DEVICE_CALLABLE T total() const { return width * height; }
@@ -124,46 +122,46 @@ public:
   /// \return
   [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(int i, int j) const {
     return i >= 0 && j >= 0 && i < static_cast<i64>(width) &&
-        j < static_cast<i64>(height);
+           j < static_cast<i64>(height);
   }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                              PUBLIC FIELDS
+  // ***************************************************************************
   T width{0};  //!< 0-th dimension size
   T height{0}; //!< 1-th dimension size
 };
 
-// *********************************************************************************************************************
-//                                                                                                              Size3
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                        Size3
+// *****************************************************************************
 /// \brief Holds 2-dimensional size
 /// \pre T must be an unsigned integer type
 /// \tparam T
-template<typename T> class Size3 {
-  static_assert(std::is_same<T, u8>::value
-                    || std::is_same<T, u16>::value ||
+template <typename T> class Size3 {
+  static_assert(std::is_same<T, u8>::value || std::is_same<T, u16>::value ||
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size3 must hold an unsigned integer type!");
 
 public:
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                               CONSTRUCTORS
+  // ***************************************************************************
   /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Size3() : width{0}, height{0}, depth{0} {};
   /// \brief Single value constructor
   /// \param size
-  HERMES_DEVICE_CALLABLE explicit Size3(T size) : width(size), height(size), depth(size) {}
+  HERMES_DEVICE_CALLABLE explicit Size3(T size)
+      : width(size), height(size), depth(size) {}
   /// \brief Constructor
   /// \param _width
   /// \param _height
   /// \param _depth
   HERMES_DEVICE_CALLABLE Size3(T _width, T _height, T _depth)
       : width(_width), height(_height), depth(_depth) {}
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  //                                                                                                           access
+  // ***************************************************************************
+  //                                                                  OPERATORS
+  // ***************************************************************************
+  //                                                                     access
   /// \brief Dimension size const access
   /// \pre i must be inside interval [0,2]
   /// \warning This method does not check input value
@@ -176,7 +174,7 @@ public:
   /// \param i
   /// \return
   HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&width)[i]; }
-  //                                                                                                       arithmetic
+  //                                                                 arithmetic
   /// \brief Addition
   /// \param b
   /// \return
@@ -190,7 +188,7 @@ public:
   HERMES_DEVICE_CALLABLE Size3<T> operator-(const Size3<T> &b) const {
     return {width - b.width, height - b.height, depth - b.depth};
   }
-  //                                                                                                          boolean
+  //                                                                    boolean
   /// \brief Dimension-wise comparison
   /// \param b
   /// \return
@@ -203,9 +201,9 @@ public:
   HERMES_DEVICE_CALLABLE bool operator!=(const Size3<T> &b) const {
     return width != b.width || height != b.height || depth != b.depth;
   }
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                                    METHODS
+  // ***************************************************************************
   /// \brief Computes total size area
   /// \return width * height * depth
   HERMES_DEVICE_CALLABLE T total() const { return width * height * depth; }
@@ -218,23 +216,23 @@ public:
   HERMES_DEVICE_CALLABLE Size2<T> slice(int d1 = 0, int d2 = 1) const {
     return Size2<T>((&width)[d1], (&width)[d2]);
   }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                              PUBLIC FIELDS
+  // ***************************************************************************
   T width{0};  //!< 0-th dimension size
   T height{0}; //!< 1-th dimension size
   T depth{0};  //!< 2-th dimension size
 };
 
-// *********************************************************************************************************************
-//                                                                                                                 IO
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                           IO
+// *****************************************************************************
 ///
 /// \tparam T
 /// \param o
 /// \param s
 /// \return
-template<typename T>
+template <typename T>
 std::ostream &operator<<(std::ostream &o, const Size2<T> &s) {
   o << "Size[" << s.width << ", " << s.height << "]";
   return o;
@@ -244,15 +242,15 @@ std::ostream &operator<<(std::ostream &o, const Size2<T> &s) {
 /// \param o
 /// \param s
 /// \return
-template<typename T>
+template <typename T>
 std::ostream &operator<<(std::ostream &o, const Size3<T> &s) {
   o << "Size[" << s.width << ", " << s.height << ", " << s.depth << "]";
   return o;
 }
 
-// *********************************************************************************************************************
-//                                                                                                           TYPEDEFS
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                    TYPE DEFS
+// *****************************************************************************
 using size2 = Size2<u32>;    //!< u32
 using size2_8 = Size2<u8>;   //!< u8
 using size2_16 = Size2<u16>; //!< u16
@@ -265,7 +263,5 @@ using size3_32 = Size3<u32>; //!< u32
 using size3_64 = Size3<u64>; //!< u64
 
 } // namespace hermes
-
-#endif
 
 /// @}

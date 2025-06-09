@@ -1,3 +1,5 @@
 .gradle
 .idea
 cmake-*
+build
+.cache
