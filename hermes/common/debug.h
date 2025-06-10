@@ -83,42 +83,31 @@
 /// \brief Warns if values are different
 /// \param A first value
 /// \param B second value
-#define HERMES_CHECK_EQUAL(A, B)                                               \
+#define HERMES_CHECK_EQUAL(A, B, ...)                                          \
   if (A == B) {                                                                \
   } else {                                                                     \
     hermes::Log::message(                                                      \
         hermes::logging_options::none, hermes::Log::Level::warn,               \
-        "[CHECK_EQUAL FAIL {} == {}] {} != {}",                                \
+        "[CHECK_EQUAL FAIL {} == {}] {}",                                      \
         hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#A), (#B),   \
-        A, B);                                                                 \
+        A, B, Str::format(__VA_ARGS__));                                       \
   }
 
 /// \brief Warns if expression is false
 /// \param expr expression
-#define HERMES_CHECK_EXP(expr)                                                 \
+#define HERMES_CHECK(expr, ...)                                                \
   if (expr) {                                                                  \
   } else {                                                                     \
     hermes::Log::message(                                                      \
         hermes::logging_options::none, hermes::Log::Level::warn,               \
-        "[CHECK_EXP FAIL {}]",                                                 \
-        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr));     \
+        "[CHECK_EXP FAIL {}] {}",                                              \
+        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr),      \
+        Str::format(__VA_ARGS__));                                             \
   }
 
-/// \brief Warns if expression is false with message
-/// \param expr expression
-/// \param M custom warn message
-#define HERMES_CHECK_EXP_WITH_LOG(expr, M)                                     \
-  if (expr) {                                                                  \
-  } else {                                                                     \
-    hermes::Log::message(                                                      \
-        hermes::logging_options::none, hermes::Log::Level::warn,               \
-        "[CHECK_EXP FAIL {}]: {}",                                             \
-        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr), M);  \
-  }
 #else
 
-#define HERMES_CHECK_EXP(expr)
-#define HERMES_CHECK_EXP_WITH_LOG(expr, M)
+#define HERMES_CHECK_EXP(expr, ...)
 
 #endif // CHECKS_ENABLED
 // *****************************************************************************
@@ -126,30 +115,19 @@
 // *****************************************************************************
 #ifdef ASSERTIONS_ENABLED
 
-// #define debugBreak() asm ("int 3")
+// #define debugBreak() asm("int 3")
 #define debugBreak() exit(-1)
 
 /// \brief Errors if expression is false
 /// \param expr expression
-#define HERMES_ASSERT(expr)                                                    \
+#define HERMES_ASSERT(expr, ...)                                               \
   if (expr) {                                                                  \
   } else {                                                                     \
     hermes::Log::message(                                                      \
         hermes::logging_options::none, hermes::Log::Level::error,              \
-        "[ASSERT FAIL {}]",                                                    \
-        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, #expr);       \
-    debugBreak();                                                              \
-  }
-/// \brief Errors if expression is false with message
-/// \param expr expression
-/// \param M custom error message
-#define HERMES_ASSERT_WITH_LOG(expr, M)                                        \
-  if (expr) {                                                                  \
-  } else {                                                                     \
-    hermes::Log::message(                                                      \
-        hermes::logging_options::none, hermes::Log::Level::error,              \
-        "[ASSERT FAIL {}]: {}",                                                \
-        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, #expr, M);    \
+        "[ASSERT FAIL {}] {}",                                                 \
+        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, #expr,        \
+        Str::format(__VA_ARGS__));                                             \
     debugBreak();                                                              \
   }
 #else

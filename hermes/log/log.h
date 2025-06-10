@@ -102,7 +102,7 @@ public:
     if (use_colors)
       s += ConsoleColors::color(
           message_colors_[static_cast<std::size_t>(level)]);
-    s += Str::format(fmt, std::forward<Ts>(args)...);
+    s += std::vformat(fmt, std::make_format_args(args...));
     if (use_colors)
       s += ConsoleColors::reset;
     if (log_callback)
@@ -194,7 +194,7 @@ private:
 #endif
 /// \brief Logs into warning log stream
 /// \code{cpp}
-///     HERMES_LOG_INFO("my log with {} as value", 3) // produces "my log
+///     HERMES_INFO("my log with {} as value", 3) // produces "my log
 ///     with 3 as value" HERMES_INFO("simple log")
 /// \endcode
 /// \param FMT a const char* following hermes format (use "{}" to place each

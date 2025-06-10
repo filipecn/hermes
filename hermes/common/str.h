@@ -34,6 +34,7 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <format>
 #include <functional>
 #include <hermes/core/types.h>
 #include <iomanip>
@@ -41,6 +42,7 @@
 #include <regex>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace hermes {
@@ -174,12 +176,13 @@ public:
   /// \param fmt
   /// \param args
   /// \return
+  static inline std::string format() { return {}; }
   template <typename... Ts>
   static std::string format(const std::string &fmt, Ts &&...args) {
     std::stringstream s;
     std::string r;
     if constexpr (sizeof...(args) > 0) {
-      format_r_(s, fmt, 0, std::forward<Ts>(args)...);
+      s << std::vformat(fmt, std::make_format_args(args...));
       r = s.str();
     } else
       r = fmt;
@@ -495,39 +498,6 @@ public:
   }
 
 private:
-  // ***************************************************************************
-  //                                                          PRIVATE METHODS
-  // ***************************************************************************
-  template <typename T>
-  static void format_r_(std::stringstream &s, const std::string &fmt, u32 i,
-                        const T &first) {
-    auto first_i = i;
-    while (i + 1 < fmt.size() && !(fmt[i] == '{' && fmt[i + 1] == '}'))
-      ++i;
-    if (i + 1 < fmt.size()) {
-      s << fmt.substr(first_i, i - first_i);
-      s << first;
-      s << fmt.substr(i + 2, fmt.size() - i - 2);
-    } else
-      s << fmt.substr(first_i, fmt.size() - first_i);
-  }
-  template <typename T, typename... Ts>
-  static void format_r_(std::stringstream &s, const std::string &fmt, u32 i,
-                        const T &first, Ts &&...rest) {
-    // iterate until first occurrence of pair {}
-    auto first_i = i;
-    while (i + 1 < fmt.size() && !(fmt[i] == '{' && fmt[i + 1] == '}'))
-      ++i;
-    if (i + 1 < fmt.size()) {
-      s << fmt.substr(first_i, i - first_i);
-      s << first;
-      if constexpr (sizeof...(rest) > 0)
-        format_r_(s, fmt, i + 2, std::forward<Ts>(rest)...);
-      else
-        s << fmt.substr(i + 2, fmt.size() - i - 2);
-    } else
-      s << fmt.substr(first_i, fmt.size() - first_i);
-  }
   // ***************************************************************************
   //                                                           PRIVATE FIELDS
   // ***************************************************************************

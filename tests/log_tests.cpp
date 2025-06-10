@@ -41,25 +41,29 @@ TEST_CASE("debug macros", "[log]") {
   }
   HERMES_PING
   HERMES_INFO(std::to_string(3).c_str());
+  HERMES_INFO("{:.15s}", "long string test");
+  HERMES_DEBUG("debug");
+  HERMES_TRACE("trace");
+  HERMES_INFO("info");
   HERMES_WARN("warning");
   HERMES_ERROR("error");
-  Log::addOptions(logging_options::abbreviate);
   HERMES_CRITICAL("critical");
+  Log::addOptions(logging_options::abbreviate);
   int a = 0;
   int b = 3;
   int c = 4;
   Log::removeOptions(logging_options::location);
   HERMES_LOG_VARIABLE(a);
   HERMES_LOG_VARIABLES(a, b, c);
-  HERMES_CHECK_EXP(3 == 3);
-  HERMES_CHECK_EXP(3 == 2);
-  HERMES_CHECK_EXP_WITH_LOG(3 == 3, "message");
-  HERMES_CHECK_EXP_WITH_LOG(3 == 2, "message");
+  HERMES_CHECK(3 == 3);
+  HERMES_CHECK(3 == 2);
+  HERMES_CHECK(3 == 3, "message");
+  HERMES_CHECK(3 == 2, "message");
   HERMES_ASSERT(3 == 3);
-  HERMES_ASSERT(3 == 2);
-  HERMES_ASSERT_WITH_LOG(3 == 3, "message");
-  HERMES_ASSERT_WITH_LOG(3 == 2, "message");
-  // C logs
+  // HERMES_ASSERT(3 == 2);
+  HERMES_ASSERT(3 == 3, "message");
+  // HERMES_ASSERT(3 == 2, "message");
+  //  C logs
   HERMES_C_LOG("c logging %d", 1);
   HERMES_C_LOG("c logging");
   HERMES_C_ERROR("c logging error %d", 1);

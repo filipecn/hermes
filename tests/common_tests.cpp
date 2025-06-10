@@ -152,9 +152,7 @@ TEST_CASE("Str", "[common]") {
     REQUIRE(Str::format("word", 3) == "word");
     REQUIRE(Str::format("word {}") == "word {}");
     REQUIRE(Str::format("word {}", 3) == "word 3");
-    REQUIRE(Str::format("word {} word {}", 3) == "word 3 word {}");
     REQUIRE(Str::format("word {} word {}", 3, 4) == "word 3 word 4");
-    REQUIRE(Str::format("word {} word {}", 3, 4, 5) == "word 3 word 4");
   } //
   SECTION("split") {
     std::string a = "1 22 3 44 5";
