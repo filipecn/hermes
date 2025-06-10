@@ -1,5 +1,7 @@
 add_executable(hermes_tests 
   common_tests.cpp
+  log_tests.cpp
+  system_tests.cpp
 )
 
 target_link_options(hermes_tests INTERFACE --coverage)

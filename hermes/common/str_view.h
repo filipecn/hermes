@@ -25,54 +25,47 @@
 ///
 ///\brief
 
-#ifndef HERMES_COMMON_STR_VIEW_H
-#define HERMES_COMMON_STR_VIEW_H
+#pragma once
 
 #include <hermes/common/result.h>
 
 namespace hermes {
 
-// *********************************************************************************************************************
-//                                                                                                       ConstStrView
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                               ConstStrView
+// *****************************************************************************
 class ConstStrView {
 public:
-  // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                           STATIC METHODS
+  // ***************************************************************************
   /// \brief Constructs a sub-string view from a std::string object.
   /// \param str input string.
   /// \param pos position of the first character of the sub-string in str.
-  /// \param len number of characters of the sub-string. If len = -1, then the size is str.size() - pos.
+  /// \param len number of characters of the sub-string. If len = -1, then the
+  /// size is str.size() - pos.
   /// \return The ConstStrView object representing the sub-string of str.
-  static Result<ConstStrView> from(const std::string &str, size_t pos = 0, i64 len = -1);
+  static Result<ConstStrView> from(const std::string &str, size_t pos = 0,
+                                   i64 len = -1);
   /// \brief Constructs a sub-string view reference from a raw string data.
   /// \note This function does not check for the real ending of str.
   /// \param str input raw string pointer.
-  /// \param len number of characters in the sub-string (assumed to be within str bounds).
-  /// \param pos position of the first character of the sub-string in str (assumed to be within str bounds).
+  /// \param len number of characters in the sub-string (assumed to be within
+  /// str bounds).
+  /// \param pos position of the first character of the sub-string in str
+  /// (assumed to be within str bounds).
   /// \return The ConstStrView object representing the sub-string of str.
   static Result<ConstStrView> from(const char *str, size_t len, size_t pos = 0);
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
-  //                                                                                                       assignment
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  //                                                                                                       assignment
-  //                                                                                                       arithmetic
-  //                                                                                                          boolean
+  // ***************************************************************************
+  //                                                                OPERATORS
+  // ***************************************************************************
   /// \brief Checks if this sub-string with the string s are equal.
   /// \param s
   /// \return true if both string are equal.
   bool operator==(const std::string &s) const;
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                                   METHODS
+  // ***************************************************************************
   /// \brief Gets the size of the view.
   /// \return the number of characters in the sub-string.
   [[nodiscard]] size_t size() const;
@@ -86,8 +79,10 @@ private:
   /// Parameter constructor
   /// \note This function does not check for the real ending of str.
   /// \param str raw string data
-  /// \param start position of the first character of the sub-string in str (assumed to be within the str bounds).
-  /// \param end one position after the last character of the sub-string  (assumed to respect the str bounds).
+  /// \param start position of the first character of the sub-string in str
+  /// (assumed to be within the str bounds).
+  /// \param end one position after the last character of the sub-string
+  /// (assumed to respect the str bounds).
   ConstStrView(const char *str, size_t start, size_t end);
 
   const char *str_{nullptr};
@@ -96,6 +91,6 @@ private:
   size_t size_{0};
 };
 
-}
+} // namespace hermes
 
-#endif //HERMES_COMMON_STR_VIEW_H
+#endif // HERMES_COMMON_STR_VIEW_H

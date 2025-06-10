@@ -29,9 +29,9 @@
 ///\addtogroup common
 /// @{
 
-#ifndef HERMES_COMMON_BITMASK_OPERATORS_H
-#define HERMES_COMMON_BITMASK_OPERATORS_H
+#pragma once
 
+#include <hermes/core/types.h>
 #include <type_traits>
 
 namespace hermes {
@@ -55,12 +55,10 @@ namespace hermes {
 /// \endcode
 /// \pre The enum class underlying type must support such operations
 /// \param x enum class name
-#define HERMES_ENABLE_BITMASK_OPERATORS(x) \
-template<>                           \
-struct EnableBitMaskOperators<x>     \
-{                                    \
-    static const bool enable = true; \
-}
+#define HERMES_ENABLE_BITMASK_OPERATORS(x)                                     \
+  template <> struct EnableBitMaskOperators<x> {                               \
+    static const bool enable = true;                                           \
+  }
 
 /// \brief Tests if enum class value is enabled
 ///
@@ -85,8 +83,7 @@ struct EnableBitMaskOperators<x>     \
 
 /// \brief Wrapper struct to add bitwise operations to enum class
 /// \tparam Enum
-template<typename Enum>
-struct EnableBitMaskOperators {
+template <typename Enum> struct EnableBitMaskOperators {
   static const bool enable = false; //!< enable flag
 };
 
@@ -95,16 +92,14 @@ struct EnableBitMaskOperators {
 /// \param lhs
 /// \param rhs
 /// \return
-template<typename Enum>
+template <typename Enum>
 HERMES_DEVICE_CALLABLE
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
-operator|(Enum lhs, Enum rhs) noexcept {
+    typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
+    operator|(Enum lhs, Enum rhs) noexcept {
   /// underlying enum data type
   using underlying = typename std::underlying_type<Enum>::type;
-  return static_cast<Enum> (
-      static_cast<underlying>(lhs) |
-          static_cast<underlying>(rhs)
-  );
+  return static_cast<Enum>(static_cast<underlying>(lhs) |
+                           static_cast<underlying>(rhs));
 }
 
 /// adds & operation support
@@ -112,16 +107,14 @@ operator|(Enum lhs, Enum rhs) noexcept {
 /// \param lhs
 /// \param rhs
 /// \return
-template<typename Enum>
+template <typename Enum>
 HERMES_DEVICE_CALLABLE
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
-operator&(Enum lhs, Enum rhs) {
+    typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
+    operator&(Enum lhs, Enum rhs) {
   /// underlying enum data type
   using underlying = typename std::underlying_type<Enum>::type;
-  return static_cast<Enum> (
-      static_cast<underlying>(lhs) &
-          static_cast<underlying>(rhs)
-  );
+  return static_cast<Enum>(static_cast<underlying>(lhs) &
+                           static_cast<underlying>(rhs));
 }
 
 /// \brief adds ^ operation support
@@ -129,34 +122,28 @@ operator&(Enum lhs, Enum rhs) {
 /// \param lhs
 /// \param rhs
 /// \return
-template<typename Enum>
+template <typename Enum>
 HERMES_DEVICE_CALLABLE
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
-operator^(Enum lhs, Enum rhs) {
+    typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
+    operator^(Enum lhs, Enum rhs) {
   using underlying = typename std::underlying_type<Enum>::type;
-  return static_cast<Enum> (
-      static_cast<underlying>(lhs) ^
-          static_cast<underlying>(rhs)
-  );
+  return static_cast<Enum>(static_cast<underlying>(lhs) ^
+                           static_cast<underlying>(rhs));
 }
 
 /// \brief adds ~ operation support
 /// \tparam Enum
 /// \param rhs
 /// \return
-template<typename Enum>
+template <typename Enum>
 HERMES_DEVICE_CALLABLE
-typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
-operator~(Enum rhs) {
+    typename std::enable_if<EnableBitMaskOperators<Enum>::enable, Enum>::type
+    operator~(Enum rhs) {
   /// underlying enum data type
   using underlying = typename std::underlying_type<Enum>::type;
-  return static_cast<Enum> (
-      ~static_cast<underlying>(rhs)
-  );
+  return static_cast<Enum>(~static_cast<underlying>(rhs));
 }
 
-}
-
-#endif //HERMES_COMMON_BITMASK_OPERATORS_H
+} // namespace hermes
 
 /// @}

@@ -25,81 +25,78 @@
 ///
 ///\brief
 
-#ifndef HERMES_HERMES_COMMON_RESULT_H
-#define HERMES_HERMES_COMMON_RESULT_H
+#pragma once
 
-#include <hermes/common/defs.h>
+#include <hermes/core/types.h>
 
 /// \brief Enum returned by functions
 enum class HeResult {
-  SUCCESS = 0,           //!< no errors occurred
-  ERROR = 1,             //!< unknown error
-  BAD_ALLOCATION = 2,    //!< memory related errors
-  OUT_OF_BOUNDS = 3,     //!< invalid index access attempt
-  INVALID_INPUT = 4,     //!< function received invalid parameters
-  BAD_OPERATION = 5,     //!< function pre-conditions were not fulfilled
-  NOT_IMPLEMENTED = 6,   //!< function not implemented
+  SUCCESS = 0,         //!< no errors occurred
+  ERROR = 1,           //!< unknown error
+  BAD_ALLOCATION = 2,  //!< memory related errors
+  OUT_OF_BOUNDS = 3,   //!< invalid index access attempt
+  INVALID_INPUT = 4,   //!< function received invalid parameters
+  BAD_OPERATION = 5,   //!< function pre-conditions were not fulfilled
+  NOT_IMPLEMENTED = 6, //!< function not implemented
 };
 
 namespace hermes {
 
-template<class T>
-struct UnexpectedResultType {
+template <class T> struct UnexpectedResultType {
   T value{};
 };
 
-// *********************************************************************************************************************
-//                                                                                                              Result
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                      Result
+// *****************************************************************************
 /// \brief Holds a valid object or an error
-template<class T, class E = HeResult>
-class Result {
+template <class T, class E = HeResult> class Result {
 public:
-  // *******************************************************************************************************************
-  //                                                                                                 STATIC FUNCTIONS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                         STATIC FUNCTIONS
+  // ***************************************************************************
   ///
   /// \param e
   /// \return
   HERMES_DEVICE_CALLABLE static Result<T, E> error(E e) {
     return Result<T, E>(UnexpectedResultType<E>{e});
   }
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                             CONSTRUCTORS
+  // ***************************************************************************
   ///
   /// \param err
-  HERMES_DEVICE_CALLABLE explicit Result(const UnexpectedResultType<E> &err = {}) : ok_(false) {
-    new(reinterpret_cast<E *>(&err_)) E(err.value);
+  HERMES_DEVICE_CALLABLE explicit Result(
+      const UnexpectedResultType<E> &err = {})
+      : ok_(false) {
+    new (reinterpret_cast<E *>(&err_)) E(err.value);
   }
   /// \brief Value constructor
   /// \param v
   HERMES_DEVICE_CALLABLE explicit Result(const T &v) : ok_(true) {
-    new(reinterpret_cast<T *>(&value_)) T(v);
+    new (reinterpret_cast<T *>(&value_)) T(v);
   }
   /// \brief Move value constructor
   /// \param v
   HERMES_DEVICE_CALLABLE explicit Result(T &&v) : ok_(true) {
-    new(reinterpret_cast<T *>(&value_)) T(std::move(v));
+    new (reinterpret_cast<T *>(&value_)) T(std::move(v));
   }
-  //                                                                                                       assignment
+  //                                                                  assignment
   /// \brief Copy constructor
   /// \param other
-  HERMES_DEVICE_CALLABLE Result(const Result &other) {
-    *this = other;
-  }
+  HERMES_DEVICE_CALLABLE Result(const Result &other) { *this = other; }
   /// \brief Move constructor
   /// \param other
   HERMES_DEVICE_CALLABLE Result(Result &&other) noexcept {
     *this = std::move(other);
   }
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                                OPERATORS
+  // ***************************************************************************
   /// \brief Casts to bool (indicates whether this contains value)
   /// \return
   HERMES_DEVICE_CALLABLE explicit operator bool() const noexcept { return ok_; }
-  //                                                                                                       assignment
+  //                                                                  assignment
   /// \brief Copy assignment
   /// \param other
   /// \return
@@ -107,9 +104,9 @@ public:
     reset();
     ok_ = other.ok_;
     if (other.ok_)
-      new(reinterpret_cast<T *>(&value_)) T(other.value());
+      new (reinterpret_cast<T *>(&value_)) T(other.value());
     else
-      new(reinterpret_cast<E *>(&err_)) E(other.status());
+      new (reinterpret_cast<E *>(&err_)) E(other.status());
     return *this;
   }
   /// \brief Move assignment
@@ -119,9 +116,9 @@ public:
     reset();
     ok_ = other.ok_;
     if (other.ok_)
-      new(reinterpret_cast<T *>(&value_)) T(std::move(other.value()));
+      new (reinterpret_cast<T *>(&value_)) T(std::move(other.value()));
     else
-      new(reinterpret_cast<E *>(&err_)) E(std::move(other.status()));
+      new (reinterpret_cast<E *>(&err_)) E(std::move(other.status()));
     return *this;
   }
   /// \brief Value assignment
@@ -130,7 +127,7 @@ public:
   HERMES_DEVICE_CALLABLE Result &operator=(const T &v) {
     reset();
     ok_ = true;
-    new(reinterpret_cast<T *>(&value_)) T(v);
+    new (reinterpret_cast<T *>(&value_)) T(v);
     return *this;
   }
   /// \brief Move value assignment
@@ -139,10 +136,10 @@ public:
   HERMES_DEVICE_CALLABLE Result &operator=(T &&v) {
     reset();
     ok_ = true;
-    new(reinterpret_cast<T *>(&value_)) T(std::move(v));
+    new (reinterpret_cast<T *>(&value_)) T(std::move(v));
     return *this;
   }
-  //                                                                                                           access
+  //                                                                      access
   /// \brief Gets value pointer
   /// \return
   HERMES_DEVICE_CALLABLE T *operator->() { return &value(); }
@@ -155,9 +152,9 @@ public:
   /// \brief Gets value const reference
   /// \return
   HERMES_DEVICE_CALLABLE const T &operator*() const { return value(); }
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                                  METHODS
+  // ***************************************************************************
   [[nodiscard]] HERMES_DEVICE_CALLABLE bool good() const { return ok_; }
   [[nodiscard]] HERMES_DEVICE_CALLABLE E status() const { return err_; }
   /// \brief Destroys stored value (if present)
@@ -167,24 +164,24 @@ public:
       ok_ = false;
     }
   }
-  //                                                                                                           access
+  //                                                                      access
   /// \brief Gets value copy (if present)
   /// \param v value returned in case of empty
   /// \return
-  HERMES_DEVICE_CALLABLE T valueOr(const T &v) const { return good() ? value() : v; }
+  HERMES_DEVICE_CALLABLE T valueOr(const T &v) const {
+    return good() ? value() : v;
+  }
   /// \brief Gets value's reference
   /// \return
-  HERMES_DEVICE_CALLABLE T &value() {
-    return *reinterpret_cast<T *>(&value_);
-  }
+  HERMES_DEVICE_CALLABLE T &value() { return *reinterpret_cast<T *>(&value_); }
   /// \brief Gets value's const reference
   /// \return
   HERMES_DEVICE_CALLABLE const T &value() const {
     return *reinterpret_cast<const T *>(&value_);
   }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
+  // ***************************************************************************
+  //                                                            PUBLIC FIELDS
+  // ***************************************************************************
 private:
   union {
     E err_{};
@@ -193,6 +190,4 @@ private:
   bool ok_{false};
 };
 
-}
-
-#endif //HERMES_HERMES_COMMON_RESULT_H
+} // namespace hermes

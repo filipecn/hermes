@@ -25,7 +25,7 @@
 ///
 ///\brief
 
-#include <hermes/logging/console_colors.h>
+#include <hermes/log/console_colors.h>
 
 namespace hermes {
 
@@ -80,4 +80,4 @@ char ConsoleColors::background_light_magenta[7] = "\e[105m";
 char ConsoleColors::background_light_cyan[7] = "\e[106m";
 char ConsoleColors::background_white[7] = "\e[107m";
 
-}
+} // namespace hermes

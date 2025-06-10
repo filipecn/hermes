@@ -1,9 +1,20 @@
 set(HERMES_HEADERS
   core/types.h
+  common/bitmask_operators.h
   common/size.h
+  common/str.h
+  log/console_colors.h
+  log/log.h
+  system/file_system.h
+  system/time.h
 )
 
 set(HERMES_SOURCES
+  common/str.cpp
+  log/console_colors.cpp
+  log/log.cpp
+  system/file_system.cpp
+  system/time.cpp
 )
   
 add_library(hermes STATIC ${HERMES_HEADERS} ${HERMES_SOURCES})

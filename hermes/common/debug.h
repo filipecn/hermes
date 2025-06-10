@@ -29,14 +29,12 @@
 ///\addtogroup common
 /// @{
 
-#ifndef HERMES_LOG_DEBUG_H
-#define HERMES_LOG_DEBUG_H
+#pragma once
 
-#include <hermes/common/defs.h>
-#include <hermes/logging/logging.h>
+#include <hermes/core/types.h>
+#include <hermes/log/log.h>
+
 #include <cmath>
-#include <iostream>
-#include <sstream>
 
 #ifndef HERMES_DEBUG
 #define HERMES_DEBUG
@@ -50,12 +48,12 @@
 #define ASSERTIONS_ENABLED
 #endif
 
-// *********************************************************************************************************************
-//                                                                                                              UTILS
-// *********************************************************************************************************************
-// *********************************************************************************************************************
-//                                                                                               COMPILATION WARNINGS
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                      UTILS
+// *****************************************************************************
+// *****************************************************************************
+//                                                       COMPILATION WARNINGS
+// *****************************************************************************
 #ifndef HERMES_UNUSED_VARIABLE
 /// \brief Specifies that variable is not used in this scope
 /// \param x variable
@@ -64,47 +62,58 @@
 
 #ifndef HERMES_NOT_IMPLEMENTED
 /// \brief Logs "calling code not implemented" warning
-#define HERMES_NOT_IMPLEMENTED \
-  printf("[%s][%d][%s] calling not implemented function.", __FILE__, __LINE__, __FUNCTION__);
+#define HERMES_NOT_IMPLEMENTED                                                 \
+  printf("[%s][%d][%s] calling not implemented function.", __FILE__, __LINE__, \
+         __FUNCTION__);
 #endif
-// *********************************************************************************************************************
-//                                                                                                         DEBUG MODE
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                 DEBUG MODE
+// *****************************************************************************
 #ifdef HERMES_DEBUG
 #define HERMES_DEBUG_CODE(CODE_CONTENT) {CODE_CONTENT}
 #else
 #define HERMES_DEBUG_CODE(CODE_CONTENT)
 #endif
 
-// *********************************************************************************************************************
-//                                                                                                             CHECKS
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                     CHECKS
+// *****************************************************************************
 #ifdef CHECKS_ENABLED
 
 /// \brief Warns if values are different
 /// \param A first value
 /// \param B second value
-#define HERMES_CHECK_EQUAL(A, B)                                                                                    \
- if(A == B) {}                                                                                                      \
- else {                                                                                                             \
-    hermes::Log::warn("[{}][{}][CHECK_EQUAL FAIL {} == {}] {} != {}", __FILE__, __LINE__, (#A), (#B), A, B);        \
- }
+#define HERMES_CHECK_EQUAL(A, B)                                               \
+  if (A == B) {                                                                \
+  } else {                                                                     \
+    hermes::Log::message(                                                      \
+        hermes::logging_options::none, hermes::Log::Level::warn,               \
+        "[CHECK_EQUAL FAIL {} == {}] {} != {}",                                \
+        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#A), (#B),   \
+        A, B);                                                                 \
+  }
 
 /// \brief Warns if expression is false
 /// \param expr expression
-#define HERMES_CHECK_EXP(expr)                                                                                      \
-  if(expr) {}                                                                                                       \
-  else {                                                                                                            \
-    hermes::Log::warn("[{}][{}][CHECK_EXP FAIL {}]", __FILE__, __LINE__, (#expr));                                  \
+#define HERMES_CHECK_EXP(expr)                                                 \
+  if (expr) {                                                                  \
+  } else {                                                                     \
+    hermes::Log::message(                                                      \
+        hermes::logging_options::none, hermes::Log::Level::warn,               \
+        "[CHECK_EXP FAIL {}]",                                                 \
+        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr));     \
   }
 
 /// \brief Warns if expression is false with message
 /// \param expr expression
 /// \param M custom warn message
-#define HERMES_CHECK_EXP_WITH_LOG(expr, M)                                                                          \
-  if(expr) {}                                                                                                       \
-  else {                                                                                                            \
-    hermes::Log::warn("[{}][{}][CHECK_EXP FAIL {}]: {}", __FILE__, __LINE__, (#expr), M);                           \
+#define HERMES_CHECK_EXP_WITH_LOG(expr, M)                                     \
+  if (expr) {                                                                  \
+  } else {                                                                     \
+    hermes::Log::message(                                                      \
+        hermes::logging_options::none, hermes::Log::Level::warn,               \
+        "[CHECK_EXP FAIL {}]: {}",                                             \
+        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr), M);  \
   }
 #else
 
@@ -112,30 +121,36 @@
 #define HERMES_CHECK_EXP_WITH_LOG(expr, M)
 
 #endif // CHECKS_ENABLED
-// *********************************************************************************************************************
-//                                                                                                          ASSERTION
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                  ASSERTION
+// *****************************************************************************
 #ifdef ASSERTIONS_ENABLED
 
-//#define debugBreak() asm ("int 3")
+// #define debugBreak() asm ("int 3")
 #define debugBreak() exit(-1)
 
 /// \brief Errors if expression is false
 /// \param expr expression
-#define HERMES_ASSERT(expr)                                                                                         \
-  if(expr) {}                                                                                                       \
-  else {                                                                                                            \
-    hermes::Log::error("[{}][{}][ASSERT FAIL {}]", __FILE__, __LINE__, #expr);                                      \
-    debugBreak();                                                                                                   \
+#define HERMES_ASSERT(expr)                                                    \
+  if (expr) {                                                                  \
+  } else {                                                                     \
+    hermes::Log::message(                                                      \
+        hermes::logging_options::none, hermes::Log::Level::error,              \
+        "[ASSERT FAIL {}]",                                                    \
+        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, #expr);       \
+    debugBreak();                                                              \
   }
 /// \brief Errors if expression is false with message
 /// \param expr expression
 /// \param M custom error message
-#define HERMES_ASSERT_WITH_LOG(expr, M)                                                                             \
-  if(expr) {}                                                                                                       \
-  else {                                                                                                            \
-    hermes::Log::error("[{}][{}][ASSERT FAIL {}]: {}", __FILE__, __LINE__, #expr, M);                               \
-    debugBreak();                                                                                                   \
+#define HERMES_ASSERT_WITH_LOG(expr, M)                                        \
+  if (expr) {                                                                  \
+  } else {                                                                     \
+    hermes::Log::message(                                                      \
+        hermes::logging_options::none, hermes::Log::Level::error,              \
+        "[ASSERT FAIL {}]: {}",                                                \
+        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, #expr, M);    \
+    debugBreak();                                                              \
   }
 #else
 
@@ -143,53 +158,51 @@
 #define HERMES_ASSERT_WITH_LOG(expr, M)
 
 #endif // ASSERTIONS_ENABLED
-// *********************************************************************************************************************
-//                                                                                                          CODE FLOW
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                  CODE FLOW
+// *****************************************************************************
 /// \brief Calls return if condition is true
 /// \param A condition
-#define HERMES_RETURN_IF(A)                                                                                         \
-  if (A) {                                                                                                          \
-    return;                                                                                                         \
+#define HERMES_RETURN_IF(A)                                                    \
+  if (A) {                                                                     \
+    return;                                                                    \
   }
 /// \brief Calls return if condition is false
 /// \param A condition
-#define HERMES_RETURN_IF_NOT(A)                                                                                     \
-  if (!(A)) {                                                                                                       \
-    return;                                                                                                         \
+#define HERMES_RETURN_IF_NOT(A)                                                \
+  if (!(A)) {                                                                  \
+    return;                                                                    \
   }
 /// \brief Return value if condition is true
 /// \param A condition
 /// \param R value
-#define HERMES_RETURN_VALUE_IF(A, R)                                                                                \
-  if (A) {                                                                                                          \
-    return R;                                                                                                       \
+#define HERMES_RETURN_VALUE_IF(A, R)                                           \
+  if (A) {                                                                     \
+    return R;                                                                  \
   }
 /// \brief Return value if condition is false
 /// \param A condition
 /// \param R value
-#define HERMES_RETURN_VALUE_IF_NOT(A, R)                                                                            \
-  if (!(A)) {                                                                                                       \
-    return R;                                                                                                       \
+#define HERMES_RETURN_VALUE_IF_NOT(A, R)                                       \
+  if (!(A)) {                                                                  \
+    return R;                                                                  \
   }
 /// \brief Logs and return value if condition is false
 /// \param A condition
 /// \param R value
 /// \param M log message
-#define HERMES_LOG_AND_RETURN_VALUE_IF_NOT(A, R, M)                                                                 \
-  if (!(A)) {                                                                                                       \
-    HERMES_LOG(M);                                                                                                  \
-    return R;                                                                                                       \
+#define HERMES_LOG_AND_RETURN_VALUE_IF_NOT(A, R, M)                            \
+  if (!(A)) {                                                                  \
+    HERMES_INFO(M);                                                            \
+    return R;                                                                  \
   }
 /// \brief Logs and return if condition is false
 /// \param A condition
 /// \param M log message
-#define HERMES_LOG_AND_RETURN_IF_NOT(A, M)                                                                          \
-  if (!(A)) {                                                                                                       \
-    HERMES_LOG(M);                                                                                                  \
-    return;                                                                                                         \
+#define HERMES_LOG_AND_RETURN_IF_NOT(A, M)                                     \
+  if (!(A)) {                                                                  \
+    HERMES_INFO(M);                                                            \
+    return;                                                                    \
   }
-
-#endif
 
 /// @}
