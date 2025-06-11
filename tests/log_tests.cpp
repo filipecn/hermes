@@ -70,6 +70,25 @@ TEST_CASE("debug macros", "[log]") {
   HERMES_C_ERROR("c logging error");
   Log::addOptions(logging_options::location);
   Log::removeOptions(logging_options::abbreviate);
+
+  auto callLog = []() {
+    HERMES_DEBUG("this is a debug");
+    HERMES_TRACE("this is a trace");
+    HERMES_INFO("this is a info");
+    HERMES_WARN("this is a warning");
+    HERMES_ERROR("this is an error");
+    HERMES_CRITICAL("this is a critical");
+  };
+
+  callLog();
+
+  std::stringstream ss;
+  hermes::Log::setStream(&ss);
+  hermes::Log::setLevel(hermes::Log::Level::warn);
+
+  callLog();
+
+  REQUIRE(ss.str().size());
 }
 
 TEST_CASE("Console Colors", "[log]") {

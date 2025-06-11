@@ -25,26 +25,24 @@
 ///
 ///\brief
 ///\note This file was inspired on Sergey Yagovtsev's Easy Profiler source code
-///\note https://github.com/yse/easy_profiler/blob/develop/easy_profiler_core/include/easy/details/profiler_colors.h
+///\note
+/// https://github.com/yse/easy_profiler/blob/develop/easy_profiler_core/include/easy/details/profiler_colors.h
 ///
 ///\ingroup logging
 ///\addtogroup logging
 /// @{
 
-#ifndef HERMES_HERMES_LOGGING_ARGB_COLORS_H
-#define HERMES_HERMES_LOGGING_ARGB_COLORS_H
+#pragma once
 
-#include <hermes/common/defs.h>
+#include <hermes/core/types.h>
 
 namespace hermes::argb_colors {
 
-inline u32 constexpr argb2rgba(u32 argb) {
-  return (argb >> 24) | (argb << 8);
-}
+inline u32 constexpr argb2rgba(u32 argb) { return (argb >> 24) | (argb << 8); }
 
 inline u32 constexpr fromRGBA(u8 red, u8 green, u8 blue, u8 alpha = 0xff) {
-  return (static_cast<u32>(alpha) << 24) | (static_cast<u32>(red) << 16) | (static_cast<u32>(green) << 8)
-      | static_cast<u32>(blue);
+  return (static_cast<u32>(alpha) << 24) | (static_cast<u32>(red) << 16) |
+         (static_cast<u32>(green) << 8) | static_cast<u32>(blue);
 }
 
 // Google Material Design colors
@@ -375,8 +373,6 @@ constexpr u32 BlueGrey = BlueGrey500;
 
 constexpr u32 Default = Red300;
 
-}
-
-#endif //HERMES_HERMES_LOGGING_ARGB_COLORS_H
+} // namespace hermes::argb_colors
 
 /// @}

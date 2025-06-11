@@ -36,7 +36,6 @@
 #include <hermes/log/console_colors.h>
 #include <hermes/system/file_system.h>
 
-#include <chrono>
 #include <cstdarg>
 #include <cstring>
 
@@ -114,14 +113,16 @@ public:
   }
   /// \brief Enables logging options
   /// \param options_to_add
-  static inline void addOptions(logging_options options_to_add) {
-    options_ = options_ | options_to_add;
-  }
+  static void addOptions(logging_options options_to_add);
   /// \brief Disables logging options
   /// \param options_to_remove
-  static inline void removeOptions(logging_options options_to_remove) {
-    options_ = options_ & ~options_to_remove;
-  }
+  static void removeOptions(logging_options options_to_remove);
+  /// \brief
+  /// \param s ostream pointer
+  static void setStream(std::ostream *s);
+  /// \brief Sets minimal log level
+  /// \param level filter level
+  static void setLevel(Level level);
 
 private:
   static Str label(const logging_options &message_options, Level level,

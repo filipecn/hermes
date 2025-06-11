@@ -66,6 +66,15 @@ std::function<void(const Str &, logging_options)> Log::log_callback;
 std::function<void(const Str &)>
     Log::callbacks[static_cast<u8>(Log::Level::COUNT)];
 
+void Log::addOptions(logging_options options_to_add) {
+  options_ = options_ | options_to_add;
+}
+void Log::removeOptions(logging_options options_to_remove) {
+  options_ = options_ & ~options_to_remove;
+}
+void Log::setStream(std::ostream *s) { os_ = s; }
+void Log::setLevel(Level level) { filter_level_ = level; }
+
 Str Log::label(const logging_options &message_options, Log::Level level,
                const Log::Location &location) {
   Str s;

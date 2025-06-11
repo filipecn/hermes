@@ -28,8 +28,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include <hermes/common/profile.h>
 #include <hermes/common/size.h>
 #include <hermes/common/str.h>
+#include <hermes/system/threads.h>
 
 using namespace hermes;
 
@@ -276,4 +278,37 @@ TEST_CASE("Str", "[common]") {
     REQUIRE(Str::isPrefix("", "0123456"));
     REQUIRE_FALSE(Str::isPrefix("01234", "01"));
   } //
+}
+
+void foo() {
+  using namespace std::chrono_literals;
+  HERMES_PROFILE_FUNCTION();
+  hermes::SystemTime::init();
+  std::this_thread::sleep_for(100ms);
+  for (int j = 0; j < 2; ++j) {
+    HERMES_PROFILE_SCOPE("for loop");
+    std::this_thread::sleep_for(200us);
+  }
+}
+
+int f(int a, int b) {
+  using namespace std::chrono_literals;
+  HERMES_PROFILE_FUNCTION();
+  hermes::SystemTime::init();
+  std::this_thread::sleep_for(100ms);
+  foo();
+  HERMES_WARN("a + b = {}", a + b);
+  return a + b;
+}
+
+TEST_CASE("Profile", "[core]") {
+  hermes::Log::setLevel(hermes::Log::Level::debug);
+  hermes::ThreadPool pool(5);
+  for (int i = 0; i < 10; ++i) {
+    pool.enqueue(hermes::Task::Priority::NORMAL, f, i, i);
+  }
+  pool.wait();
+
+  HERMES_INFO("{}", hermes::profile::Profiler::trace());
+  HERMES_INFO("{}", hermes::profile::Profiler::report());
 }

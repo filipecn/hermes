@@ -28,8 +28,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <filesystem>
 #include <hermes/system/file_system.h>
+#include <hermes/system/threads.h>
+
+#include <filesystem>
 
 using namespace hermes;
 
@@ -187,4 +189,22 @@ TEST_CASE("FileSystem", "[system]") {
       REQUIRE(lines[i] == "line" + std::to_string(i + 1));
     std::filesystem::remove_all("lines_file");
   } //
+}
+
+int task(int a, int b) {
+  using namespace std::chrono_literals;
+  std::this_thread::sleep_for(100ms);
+  return a + b;
+}
+
+TEST_CASE("ThreadPool", "[system]") {
+  hermes::ThreadPool pool(5);
+  std::vector<std::future<int>> r;
+  for (int i = 0; i < 10; ++i) {
+    r.emplace_back(pool.enqueue(hermes::Task::Priority::NORMAL, task, i, i));
+  }
+  pool.wait();
+  for (int i = 0; i < 10; ++i) {
+    REQUIRE(r[i].get() == i + i);
+  }
 }
