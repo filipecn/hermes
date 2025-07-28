@@ -1,9 +1,9 @@
 set(HERMES_HEADERS
-  base/debug.h
   base/flags.h
 
   colors/argb_colors.h
 
+  core/debug.h
   core/result.h
   core/types.h
 
