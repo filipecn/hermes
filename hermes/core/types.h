@@ -30,8 +30,6 @@
 #include <cstdint>
 #include <type_traits>
 
-#define HERMES_INCLUDE_TO_STRING
-
 #ifdef HERMES_INCLUDE_TO_STRING
 #include <string_view>
 #endif

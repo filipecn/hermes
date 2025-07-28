@@ -12,6 +12,7 @@ option(HERMES_BUILD_TESTS "build library unit tests" OFF)
 option(HERMES_BUILD_EXAMPLES "build library examples" OFF)
 option(HERMES_BUILD_SHARED "build shared library" OFF)
 option(HERMES_BUILD_DOCS "build library documentation" OFF)
+option(HERMES_INCLUDE_TO_STRING "include hermes::to_string methods" ON)
 
 # ##############################################################################
 #                                                                      PROJECT #

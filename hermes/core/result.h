@@ -55,7 +55,7 @@ template <class T> struct UnexpectedResultType {
 //                                                                      Result
 // *****************************************************************************
 
-/// Holds the expected value on success, or an error rhswise.
+/// Holds the expected value on success, or an error otherwise.
 template <class T, class E = HeError> class Result {
 public:
   // ***************************************************************************

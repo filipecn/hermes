@@ -1,31 +1,31 @@
 set(HERMES_HEADERS
-  ${HERMES_PROJECT_DIR}/hermes/base/flags.h
+  base/flags.h
 
-  ${HERMES_PROJECT_DIR}/hermes/colors/argb_colors.h
+  colors/argb_colors.h
 
-  ${HERMES_PROJECT_DIR}/hermes/core/debug.h
-  ${HERMES_PROJECT_DIR}/hermes/core/result.h
-  ${HERMES_PROJECT_DIR}/hermes/core/types.h
+  core/debug.h
+  core/result.h
+  core/types.h
 
-  ${HERMES_PROJECT_DIR}/hermes/io/console_colors.h
-  ${HERMES_PROJECT_DIR}/hermes/io/logger.h
-  ${HERMES_PROJECT_DIR}/hermes/io/memory_dumper.h
+  io/console_colors.h
+  io/logger.h
+  io/memory_dumper.h
 
-  ${HERMES_PROJECT_DIR}/hermes/numeric/math.h
+  numeric/math.h
 
-  ${HERMES_PROJECT_DIR}/hermes/system/os.h
-  ${HERMES_PROJECT_DIR}/hermes/system/profile.h
-  ${HERMES_PROJECT_DIR}/hermes/system/time.h
-  ${HERMES_PROJECT_DIR}/hermes/system/threads.h
+  system/os.h
+  system/profile.h
+  system/time.h
+  system/threads.h
 )
 
 set(HERMES_SOURCES
-  ${HERMES_PROJECT_DIR}/hermes/io/logger.cpp
-  ${HERMES_PROJECT_DIR}/hermes/
-  ${HERMES_PROJECT_DIR}/hermes/system/os.cpp
-  ${HERMES_PROJECT_DIR}/hermes/system/profile.cpp
-  ${HERMES_PROJECT_DIR}/hermes/system/time.cpp
-  ${HERMES_PROJECT_DIR}/hermes/system/threads.cpp
+  io/logger.cpp
+  
+  system/os.cpp
+  system/profile.cpp
+  system/time.cpp
+  system/threads.cpp
 )
 
 add_library(hermes STATIC ${HERMES_HEADERS} ${HERMES_SOURCES})
@@ -34,6 +34,10 @@ target_include_directories(
   hermes PUBLIC "$<BUILD_INTERFACE:${HERMES_INCLUDE_DIR}>"
   "$<INSTALL_INTERFACE:${HERMES_INCLUDE_DIR}>"
 )
+
+if(HERMES_INCLUDE_TO_STRING)
+  target_compile_definitions(hermes PUBLIC HERMES_INCLUDE_TO_STRING)
+endif(HERMES_INCLUDE_TO_STRING)
 
 set_target_properties(
   hermes
