@@ -1,37 +1,34 @@
-/// Copyright (c) 2022, FilipeCN.
+/* Copyright (c) 2022, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+/// \file   profile.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2022-01-04
 ///
-/// The MIT License (MIT)
+/// \brief  Code profiler
 ///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file profiler.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2022-01-04
-///
-///\brief Code profiler
-///
-///\note hermes::profiler was based on Sergey Yagovtsev's Easy Profiler source
+/// \note hermes::profiler was based on Sergey Yagovtsev's Easy Profiler source
 ///      code:
 ///                   https://github.com/yse/easy_profiler
-///
-///\ingroup common
-///\addtogroup common
-/// @{
 
 #pragma once
 
@@ -51,6 +48,7 @@ namespace hermes::profile {
 // *****************************************************************************
 //                                                                   Profiler
 // *****************************************************************************
+
 /// \brief Singleton code profiler
 ///
 /// This profiler works by registering a sequence labeled blocks (time
@@ -143,10 +141,13 @@ public:
   private:
     Block block_;
   };
+
   // ***************************************************************************
   //                                                           STATIC METHODS
   // ***************************************************************************
-  //                                                                      access
+
+  //                                                                    access
+
   /// \brief Get block descriptor from block
   /// \param block
   /// \return
@@ -163,7 +164,7 @@ public:
   /// \param color
   /// \return
   static u32 pushBlockDescriptor(const char *name,
-                                 u32 color = argb_colors::Default);
+                                 u32 color = colors::argb::_default_);
   /// \brief Starts a new block by taking this call time point
   /// \note The block is put on top of the stack
   /// \param block
@@ -179,20 +180,20 @@ public:
   /// \brief Iterates over stored blocks sequentially
   static std::generator<std::tuple<std::thread::id, const Block &>>
   iterateBlocks();
+
   //                                                                      output
+
   /// \brief Dumps profiling into a string
   static std::string trace();
   static std::string report();
+
   // ***************************************************************************
   //                                                             CONSTRUCTORS
   // ***************************************************************************
+
   ~Profiler() = default;
-  //                                                                  assignment
   Profiler(Profiler &&other) = delete;
   Profiler(const Profiler &other) = delete;
-  // ***************************************************************************
-  //                                                                OPERATORS
-  // ***************************************************************************
   Profiler &operator=(const Profiler &other) = delete;
   Profiler &operator=(Profiler &&other) = delete;
 
@@ -234,13 +235,13 @@ template <class... TArgs> inline constexpr u32 extract_color(TArgs...);
 /// \brief Auxiliary function to pick variadic color argument
 /// \return
 template <> inline constexpr u32 extract_color<>() {
-  return hermes::argb_colors::Default;
+  return hermes::colors::argb::_default_;
 }
 /// \brief Auxiliary function to pick variadic color argument
 /// \tparam T
 /// \return
 template <class T> inline constexpr u32 extract_color(T) {
-  return hermes::argb_colors::Default;
+  return hermes::colors::argb::_default_;
 }
 /// \brief Auxiliary function to pick variadic color argument
 /// \param _color
@@ -267,7 +268,7 @@ inline constexpr u32 extract_color(T, TArgs... _args) {
   return extract_color(_args...);
 }
 
-} // namespace hermes::profiler
+} // namespace hermes::profile
 
 /// \brief Joins two tokens
 /// \param x
@@ -320,5 +321,3 @@ inline constexpr u32 extract_color(T, TArgs... _args) {
 #define HERMES_RESET_PROFILER hermes::profile::Profiler::reset();
 
 #endif
-
-/// @}

@@ -1,187 +1,193 @@
-/// Copyright (c) 2022, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file result_or.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2022-05-20
-///
-///\brief
+/* Copyright (c) 2022, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR rhs
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR rhsWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR rhs DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+/// \file   result_or.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2022-05-20
+///  Expected/Error results returned by functions.
 
 #pragma once
 
 #include <hermes/core/types.h>
 
-/// \brief Enum returned by functions
-enum class HeResult {
-  SUCCESS = 0,         //!< no errors occurred
-  ERROR = 1,           //!< unknown error
-  BAD_ALLOCATION = 2,  //!< memory related errors
-  OUT_OF_BOUNDS = 3,   //!< invalid index access attempt
-  INVALID_INPUT = 4,   //!< function received invalid parameters
-  BAD_OPERATION = 5,   //!< function pre-conditions were not fulfilled
-  NOT_IMPLEMENTED = 6, //!< function not implemented
+#include <utility> // std::move
+
+/// Enumeration of errors handled by hermes.
+enum class HeError {
+  NO_ERROR = 0,        //!< no errors occurred
+  BAD_ALLOCATION = 1,  //!< memory related errors
+  OUT_OF_BOUNDS = 2,   //!< invalid index access attempt
+  INVALID_INPUT = 3,   //!< function received invalid parameters
+  BAD_OPERATION = 4,   //!< function pre-conditions were not fulfilled
+  NOT_IMPLEMENTED = 5, //!< function not implemented
+  CUSTOM_ERROR = 6,    //!< custom error
+  UNKNOWN_ERROR = 7,   //!< unknown error
 };
 
 namespace hermes {
 
+namespace detail {
 template <class T> struct UnexpectedResultType {
   T value{};
 };
+} // namespace detail
 
 // *****************************************************************************
 //                                                                      Result
 // *****************************************************************************
-/// \brief Holds a valid object or an error
-template <class T, class E = HeResult> class Result {
+
+/// Holds the expected value on success, or an error rhswise.
+template <class T, class E = HeError> class Result {
 public:
   // ***************************************************************************
   //                                                         STATIC FUNCTIONS
   // ***************************************************************************
-  ///
+
   /// \param e
   /// \return
   HERMES_DEVICE_CALLABLE static Result<T, E> error(E e) {
-    return Result<T, E>(UnexpectedResultType<E>{e});
+    return Result<T, E>(detail::UnexpectedResultType<E>{e});
   }
+
   // ***************************************************************************
   //                                                             CONSTRUCTORS
   // ***************************************************************************
-  ///
+
+  /// Error constructor.
   /// \param err
   HERMES_DEVICE_CALLABLE explicit Result(
-      const UnexpectedResultType<E> &err = {})
+      const detail::UnexpectedResultType<E> &err = {})
       : ok_(false) {
     new (reinterpret_cast<E *>(&err_)) E(err.value);
   }
-  /// \brief Value constructor
+  /// Value constructor
   /// \param v
   HERMES_DEVICE_CALLABLE explicit Result(const T &v) : ok_(true) {
     new (reinterpret_cast<T *>(&value_)) T(v);
   }
-  /// \brief Move value constructor
+  /// Move value constructor
   /// \param v
   HERMES_DEVICE_CALLABLE explicit Result(T &&v) : ok_(true) {
     new (reinterpret_cast<T *>(&value_)) T(std::move(v));
   }
-  //                                                                  assignment
-  /// \brief Copy constructor
-  /// \param other
-  HERMES_DEVICE_CALLABLE Result(const Result &other) { *this = other; }
-  /// \brief Move constructor
-  /// \param other
-  HERMES_DEVICE_CALLABLE Result(Result &&other) noexcept {
-    *this = std::move(other);
+  /// Copy constructor
+  /// \param rhs
+  HERMES_DEVICE_CALLABLE Result(const Result &rhs) { *this = rhs; }
+  /// Move constructor
+  /// \param rhs
+  HERMES_DEVICE_CALLABLE Result(Result &&rhs) HERMES_NOEXCEPT {
+    *this = std::move(rhs);
   }
+
   // ***************************************************************************
   //                                                                OPERATORS
   // ***************************************************************************
-  /// \brief Casts to bool (indicates whether this contains value)
-  /// \return
-  HERMES_DEVICE_CALLABLE explicit operator bool() const noexcept { return ok_; }
-  //                                                                  assignment
-  /// \brief Copy assignment
-  /// \param other
-  /// \return
-  HERMES_DEVICE_CALLABLE Result &operator=(const Result &other) {
+
+  /// Casts to bool (indicates whether this contains a value).
+  HERMES_DEVICE_CALLABLE explicit operator bool() const HERMES_NOEXCEPT {
+    return ok_;
+  }
+
+  //                                                               assignment
+
+  /// Copy assignment.
+  HERMES_DEVICE_CALLABLE Result &operator=(const Result &rhs) {
     reset();
-    ok_ = other.ok_;
-    if (other.ok_)
-      new (reinterpret_cast<T *>(&value_)) T(other.value());
+    ok_ = rhs.ok_;
+    if (rhs.ok_)
+      new (reinterpret_cast<T *>(&value_)) T(rhs.value());
     else
-      new (reinterpret_cast<E *>(&err_)) E(other.status());
+      new (reinterpret_cast<E *>(&err_)) E(rhs.status());
     return *this;
   }
-  /// \brief Move assignment
-  /// \param other
-  /// \return
-  HERMES_DEVICE_CALLABLE Result &operator=(Result &&other) noexcept {
+  /// Move assignment.
+  HERMES_DEVICE_CALLABLE Result &operator=(Result &&rhs) HERMES_NOEXCEPT {
     reset();
-    ok_ = other.ok_;
-    if (other.ok_)
-      new (reinterpret_cast<T *>(&value_)) T(std::move(other.value()));
+    ok_ = rhs.ok_;
+    if (rhs.ok_)
+      new (reinterpret_cast<T *>(&value_)) T(std::move(rhs.value()));
     else
-      new (reinterpret_cast<E *>(&err_)) E(std::move(other.status()));
+      new (reinterpret_cast<E *>(&err_)) E(std::move(rhs.status()));
     return *this;
   }
-  /// \brief Value assignment
-  /// \param v
-  /// \return
+  /// Value assignment.
   HERMES_DEVICE_CALLABLE Result &operator=(const T &v) {
     reset();
     ok_ = true;
     new (reinterpret_cast<T *>(&value_)) T(v);
     return *this;
   }
-  /// \brief Move value assignment
-  /// \param v
-  /// \return
+  /// Move value assignment.
   HERMES_DEVICE_CALLABLE Result &operator=(T &&v) {
     reset();
     ok_ = true;
     new (reinterpret_cast<T *>(&value_)) T(std::move(v));
     return *this;
   }
-  //                                                                      access
-  /// \brief Gets value pointer
-  /// \return
+
+  //                                                                    access
+
+  /// \return Pointer to the stored value.
   HERMES_DEVICE_CALLABLE T *operator->() { return &value(); }
-  /// \brief Gets const value pointer
-  /// \return
+  /// \return Const pointer to the stored value.
   HERMES_DEVICE_CALLABLE const T *operator->() const { return &value(); }
-  /// \brief Gets value reference
-  /// \return
+  /// \return Reference to value.
   HERMES_DEVICE_CALLABLE T &operator*() { return value(); }
-  /// \brief Gets value const reference
-  /// \return
+  /// \return Const reference to value.
   HERMES_DEVICE_CALLABLE const T &operator*() const { return value(); }
+
   // ***************************************************************************
   //                                                                  METHODS
   // ***************************************************************************
-  [[nodiscard]] HERMES_DEVICE_CALLABLE bool good() const { return ok_; }
-  [[nodiscard]] HERMES_DEVICE_CALLABLE E status() const { return err_; }
-  /// \brief Destroys stored value (if present)
+
+  /// \return True if this holds a valid value or false if it holds an error.
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool good() const { return ok_; }
+  /// \return Error status.
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE E status() const { return err_; }
+  /// Destroys stored value (if present) by calling its destructor.
   HERMES_DEVICE_CALLABLE void reset() {
     if (good()) {
       value().~T();
       ok_ = false;
     }
   }
+
   //                                                                      access
-  /// \brief Gets value copy (if present)
-  /// \param v value returned in case of empty
-  /// \return
-  HERMES_DEVICE_CALLABLE T valueOr(const T &v) const {
-    return good() ? value() : v;
+
+  /// \param fallback_value value returned on error.
+  /// \return A copy to the stored value, or 'fallback_value' otherwise.
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T
+  valueOr(const T &fallback_value) const {
+    return good() ? value() : fallback_value;
   }
-  /// \brief Gets value's reference
-  /// \return
-  HERMES_DEVICE_CALLABLE T &value() { return *reinterpret_cast<T *>(&value_); }
-  /// \brief Gets value's const reference
-  /// \return
-  HERMES_DEVICE_CALLABLE const T &value() const {
+  /// \return Reference to the stored value.
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T &value() {
+    return *reinterpret_cast<T *>(&value_);
+  }
+  /// \return Const reference to value.
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE const T &value() const {
     return *reinterpret_cast<const T *>(&value_);
   }
-  // ***************************************************************************
-  //                                                            PUBLIC FIELDS
-  // ***************************************************************************
+
 private:
   union {
     E err_{};
@@ -189,5 +195,23 @@ private:
   };
   bool ok_{false};
 };
+
+#ifdef HERMES_INCLUDE_TO_STRING
+inline std::string_view to_string(HeError error) {
+#define ENUM_NAME(E)                                                           \
+  if (HeError::E == error)                                                     \
+    return #E;
+  ENUM_NAME(NO_ERROR)
+  ENUM_NAME(BAD_ALLOCATION)
+  ENUM_NAME(OUT_OF_BOUNDS)
+  ENUM_NAME(INVALID_INPUT)
+  ENUM_NAME(BAD_OPERATION)
+  ENUM_NAME(NOT_IMPLEMENTED)
+  ENUM_NAME(CUSTOM_ERROR)
+  ENUM_NAME(UNKNOWN_ERROR)
+  return "";
+#undef ENUM_NAME
+}
+#endif
 
 } // namespace hermes

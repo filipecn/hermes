@@ -1,43 +1,45 @@
-/// Copyright (c) 2019, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file defs.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2019-01-04
-///
-///\brief Data type definitions
-///
-///\ingroup core
-///\addtogroup core
-/// @{
+/* Copyright (c) 2019, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+/// \file   types.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2019-01-04
+/// \brief  Basic data type definitions
 
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include <type_traits>
 
+#define HERMES_INCLUDE_TO_STRING
+
+#ifdef HERMES_INCLUDE_TO_STRING
+#include <string_view>
+#endif
+
 // *****************************************************************************
-//                                                               INTEGRAL TYPES
+//                                                              INTEGRAL TYPES
 // *****************************************************************************
+
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
 using real_t = double; //!< default floating point type
 #else
@@ -65,8 +67,29 @@ using uchar = unsigned char;   //!< unsigned char type
 using byte = uint8_t; //!< unsigned byte
 
 // *****************************************************************************
+//                                                                 ASSTRIBUTES
+// *****************************************************************************
+
+#ifndef HERMES_NODISCARD
+#define HERMES_NODISCARD [[nodiscard]]
+#endif
+
+#ifndef HERMES_CONST_OR_CONSTEXPR
+#define HERMES_CONST_OR_CONSTEXPR constexpr
+#endif
+
+#ifndef HERMES_CONSTEXPR
+#define HERMES_CONSTEXPR constexpr
+#endif
+
+#ifndef HERMES_NOEXCEPT
+#define HERMES_NOEXCEPT noexcept
+#endif
+
+// *****************************************************************************
 //                                                                 CUDA SUPPORT
 // *****************************************************************************
+
 #if defined(ENABLE_CUDA)
 
 #include <cuda_runtime.h>
@@ -97,6 +120,10 @@ using byte = uint8_t; //!< unsigned byte
 #endif
 
 namespace hermes {
+
+// *****************************************************************************
+//                                                                   DATA TYPE
+// *****************************************************************************
 
 /// \brief Enum class for integral types
 enum class DataType : u8 {
@@ -177,39 +204,41 @@ public:
     return 0;
 #undef TYPE_SIZE
   }
-  /// \brief Gets DataType string name
-  /// \param type
-  /// \return
-  static std::string typeName(DataType type) {
-#define DATA_TYPE_NAME(Type)                                                   \
-  if (DataType::Type == type)                                                  \
-    return #Type;
-    DATA_TYPE_NAME(I8)
-    DATA_TYPE_NAME(I16)
-    DATA_TYPE_NAME(I32)
-    DATA_TYPE_NAME(I64)
-    DATA_TYPE_NAME(U8)
-    DATA_TYPE_NAME(U16)
-    DATA_TYPE_NAME(U32)
-    DATA_TYPE_NAME(U64)
-    DATA_TYPE_NAME(F16)
-    DATA_TYPE_NAME(F32)
-    DATA_TYPE_NAME(F64)
-    DATA_TYPE_NAME(CUSTOM)
-    return "CUSTOM";
-#undef DATA_TYPE_NAME
-  }
 };
+
+// *****************************************************************************
+//                                                             MEMORY LOCATION
+// *****************************************************************************
+
 /// \brief Specifies where memory is stored
 enum class MemoryLocation {
   DEVICE, //!< GPU side
   HOST,   //!< CPU side
   UNIFIED //!< unified memory
 };
-/// \brief Gets MemoryLocation value string name
-/// \param location
-/// \return
-inline std::string memoryLocationName(MemoryLocation location) {
+
+#ifdef HERMES_INCLUDE_TO_STRING
+inline std::string_view to_string(DataType type) {
+#define DATA_TYPE_NAME(Type)                                                   \
+  if (DataType::Type == type)                                                  \
+    return #Type;
+  DATA_TYPE_NAME(I8)
+  DATA_TYPE_NAME(I16)
+  DATA_TYPE_NAME(I32)
+  DATA_TYPE_NAME(I64)
+  DATA_TYPE_NAME(U8)
+  DATA_TYPE_NAME(U16)
+  DATA_TYPE_NAME(U32)
+  DATA_TYPE_NAME(U64)
+  DATA_TYPE_NAME(F16)
+  DATA_TYPE_NAME(F32)
+  DATA_TYPE_NAME(F64)
+  DATA_TYPE_NAME(CUSTOM)
+  return "CUSTOM";
+#undef DATA_TYPE_NAME
+}
+
+inline std::string_view to_string(MemoryLocation location) {
 #define ENUM_NAME(E)                                                           \
   if (MemoryLocation::E == location)                                           \
     return #E;
@@ -220,18 +249,6 @@ inline std::string memoryLocationName(MemoryLocation location) {
 #undef ENUM_NAME
 }
 
-// *****************************************************************************
-//                                                                           IO
-// *****************************************************************************
-/// \brief MemoryLocation support for `std::ostream` << operator
-/// \param o
-/// \param location
-/// \return
-inline std::ostream &operator<<(std::ostream &o, MemoryLocation location) {
-  o << memoryLocationName(location);
-  return o;
-}
+#endif
 
 } // namespace hermes
-
-/// @}

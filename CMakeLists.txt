@@ -22,10 +22,9 @@ project(
   DESCRIPTION "Utilities library."
   LANGUAGES C CXX)
 
-cmake_path(SET HERMES_SOURCE_DIR NORMALIZE "${CMAKE_CURRENT_LIST_DIR}")
+cmake_path(SET HERMES_PROJECT_DIR NORMALIZE "${CMAKE_CURRENT_LIST_DIR}")
 cmake_path(SET HERMES_EXT_DIR NORMALIZE "${CMAKE_CURRENT_LIST_DIR}/ext")
-cmake_path(SET HERMES_INCLUDE_SOURCE NORMALIZE "${CMAKE_CURRENT_LIST_DIR}/hermes")
-cmake_path(SET HERMES_INSTALL_DEST NORMALIZE "${CMAKE_CURRENT_LIST_DIR}/ext")
+cmake_path(SET HERMES_INCLUDE_DIR NORMALIZE "${CMAKE_CURRENT_LIST_DIR}")
 
 # ##############################################################################
 #                                                                  COMPILATION #
@@ -35,14 +34,13 @@ include(ConfigCompilerFlags)
 include(CMakePrintHelpers)
 include(ExternalPrograms)
 
+# try_compile(COMPILATION_TEST_RESULT bindir SOURCES source.cpp)
+# try_run(RUN_TEST_RESULT bindr SOURCES source.cpp)
+
 # ##############################################################################
 #                                                                 DEPENDENCIES #
 # ##############################################################################
-include(ExternalProject)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ext")
-if(BUILD_TESTS)
-  include(catch2)
-endif(BUILD_TESTS)
+add_subdirectory(ext)
 
 # ##############################################################################
 #                                                                       SOURCE #
@@ -69,12 +67,6 @@ install(
 if(BUILD_TESTS)
   add_subdirectory(tests)
 endif(BUILD_TESTS)
-
-# ##############################################################################
-# COMPILATION/RUN SANITY TEST                                                  #
-# ##############################################################################
-# try_compile(COMPILATION_TEST_RESULT bindir SOURCES source.cpp)
-# try_run(RUN_TEST_RESULT bindr SOURCES source.cpp)
 
 # ##############################################################################
 #                                                                DOCUMENTATION #

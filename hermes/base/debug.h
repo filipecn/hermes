@@ -1,38 +1,34 @@
-/// Copyright (c) 2022, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file debug.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2017-01-04
-///
-///\brief Debug, logging and assertion macros
-///
-///\ingroup common
-///\addtogroup common
-/// @{
+/* Copyright (c) 2022, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+/// \file   debug.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2017-01-04
+/// \brief  Debug and assertion macros
 
 #pragma once
 
 #include <hermes/core/types.h>
-#include <hermes/log/log.h>
+#include <hermes/io/logger.h>
 
 #include <cmath>
 
@@ -86,23 +82,23 @@
 #define HERMES_CHECK_EQUAL(A, B, ...)                                          \
   if (A == B) {                                                                \
   } else {                                                                     \
-    hermes::Log::message(                                                      \
-        hermes::logging_options::none, hermes::Log::Level::warn,               \
+    hermes::Logger::message(                                                   \
+        hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
         "[CHECK_EQUAL FAIL {} == {}] {}",                                      \
-        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#A), (#B),   \
-        A, B, Str::format(__VA_ARGS__));                                       \
+        hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#A),      \
+        (#B), A, B, cstr::format(__VA_ARGS__));                                \
   }
 
 /// \brief Warns if expression is false
-/// \param expr expression
+/// \param expr expressicssn
 #define HERMES_CHECK(expr, ...)                                                \
   if (expr) {                                                                  \
   } else {                                                                     \
-    hermes::Log::message(                                                      \
-        hermes::logging_options::none, hermes::Log::Level::warn,               \
+    hermes::Logger::message(                                                   \
+        hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
         "[CHECK_EXP FAIL {}] {}",                                              \
-        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr),      \
-        Str::format(__VA_ARGS__));                                             \
+        hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr),   \
+        cstr::format(__VA_ARGS__));                                            \
   }
 
 #else
@@ -123,11 +119,11 @@
 #define HERMES_ASSERT(expr, ...)                                               \
   if (expr) {                                                                  \
   } else {                                                                     \
-    hermes::Log::message(                                                      \
-        hermes::logging_options::none, hermes::Log::Level::error,              \
+    hermes::Logger::message(                                                   \
+        hermes::logging_option_bits::none, hermes::Logger::Level::error,       \
         "[ASSERT FAIL {}] {}",                                                 \
-        hermes::Log::Location{__FILE__, __LINE__, __FUNCTION__}, #expr,        \
-        Str::format(__VA_ARGS__));                                             \
+        hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #expr,     \
+        cstr::format(__VA_ARGS__));                                            \
     debugBreak();                                                              \
   }
 #else
@@ -182,5 +178,3 @@
     HERMES_INFO(M);                                                            \
     return;                                                                    \
   }
-
-/// @}

@@ -1,34 +1,36 @@
-/// Copyright (c) 2022, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file profiler.cpp
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2022-01-05
+/* Copyright (c) 2022, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+/// \file   profile.cpp
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2022-01-05
 ///
 ///\brief
 
-#include "hermes/log/console_colors.h"
-#include <hermes/common/debug.h>
-#include <hermes/common/profile.h>
-#include <hermes/common/str.h>
+#include <hermes/system/profile.h>
+
+#include <hermes/base/debug.h>
+#include <hermes/base/str.h>
+#include <hermes/io/console_colors.h>
 
 #include <coroutine>
 #include <mutex>
@@ -153,7 +155,7 @@ std::string Profiler::trace() {
   std::thread::id current_thread;
 
   for (const auto &[thread_id, block] : Profiler::iterateBlocks()) {
-    s += ConsoleColors::threadColor(thread_id);
+    s += colors::console::threadColor(thread_id);
     if (thread_id != current_thread) {
       s += std::format("THREAD {}:\n", thread_id);
       current_thread = thread_id;
@@ -161,13 +163,13 @@ std::string Profiler::trace() {
     s += std::format("  {}", timeLabel(std::chrono::duration(
                                  block.wall_start_ -
                                  SystemTime::initTime(thread_id).wall_time)));
-    s += ConsoleColors::reset;
+    s += colors::console::reset;
     s += std::format("{}{: <20}{} : {} - {}\n",
                      // function color
-                     ConsoleColors::color(block.descriptor_id * 10),
+                     colors::console::color(block.descriptor_id * 10),
                      std::string((block.level + 1) * 2, ' ') +
                          p.block_descriptors_[block.descriptor_id]->name,
-                     ConsoleColors::reset,
+                     colors::console::reset,
                      timeDurationLabel(block.wallDuration()),
                      timeDurationLabel(block.cpuDuration()));
   }

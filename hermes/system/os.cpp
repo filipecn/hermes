@@ -1,31 +1,33 @@
-/// Copyright (c) 2020, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file file_system.cpp
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2020-10-07
-///
-///\brief
+/* Copyright (c) 2020, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
-#include "hermes/common/bitmask_operators.h"
+///\file   os.cpp
+///\author FilipeCN (filipedecn@gmail.com)
+///\date   2020-10-07
+
+#include <hermes/system/os.h>
+
+#include <hermes/base/debug.h>
+
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -33,8 +35,6 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <fstream>
-#include <hermes/common/debug.h>
-#include <hermes/system/file_system.h>
 #include <iostream>
 #include <stack>
 #include <sys/stat.h>
@@ -55,10 +55,9 @@
 #include <unistd.h>
 #endif
 
-namespace hermes {
+namespace hermes::os {
 
-std::string FileSystem::basename(const std::string &path,
-                                 const std::string &suffix) {
+std::string basename(const std::string &path, const std::string &suffix) {
   std::size_t found = path.find_last_of("/\\");
   std::string base_name =
       (found != std::string::npos) ? path.substr(found + 1) : path;
@@ -68,9 +67,8 @@ std::string FileSystem::basename(const std::string &path,
   return base_name;
 }
 
-std::vector<std::string>
-FileSystem::basename(const std::vector<std::string> &paths,
-                     const std::string &suffix) {
+std::vector<std::string> basename(const std::vector<std::string> &paths,
+                                  const std::string &suffix) {
   std::vector<std::string> base_names;
   for (const auto &p : paths)
     base_names.emplace_back(basename(p, suffix));
@@ -98,7 +96,7 @@ int readFile(const char *filename, char **text) {
 
 #ifndef WIN32
 
-u64 FileSystem::readFile(const char *filename, char **text) {
+u64 readFile(const char *filename, char **text) {
   u64 count_;
 
   int fd = open(filename, O_RDONLY);
@@ -126,8 +124,7 @@ u64 FileSystem::readFile(const char *filename, char **text) {
 
 #endif
 
-std::vector<unsigned char>
-FileSystem::readBinaryFile(const std::filesystem::path &path) {
+std::vector<unsigned char> readBinaryFile(const std::filesystem::path &path) {
   std::ifstream file(path, std::ios::binary | std::ios::ate);
   if (!file.is_open())
     return std::vector<unsigned char>();
@@ -139,7 +136,7 @@ FileSystem::readBinaryFile(const std::filesystem::path &path) {
   return bytes;
 }
 
-std::string FileSystem::readFile(const std::filesystem::path &path) {
+std::string readFile(const std::filesystem::path &path) {
   std::string content;
   std::ifstream file(path, std::ios::in);
   if (file.good()) {
@@ -151,8 +148,7 @@ std::string FileSystem::readFile(const std::filesystem::path &path) {
   return content;
 }
 
-std::vector<std::string>
-FileSystem::readLines(const std::filesystem::path &path) {
+std::vector<std::string> readLines(const std::filesystem::path &path) {
   std::vector<std::string> lines;
   std::ifstream file(path, std::ios::in);
   std::string line;
@@ -161,7 +157,7 @@ FileSystem::readLines(const std::filesystem::path &path) {
   return lines;
 }
 
-bool FileSystem::touch(const std::filesystem::path &path_to_file) {
+bool touch(const std::filesystem::path &path_to_file) {
   std::ofstream file(path_to_file);
   if (file.good()) {
     file.close();
@@ -170,8 +166,8 @@ bool FileSystem::touch(const std::filesystem::path &path_to_file) {
   return false;
 }
 
-u64 FileSystem::writeFile(const std::filesystem::path &path,
-                          const std::vector<char> &content, bool is_binary) {
+u64 writeFile(const std::filesystem::path &path,
+              const std::vector<char> &content, bool is_binary) {
   std::ios_base::openmode flags = std::ofstream::out;
   if (is_binary)
     flags |= std::ofstream::binary;
@@ -184,8 +180,8 @@ u64 FileSystem::writeFile(const std::filesystem::path &path,
   return 0;
 }
 
-u64 FileSystem::writeFile(const std::filesystem::path &path,
-                          const std::string &content, bool is_binary) {
+u64 writeFile(const std::filesystem::path &path, const std::string &content,
+              bool is_binary) {
   std::ios_base::openmode flags = std::ios::out;
   if (is_binary)
     flags |= std::ios::binary;
@@ -198,8 +194,8 @@ u64 FileSystem::writeFile(const std::filesystem::path &path,
   return 0;
 }
 
-u64 FileSystem::writeLine(const std::filesystem::path &path,
-                          const std::string &line, bool is_binary) {
+u64 writeLine(const std::filesystem::path &path, const std::string &line,
+              bool is_binary) {
   std::ios_base::openmode flags = std::ios::out;
   if (is_binary)
     flags |= std::ios::binary;
@@ -212,8 +208,8 @@ u64 FileSystem::writeLine(const std::filesystem::path &path,
   return 0;
 }
 
-u64 FileSystem::appendToFile(const std::filesystem::path &path,
-                             const std::vector<char> &content, bool is_binary) {
+u64 appendToFile(const std::filesystem::path &path,
+                 const std::vector<char> &content, bool is_binary) {
   auto flags = std::ios::out | std::ios::app;
   if (is_binary)
     flags |= std::ios::binary;
@@ -226,8 +222,8 @@ u64 FileSystem::appendToFile(const std::filesystem::path &path,
   return 0;
 }
 
-u64 FileSystem::appendToFile(const std::filesystem::path &path,
-                             const std::string &content, bool is_binary) {
+u64 appendToFile(const std::filesystem::path &path, const std::string &content,
+                 bool is_binary) {
   auto flags = std::ios::out | std::ios::app;
   if (is_binary)
     flags |= std::ios::binary;
@@ -240,8 +236,8 @@ u64 FileSystem::appendToFile(const std::filesystem::path &path,
   return 0;
 }
 
-u64 FileSystem::appendLine(const std::filesystem::path &path,
-                           const std::string &line, bool is_binary) {
+u64 appendLine(const std::filesystem::path &path, const std::string &line,
+               bool is_binary) {
   auto flags = std::ios::out | std::ios::app;
   if (is_binary)
     flags |= std::ios::binary;
@@ -254,37 +250,39 @@ u64 FileSystem::appendLine(const std::filesystem::path &path,
   return 0;
 }
 
-std::vector<std::filesystem::path>
-FileSystem::ls(const std::filesystem::path &path, ls_options options) {
+std::vector<std::filesystem::path> ls(const std::filesystem::path &path,
+                                      ls_options options) {
   std::vector<std::filesystem::path> l;
 
-  if (HERMES_MASK_BIT(options, ls_options::recursive)) {
+  if (contains(options, ls_option_bits::recursive)) {
     for (auto const &dir_entry :
          std::filesystem::recursive_directory_iterator{path}) {
       bool is_directory = std::filesystem::is_directory(dir_entry);
-      if (HERMES_MASK_BIT(options, ls_options::directories) && !is_directory)
+      if (contains(options, ls_option_bits::directories) && !is_directory)
         continue;
-      if (HERMES_MASK_BIT(options, ls_options::files) && is_directory)
+      if (contains(options, ls_option_bits::files) && is_directory)
         continue;
       l.emplace_back(dir_entry);
     }
   } else {
     for (auto const &dir_entry : std::filesystem::directory_iterator{path}) {
       bool is_directory = std::filesystem::is_directory(dir_entry);
-      if (HERMES_MASK_BIT(options, ls_options::directories) && !is_directory)
+      if (contains(options, ls_option_bits::directories) && !is_directory)
         continue;
-      if (HERMES_MASK_BIT(options, ls_options::files) && is_directory)
+      if (contains(options, ls_option_bits::files) && is_directory)
         continue;
       l.emplace_back(dir_entry);
     }
   }
 
-  if ((options & (ls_options::sort | ls_options::reverse_sort |
-                  ls_options::group_directories_first)) != ls_options::none) {
-    bool reverse_order =
-        (options & ls_options::reverse_sort) == ls_options::reverse_sort;
-    bool group_directories = (options & ls_options::group_directories_first) ==
-                             ls_options::group_directories_first;
+  if ((options & (ls_option_bits::sort | ls_option_bits::reverse_sort |
+                  ls_option_bits::group_directories_first)) !=
+      ls_option_bits::none) {
+    bool reverse_order = (options & ls_option_bits::reverse_sort) ==
+                         ls_option_bits::reverse_sort;
+    bool group_directories =
+        (options & ls_option_bits::group_directories_first) ==
+        ls_option_bits::group_directories_first;
     auto cmp = [&](const std::filesystem::path &a,
                    const std::filesystem::path &b) -> bool {
       if (group_directories) {
@@ -301,18 +299,18 @@ FileSystem::ls(const std::filesystem::path &path, ls_options options) {
   return l;
 }
 
-bool FileSystem::mkdir(const std::filesystem::path &path) {
+bool mkdir(const std::filesystem::path &path) {
   return std::filesystem::create_directories(path);
 }
 
-std::filesystem::path FileSystem::cd(const std::filesystem::path &path,
-                                     const std::filesystem::path &step) {
+std::filesystem::path cd(const std::filesystem::path &path,
+                         const std::filesystem::path &step) {
   auto separator = "/";
-  auto current_path = Str::split(path.c_str(), separator);
+  auto current_path = cstr::split(path.c_str(), separator);
   std::stack<std::string> stack;
   for (const auto &s : current_path)
     stack.push(s);
-  auto subpaths = Str::split(step, separator);
+  auto subpaths = cstr::split(step, separator);
   for (const auto &p : subpaths) {
     if (p == ".")
       continue;
@@ -321,27 +319,26 @@ std::filesystem::path FileSystem::cd(const std::filesystem::path &path,
     else if (p != "..")
       stack.push(p);
   }
-  Str r;
+  cstr r;
   bool first = true;
   while (!stack.empty()) {
     if (first)
       r = stack.top();
     else
-      r = Str() << stack.top() << separator << r;
+      r = cstr() << stack.top() << separator << r;
     first = false;
     stack.pop();
   }
   return r;
 }
 
-std::string FileSystem::normalizePath(const std::string &path,
-                                      bool with_backslash) {
+std::string normalizePath(const std::string &path, bool with_backslash) {
   HERMES_UNUSED_VARIABLE(with_backslash);
   if (path.empty())
     return path;
   std::string result = path;
   std::replace(result.begin(), result.end(), '\\', '/');
-  std::vector<std::string> tokens = Str::split(result, "/");
+  std::vector<std::string> tokens = cstr::split(result, "/");
   unsigned int index = 0;
   while (index < tokens.size()) {
     if ((tokens[index] == "..") && (index > 0)) {
@@ -359,20 +356,20 @@ std::string FileSystem::normalizePath(const std::string &path,
   return result;
 }
 
-std::vector<std::filesystem::path>
-FileSystem::find(const std::filesystem::path &path, const std::string &pattern,
-                 find_options options) {
+std::vector<std::filesystem::path> find(const std::filesystem::path &path,
+                                        const std::string &pattern,
+                                        find_options options) {
   std::vector<std::filesystem::path> found;
-  ls_options lso = ls_options::files;
-  if ((options & find_options::recursive) == find_options::recursive)
-    lso = lso | ls_options::recursive;
-  if ((options & find_options::sort) == find_options::sort)
-    lso = lso | ls_options::sort;
+  ls_options lso = ls_option_bits::files;
+  if ((options & find_option_bits::recursive) == find_option_bits::recursive)
+    lso = lso | ls_option_bits::recursive;
+  if ((options & find_option_bits::sort) == find_option_bits::sort)
+    lso = lso | ls_option_bits::sort;
   const auto &l = ls(path, lso);
   for (const auto &p : l)
-    if (Str::regex::contains(p.c_str(), pattern))
+    if (cstr::regex::contains(p.c_str(), pattern))
       found.emplace_back(p);
   return found;
 }
 
-} // namespace hermes
+} // namespace hermes::os

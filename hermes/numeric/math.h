@@ -1,55 +1,46 @@
-/// Copyright (c) 2019, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file numeric.h
+/* Copyright (c) 2019, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+///\file   numeric.h
 ///\author FilipeCN (filipedecn@gmail.com)
-///\date 2019-17-09
-///
-///\brief Number functions
-///
-///\ingroup numeric
-///\addtogroup numeric
-/// @{
+///\date   2019-17-09
+///\brief  numbers functions
 
-#ifndef HERMES_GEOMETRY_CUDA_NUMERIC_H
-#define HERMES_GEOMETRY_CUDA_NUMERIC_H
+#pragma once
 
-#include <hermes/common/debug.h>
-#include <hermes/common/defs.h>
+#include <hermes/base/debug.h>
+
 #include <algorithm>
 #include <cmath>
-#include <functional>
-#include <vector>
 #include <cstring>
 
 namespace hermes {
 
-// *********************************************************************************************************************
-//                                                                                                          Constants
-// *********************************************************************************************************************
-/// \brief Numeric constants
-struct Constants {
-  // *******************************************************************************************************************
-  //                                                                                                    STATIC FIELDS
-  // *******************************************************************************************************************
+// *****************************************************************************
+//                                                                  Constants
+// *****************************************************************************
+
+/// Numeric constants
+struct numeric_constants {
   static constexpr real_t pi = 3.14159265358979323846;
   static constexpr real_t two_pi = 6.28318530718;
   static constexpr real_t inv_pi = 0.31830988618379067154;
@@ -57,7 +48,8 @@ struct Constants {
   static constexpr real_t inv_four_pi = 0.07957747154594766788;
   static constexpr real_t pi_over_four = 0.78539816339;
   static constexpr real_t pi_over_two = 1.57079632679;
-  static constexpr real_t machine_epsilon = std::numeric_limits<real_t>::epsilon() * .5;
+  static constexpr real_t machine_epsilon =
+      std::numeric_limits<real_t>::epsilon() * .5;
   static constexpr real_t real_infinity = std::numeric_limits<real_t>::max();
   static constexpr f64 f64_one_minus_epsilon = 0x1.fffffffffffffp-1;
   static constexpr f32 f32_one_minus_epsilon = 0x1.fffffep-1;
@@ -68,12 +60,14 @@ struct Constants {
 #endif
 };
 
-// *********************************************************************************************************************
-//                                                                                                            Numbers
-// *********************************************************************************************************************
-/// \brief Number functions
-struct Numbers {
-  //                                                                                                           limits
+// *****************************************************************************
+//                                                                    numbers
+// *****************************************************************************
+
+/// \brief numbers functions
+struct numbers {
+  //                                                                    limits
+
   /// \brief Gets lowest representable 64 bit floating point
   /// \tparam T
   /// \return
@@ -89,7 +83,7 @@ struct Numbers {
   /// \brief Gets lowest representable floating point
   /// \tparam T
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
+  template <typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
     return T(lowest_f32());
   }
   /// \brief Gets greatest representable 32 bit floating point
@@ -105,16 +99,19 @@ struct Numbers {
   /// \brief Gets greatest representable floating point
   /// \tparam T
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
+  template <typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
     return T(greatest_f32());
   }
-  //                                                                                                          queries
+
+  //                                                                   queries
+
   /// \brief Computes minimum between two numbers
   /// \tparam T
   /// \param a
   /// \param b
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T min(const T &a, const T &b) {
+  template <typename T>
+  HERMES_DEVICE_CALLABLE static constexpr T min(const T &a, const T &b) {
     if (a < b)
       return a;
     return b;
@@ -124,7 +121,8 @@ struct Numbers {
   /// \param a
   /// \param b
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T max(const T &a, const T &b) {
+  template <typename T>
+  HERMES_DEVICE_CALLABLE static constexpr T max(const T &a, const T &b) {
     if (a > b)
       return a;
     return b;
@@ -133,8 +131,9 @@ struct Numbers {
   /// \tparam T
   /// \param l
   /// \return
-  template<typename T>
-  HERMES_DEVICE_CALLABLE static inline constexpr T min(std::initializer_list<T> l) {
+  template <typename T>
+  HERMES_DEVICE_CALLABLE static inline constexpr T
+  min(std::initializer_list<T> l) {
     T m = *l.begin();
     for (auto n : l)
       if (m > n)
@@ -145,8 +144,9 @@ struct Numbers {
   /// \tparam T
   /// \param l
   /// \return
-  template<typename T>
-  HERMES_DEVICE_CALLABLE static inline constexpr T max(std::initializer_list<T> l) {
+  template <typename T>
+  HERMES_DEVICE_CALLABLE static inline constexpr T
+  max(std::initializer_list<T> l) {
     T m = *l.begin();
     for (auto n : l)
       if (m < n)
@@ -157,8 +157,7 @@ struct Numbers {
   /// \tparam T
   /// \param n
   /// \return
-  template<typename T>
-  HERMES_DEVICE_CALLABLE static u8 countHexDigits(T n) {
+  template <typename T> HERMES_DEVICE_CALLABLE static u8 countHexDigits(T n) {
     u8 count = 0;
     while (n) {
       count++;
@@ -166,22 +165,26 @@ struct Numbers {
     }
     return count;
   }
-  //                                                                                                         rounding
+
+  //                                                                  rounding
+
   /// \brief Clamps value to closed interval
   /// \param n **[in]** value
   /// \param l **[in]** low
   /// \param u **[in]** high
   /// \return clamp **b** to be in **[l, h]**
-  template<typename T>
+  template <typename T>
   HERMES_DEVICE_CALLABLE static T clamp(const T &n, const T &l, const T &u) {
     return fmaxf(l, fminf(n, u));
   }
-  //                                                                                                        functions
+
+  //                                                                 functions
+
   /// \brief Swaps values
   /// \tparam T
   /// \param a
   /// \param b
-  template<typename T> HERMES_DEVICE_CALLABLE static void swap(T &a, T &b) {
+  template <typename T> HERMES_DEVICE_CALLABLE static void swap(T &a, T &b) {
     T tmp = a;
     a = b;
     b = tmp;
@@ -189,24 +192,28 @@ struct Numbers {
   /// \tparam T
   /// \param a
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T sqr(T a) { return a * a; }
+  template <typename T> HERMES_DEVICE_CALLABLE static constexpr T sqr(T a) {
+    return a * a;
+  }
   /// \brief Computes square
   /// \tparam T
   /// \param a
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T cube(T a) { return a * a * a; }
+  template <typename T> HERMES_DEVICE_CALLABLE static constexpr T cube(T a) {
+    return a * a * a;
+  }
   /// \brief Computes sign
   /// \tparam T
   /// \param a
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static int sign(T a) {
+  template <typename T> HERMES_DEVICE_CALLABLE static int sign(T a) {
     return a >= 0 ? 1 : -1;
   }
   /// \brief Computes square root
   /// \tparam T
   /// \param a
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE static constexpr T sqrt(T a) {
+  template <typename T> HERMES_DEVICE_CALLABLE static constexpr T sqrt(T a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     return sqrtf(a);
 #else
@@ -219,7 +226,8 @@ struct Numbers {
   /// \param b
   /// \param c
   /// \return
-  template<typename T> HERMES_DEVICE_CALLABLE  static inline T FMA(T a, T b, T c) {
+  template <typename T>
+  HERMES_DEVICE_CALLABLE static inline T FMA(T a, T b, T c) {
     return a * b + c;
   }
   /// \brief Computes difference of products
@@ -232,8 +240,9 @@ struct Numbers {
   /// \param c
   /// \param d
   /// \return
-  template<typename Ta, typename Tb, typename Tc, typename Td>
-  HERMES_DEVICE_CALLABLE static inline auto differenceOfProducts(Ta a, Tb b, Tc c, Td d) {
+  template <typename Ta, typename Tb, typename Tc, typename Td>
+  HERMES_DEVICE_CALLABLE static inline auto differenceOfProducts(Ta a, Tb b,
+                                                                 Tc c, Td d) {
     auto cd = c * d;
     auto difference_of_products = FMA(a, b, -cd);
     auto error = FMA(-c, d, cd);
@@ -245,8 +254,9 @@ struct Numbers {
   /// \param t
   /// \param c
   /// \return
-  template<typename T, typename C>
-  HERMES_DEVICE_CALLABLE static inline constexpr T evaluatePolynomial(T t, C c) {
+  template <typename T, typename C>
+  HERMES_DEVICE_CALLABLE static inline constexpr T evaluatePolynomial(T t,
+                                                                      C c) {
     HERMES_UNUSED_VARIABLE(t)
     return c;
   }
@@ -258,8 +268,9 @@ struct Numbers {
   /// \param c
   /// \param cs
   /// \return
-  template<typename T, typename C, typename... Args>
-  HERMES_DEVICE_CALLABLE static inline constexpr T evaluatePolynomial(T t, C c, Args... cs) {
+  template <typename T, typename C, typename... Args>
+  HERMES_DEVICE_CALLABLE static inline constexpr T
+  evaluatePolynomial(T t, C c, Args... cs) {
     return FMA(t, evaluatePolynomial(t, cs...), c);
   }
   /// \brief Bisect range based on predicate
@@ -267,22 +278,26 @@ struct Numbers {
   /// \param sz
   /// \param pred
   /// \return
-  template<typename Predicate>
-  HERMES_DEVICE_CALLABLE static inline size_t findInterval(size_t sz, const Predicate &pred) {
+  template <typename Predicate>
+  HERMES_DEVICE_CALLABLE static inline size_t
+  findInterval(size_t sz, const Predicate &pred) {
     using ssize_t = std::make_signed_t<size_t>;
-    ssize_t size = (ssize_t) sz - 2, first = 1;
+    ssize_t size = (ssize_t)sz - 2, first = 1;
     while (size > 0) {
-      size_t half = (size_t) size >> 1, middle = first + half;
+      size_t half = (size_t)size >> 1, middle = first + half;
       bool predResult = pred(middle);
       first = predResult ? middle + 1 : first;
       size = predResult ? size - (half + 1) : half;
     }
-    return (size_t) clamp<ssize_t>((ssize_t) first - 1, 0, sz - 2);
+    return (size_t)clamp<ssize_t>((ssize_t)first - 1, 0, sz - 2);
   }
-  // *******************************************************************************************************************
-  //                                                                                                           BINARY
-  // *******************************************************************************************************************
-  //                                                                                                          integer
+
+  // ***************************************************************************
+  //                                                                    BINARY
+  // ***************************************************************************
+
+  //                                                                   integer
+
   /// \brief Separate bits by 1 bit-space
   /// \param n
   /// \return
@@ -310,7 +325,7 @@ struct Numbers {
   /// \return
   HERMES_DEVICE_CALLABLE static inline u32 interleaveBits(u32 x, u32 y, u32 z) {
     return (separateBitsBy2(z) << 2) + (separateBitsBy2(y) << 1) +
-        separateBitsBy2(x);
+           separateBitsBy2(x);
   }
   /// \brief Interleaves bits of two integers
   /// \param x
@@ -319,7 +334,9 @@ struct Numbers {
   HERMES_DEVICE_CALLABLE static inline u32 interleaveBits(u32 x, u32 y) {
     return (separateBitsBy1(y) << 1) + separateBitsBy1(x);
   }
-  //                                                                                                            float
+
+  //                                                                     float
+
   /// \brief Extracts exponent from floating-point number
   /// \param v
   /// \return
@@ -462,20 +479,29 @@ struct Numbers {
       ++ui;
     return bitsToDouble(ui);
   }
-  // *******************************************************************************************************************
-  //                                                                                                          INTEGER
-  // *******************************************************************************************************************
-  //                                                                                                          limits
+
+  // ***************************************************************************
+  //                                                                   INTEGER
+  // ***************************************************************************
+
+  //                                                                    limits
+
   /// \brief Gets minimum representable 32 bit signed integer
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr int lowest_int() { return -2147483647; }
+  HERMES_DEVICE_CALLABLE static constexpr int lowest_int() {
+    return -2147483647;
+  }
   /// \brief Gets maximum representable 32 bit signed integer
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr int greatest_int() { return 2147483647; }
+  HERMES_DEVICE_CALLABLE static constexpr int greatest_int() {
+    return 2147483647;
+  }
   /// \brief Checks if integer is power of 2
   /// \param v **[in]** value
   /// \return **true** if **v** is power of 2
-  HERMES_DEVICE_CALLABLE static constexpr inline bool isPowerOf2(int v) { return (v & (v - 1)) == 0; }
+  HERMES_DEVICE_CALLABLE static constexpr inline bool isPowerOf2(int v) {
+    return (v & (v - 1)) == 0;
+  }
   /// \brief Computes modulus
   /// \param a **[in]**
   /// \param b **[in]**
@@ -487,20 +513,30 @@ struct Numbers {
       a += b;
     return a;
   }
-  //                                                                                                         rounding
+
+  //                                                                  rounding
+
   /// \brief rounds up
   /// \param f **[in]**
   /// \return ceil of **f**
-  HERMES_DEVICE_CALLABLE static inline int ceil2Int(float f) { return static_cast<int>(f + 0.5f); }
+  HERMES_DEVICE_CALLABLE static inline int ceil2Int(float f) {
+    return static_cast<int>(f + 0.5f);
+  }
   /// \brief rounds down
   /// \param f **[in]**
   /// \return floor of **f**
-  HERMES_DEVICE_CALLABLE static inline int floor2Int(float f) { return static_cast<int>(f); }
+  HERMES_DEVICE_CALLABLE static inline int floor2Int(float f) {
+    return static_cast<int>(f);
+  }
   /// \brief rounds to closest integer
   /// \param f **[in]**
   /// \return next integer greater or equal to **f**
-  HERMES_DEVICE_CALLABLE static inline int round2Int(float f) { return f + .5f; }
-  //                                                                                                         rounding
+  HERMES_DEVICE_CALLABLE static inline int round2Int(float f) {
+    return f + .5f;
+  }
+
+  //                                                                  rounding
+
   /// \brief Computes number of digits
   /// \param t
   /// \param base
@@ -514,10 +550,12 @@ struct Numbers {
     return count;
   }
 
-  // *******************************************************************************************************************
-  //                                                                                                   FLOATING POINT
-  // *******************************************************************************************************************
-  //                                                                                                         rounding
+  // ***************************************************************************
+  //                                                            FLOATING POINT
+  // ***************************************************************************
+
+  //                                                                  rounding
+
   /// \brief Extract decimal fraction from x
   /// \param x
   /// \return
@@ -675,7 +713,9 @@ struct Numbers {
     return nextFloatUp(std::sqrt(a));
 #endif
   }
-  //                                                                                                        functions
+
+  //                                                                 functions
+
   /// \brief Computes base 2 log
   /// \param x **[in]** value
   /// \return base-2 logarithm of **x**
@@ -691,7 +731,7 @@ struct Numbers {
   /// \param x
   /// \return
   HERMES_DEVICE_CALLABLE static f32 safe_sqrt(f32 x) {
-    HERMES_CHECK_EXP(x >= -1e-3f)
+    HERMES_CHECK(x >= -1e-3f)
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     return sqrtf(fmaxf(0.f, x));
 #else
@@ -702,12 +742,12 @@ struct Numbers {
   /// \tparam n
   /// \param b
   /// \return
-  template<int n>
+  template <int n>
   HERMES_DEVICE_CALLABLE static inline constexpr real_t pow(real_t b) {
     if constexpr (n < 0)
       return 1 / pow<-n>(b);
     float n2 = pow<n / 2>(b);
-    return n2 * n2 * pow<n & 1>(b);
+    return n2 * n2 * pow < n & 1 > (b);
   }
   /// \brief Computes fast exponential
   /// \param x
@@ -721,107 +761,110 @@ struct Numbers {
 
     // Find integer and fractional components of $x'$
     float fxp = std::floor(xp), f = xp - fxp;
-    int i = (int) fxp;
+    int i = (int)fxp;
 
     // Evaluate polynomial approximation of $2^f$
-    float twoToF = evaluatePolynomial(f, 1.f, 0.695556856f, 0.226173572f, 0.0781455737f);
+    float twoToF =
+        evaluatePolynomial(f, 1.f, 0.695556856f, 0.226173572f, 0.0781455737f);
 
     // Scale $2^f$ by $2^i$ and return final result
     int exponent = floatExponent(twoToF) + i;
     if (exponent < -126)
       return 0;
     if (exponent > 127)
-      return Constants::real_infinity;
+      return numeric_constants::real_infinity;
     uint32_t bits = floatToBits(twoToF);
     bits &= 0b10000000011111111111111111111111u;
     bits |= (exponent + 127) << 23;
     return bitsToFloat(bits);
 #endif
   }
-  // *******************************************************************************************************************
-  //                                                                                                            ERROR
-  // *******************************************************************************************************************
+
+  // ***************************************************************************
+  //                                                                     ERROR
+  // ***************************************************************************
+
   /// \brief Computes conservative bounds in error
   /// \param n
   /// \return
   HERMES_DEVICE_CALLABLE static constexpr real_t gamma(i32 n) {
-    return (n * Constants::machine_epsilon) / (1 - n * Constants::machine_epsilon);
+    return (n * numeric_constants::machine_epsilon) /
+           (1 - n * numeric_constants::machine_epsilon);
   }
 };
 /// \brief Gets lowest representable 64 bit floating point
 /// \return
-template<> HERMES_DEVICE_CALLABLE inline constexpr f64 Numbers::lowest() {
-  return Numbers::lowest_f64();
+template <> HERMES_DEVICE_CALLABLE inline constexpr f64 numbers::lowest() {
+  return numbers::lowest_f64();
 }
 /// \brief Gets lowest representable 32 bit floating point
 /// \return
-template<> HERMES_DEVICE_CALLABLE inline constexpr f32 Numbers::lowest() {
-  return Numbers::lowest_f32();
+template <> HERMES_DEVICE_CALLABLE inline constexpr f32 numbers::lowest() {
+  return numbers::lowest_f32();
 }
 /// \brief Computes v to the power of 1
 /// \param v
 /// \return
-template<>
-HERMES_DEVICE_CALLABLE inline constexpr float Numbers::pow<1>(float v) {
+template <>
+HERMES_DEVICE_CALLABLE inline constexpr float numbers::pow<1>(float v) {
   HERMES_UNUSED_VARIABLE(v);
   return v;
 }
 /// \brief Computes v to the power of 0
 /// \param v
 /// \return
-template<>
-HERMES_DEVICE_CALLABLE inline constexpr float Numbers::pow<0>(float v) {
+template <>
+HERMES_DEVICE_CALLABLE inline constexpr float numbers::pow<0>(float v) {
   HERMES_UNUSED_VARIABLE(v);
   return 1;
 }
 /// \brief Gets greatest 32 bit floating point number
 /// \return
-template<> HERMES_DEVICE_CALLABLE inline constexpr f32 Numbers::greatest() {
+template <> HERMES_DEVICE_CALLABLE inline constexpr f32 numbers::greatest() {
   return greatest_f32();
 }
 /// \brief Gets greatest 64 bit floating point number
 /// \return
-template<> HERMES_DEVICE_CALLABLE inline constexpr f64 Numbers::greatest() {
+template <> HERMES_DEVICE_CALLABLE inline constexpr f64 numbers::greatest() {
   return greatest_f64();
 }
-// *********************************************************************************************************************
-//                                                                                                       Trigonometry
-// *********************************************************************************************************************
+
+// *****************************************************************************
+//                                                                Trigonometry
+// *****************************************************************************
+
 /// \brief Trigonometric functions
-struct Trigonometry {
-  // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
+struct trigonometry {
   /// \brief Converts radians to degrees
   /// \param a
   /// \return
   HERMES_DEVICE_CALLABLE static constexpr real_t radians2degrees(real_t a) {
-    return a * 180.f / Constants::pi;
+    return a * 180.f / numeric_constants::pi;
   }
   /// \brief Converts degrees to radians
   /// \param a
   /// \return
   HERMES_DEVICE_CALLABLE static constexpr real_t degrees2radians(real_t a) {
-    return a * Constants::pi / 180.f;
+    return a * numeric_constants::pi / 180.f;
   }
   /// \brief Computes acos with clamped input
   /// \param x
   /// \return
   HERMES_DEVICE_CALLABLE static inline f32 safe_acos(f32 x) {
-    return std::acos(Numbers::clamp<f32>(x, -1, 1));
+    return std::acos(numbers::clamp<f32>(x, -1, 1));
   }
   /// \brief Computes asin with clamped input
   /// \param x
   /// \return
   HERMES_DEVICE_CALLABLE static inline f32 safe_asin(f32 x) {
-    return std::asin(Numbers::clamp<f32>(x, -1, 1));
+    return std::asin(numbers::clamp<f32>(x, -1, 1));
   }
 };
 
-// *********************************************************************************************************************
-//                                                                                                              Check
-// *********************************************************************************************************************
-/// \brief Number checks
+// *****************************************************************************
+//                                                                       Check
+// *****************************************************************************
+/// \brief numbers checks
 struct Check {
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
@@ -830,7 +873,7 @@ struct Check {
   ///\tparam T
   ///\param a **[in]**
   ///\return constexpr bool
-  template<typename T>
+  template <typename T>
   HERMES_DEVICE_CALLABLE static constexpr bool is_zero(T a) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
     return fabs(a) < 1e-8;
@@ -843,7 +886,7 @@ struct Check {
   ///\param a **[in]**
   ///\param b **[in]**
   ///\return constexpr bool
-  template<typename T>
+  template <typename T>
   HERMES_DEVICE_CALLABLE static constexpr bool is_equal(T a, T b) {
     return fabs(a - b) < 1e-8;
   }
@@ -853,7 +896,7 @@ struct Check {
   ///\param b **[in]**
   ///\param e **[in]**
   ///\return constexpr bool
-  template<typename T>
+  template <typename T>
   HERMES_DEVICE_CALLABLE static constexpr bool is_equal(T a, T b, T e) {
     return fabs(a - b) < e;
   }
@@ -863,7 +906,7 @@ struct Check {
   ///\param a **[in]**
   ///\param b **[in]**
   ///\return constexpr bool
-  template<typename T> static constexpr bool is_between(T x, T a, T b) {
+  template <typename T> static constexpr bool is_between(T x, T a, T b) {
     return x > a && x < b;
   }
   ///\brief Checks if a number is in a closed interval
@@ -872,23 +915,23 @@ struct Check {
   ///\param a **[in]**
   ///\param b **[in]**
   ///\return constexpr bool
-  template<typename T> static constexpr bool is_between_closed(T x, T a, T b) {
+  template <typename T> static constexpr bool is_between_closed(T x, T a, T b) {
     return x >= a && x <= b;
   }
   /// \brief Checks if number representation is `nan`
   /// \tparam T
   /// \param v
   /// \return
-  template<typename T>
-  HERMES_DEVICE_CALLABLE static inline typename std::enable_if_t<std::is_floating_point<T>::value, bool>
-  is_nan(T v) {
+  template <typename T>
+  HERMES_DEVICE_CALLABLE static inline
+      typename std::enable_if_t<std::is_floating_point<T>::value, bool>
+      is_nan(T v) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     return isnan(v);
 #else
     return std::isnan(v);
 #endif
   }
-
 };
 
 namespace numeric {
@@ -900,15 +943,16 @@ namespace numeric {
 /// \param x0
 /// \param x1
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE bool soveLinearSystem(const T A[2][2], const T B[2], T *x0, T *x1) {
+template <typename T>
+HERMES_DEVICE_CALLABLE bool soveLinearSystem(const T A[2][2], const T B[2],
+                                             T *x0, T *x1) {
   T det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
   if (abs(det) < 1e-10f)
     return false;
   *x0 = (A[1][1] * B[0] - A[0][1] * B[1]) / det;
   *x1 = (A[0][0] * B[1] - A[1][0] * B[0]) / det;
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-  if(isnan(*x0) || isnan(*x1))
+  if (isnan(*x0) || isnan(*x1))
     return false;
 #else
   if (std::isnan(*x0) || std::isnan(*x1))
@@ -917,20 +961,17 @@ HERMES_DEVICE_CALLABLE bool soveLinearSystem(const T A[2][2], const T B[2], T *x
   return true;
 }
 
-}
+} // namespace numeric
+
 //
-//template<typename T>
+// template<typename T>
 //__device__ __host__ unsigned int mortonCode(const Point3 <T> &v) {
 //  return interleaveBits(v[0], v[1], v[2]);
 //}
 //
-//template<typename T>
+// template<typename T>
 //__device__ __host__ unsigned int mortonCode(const Point2 <T> &v) {
 //  return interleaveBits(v[0], v[1]);
 //}
 
 } // namespace hermes
-
-#endif
-
-/// @}

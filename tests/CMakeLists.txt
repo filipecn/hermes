@@ -1,6 +1,6 @@
 add_executable(hermes_tests 
-  common_tests.cpp
-  log_tests.cpp
+  base_tests.cpp
+  io_tests.cpp
   system_tests.cpp
 )
 
@@ -10,7 +10,7 @@ add_dependencies(hermes_tests Catch2 hermes)
 
 target_include_directories(hermes_tests PUBLIC 
   ${CATCH2_INCLUDES} 
-  ${HERMES_SOURCE_DIR}
+  ${HERMES_INCLUDE_DIR}
 )
 set_target_properties(hermes_tests PROPERTIES LINKER_LANGUAGE CXX)
 
