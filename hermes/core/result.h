@@ -31,10 +31,6 @@
 
 #include <utility> // std::move
 
-#ifdef HERMES_INCLUDE_TO_STRING
-#include <sstream>
-#endif
-
 /// Enumeration of errors handled by hermes.
 enum class HeError {
   NO_ERROR = 0,        //!< no errors occurred
@@ -48,25 +44,6 @@ enum class HeError {
 };
 
 namespace hermes {
-
-#ifdef HERMES_INCLUDE_TO_STRING
-inline std::string to_string(HeError err) {
-  std::stringstream ss;
-#define HE_ERROR_NAME(E)                                                       \
-  if (err == HeError::E)                                                       \
-  ss << #E
-  HE_ERROR_NAME(NO_ERROR);
-  HE_ERROR_NAME(BAD_ALLOCATION);
-  HE_ERROR_NAME(OUT_OF_BOUNDS);
-  HE_ERROR_NAME(INVALID_INPUT);
-  HE_ERROR_NAME(BAD_OPERATION);
-  HE_ERROR_NAME(NOT_IMPLEMENTED);
-  HE_ERROR_NAME(CUSTOM_ERROR);
-  HE_ERROR_NAME(UNKNOWN_ERROR);
-  return ss.str();
-#undef HE_ERROR_NAME
-}
-#endif
 
 namespace detail {
 template <class T> struct UnexpectedResultType {
