@@ -47,6 +47,143 @@
 // *****************************************************************************
 //                                                                      UTILS
 // *****************************************************************************
+
+#ifndef HERMES_TO_STRING_DEBUG_METHOD
+#ifdef HERMES_DEBUG
+#define HERMES_TO_STRING_DEBUG_METHOD                                          \
+  std::string to_string(u32 tab_size = 0) const;
+
+/// Auxiliary struct for implementing the to_string classes method.
+struct DebugFields {
+  enum class Type { Inline, NextLine, Separator };
+  DebugFields(const std::string &name) : name(name) {}
+  std::string name;
+  std::vector<std::tuple<Type, std::string, std::string>> fields;
+  void add(Type type, const std::string &name, const std::string &value) {
+    fields.emplace_back(std::make_tuple(type, name, value));
+  }
+  std::string to_string(u32 tab_size = 0) {
+    std::string tab(tab_size, ' ');
+    std::stringstream ss;
+    ss << tab << "++++++ " << name << " +++++++\n";
+    for (const auto &field : fields) {
+      std::string field_name, value;
+      Type type;
+      std::tie(type, field_name, value) = field;
+      switch (type) {
+      case Type::Inline:
+        ss << tab << "  " << field_name << ": " << value << "\n";
+        break;
+      case Type::NextLine:
+        ss << tab << "  " << field_name << ":\n";
+        ss << tab << " " << value << "\n";
+        break;
+      case Type::Separator:
+        ss << tab << "--------------------------\n";
+      }
+    }
+    return ss.str();
+  }
+};
+
+#ifndef HERMES_TO_STRING_DEBUG_METHOD_BEGIN
+#define HERMES_TO_STRING_DEBUG_METHOD_BEGIN(NAME)                              \
+  std::string NAME::to_string(u32 tab_size) const {                            \
+    DebugFields debug_fields(#NAME);
+#endif
+
+#ifndef HERMES_TO_STRING_DEBUG_METHOD_END
+#define HERMES_TO_STRING_DEBUG_METHOD_END                                      \
+  return debug_fields.to_string(tab_size);                                     \
+  }
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_HERMES_FIELD
+#define HERMES_PUSH_DEBUG_HERMES_FIELD(F)                                      \
+  debug_fields.add(DebugFields::Type::NextLine, #F, F.to_string(tab_size + 2));
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_HERMES_PTR_FIELD
+#define HERMES_PUSH_DEBUG_HERMES_PTR_FIELD(F)                                  \
+  debug_fields.add(DebugFields::Type::NextLine, #F,                            \
+                   F ? F->to_string(tab_size + 2) : "nullptr");
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_CUSTOM_FIELD
+#define HERMES_PUSH_DEBUG_CUSTOM_FIELD(F, V)                                   \
+  debug_fields.add(DebugFields::Type::Inline, #F, V);
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_RAW_PTR_FIELD
+#define HERMES_PUSH_DEBUG_RAW_PTR_FIELD(F)                                     \
+  debug_fields.add(                                                            \
+      DebugFields::Type::Inline, #F,                                           \
+      F ? venus::Str<char>::addressOf(reinterpret_cast<std::uintptr_t>(F))     \
+        : "nullptr");
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_FIELD
+#define HERMES_PUSH_DEBUG_FIELD(F)                                             \
+  debug_fields.add(DebugFields::Type::Inline, #F, std::to_string(F));
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_SEPARATOR_LINE
+#define HERMES_PUSH_DEBUG_SEPARATOR_LINE                                       \
+  debug_fields.add(DebugFields::Type::Separator, "", "");
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_VK_FIELD
+#define HERMES_PUSH_DEBUG_VK_FIELD(F)                                          \
+  debug_fields.add(DebugFields::Type::Inline, #F, vk::to_string(F));
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_VK_RAII_FIELD
+#define HERMES_PUSH_DEBUG_VK_RAII_FIELD(F)                                     \
+  debug_fields.add(DebugFields::Type::Inline, #F,                              \
+                   (*F == nullptr) ? "nullptr" : "good");
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_GLM_FIELD
+#define HERMES_PUSH_DEBUG_GLM_FIELD(F)                                         \
+  debug_fields.add(DebugFields::Type::NextLine, #F, glm::to_string(F));
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN
+#define HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN(F, I)                              \
+  tab_size += 2;                                                               \
+  debug_fields.add(DebugFields::Type::Inline, #F, std::to_string(F.size()));   \
+  for (u32 i = 0; i < F.size(); ++i) {                                         \
+    const auto &I = F[i];                                                      \
+    debug_fields.add(DebugFields::Type::Inline, #I, std::to_string(i));
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_ARRAY_FIELD_END
+#define HERMES_PUSH_DEBUG_ARRAY_FIELD_END                                      \
+  }                                                                            \
+  tab_size -= 2;
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_MAP_FIELD_BEGIN
+#define HERMES_PUSH_DEBUG_MAP_FIELD_BEGIN(F, K, V)                             \
+  tab_size += 2;                                                               \
+  debug_fields.add(DebugFields::Type::Inline, #F, std::to_string(F.size()));   \
+  for (const auto &item : F) {                                                 \
+    const auto &K = item.first;                                                \
+    const auto &V = item.second;                                               \
+    debug_fields.add(DebugFields::Type::Inline, #K, K);
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_MAP_FIELD_END
+#define HERMES_PUSH_DEBUG_MAP_FIELD_END                                        \
+  }                                                                            \
+  tab_size -= 2;
+#endif
+
+#else
+#define HERMES_TO_STRING_METHOD
+#endif
+#endif
+
 // *****************************************************************************
 //                                                       COMPILATION WARNINGS
 // *****************************************************************************
