@@ -7,11 +7,11 @@ cmake_policy(SET CMP0177 NEW)
 # ##############################################################################
 #                                                                      OPTIONS #
 # ##############################################################################
-option(BUILD_ALL "build all libraries" OFF)
-option(BUILD_TESTS "build library unit tests" OFF)
-option(BUILD_EXAMPLES "build library examples" OFF)
-option(BUILD_SHARED "build shared library" OFF)
-option(BUILD_DOCS "build library documentation" OFF)
+option(HERMES_BUILD_ALL "build all libraries" OFF)
+option(HERMES_BUILD_TESTS "build library unit tests" OFF)
+option(HERMES_BUILD_EXAMPLES "build library examples" OFF)
+option(HERMES_BUILD_SHARED "build shared library" OFF)
+option(HERMES_BUILD_DOCS "build library documentation" OFF)
 
 # ##############################################################################
 #                                                                      PROJECT #
@@ -64,13 +64,13 @@ install(
 # ##############################################################################
 #                                                                         TEST #
 # ##############################################################################
-if(BUILD_TESTS)
+if(HERMES_BUILD_TESTS)
   add_subdirectory(tests)
-endif(BUILD_TESTS)
+endif(HERMES_BUILD_TESTS)
 
 # ##############################################################################
 #                                                                DOCUMENTATION #
 # ##############################################################################
-if(BUILD_DOCS)
+if(HERMES_BUILD_DOCS)
   include(GenerateDocs)
-endif(BUILD_DOCS)
+endif(HERMES_BUILD_DOCS)

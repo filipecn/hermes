@@ -48,15 +48,15 @@ Depending on what you want to compile, you may need to set some `cmake` options:
 
 | variable | description | default  |
 |--------------|--------|-----|
-| BUILD_ALL  | set all variables below to ON | OFF |
-| BUILD_WITH_CUDA  | compiles with support to CUDA | OFF |
-| BUILD_TESTS  | build unit-tests | OFF |
-| BUILD_EXAMPLES  | build examples | OFF |
-| BUILD_DOCS  | generates documentation | OFF |
+| HERMES_BUILD_ALL  | set all variables below to ON | OFF |
+| HERMES_BUILD_WITH_CUDA  | compiles with support to CUDA | OFF |
+| HERMES_BUILD_TESTS  | build unit-tests | OFF |
+| HERMES_BUILD_EXAMPLES  | build examples | OFF |
+| HERMES_BUILD_DOCS  | generates documentation | OFF |
 
 Suppose you would like to use `CUDA` and also perform the unit tests, your `cmake` command then will look like this:
 ````shell
-cmake .. -DBUILD_WITH_CUDA=ON -DBUILD_TESTS=ON
+cmake .. -DHERMES_BUILD_WITH_CUDA=ON -DHERMES_BUILD_TESTS=ON
 ````
 
 > I've been developing Hermes under Ubuntu 20.04, I have no idea how it behaves on other systems (or distributions).

@@ -42,12 +42,12 @@ endif (CMAKE_COMPILER_IS_GNUCXX)
 # ##############################################################################
 #                                                                         CUDA #
 # ##############################################################################
-if (BUILD_WITH_CUDA)
+if (HERMES_BUILD_WITH_CUDA)
     set(CMAKE_CUDA_STANDARD 17)
     set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
     set(CMAKE_CXX_EXTENSIONS Off)
     set(CMAKE_CUDA_EXTENSIONS Off)
-endif (BUILD_WITH_CUDA)
+  endif (HERMES_BUILD_WITH_CUDA)
 
 # ##############################################################################
 #                                                                     PROFILES #

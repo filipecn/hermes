@@ -46,14 +46,3 @@ TEST_CASE("size", "[common]") {
     REQUIRE(!s.contains(10, 0));
   }
 }
-
-void foo() {
-  using namespace std::chrono_literals;
-  HERMES_PROFILE_FUNCTION();
-  hermes::SystemTime::init();
-  std::this_thread::sleep_for(100ms);
-  for (int j = 0; j < 2; ++j) {
-    HERMES_PROFILE_SCOPE("for loop");
-    std::this_thread::sleep_for(200us);
-  }
-}

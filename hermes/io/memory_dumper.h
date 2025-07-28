@@ -109,7 +109,7 @@ public:
   /// Layout for you
   struct Layout {
     /// \brief Default constructor
-    Layout() = default;
+    Layout() {}
     /// \brief Modifies layout offset
     /// \param offset_in_bytes
     /// \return
