@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include <hermes/base/debug.h>
 #include <hermes/base/str.h>
+#include <hermes/core/debug.h>
 #include <hermes/io/console_colors.h>
 #include <hermes/numeric/math.h>
 

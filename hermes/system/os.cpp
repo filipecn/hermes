@@ -26,7 +26,7 @@
 
 #include <hermes/system/os.h>
 
-#include <hermes/base/debug.h>
+#include <hermes/core/debug.h>
 
 #include <algorithm>
 #include <cstdio>

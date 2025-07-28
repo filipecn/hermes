@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <hermes/base/debug.h>
+#include <hermes/core/debug.h>
 
 #include <atomic>
 #include <functional>
