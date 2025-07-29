@@ -132,22 +132,6 @@ struct DebugFields {
   debug_fields.add(DebugFields::Type::Separator, "", "");
 #endif
 
-#ifndef HERMES_PUSH_DEBUG_VK_FIELD
-#define HERMES_PUSH_DEBUG_VK_FIELD(F)                                          \
-  debug_fields.add(DebugFields::Type::Inline, #F, vk::to_string(F));
-#endif
-
-#ifndef HERMES_PUSH_DEBUG_VK_RAII_FIELD
-#define HERMES_PUSH_DEBUG_VK_RAII_FIELD(F)                                     \
-  debug_fields.add(DebugFields::Type::Inline, #F,                              \
-                   (*F == nullptr) ? "nullptr" : "good");
-#endif
-
-#ifndef HERMES_PUSH_DEBUG_GLM_FIELD
-#define HERMES_PUSH_DEBUG_GLM_FIELD(F)                                         \
-  debug_fields.add(DebugFields::Type::NextLine, #F, glm::to_string(F));
-#endif
-
 #ifndef HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN
 #define HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN(F, I)                              \
   tab_size += 2;                                                               \
@@ -223,7 +207,7 @@ struct DebugFields {
         hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
         "[CHECK_EQUAL FAIL {} == {}] {}",                                      \
         hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#A),      \
-        (#B), A, B, cstr::format(__VA_ARGS__));                                \
+        (#B), A, B, hermes::cstr::format(__VA_ARGS__));                        \
   }
 
 /// \brief Warns if expression is false
@@ -235,7 +219,7 @@ struct DebugFields {
         hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
         "[CHECK_EXP FAIL {}] {}",                                              \
         hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr),   \
-        cstr::format(__VA_ARGS__));                                            \
+        hermes::cstr::format(__VA_ARGS__));                                    \
   }
 
 #else
@@ -260,7 +244,7 @@ struct DebugFields {
         hermes::logging_option_bits::none, hermes::Logger::Level::error,       \
         "[ASSERT FAIL {}] {}",                                                 \
         hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #expr,     \
-        cstr::format(__VA_ARGS__));                                            \
+        hermes::cstr::format(__VA_ARGS__));                                    \
     debugBreak();                                                              \
   }
 #else
