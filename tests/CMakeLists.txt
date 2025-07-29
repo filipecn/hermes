@@ -1,5 +1,6 @@
 add_executable(hermes_tests 
   base_tests.cpp
+  core_tests.cpp
   io_tests.cpp
   system_tests.cpp
 )

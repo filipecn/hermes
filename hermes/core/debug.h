@@ -48,17 +48,30 @@
 //                                                                      UTILS
 // *****************************************************************************
 
-#ifndef HERMES_TO_STRING_DEBUG_METHOD
-#ifdef HERMES_DEBUG
-#define HERMES_TO_STRING_DEBUG_METHOD                                          \
-  std::string to_string(u32 tab_size = 0) const;
+#ifdef HERMES_INCLUDE_TO_STRING
+
+#define HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD                                 \
+  template <typename T> std::string to_string(const T &t, u32 tab_size = 0);
+
+namespace hermes {
+HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
+}
+
+#define HERMES_TO_STRING_FRIEND(A)                                             \
+  friend std::string hermes::to_string(const A &, u32);
 
 /// Auxiliary struct for implementing the to_string classes method.
-struct DebugFields {
+struct HERMES_DebugFields {
   enum class Type { Inline, NextLine, Separator };
-  DebugFields(const std::string &name) : name(name) {}
+  HERMES_DebugFields(const std::string &name) : name(name) {}
   std::string name;
   std::vector<std::tuple<Type, std::string, std::string>> fields;
+  template <typename T>
+  void add(Type type, const std::string &name, const T &data) {
+    std::stringstream ss;
+    ss << data;
+    add(type, name, ss.str());
+  }
   void add(Type type, const std::string &name, const std::string &value) {
     fields.emplace_back(std::make_tuple(type, name, value));
   }
@@ -87,9 +100,9 @@ struct DebugFields {
 };
 
 #ifndef HERMES_TO_STRING_DEBUG_METHOD_BEGIN
-#define HERMES_TO_STRING_DEBUG_METHOD_BEGIN(NAME)                              \
-  std::string NAME::to_string(u32 tab_size) const {                            \
-    DebugFields debug_fields(#NAME);
+#define HERMES_TO_STRING_DEBUG_METHOD_BEGIN(OBJECT)                            \
+  template <> std::string to_string(const OBJECT &object, u32 tab_size) {      \
+    HERMES_DebugFields debug_fields(#OBJECT);
 #endif
 
 #ifndef HERMES_TO_STRING_DEBUG_METHOD_END
@@ -100,45 +113,48 @@ struct DebugFields {
 
 #ifndef HERMES_PUSH_DEBUG_HERMES_FIELD
 #define HERMES_PUSH_DEBUG_HERMES_FIELD(F)                                      \
-  debug_fields.add(DebugFields::Type::NextLine, #F, F.to_string(tab_size + 2));
+  debug_fields.add(HERMES_DebugFields::Type::NextLine, #F,                     \
+                   hermes::to_string(object.F, tab_size + 2));
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_HERMES_PTR_FIELD
 #define HERMES_PUSH_DEBUG_HERMES_PTR_FIELD(F)                                  \
-  debug_fields.add(DebugFields::Type::NextLine, #F,                            \
-                   F ? F->to_string(tab_size + 2) : "nullptr");
+  debug_fields.add(HERMES_DebugFields::Type::NextLine, #F,                     \
+                   object.F ? hermes::to_string(*object.F, tab_size + 2)       \
+                            : "nullptr");
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_CUSTOM_FIELD
 #define HERMES_PUSH_DEBUG_CUSTOM_FIELD(F, V)                                   \
-  debug_fields.add(DebugFields::Type::Inline, #F, V);
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F, V);
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_RAW_PTR_FIELD
 #define HERMES_PUSH_DEBUG_RAW_PTR_FIELD(F)                                     \
-  debug_fields.add(                                                            \
-      DebugFields::Type::Inline, #F,                                           \
-      F ? venus::Str<char>::addressOf(reinterpret_cast<std::uintptr_t>(F))     \
-        : "nullptr");
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
+                   object.F ? hermes::Str<char>::addressOf(                    \
+                                  reinterpret_cast<std::uintptr_t>(object.F))  \
+                            : "nullptr");
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_FIELD
 #define HERMES_PUSH_DEBUG_FIELD(F)                                             \
-  debug_fields.add(DebugFields::Type::Inline, #F, std::to_string(F));
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F, object.F);
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_SEPARATOR_LINE
 #define HERMES_PUSH_DEBUG_SEPARATOR_LINE                                       \
-  debug_fields.add(DebugFields::Type::Separator, "", "");
+  debug_fields.add(HERMES_DebugFields::Type::Separator, "", "");
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN
 #define HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN(F, I)                              \
   tab_size += 2;                                                               \
-  debug_fields.add(DebugFields::Type::Inline, #F, std::to_string(F.size()));   \
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
+                   std::to_string(object.F.size()));                           \
   for (u32 i = 0; i < F.size(); ++i) {                                         \
     const auto &I = F[i];                                                      \
-    debug_fields.add(DebugFields::Type::Inline, #I, std::to_string(i));
+    debug_fields.add(HERMES_DebugFields::Type::Inline, #I, i);
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_ARRAY_FIELD_END
@@ -150,11 +166,12 @@ struct DebugFields {
 #ifndef HERMES_PUSH_DEBUG_MAP_FIELD_BEGIN
 #define HERMES_PUSH_DEBUG_MAP_FIELD_BEGIN(F, K, V)                             \
   tab_size += 2;                                                               \
-  debug_fields.add(DebugFields::Type::Inline, #F, std::to_string(F.size()));   \
-  for (const auto &item : F) {                                                 \
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
+                   std::to_string(object.F.size()));                           \
+  for (const auto &item : object.F) {                                          \
     const auto &K = item.first;                                                \
     const auto &V = item.second;                                               \
-    debug_fields.add(DebugFields::Type::Inline, #K, K);
+    debug_fields.add(HERMES_DebugFields::Type::Inline, #K, K);
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_MAP_FIELD_END
@@ -165,7 +182,6 @@ struct DebugFields {
 
 #else
 #define HERMES_TO_STRING_METHOD
-#endif
 #endif
 
 // *****************************************************************************
