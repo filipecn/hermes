@@ -145,6 +145,11 @@ struct HERMES_DebugFields {
   debug_fields.add(HERMES_DebugFields::Type::Inline, #F, object.F);
 #endif
 
+#ifndef HERMES_PUSH_DEBUG_FIELD_VALUE
+#define HERMES_PUSH_DEBUG_FIELD_VALUE(F, V)                                    \
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F, V);
+#endif
+
 #ifndef HERMES_PUSH_DEBUG_SEPARATOR_LINE
 #define HERMES_PUSH_DEBUG_SEPARATOR_LINE                                       \
   debug_fields.add(HERMES_DebugFields::Type::Separator, "", "");
@@ -154,9 +159,9 @@ struct HERMES_DebugFields {
 #define HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN(F, I)                              \
   tab_size += 2;                                                               \
   debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
-                   std::to_string(object.F.size()));                           \
-  for (u32 i = 0; i < F.size(); ++i) {                                         \
-    const auto &I = F[i];                                                      \
+                   "[" + std::to_string(object.F.size()) + "]");               \
+  for (u32 i = 0; i < object.F.size(); ++i) {                                  \
+    const auto &I = object.F[i];                                               \
     debug_fields.add(HERMES_DebugFields::Type::Inline, #I, i);
 #endif
 
@@ -185,10 +190,12 @@ struct HERMES_DebugFields {
 
 #else
 #define HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
+#define HERMES_DECLARE_TO_STRING_DEBUG_METHOD
 #define HERMES_TO_STRING_FRIEND
 #define HERMES_TO_STRING_METHOD
 #define HERMES_TO_STRING_DEBUG_METHOD_BEGIN
 #define HERMES_PUSH_DEBUG_FIELD
+#define HERMES_PUSH_DEBUG_FIELD_VALUE
 #define HERMES_PUSH_DEBUG_HERMES_PTR_FIELD
 #define HERMES_PUSH_DEBUG_HERMES_PTR_FIELD
 #define HERMES_PUSH_DEBUG_RAW_PTR_FIELD

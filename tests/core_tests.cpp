@@ -15,6 +15,7 @@ public:
   ToStringTest() {
     t2.reset(new SubToStringTest());
     p2 = new int(4);
+    v = {1, 2, 3};
   }
   ~ToStringTest() { delete p2; }
 
@@ -25,6 +26,7 @@ private:
   std::shared_ptr<SubToStringTest> t2;
   int *p{nullptr};
   int *p2{nullptr};
+  std::vector<int> v;
   HERMES_TO_STRING_FRIEND(ToStringTest)
 };
 
@@ -45,6 +47,9 @@ HERMES_PUSH_DEBUG_RAW_PTR_FIELD(p2);
 HERMES_PUSH_DEBUG_CUSTOM_FIELD(a, "custom");
 HERMES_PUSH_DEBUG_SEPARATOR_LINE
 HERMES_PUSH_DEBUG_HERMES_FIELD(b);
+HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN(v, vv)
+HERMES_PUSH_DEBUG_FIELD_VALUE(vv, vv);
+HERMES_PUSH_DEBUG_ARRAY_FIELD_END
 HERMES_TO_STRING_DEBUG_METHOD_END
 
 } // namespace hermes
