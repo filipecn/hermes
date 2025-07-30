@@ -65,7 +65,7 @@ HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
 
 /// Auxiliary struct for implementing the to_string classes method.
 struct HERMES_DebugFields {
-  enum class Type { Inline, NextLine, Separator };
+  enum class Type { Inline, Custom, NextLine, Separator };
   HERMES_DebugFields(const std::string &name) : name(name) {}
   std::string name;
   std::vector<std::tuple<Type, std::string, std::string>> fields;
@@ -93,6 +93,9 @@ struct HERMES_DebugFields {
       case Type::NextLine:
         ss << tab << "  " << field_name << ":\n";
         ss << tab << " " << value << "\n";
+        break;
+      case Type::Custom:
+        ss << tab << "  " << value << "\n";
         break;
       case Type::Separator:
         ss << tab << "--------------------------\n";
@@ -155,6 +158,11 @@ struct HERMES_DebugFields {
   debug_fields.add(HERMES_DebugFields::Type::Separator, "", "");
 #endif
 
+#ifndef HERMES_PUSH_DEBUG_LINE
+#define HERMES_PUSH_DEBUG_LINE(L)                                              \
+  debug_fields.add(HERMES_DebugFields::Type::Custom, "", L);
+#endif
+
 #ifndef HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN
 #define HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN(F, I)                              \
   tab_size += 2;                                                               \
@@ -202,6 +210,7 @@ struct HERMES_DebugFields {
 #define HERMES_PUSH_DEBUG_RAW_PTR_FIELD
 #define HERMES_PUSH_DEBUG_CUSTOM_FIELD
 #define HERMES_PUSH_DEBUG_SEPARATOR_LINE
+#define HERMES_PUSH_DEBUG_LINE
 #define HERMES_PUSH_DEBUG_HERMES_FIELD
 #define HERMES_TO_STRING_DEBUG_METHOD_END
 
