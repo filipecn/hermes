@@ -53,6 +53,9 @@
 #define HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD                                 \
   template <typename T> std::string to_string(const T &t, u32 tab_size = 0);
 
+#define HERMES_DECLARE_TO_STRING_DEBUG_METHOD(A)                               \
+  template <> std::string to_string(const A &t, u32 tab_size);
+
 namespace hermes {
 HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
 }
@@ -181,7 +184,20 @@ struct HERMES_DebugFields {
 #endif
 
 #else
+#define HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
+#define HERMES_TO_STRING_FRIEND
 #define HERMES_TO_STRING_METHOD
+#define HERMES_TO_STRING_DEBUG_METHOD_BEGIN
+#define HERMES_PUSH_DEBUG_FIELD
+#define HERMES_PUSH_DEBUG_HERMES_PTR_FIELD
+#define HERMES_PUSH_DEBUG_HERMES_PTR_FIELD
+#define HERMES_PUSH_DEBUG_RAW_PTR_FIELD
+#define HERMES_PUSH_DEBUG_RAW_PTR_FIELD
+#define HERMES_PUSH_DEBUG_CUSTOM_FIELD
+#define HERMES_PUSH_DEBUG_SEPARATOR_LINE
+#define HERMES_PUSH_DEBUG_HERMES_FIELD
+#define HERMES_TO_STRING_DEBUG_METHOD_END
+
 #endif
 
 // *****************************************************************************
