@@ -130,9 +130,15 @@ struct HERMES_DebugFields {
                             : "nullptr");
 #endif
 
+template <typename... Ts>
+HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
+  return std::vformat(fmt, std::make_format_args(args...));
+}
+
 #ifndef HERMES_PUSH_DEBUG_CUSTOM_FIELD
-#define HERMES_PUSH_DEBUG_CUSTOM_FIELD(F, V)                                   \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F, V);
+#define HERMES_PUSH_DEBUG_CUSTOM_FIELD(F, FMT, ...)                            \
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
+                   fmtDebug(FMT __VA_OPT__(, ) __VA_ARGS__));
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_RAW_PTR_FIELD
@@ -159,8 +165,9 @@ struct HERMES_DebugFields {
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_LINE
-#define HERMES_PUSH_DEBUG_LINE(L)                                              \
-  debug_fields.add(HERMES_DebugFields::Type::Custom, "", L);
+#define HERMES_PUSH_DEBUG_LINE(FMT, ...)                                       \
+  debug_fields.add(HERMES_DebugFields::Type::Custom, "",                       \
+                   fmtDebug(FMT __VA_OPT__(, ) __VA_ARGS__));
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN
