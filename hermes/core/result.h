@@ -191,7 +191,8 @@ public:
 private:
   union {
     E err_{};
-    typename std::aligned_storage<sizeof(T), alignof(T)>::type value_;
+    // typename std::aligned_storage<sizeof(T), alignof(T)>::type value_;
+    alignas(T) std::byte value_[sizeof(T)];
   };
   bool ok_{false};
 };
