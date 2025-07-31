@@ -113,14 +113,24 @@ public:
   static inline auto wallTime() {
     std::shared_lock<std::shared_mutex> lock(s_instance_.mutex_);
     auto it = s_instance_.start_.find(std::this_thread::get_id());
-    assert(it != s_instance_.start_.end());
+    if (it == s_instance_.start_.end()) {
+#ifdef HERMES_DEBUG
+      std::cerr << "Failed to retrieve wallTime" << std::endl;
+#endif
+      return std::chrono::duration(WallClock::now() - WallClock::now());
+    }
     return std::chrono::duration(WallClock::now() - it->second.wall_time);
   }
 
   static inline auto cpuTime() {
     std::shared_lock<std::shared_mutex> lock(s_instance_.mutex_);
     auto it = s_instance_.start_.find(std::this_thread::get_id());
-    assert(it != s_instance_.start_.end());
+    if (it == s_instance_.start_.end()) {
+#ifdef HERMES_DEBUG
+      std::cerr << "Failed to retrieve wallTime" << std::endl;
+#endif
+      return std::chrono::duration(CPUClock::now() - CPUClock::now());
+    }
     return std::chrono::duration(CPUClock::now() - it->second.cpu_time);
   }
 
