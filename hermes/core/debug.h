@@ -66,8 +66,8 @@ HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
 /// Auxiliary struct for implementing the to_string classes method.
 struct HERMES_DebugFields {
   enum class Type { Inline, Custom, NextLine, Separator };
-  HERMES_DebugFields(const std::string &name) : name(name) {}
-  std::string name;
+  HERMES_DebugFields() = default;
+  std::string title;
   std::vector<std::tuple<Type, std::string, std::string>> fields;
   template <typename T>
   void add(Type type, const std::string &name, const T &data) {
@@ -81,7 +81,8 @@ struct HERMES_DebugFields {
   std::string to_string(u32 tab_size = 0) {
     std::string tab(tab_size, ' ');
     std::stringstream ss;
-    ss << tab << "++++++ " << name << " +++++++\n";
+    if (!title.empty())
+      ss << "\n" << tab << "++++++ " << title << " +++++++\n";
     for (const auto &field : fields) {
       std::string field_name, value;
       Type type;
@@ -108,13 +109,18 @@ struct HERMES_DebugFields {
 #ifndef HERMES_TO_STRING_DEBUG_METHOD_BEGIN
 #define HERMES_TO_STRING_DEBUG_METHOD_BEGIN(OBJECT)                            \
   template <> std::string to_string(const OBJECT &object, u32 tab_size) {      \
-    HERMES_DebugFields debug_fields(#OBJECT);
+    std::string _debug_method_title_ = #OBJECT;                                \
+    HERMES_DebugFields debug_fields;
 #endif
 
 #ifndef HERMES_TO_STRING_DEBUG_METHOD_END
 #define HERMES_TO_STRING_DEBUG_METHOD_END                                      \
   return debug_fields.to_string(tab_size);                                     \
   }
+#endif
+
+#ifndef HERMES_PUSH_DEBUG_TITLE
+#define HERMES_PUSH_DEBUG_TITLE debug_fields.title = _debug_method_title_;
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_HERMES_FIELD
