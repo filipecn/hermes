@@ -9,6 +9,7 @@ set(HERMES_HEADERS
   core/result.h
   core/types.h
 
+  geometry/bounds.h
   geometry/point.h
   geometry/transform.h
   geometry/vector.h
