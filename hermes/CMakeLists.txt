@@ -1,5 +1,7 @@
 set(HERMES_HEADERS
   base/flags.h
+  base/index.h
+  base/size.h
 
   colors/argb_colors.h
 
@@ -7,11 +9,18 @@ set(HERMES_HEADERS
   core/result.h
   core/types.h
 
+  geometry/point.h
+  geometry/transform.h
+  geometry/vector.h
+
   io/console_colors.h
   io/logger.h
   io/memory_dumper.h
 
+  numeric/interval.h
   numeric/math.h
+  numeric/math_element.h
+  numeric/matrix.h
 
   system/os.h
   system/profile.h
@@ -20,6 +29,8 @@ set(HERMES_HEADERS
 )
 
 set(HERMES_SOURCES
+  geometry/transform.cpp
+
   io/logger.cpp
   
   system/os.cpp

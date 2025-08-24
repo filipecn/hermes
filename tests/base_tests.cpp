@@ -2,6 +2,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <hermes/base/flags.h>
+#include <hermes/base/index.h>
 #include <hermes/base/str.h>
 
 using namespace hermes;
@@ -264,5 +265,102 @@ TEST_CASE("cstr", "[base]") {
     REQUIRE(cstr::isPrefix("0123", "0123456"));
     REQUIRE(cstr::isPrefix("", "0123456"));
     REQUIRE_FALSE(cstr::isPrefix("01234", "01"));
+  } //
+}
+
+TEST_CASE("size", "[base]") {
+  {
+    size2 s(10, 2);
+    REQUIRE(s.width == 10);
+    REQUIRE(s.height == 2);
+    REQUIRE(s[0] == s.width);
+    REQUIRE(s[1] == s.height);
+    REQUIRE(s.total() == 20);
+    REQUIRE(s.contains(5, 0));
+    REQUIRE(!s.contains(10, 0));
+  }
+}
+
+TEST_CASE("index", "[base]") {
+  SECTION("Index2 arithmetic") {
+    index2 ij(1, -3);
+    REQUIRE(ij + index2(-7, 10) == index2(-6, 7));
+    REQUIRE(ij - index2(-7, 10) == index2(8, -13));
+    REQUIRE(ij + size2(7, 10) == index2(8, 7));
+    REQUIRE(ij - size2(7, 10) == index2(-6, -13));
+    REQUIRE(size2(7, 10) + ij == index2(8, 7));
+    REQUIRE(size2(7, 10) - ij == index2(6, 13));
+  } //
+  SECTION("Index2") {
+    index2 a;
+    index2 b;
+    REQUIRE(a == b);
+    b.j = 1;
+    REQUIRE(a != b);
+  } //
+  SECTION("index2 friends") {
+    index2 a(-1, 2);
+    index2 b(4, 1);
+    REQUIRE(max(a, b) == index2(4, 2));
+    REQUIRE(min(a, b) == index2(-1, 1));
+  } //
+  SECTION("Index2Range") {
+    range2 r({1, 1}, {3, 3});
+    REQUIRE(r.contains({1, 1}));
+    REQUIRE(r.contains({1, 2}));
+    REQUIRE(!r.contains({0, 0}));
+    REQUIRE(!r.contains({3, 3}));
+    REQUIRE(r.area() == 4);
+
+    int cur = 0;
+    range2 range(10, 10);
+    for (auto index : range) {
+      REQUIRE(cur % 10 == index.i);
+      REQUIRE(cur / 10 == index.j);
+      REQUIRE(range.contains(index));
+      cur++;
+    }
+    REQUIRE(cur == 10 * 10);
+    SECTION("intersection") {
+      range2 a({0, 0}, {10, 10});
+      range2 b({5, -5}, {7, 70});
+      REQUIRE(intersect(a, b) == range2({5, 0}, {7, 10}));
+    } //
+  } //
+  SECTION("Index3 arithmetic") {
+    index3 ij(1, -3, 0);
+    REQUIRE(ij + index3(-7, 10, 1) == index3(-6, 7, 1));
+    REQUIRE(ij - index3(-7, 10, 1) == index3(8, -13, -1));
+    REQUIRE(ij + size3(7, 10, 3) == index3(8, 7, 3));
+    REQUIRE(ij - size3(7, 10, 3) == index3(-6, -13, -3));
+    REQUIRE(size3(7, 10, 5) + ij == index3(8, 7, 5));
+    REQUIRE(size3(7, 10, 5) - ij == index3(6, 13, 5));
+  } //
+  SECTION("Index3") {
+    index3 a;
+    index3 b;
+    REQUIRE(a == b);
+    b.j = 1;
+    REQUIRE(a != b);
+  } //
+  SECTION("Index3Range") {
+    int cur = 0;
+    for (auto index : Index3<i32>::Range(10, 10, 10)) {
+      REQUIRE((cur % 100) % 10 == index.i);
+      REQUIRE((cur % 100) / 10 == index.j);
+      REQUIRE(cur / 100 == index.k);
+      cur++;
+    }
+    REQUIRE(cur == 10 * 10 * 10);
+    Index3<i32>::Range range(index3(-5, -5, -5), index3(5, 5, 5));
+    REQUIRE(range.size().total() == 10 * 10 * 10);
+    cur = 0;
+    for (auto index : range) {
+      REQUIRE((cur % 100) % 10 - 5 == index.i);
+      REQUIRE((cur % 100) / 10 - 5 == index.j);
+      REQUIRE(cur / 100 - 5 == index.k);
+      cur++;
+    }
+    REQUIRE(cur == 10 * 10 * 10);
   } //
 }

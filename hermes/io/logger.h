@@ -103,9 +103,7 @@ public:
     message_options = options_ | message_options;
     bool use_colors =
         contains(message_options, logging_option_bits::use_colors);
-    // label
     cstr s;
-    s += label(message_options, level, location);
     // message
     if (use_colors)
       s += colors::console::color(
@@ -115,9 +113,22 @@ public:
       s += colors::console::reset;
     if (log_callback)
       log_callback(s, message_options);
+
+    // insert a label in every line break
+    auto label_txt = label(message_options, level, location);
+    cstr final;
+    auto lines = Str<char>::split(s.str(), "\n");
+    for (const auto &line : lines) {
+      if (!line.empty()) {
+        final += label_txt;
+        final += line;
+        if (line.back() != '\n')
+          final += '\n';
+      }
+    }
     if (contains(message_options, logging_option_bits::callback_only))
       return;
-    *os_ << s << "\n";
+    *os_ << final << "\n";
 #endif
   }
   /// \brief Enables logging options

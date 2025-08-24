@@ -20,10 +20,10 @@
  * IN THE SOFTWARE.
  */
 
-/// \file str.h
+/// \file   str.h
 /// \author FilipeCN (filipedecn@gmail.com)
-/// \date 2020-10-07
-/// \brief String utils
+/// \date   2020-10-07
+/// \brief  String utils
 
 #pragma once
 

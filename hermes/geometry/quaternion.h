@@ -1,87 +1,62 @@
-/// Copyright (c) 2022, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file quaternion.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2022-02-09
-///
-///\brief Geometric quaternion class
-///
-///\ingroup geometry
-///\addtogroup geometry
-/// @{
+/* Copyright (c) 2022, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
+/// \file   quaternion.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2022-02-09
+/// \brief  Geometric quaternion class
 
-#ifndef HERMES_HERMES_GEOMETRY_QUATERNION_H
-#define HERMES_HERMES_GEOMETRY_QUATERNION_H
+#pragma once
 
 #include <hermes/geometry/transform.h>
 
-namespace hermes {
+namespace hermes::geo {
 
-// *********************************************************************************************************************
-//                                                                                                         Quaternion
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                 Quaternion
+// *****************************************************************************
+
 /// \brief Quaternion representation v.x i + v.y j + v.z k + r
 /// \tparam T data type
-template<typename T>
-class Quaternion {
+template <typename T> class Quaternion {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
-                    std::is_same<T, Interval<f32>>::value || std::is_same<T, Interval<f64>>::value,
+                    std::is_same<T, Interval<f32>>::value ||
+                    std::is_same<T, Interval<f64>>::value,
                 "Quaternion must hold a float type!");
+
 public:
-  // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
   /// \brief Creates an identity quaternion (0,0,0,1)
   /// \return
-  HERMES_DEVICE_CALLABLE static Quaternion<T> I() {
-    return {{}, 1};
-  }
-  // *******************************************************************************************************************
-  //                                                                                                 FRIEND FUNCTIONS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
-  /// \brief Default constructor
+  HERMES_DEVICE_CALLABLE static Quaternion<T> I() { return {{}, 1}; }
+
   HERMES_DEVICE_CALLABLE Quaternion() {}
-  /// \brief Construct from component values
-  /// \param x
-  /// \param y
-  /// \param z
-  /// \param w
   HERMES_DEVICE_CALLABLE Quaternion(T x, T y, T z, T w) : v(x, y, z), r(w) {}
   /// \brief Construct from part values
   /// \param v vector part
   /// \param r scalar part
-  HERMES_DEVICE_CALLABLE Quaternion(const hermes::Vector3<T> &v, T r = 0) : v(v), r(r) {}
+  HERMES_DEVICE_CALLABLE Quaternion(const hermes::geo::Vector3<T> &v, T r = 0)
+      : v(v), r(r) {}
   ///
   HERMES_DEVICE_CALLABLE ~Quaternion() {}
-  //                                                                                                       assignment
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  //                                                                                                       assignment
-  //                                                                                                           access
   /// \brief Get i-th component
   /// \warning `i` is not checked
   /// \param i component index in [0, 1]
@@ -92,15 +67,11 @@ public:
   /// \param i component index in [0, 1]
   /// \return
   HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&v[0])[i]; }
-  //                                                                                                       arithmetic
-  //                                                                                                          boolean
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
+
   /// \brief
   /// \return
-  HERMES_DEVICE_CALLABLE Matrix4x4<T> matrix() const {
-    Matrix4x4<T> m;
+  HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4> matrix() const {
+    MatrixNxM<T, 4, 4> m;
     float Nv = v.x * v.x + v.y * v.y + v.z * v.z + r * r;
     float s = (Nv > 0.f) ? (2.f / Nv) : 0.f;
     float xs = v.x * s, ys = v.y * s, zs = v.z * s;
@@ -128,43 +99,33 @@ public:
   }
   /// \brief Computes conjugate of this quaternion
   /// \return
-  HERMES_DEVICE_CALLABLE Quaternion conjugate() const {
-    return {-v, r};
-  }
+  HERMES_DEVICE_CALLABLE Quaternion conjugate() const { return {-v, r}; }
   /// \brief Computes the squared norm
   /// \return
-  HERMES_DEVICE_CALLABLE T length2() const {
-    return v.length2() + r * r;
-  }
+  HERMES_DEVICE_CALLABLE T length2() const { return v.length2() + r * r; }
   /// \brief Computes the norm
   /// \return
-  HERMES_DEVICE_CALLABLE T length() const {
-    return sqrtf(v.length2() + r * r);
-  }
+  HERMES_DEVICE_CALLABLE T length() const { return sqrtf(v.length2() + r * r); }
   /// \brief Computes normalized copy
   /// \return
   HERMES_DEVICE_CALLABLE Quaternion normalized() const {
     auto d = v.length2() + r * r;
-    HERMES_CHECK_EXP(d != 0.0);
+    HERMES_CHECK(d != 0.0);
     return *this / d;
   }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
-  hermes::Vector3<T> v;  //!< vector part
-  T r{0};                //!< scalar part
+
+  hermes::geo::Vector3<T> v; //!< vector part
+  T r{0};                    //!< scalar part
 };
 
-// *********************************************************************************************************************
-//                                                                                                         ARITHMETIC
-// *********************************************************************************************************************
 /// \brief Scalar division
 /// \tparam T
 /// \param q
 /// \param s
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator/(const Quaternion<T> &q, T s) {
+template <typename T>
+HERMES_DEVICE_CALLABLE inline Quaternion<T> operator/(const Quaternion<T> &q,
+                                                      T s) {
   return {q.v / s, q.r / s};
 }
 /// \brief Scalar multiplication
@@ -172,8 +133,9 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator/(const Quaternion<T> &q, T 
 /// \param q
 /// \param s
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q, T s) {
+template <typename T>
+HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q,
+                                                      T s) {
   return {q.v * s, q.r * s};
 }
 /// \brief Scalar multiplication
@@ -181,8 +143,9 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q, T 
 /// \param s
 /// \param q
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(T s, const Quaternion<T> &q) {
+template <typename T>
+HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(T s,
+                                                      const Quaternion<T> &q) {
   return {q.v * s, q.r * s};
 }
 /// \brief Adds two quaternions
@@ -191,8 +154,9 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(T s, const Quaternion<T> &
 /// \param q
 /// \param p
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator+(const Quaternion<T> &q, const Quaternion<T> &p) {
+template <typename T>
+HERMES_DEVICE_CALLABLE inline Quaternion<T> operator+(const Quaternion<T> &q,
+                                                      const Quaternion<T> &p) {
   return {q.v + p.v, q.r + p.r};
 }
 /// \brief Subtracts p from q
@@ -201,8 +165,9 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator+(const Quaternion<T> &q, co
 /// \param q
 /// \param p
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator-(const Quaternion<T> &q, const Quaternion<T> &p) {
+template <typename T>
+HERMES_DEVICE_CALLABLE inline Quaternion<T> operator-(const Quaternion<T> &q,
+                                                      const Quaternion<T> &p) {
   return {q.v - p.v, q.r - p.r};
 }
 /// \brief Multiplies quaternions
@@ -210,34 +175,19 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator-(const Quaternion<T> &q, co
 /// \param q
 /// \param p
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q, const Quaternion<T> &p) {
+template <typename T>
+HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q,
+                                                      const Quaternion<T> &p) {
   return {q.r * p.v + p.r * q.v + cross(p.v, q.v), q.r * p.r - dot(q, p)};
 }
 
-// *********************************************************************************************************************
-//                                                                                                                 IO
-// *********************************************************************************************************************
-/// \brief Quaternion support for `std::ostream::<<` operator
-/// \tparam T
-/// \param os
-/// \param v
-/// \return
-template<typename T>
-std::ostream &operator<<(std::ostream &os, const Quaternion<T> &v) {
-  os << "Quaternion [(" << v[0] << " " << v[1] << " " << v[2] << "), " << v.w << "]";
-  return os;
-}
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Quaternion<T>, typename T)
+HERMES_PUSH_DEBUG_CUSTOM_FIELD("Quat[({}, {}, {}), {}]", object[0], object[1],
+                               object[2], object[3]);
+HERMES_TO_STRING_DEBUG_METHOD_END
 
-// *********************************************************************************************************************
-//                                                                                                           TYPEDEFS
-// *********************************************************************************************************************
 using quat = Quaternion<real_t>;
 using quatf = Quaternion<f32>;
 using quatd = Quaternion<f64>;
 
-}
-
-#endif //HERMES_HERMES_GEOMETRY_QUATERNION_H
-
-/// @}
+} // namespace hermes::geo
