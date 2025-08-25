@@ -115,7 +115,7 @@ public:
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
   HERMES_DEVICE_CALLABLE bool operator==(const Vector2<T> &b) const {
-    return Check::is_equal(x, b.x) && Check::is_equal(y, b.y);
+    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y);
   }
 
   /// Computes squared magnitude
@@ -225,7 +225,7 @@ public:
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
   HERMES_DEVICE_CALLABLE Vector3<T> &operator/=(T f) {
-    HERMES_CHECK_EXP(Check::is_zero(f));
+    HERMES_CHECK_EXP(math::check::is_zero(f));
     T inv = 1.f / f;
     x *= inv;
     y *= inv;
@@ -247,8 +247,8 @@ public:
   }
 
   HERMES_DEVICE_CALLABLE bool operator==(const Vector3<T> &b) const {
-    return Check::is_equal(x, b.x) && Check::is_equal(y, b.y) &&
-           Check::is_equal(z, b.z);
+    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y) &&
+           math::check::is_equal(z, b.z);
   }
   HERMES_DEVICE_CALLABLE bool operator<(const Vector3<T> &b) const {
     if (x < b.x)
@@ -398,7 +398,8 @@ public:
   /// Check for nans
   /// \return
   HERMES_DEVICE_CALLABLE [[nodiscard]] bool hasNaNs() const {
-    return Check::is_nan(x) || Check::is_nan(y) || Check::is_nan(z);
+    return math::check::is_nan(x) || math::check::is_nan(y) ||
+           math::check::is_nan(z);
   }
 
   T x = T(0.0); //!< 0-th component
@@ -694,20 +695,6 @@ MATH_OP(cos, std::cos, 3)
 #undef DOP2
 #undef DOP3
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Vector2<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Vector2[{}, {}]", object.x, object.y);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Vector3<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Vector3[{}, {}, {}]", object.x, object.y,
-                               object.z);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Vector4<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Vector4[{}, {}, {}, {}]", object.x, object.y,
-                               object.z, object.w);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
 using vec2 = Vector2<real_t>;
 using vec3 = Vector3<real_t>;
 using vec4 = Vector4<real_t>;
@@ -718,6 +705,27 @@ using vec2i = Vector2<Interval<real_t>>;
 using vec3i = Vector3<Interval<real_t>>;
 
 } // namespace hermes::geo
+
+namespace hermes {
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Vector2<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("V[{}, {}]", hermes::to_string(object.x),
+                       hermes::to_string(object.y));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Vector3<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("V[{}, {}, {}]", hermes::to_string(object.x),
+                       hermes::to_string(object.y),
+                       hermes::to_string(object.z));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Vector4<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("V[{}, {}, {}, {}]", hermes::to_string(object.x),
+                       hermes::to_string(object.y), hermes::to_string(object.z),
+                       hermes::to_string(object.w));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+} // namespace hermes
 
 // std hash support
 namespace std {

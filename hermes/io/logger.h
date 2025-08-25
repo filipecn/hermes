@@ -279,7 +279,7 @@ private:
   hermes::Logger::message(                                                     \
       hermes::logging_option_bits::none, hermes::Logger::Level::info,          \
       "{} = {}", hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__},   \
-      #A, A)
+      #A, hermes::to_string(A))
 #endif
 
 #ifndef HERMES_LOG_ARRAY

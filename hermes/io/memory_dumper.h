@@ -289,7 +289,7 @@ public:
       data_digit_count = 3;
     else if (contains(options, memory_dumper_option_bits::binary))
       data_digit_count = 8;
-    u8 header_digit_count = numbers::countHexDigits(bytes_per_row);
+    u8 header_digit_count = math::numbers::countHexDigits(bytes_per_row);
     u8 column_size = std::max(header_digit_count, data_digit_count);
     u8 address_column_size = address_digit_count + 2 + 2; // 0x + \t
     if (include_header) {

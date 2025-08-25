@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-///\file   numeric.h
+///\file   math.h
 ///\author FilipeCN (filipedecn@gmail.com)
 ///\date   2019-17-09
 ///\brief  numbers functions
@@ -33,14 +33,14 @@
 #include <cmath>
 #include <cstring>
 
-namespace hermes {
+namespace hermes::math {
 
 // *****************************************************************************
 //                                                                  Constants
 // *****************************************************************************
 
 /// Numeric constants
-struct numeric_constants {
+struct constants {
   static constexpr real_t pi = 3.14159265358979323846;
   static constexpr real_t two_pi = 6.28318530718;
   static constexpr real_t inv_pi = 0.31830988618379067154;
@@ -772,7 +772,7 @@ struct numbers {
     if (exponent < -126)
       return 0;
     if (exponent > 127)
-      return numeric_constants::real_infinity;
+      return constants::real_infinity;
     uint32_t bits = floatToBits(twoToF);
     bits &= 0b10000000011111111111111111111111u;
     bits |= (exponent + 127) << 23;
@@ -788,8 +788,8 @@ struct numbers {
   /// \param n
   /// \return
   HERMES_DEVICE_CALLABLE static constexpr real_t gamma(i32 n) {
-    return (n * numeric_constants::machine_epsilon) /
-           (1 - n * numeric_constants::machine_epsilon);
+    return (n * constants::machine_epsilon) /
+           (1 - n * constants::machine_epsilon);
   }
 };
 /// \brief Gets lowest representable 64 bit floating point
@@ -839,13 +839,13 @@ struct trigonometry {
   /// \param a
   /// \return
   HERMES_DEVICE_CALLABLE static constexpr real_t radians2degrees(real_t a) {
-    return a * 180.f / numeric_constants::pi;
+    return a * 180.f / constants::pi;
   }
   /// \brief Converts degrees to radians
   /// \param a
   /// \return
   HERMES_DEVICE_CALLABLE static constexpr real_t degrees2radians(real_t a) {
-    return a * numeric_constants::pi / 180.f;
+    return a * constants::pi / 180.f;
   }
   /// \brief Computes acos with clamped input
   /// \param x
@@ -865,7 +865,7 @@ struct trigonometry {
 //                                                                       Check
 // *****************************************************************************
 /// \brief numbers checks
-struct Check {
+struct check {
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
   // *******************************************************************************************************************
@@ -974,4 +974,4 @@ HERMES_DEVICE_CALLABLE bool soveLinearSystem(const T A[2][2], const T B[2],
 //  return interleaveBits(v[0], v[1]);
 //}
 
-} // namespace hermes
+} // namespace hermes::math

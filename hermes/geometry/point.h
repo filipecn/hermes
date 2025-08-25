@@ -126,7 +126,7 @@ public:
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
   HERMES_DEVICE_CALLABLE bool operator==(const Point2<T> &b) const {
-    return Check::is_equal(x, b.x) && Check::is_equal(y, b.y);
+    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y);
   }
 
   T x = T(0.0); //!< 0-th component
@@ -258,8 +258,8 @@ public:
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
   HERMES_DEVICE_CALLABLE bool operator==(const Point3<T> &b) const {
-    return Check::is_equal(x, b.x) && Check::is_equal(y, b.y) &&
-           Check::is_equal(z, b.z);
+    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y) &&
+           math::check::is_equal(z, b.z);
   }
 
   /// \brief Gets 2-dimensional swizzle (x, y)
@@ -342,15 +342,6 @@ MATH_OP(abs, std::abs)
 #endif
 #undef MATH_OP
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Point2<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Point2[{}, {}]", object.x, object.y);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Point3<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Point3[{}, {}, {}]", object.x, object.y,
-                               object.z);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
 using point2 = Point2<real_t>;
 using point2f = Point2<float>;
 using point2d = Point2<double>;
@@ -361,6 +352,21 @@ using point2i = Point2<Interval<real_t>>;
 using point3i = Point3<Interval<real_t>>;
 
 } // namespace hermes::geo
+
+namespace hermes {
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Point2<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("P[{}, {}]", hermes::to_string(object.x),
+                       hermes::to_string(object.y));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Point3<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("P[{}, {}, {}]", hermes::to_string(object.x),
+                       hermes::to_string(object.y),
+                       hermes::to_string(object.z));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+} // namespace hermes
 
 // std hash support
 namespace std {

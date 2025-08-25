@@ -51,13 +51,18 @@
 #ifdef HERMES_INCLUDE_TO_STRING
 
 #define HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD                                 \
-  template <typename T> std::string to_string(const T &t, u32 tab_size = 0);
+  template <typename T> std::string to_string(const T &t, u32 tab_size = 0)
 
 #define HERMES_DECLARE_TO_STRING_DEBUG_METHOD(A)                               \
   template <> std::string to_string(const A &t, u32 tab_size);
 
 namespace hermes {
-HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
+HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD {
+  std::stringstream ss;
+  std::string tab(tab_size, ' ');
+  ss << tab << t;
+  return ss.str();
+}
 }
 
 #define HERMES_TO_STRING_FRIEND(A)                                             \

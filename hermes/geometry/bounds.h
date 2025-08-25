@@ -26,7 +26,7 @@
 /// \brief  Geometric bounds.
 
 #pragma once
-#include "hermes/core/types.h"
+
 #include <hermes/geometry/point.h>
 
 #include <algorithm>
@@ -46,8 +46,8 @@ public:
   }
 
   HERMES_DEVICE_CALLABLE BoundingBox1() {
-    lower = numbers::greatest<T>();
-    upper = numbers::lowest<T>();
+    lower = math::numbers::greatest<T>();
+    upper = math::numbers::lowest<T>();
   }
   HERMES_DEVICE_CALLABLE explicit BoundingBox1(const T &p)
       : lower(p), upper(p) {}
@@ -85,8 +85,8 @@ public:
   }
 
   HERMES_DEVICE_CALLABLE BoundingBox2() {
-    lower = Point2<T>(numbers::greatest<T>());
-    upper = Point2<T>(numbers::lowest<T>());
+    lower = Point2<T>(math::numbers::greatest<T>());
+    upper = Point2<T>(math::numbers::lowest<T>());
   }
   HERMES_DEVICE_CALLABLE explicit BoundingBox2(const Point2<T> &p)
       : lower(p), upper(p) {}
@@ -114,7 +114,7 @@ public:
 
   template <typename U>
   HERMES_DEVICE_CALLABLE explicit operator typename Index2<U>::Range() const {
-    return Index2Range<U>(lower, Index2<U>(upper.x + 1, upper.y + 1));
+    return Index2<U>::Range(lower, Index2<U>(upper.x + 1, upper.y + 1));
   }
 
   HERMES_DEVICE_CALLABLE const Point2<T> &operator[](int i) const {
@@ -190,8 +190,8 @@ public:
 
   /// Creates an empty bounding box
   HERMES_DEVICE_CALLABLE BoundingBox3() {
-    lower = Point3<T>(Numbers::greatest<T>());
-    upper = Point3<T>(Numbers::lowest<T>());
+    lower = Point3<T>(math::numbers::greatest<T>());
+    upper = Point3<T>(math::numbers::lowest<T>());
   }
   /// Creates a bounding enclosing a single point
   /// \param p point
@@ -266,7 +266,7 @@ public:
   /// (0,0,0) and upper (1,1,1)
   HERMES_NODISCARD HERMES_DEVICE_CALLABLE Vector3<T>
   offset(const Point3<T> &p) const {
-    hermes::Vector3<T> o = p - lower;
+    hermes::geo::Vector3<T> o = p - lower;
     if (upper.x > lower.x)
       o.x /= upper.x - lower.x;
     if (upper.y > lower.y)
