@@ -89,13 +89,14 @@ cstr Logger::label(const logging_options &message_options, Logger::Level level,
 
   if (contains(message_options, logging_option_bits::location) ||
       contains(message_options, logging_option_bits::full_path_location))
-    s += std::format(
-        "[{}][{}][{}] ",
-        processPath(message_options,
-                    abbreviate(message_options, location.file_name))
-            .c_str(),
-        location.line,
-        abbreviate(message_options, location.function_name).c_str());
+    s +=
+        std::format("[{}][{}][{}][{}] ",
+                    processPath(message_options,
+                                abbreviate(message_options, location.file_name))
+                        .c_str(),
+                    location.line,
+                    abbreviate(message_options, location.function_name).c_str(),
+                    level_names[(u8)level]);
 
   return s;
 }

@@ -128,7 +128,7 @@ public:
     }
     if (contains(message_options, logging_option_bits::callback_only))
       return;
-    *os_ << final << "\n";
+    *os_ << final;
 #endif
   }
   /// \brief Enables logging options
