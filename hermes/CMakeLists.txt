@@ -4,6 +4,7 @@ set(HERMES_HEADERS
   base/size.h
 
   colors/argb_colors.h
+  colors/color.h
 
   core/debug.h
   core/result.h
@@ -30,6 +31,8 @@ set(HERMES_HEADERS
 )
 
 set(HERMES_SOURCES
+  colors/color.cpp
+
   geometry/transform.cpp
 
   io/logger.cpp

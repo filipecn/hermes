@@ -201,6 +201,7 @@ public:
   HERMES_DEVICE_CALLABLE MatrixNxM(T m00, T m01, T m02, T m03, T m10, T m11,
                                    T m12, T m13, T m20, T m21, T m22, T m23,
                                    T m30, T m31, T m32, T m33) {
+    static_assert(N == 4 && M == 4, "This constructor works only for M4x4");
     m_[0][0] = m00;
     m_[0][1] = m01;
     m_[0][2] = m02;
@@ -220,6 +221,7 @@ public:
   }
   HERMES_DEVICE_CALLABLE MatrixNxM(T m00, T m01, T m02, T m10, T m11, T m12,
                                    T m20, T m21, T m22) {
+    static_assert(N == 3 && M == 3, "This constructor works only for M3x3");
     m_[0][0] = m00;
     m_[0][1] = m01;
     m_[0][2] = m02;
@@ -231,6 +233,7 @@ public:
     m_[2][2] = m22;
   }
   HERMES_DEVICE_CALLABLE MatrixNxM(T m00, T m01, T m10, T m11) {
+    static_assert(N == 2 && M == 2, "This constructor works only for M2x2");
     m_[0][0] = m00;
     m_[0][1] = m01;
     m_[1][0] = m10;
@@ -379,6 +382,15 @@ rowReduce(const MatrixNxM<T, 4, 4> &p, const MatrixNxM<T, 4, 4> &q) {
   // TODO implement with gauss jordan elimination
   HERMES_NOT_IMPLEMENTED;
   return r;
+}
+template <typename T, u32 N, u32 M>
+HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M>
+transpose(const MatrixNxM<T, M, N> &m) {
+  MatrixNxM<T, M, N> t;
+  for (int r = 0; r < N; ++r)
+    for (int c = 0; c < M; ++c)
+      t[c][r] = m[r][c];
+  return t;
 }
 template <typename T>
 HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4>
