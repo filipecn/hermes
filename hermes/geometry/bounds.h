@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include "hermes/base/index.h"
+#include "hermes/core/types.h"
 #include <hermes/geometry/point.h>
 
 #include <algorithm>
@@ -391,6 +393,8 @@ template <typename T> struct BoundingSphere3 {
   ARITHMETIC_OP(+, Point3<T>)
 #undef ARITHMETIC_OP
 
+  BoundingBox3<T> extents() const { return BoundingBox3<T>(center, radius); }
+
   Point3<T> center;
   T radius{-1};
 };
@@ -482,6 +486,24 @@ make_union(const BoundingBox3<T> &a, const BoundingBox3<T> &b) {
   BoundingBox3<T> ret = make_union(a, b.lower);
   return make_union(ret, b.upper);
 }
+/// \tparam T coordinates type
+/// \param a bounding sphere
+/// \param b bounding sphere
+/// \return a new bounding sphere that encompasses **a** and **b**
+template <typename T>
+HERMES_DEVICE_CALLABLE inline BoundingSphere3<T>
+make_union(const BoundingSphere3<T> &a, const BoundingSphere3<T> &b) {
+  auto ab_dist = hermes::geo::distance(a.center, b.center);
+  if (ab_dist + a.radius < b.radius)
+    return b;
+  if (ab_dist + b.radius < a.radius)
+    return a;
+  auto radius = 0.5 * (a.radius + b.radius + ab_dist);
+  return {.radius = radius,
+          .center =
+              a.center + (b.center - a.center) * (radius - a.radius) / ab_dist};
+}
+
 /// \tparam T coordinates type
 /// \param a bounding box
 /// \param b bounding box

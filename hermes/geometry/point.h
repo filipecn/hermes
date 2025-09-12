@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "hermes/core/types.h"
 #include <hermes/geometry/vector.h>
 #include <hermes/numeric/interval.h>
 
@@ -354,6 +355,30 @@ using point3i = Point3<Interval<real_t>>;
 } // namespace hermes::geo
 
 namespace hermes {
+
+template <typename T>
+HERMES_DEVICE_CALLABLE const geo::Point2<T> &max(const geo::Point2<T> &a,
+                                                 const geo::Point2<T> &b) {
+  return a > b ? a : b;
+}
+
+template <typename T>
+HERMES_DEVICE_CALLABLE const geo::Point3<T> &max(const geo::Point3<T> &a,
+                                                 const geo::Point3<T> &b) {
+  return a > b ? a : b;
+}
+
+template <typename T>
+HERMES_DEVICE_CALLABLE const geo::Point2<T> &min(const geo::Point2<T> &a,
+                                                 const geo::Point2<T> &b) {
+  return a < b ? a : b;
+}
+
+template <typename T>
+HERMES_DEVICE_CALLABLE const geo::Point3<T> &min(const geo::Point3<T> &a,
+                                                 const geo::Point3<T> &b) {
+  return a < b ? a : b;
+}
 
 HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Point2<T>, typename T)
 HERMES_PUSH_DEBUG_LINE("P[{}, {}]", hermes::to_string(object.x),
