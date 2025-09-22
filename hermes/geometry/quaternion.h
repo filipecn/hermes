@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include "hermes/core/debug.h"
 #include <hermes/geometry/transform.h>
 
 namespace hermes::geo {
@@ -181,13 +182,17 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q,
   return {q.r * p.v + p.r * q.v + cross(p.v, q.v), q.r * p.r - dot(q, p)};
 }
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Quaternion<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Quat[({}, {}, {}), {}]", object[0], object[1],
-                               object[2], object[3]);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
 using quat = Quaternion<real_t>;
 using quatf = Quaternion<f32>;
 using quatd = Quaternion<f64>;
 
 } // namespace hermes::geo
+
+namespace hermes {
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Quaternion<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("Quat[({}, {}, {}), {}]", object.v[0], object.v[1],
+                       object.v[2], object.r);
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+} // namespace hermes

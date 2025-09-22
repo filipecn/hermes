@@ -268,6 +268,7 @@ TEST_CASE("Quaternion") {
     quat q({std::sin(angle / 2), 0, 0}, std::cos(angle / 2));
     Transform t(q.matrix());
     REQUIRE(t(vec3(0, 1, 0)) == vec3(0, 0, 1));
+    HERMES_LOG_VARIABLE(q);
   } //
 }
 
