@@ -597,7 +597,7 @@ for (int row = 0; row < N; ++row) {
     s += object[row][col];
     s += " ";
   }
-  HERMES_PUSH_DEBUG_LINE("| {}|", s.str());
+  HERMES_PUSH_DEBUG_LINE("| {}|\n", s.str());
 }
 HERMES_TO_STRING_DEBUG_METHOD_END
 

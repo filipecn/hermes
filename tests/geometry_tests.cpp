@@ -61,7 +61,6 @@ TEST_CASE("Point", "[geometry][point]") {
   SECTION("interval") {
     point3i p(1, 2, 3);
     HERMES_LOG_VARIABLE(p);
-    HERMES_INFO("{}", hermes::to_string(p));
   } //
 }
 
@@ -98,7 +97,7 @@ TEST_CASE("Vector", "[geometry][vector]") {
   }
 }
 
-TEST_CASE("BBox", "[geometry][bbox]") {
+TEST_CASE("BBox", "[geometry][bounds]") {
   SECTION("bbox2") {
     SECTION("range") {
       // bounds::bbox2 b = range2({1, 1}, {10, 10});
@@ -111,6 +110,7 @@ TEST_CASE("BBox", "[geometry][bbox]") {
     bounds::bbox3 a(point3(), point3(1));
     bounds::bbox3 b(point3(-1), point3());
     bounds::bbox3 c = make_union(a, b);
+    HERMES_LOG_VARIABLE(a);
     point3 l(-1), u(1);
     REQUIRE(c.lower == l);
     REQUIRE(c.upper == u);
@@ -134,11 +134,24 @@ TEST_CASE("BBox", "[geometry][bbox]") {
   }
 }
 
+TEST_CASE("BSphere ", "[geometry][bounds]") {
+  SECTION("union") {
+    auto u = bounds::bsphere3::Unit();
+    auto a = bounds::bsphere3().setCenter({0.5, 0, 0}).setRadius(1.0);
+    bounds::bsphere3 c = make_union(a, u);
+    HERMES_LOG_VARIABLE(a);
+    HERMES_LOG_VARIABLE(u);
+    HERMES_LOG_VARIABLE(c);
+    REQUIRE(c.center == point3(0.25, 0, 0));
+    REQUIRE_THAT(c.radius, Catch::Matchers::WithinRel(1.25, 1e-6));
+  } //
+}
+
 TEST_CASE("Transform", "[geometry]") {
   SECTION("Sanity") {
     Transform t;
     REQUIRE(t.matrix().isIdentity());
-    HERMES_LOG_VARIABLE(t.matrix());
+    HERMES_LOG_VARIABLE(t);
   } //
   SECTION("orthographic projection") {
     SECTION("left handed") {

@@ -101,7 +101,7 @@ struct HERMES_DebugFields {
         ss << tab << " " << value << "\n";
         break;
       case Type::Custom:
-        ss << tab << "  " << value << "\n";
+        ss << tab << value;
         break;
       case Type::Separator:
         ss << tab << "--------------------------\n";

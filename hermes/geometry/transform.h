@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include "hermes/core/debug.h"
 #include "hermes/numeric/math_element.h"
 #include <hermes/geometry/point.h>
 #include <hermes/numeric/matrix.h>
@@ -578,3 +579,10 @@ protected:
 };
 
 } // namespace hermes::geo
+
+namespace hermes {
+
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Transform2)
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Transform)
+
+} // namespace hermes

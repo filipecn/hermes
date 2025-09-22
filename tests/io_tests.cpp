@@ -49,6 +49,8 @@ TEST_CASE("Log", "[io]") {
 
   REQUIRE(ss.str().size());
   Logger::setStream(&std::cout);
+
+  Logger::setLevel(Logger::Level::debug);
 }
 
 TEST_CASE("Console Colors", "[io]") {

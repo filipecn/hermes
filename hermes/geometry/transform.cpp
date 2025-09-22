@@ -350,7 +350,7 @@ namespace hermes {
 
 HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Transform)
 for (int row = 0; row < 4; ++row) {
-  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}, {}]", object[row][0], object[row][1],
+  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}, {}]\n", object[row][0], object[row][1],
                          object[row][2], object[row][3]);
 }
 HERMES_TO_STRING_DEBUG_METHOD_END
