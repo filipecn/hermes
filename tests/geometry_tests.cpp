@@ -61,6 +61,7 @@ TEST_CASE("Point", "[geometry][point]") {
   SECTION("interval") {
     point3i p(1, 2, 3);
     HERMES_LOG_VARIABLE(p);
+    HERMES_INFO("{}", hermes::to_string(p));
   } //
 }
 

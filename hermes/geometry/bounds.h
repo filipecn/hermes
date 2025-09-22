@@ -526,25 +526,6 @@ HERMES_DEVICE_CALLABLE BoundingBox3<T> intersect(const BoundingBox3<T> &a,
 #endif
 }
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(BoundingBox1<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("BBox[{}, {}]", object.lower, object.upper);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(BoundingBox2<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("BBox[{}, {}]", hermes::to_string(object.lower),
-                               hermes::to_string(object.upper));
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(BoundingBox3<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("BBox[{}, {}]", hermes::to_string(object.lower),
-                               hermes::to_string(object.upper));
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(BoundingSphere3<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("BSphere[{}, {}]",
-                               hermes::to_string(object.center), object.radius);
-HERMES_TO_STRING_DEBUG_METHOD_END
-
 typedef BoundingBox1<real_t> bbox1;
 typedef BoundingBox2<real_t> bbox2;
 typedef BoundingBox3<real_t> bbox3;
@@ -553,3 +534,30 @@ typedef BoundingBox3<float> bbox3f;
 typedef BoundingSphere3<real_t> bsphere3;
 
 } // namespace hermes::geo::bounds
+
+namespace hermes {
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox1<T>,
+                                              typename T)
+HERMES_PUSH_DEBUG_CUSTOM_FIELD("BBox[{}, {}]", object.lower, object.upper);
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox2<T>,
+                                              typename T)
+HERMES_PUSH_DEBUG_CUSTOM_FIELD("BBox[{}, {}]", hermes::to_string(object.lower),
+                               hermes::to_string(object.upper));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox3<T>,
+                                              typename T)
+HERMES_PUSH_DEBUG_CUSTOM_FIELD("BBox[{}, {}]", hermes::to_string(object.lower),
+                               hermes::to_string(object.upper));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingSphere3<T>,
+                                              typename T)
+HERMES_PUSH_DEBUG_CUSTOM_FIELD("BSphere[{}, {}]",
+                               hermes::to_string(object.center), object.radius);
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+} // namespace hermes

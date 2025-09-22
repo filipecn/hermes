@@ -70,8 +70,8 @@ public:
 
   /// \brief
   /// \return
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4> matrix() const {
-    MatrixNxM<T, 4, 4> m;
+  HERMES_DEVICE_CALLABLE Transform matrix() const {
+    Transform m;
     float Nv = v.x * v.x + v.y * v.y + v.z * v.z + r * r;
     float s = (Nv > 0.f) ? (2.f / Nv) : 0.f;
     float xs = v.x * s, ys = v.y * s, zs = v.z * s;
