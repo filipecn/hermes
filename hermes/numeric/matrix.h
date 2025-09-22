@@ -250,7 +250,7 @@ public:
       for (int j = 0; j < O; ++j) {
         r[i][j] = 0;
         for (int k = 0; k < M; ++k)
-          r[i][j] += m_[i][k] * B[k][i];
+          r[i][j] += m_[i][k] * B[k][j];
       }
     return r;
   }
@@ -294,6 +294,7 @@ public:
     for (int i = 0; i < N; ++i)                                                \
       for (int j = 0; j < M; ++j)                                              \
         r[i][j] = m_[i][j] OP s;                                               \
+    return r;                                                                  \
   }
   SCALAR_OP(*)
   SCALAR_OP(/)

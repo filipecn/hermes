@@ -1,3 +1,4 @@
+#include "hermes/io/logger.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
@@ -109,6 +110,19 @@ TEST_CASE("Matrix", "[numeric]") {
     REQUIRE(m.isIdentity());
     HERMES_ERROR("{}", hermes::to_string(m));
   }
+  SECTION("Multiplication") {
+    mat4 I;
+    I.setIdentity();
+    I = I * 2.f;
+    mat4 a(1, 2, 3, 4,    //
+           5, 6, 7, 8,    //
+           9, 10, 11, 12, //
+           13, 14, 15, 16);
+    HERMES_LOG_VARIABLE(I);
+    HERMES_LOG_VARIABLE(a);
+    HERMES_LOG_VARIABLE(I * a);
+    HERMES_LOG_VARIABLE(a * I);
+  } //
   SECTION("Sanity") {
     mat3 m;
     for (int i = 0; i < 3; ++i)
