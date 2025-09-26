@@ -62,7 +62,8 @@ using uint = unsigned int;     //!< unsigned int type
 using ushort = unsigned short; //!< unsigned short type
 using uchar = unsigned char;   //!< unsigned char type
 
-using byte = uint8_t; //!< unsigned byte
+using h_byte = std::byte;   //!< unsigned byte
+using h_size = std::size_t; //!< size type
 
 // *****************************************************************************
 //                                                                 ASSTRIBUTES
@@ -125,18 +126,20 @@ namespace hermes {
 
 /// \brief Enum class for integral types
 enum class DataType : u8 {
-  I8 = 0,     //!< i8 type identifier
-  I16 = 1,    //!< i16 type identifier
-  I32 = 2,    //!< i32 type identifier
-  I64 = 3,    //!< i64 type identifier
-  U8 = 4,     //!< u8 type identifier
-  U16 = 5,    //!< u16 type identifier
-  U32 = 6,    //!< u32 type identifier
-  U64 = 7,    //!< u64 type identifier
-  F16 = 8,    //!< f16 type identifier
-  F32 = 9,    //!< f32 type identifier
-  F64 = 10,   //!< f64 type identifier
-  CUSTOM = 11 //!< unidentified type
+  I8 = 0,      //!< i8 type identifier
+  I16 = 1,     //!< i16 type identifier
+  I32 = 2,     //!< i32 type identifier
+  I64 = 3,     //!< i64 type identifier
+  U8 = 4,      //!< u8 type identifier
+  U16 = 5,     //!< u16 type identifier
+  U32 = 6,     //!< u32 type identifier
+  U64 = 7,     //!< u64 type identifier
+  F16 = 8,     //!< f16 type identifier
+  F32 = 9,     //!< f32 type identifier
+  F64 = 10,    //!< f64 type identifier
+  H_BYTE = 11, //!< h_byte type identifier
+  H_SIZE = 12, //!< h_size type identifier
+  CUSTOM = 13  //!< unidentified type
 };
 
 /// \brief DataType set of auxiliary functions
@@ -159,6 +162,8 @@ public:
     MATCH_TYPE(U64)
     MATCH_TYPE(F32)
     MATCH_TYPE(F64)
+    MATCH_TYPE(H_BYTE)
+    MATCH_TYPE(H_SIZE)
     return DataType::CUSTOM;
 #undef MATCH_TYPE
   }
@@ -179,6 +184,8 @@ public:
     MATCH_TYPE(u64, U64)
     MATCH_TYPE(f32, F32)
     MATCH_TYPE(f64, F64)
+    MATCH_TYPE(h_byte, H_BYTE)
+    MATCH_TYPE(h_size, H_SIZE)
     return DataType::CUSTOM;
 #undef MATCH_TYPE
   }
@@ -199,6 +206,8 @@ public:
     TYPE_SIZE(sizeof(u64), U64)
     TYPE_SIZE(sizeof(f32), F32)
     TYPE_SIZE(sizeof(f64), F64)
+    TYPE_SIZE(sizeof(h_byte), H_BYTE)
+    TYPE_SIZE(sizeof(h_size), H_SIZE)
     return 0;
 #undef TYPE_SIZE
   }
@@ -216,7 +225,7 @@ enum class MemoryLocation {
 };
 
 #ifdef HERMES_INCLUDE_TO_STRING
-inline std::string_view to_string(DataType type) {
+inline std::string_view to_string(DataType type, u32 tab_size = 0) {
 #define DATA_TYPE_NAME(Type)                                                   \
   if (DataType::Type == type)                                                  \
     return #Type;
@@ -231,12 +240,14 @@ inline std::string_view to_string(DataType type) {
   DATA_TYPE_NAME(F16)
   DATA_TYPE_NAME(F32)
   DATA_TYPE_NAME(F64)
+  DATA_TYPE_NAME(H_BYTE)
+  DATA_TYPE_NAME(H_SIZE)
   DATA_TYPE_NAME(CUSTOM)
   return "CUSTOM";
 #undef DATA_TYPE_NAME
 }
 
-inline std::string_view to_string(MemoryLocation location) {
+inline std::string_view to_string(MemoryLocation location, u32 tab_size = 0) {
 #define ENUM_NAME(E)                                                           \
   if (MemoryLocation::E == location)                                           \
     return #E;

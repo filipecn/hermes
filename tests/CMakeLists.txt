@@ -4,6 +4,7 @@ add_executable(hermes_tests
   io_tests.cpp
   geometry_tests.cpp
   numeric_tests.cpp
+  storage_tests.cpp
   system_tests.cpp
 )
 

@@ -466,13 +466,13 @@ public:
   /// \brief Binary representation of byte
   /// \param b
   /// \return
-  static StringType byteToBinary(byte b) {
+  static StringType byteToBinary(h_byte b) {
     StringType s;
     for (int i = 7; i >= 0; i--)
 #ifdef _WIN32
       s += std::to_wstring((b >> i) & 1);
 #else
-      s += std::to_string((b >> i) & 1);
+      s += std::to_string((int)((b >> i) & (h_byte)1));
 #endif
     return s;
   }

@@ -24,6 +24,10 @@ set(HERMES_HEADERS
   numeric/math_element.h
   numeric/matrix.h
 
+  storage/aos.h
+  storage/block.h
+  storage/memory.h
+
   system/os.h
   system/profile.h
   system/time.h
@@ -36,6 +40,10 @@ set(HERMES_SOURCES
   geometry/transform.cpp
 
   io/logger.cpp
+
+  storage/aos.cpp
+  storage/block.cpp
+  storage/memory.cpp
   
   system/os.cpp
   system/profile.cpp

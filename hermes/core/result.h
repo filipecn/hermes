@@ -74,19 +74,23 @@ public:
 
   /// Error constructor.
   /// \param err
-  HERMES_DEVICE_CALLABLE explicit Result(
-      const detail::UnexpectedResultType<E> &err = {})
+  HERMES_DEVICE_CALLABLE Result(const E &err) : ok_(false) {
+    new (reinterpret_cast<E *>(&err_)) E(err);
+  }
+  /// Error constructor.
+  /// \param err
+  HERMES_DEVICE_CALLABLE Result(const detail::UnexpectedResultType<E> &err = {})
       : ok_(false) {
     new (reinterpret_cast<E *>(&err_)) E(err.value);
   }
   /// Value constructor
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Result(const T &v) : ok_(true) {
+  HERMES_DEVICE_CALLABLE Result(const T &v) : ok_(true) {
     new (reinterpret_cast<T *>(&value_)) T(v);
   }
   /// Move value constructor
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Result(T &&v) : ok_(true) {
+  HERMES_DEVICE_CALLABLE Result(T &&v) : ok_(true) {
     new (reinterpret_cast<T *>(&value_)) T(std::move(v));
   }
   /// Copy constructor

@@ -20,10 +20,10 @@
  * IN THE SOFTWARE.
  */
 
-///\file   math.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date   2019-17-09
-///\brief  numbers functions
+/// \file   math.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2019-17-09
+/// \brief  numbers functions
 
 #pragma once
 

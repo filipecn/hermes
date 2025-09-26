@@ -177,6 +177,12 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
   debug_fields.add(HERMES_DebugFields::Type::Inline, #F, object.F);
 #endif
 
+#ifndef HERMES_PUSH_DEBUG_ADDRESS_FIELD
+#define HERMES_PUSH_DEBUG_ADDRESS_FIELD(F)                                     \
+  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
+                   cstr::format("0x{:x}", (uintptr_t)object.F));
+#endif
+
 #ifndef HERMES_PUSH_DEBUG_FIELD_VALUE
 #define HERMES_PUSH_DEBUG_FIELD_VALUE(F, V)                                    \
   debug_fields.add(HERMES_DebugFields::Type::Inline, #F, V);
@@ -377,3 +383,120 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
     HERMES_INFO(M);                                                            \
     return;                                                                    \
   }
+
+// *****************************************************************************
+//                                                             RESULT HANDLING
+// *****************************************************************************
+
+#ifndef HERMES_CHECK_HE_RESULT
+#define HERMES_CHECK_HE_RESULT(A)                                              \
+  {                                                                            \
+    HeError _hermes_check_ve_error_ = (A);                                     \
+    if ((int)_hermes_check_ve_error_) {                                        \
+      HERMES_ERROR("Error at: {}", #A);                                        \
+      HERMES_ERROR("  w/ err: {}",                                             \
+                   hermes::to_string(_hermes_check_ve_error_));                \
+    }                                                                          \
+  }
+#endif
+#ifndef HERMES_CHECK_OR_RESULT
+#define HERMES_CHECK_OR_RESULT(A)                                              \
+  {                                                                            \
+    if (!(A)) {                                                                \
+      HERMES_ERROR("Check error: {}", #A);                                     \
+      return VeResult::checkError();                                           \
+    }                                                                          \
+  }
+#endif
+#ifndef HERMES_RETURN_HE_ERROR
+#define HERMES_RETURN_HE_ERROR(A)                                              \
+  {                                                                            \
+    HeError _hermes_return_he_error_ = (A);                                    \
+    if ((int)_hermes_return_he_error_) {                                       \
+      HERMES_ERROR("Error at: {}", #A);                                        \
+      HERMES_ERROR("  w/ err: {}",                                             \
+                   hermes::to_string(_hermes_return_he_error_));               \
+      return _hermes_return_he_error_;                                         \
+    }                                                                          \
+  }
+#endif
+#ifndef HERMES_RETURN_BAD_RESULT
+#define HERMES_RETURN_BAD_RESULT(A)                                            \
+  {                                                                            \
+    HeError _hermes_return_he_error_ = (A);                                    \
+    if ((int)_hermes_return_he_error_) {                                       \
+      HERMES_ERROR("Error at: {}", #A);                                        \
+      HERMES_ERROR("  w/ err: {}",                                             \
+                   hermes::to_string(_hermes_return_he_error_));               \
+      return {hermes::detail::UnexpectedResultType<HeError>(                   \
+          _hermes_return_he_error_)};                                          \
+    }                                                                          \
+  }
+#endif
+
+#ifndef HERMES_ASSIGN_RESULT
+#define HERMES_ASSIGN_RESULT(R, V)                                             \
+  if (auto _hermes_result_ = V)                                                \
+    R = std::move(*_hermes_result_);                                           \
+  else {                                                                       \
+    HERMES_ERROR("Error at: {} = {}", #R, #V);                                 \
+    HERMES_ERROR("  w/ err: {}", hermes::to_string(_hermes_result_.status())); \
+  }
+#endif
+
+#ifndef HERMES_ASSIGN_RESULT_OR
+#define HERMES_ASSIGN_RESULT_OR(R, V, O)                                       \
+  if (auto _hermes_result_ = V)                                                \
+    R = std::move(*_hermes_result_);                                           \
+  else {                                                                       \
+    HERMES_ERROR("Error at: {} = {}", #R, #V);                                 \
+    HERMES_ERROR("  w/ err: {}", hermes::to_string(_hermes_result_.status())); \
+    O;                                                                         \
+  }
+#endif
+
+#ifndef HERMES_ASSIGN_RESULT_OR_RETURN_BAD_RESULT
+#define HERMES_ASSIGN_RESULT_OR_RETURN_BAD_RESULT(R, V)                        \
+  if (auto _hermes_result_ = V)                                                \
+    R = std::move(*_hermes_result_);                                           \
+  else {                                                                       \
+    HERMES_ERROR("Error at: {} = {}", #R, #V);                                 \
+    HERMES_ERROR("  w/ err: {}", hermes::to_string(_hermes_result_.status())); \
+    return _hermes_result_.status();                                           \
+  }
+
+#endif
+
+#ifndef HERMES_ASSIGN_RESULT_OR_RETURN_HE_ERROR
+#define HERMES_ASSIGN_RESULT_OR_RETURN_HE_ERROR(R, V)                          \
+  if (auto _hermes_result_ = V)                                                \
+    R = std::move(*_hermes_result_);                                           \
+  else {                                                                       \
+    HERMES_ERROR("Error at: {} = {}", #R, #V);                                 \
+    HERMES_ERROR("  w/ err: {}", hermes::to_string(_hermes_result_.status())); \
+    return _hermes_result_.status();                                           \
+  }
+
+#endif
+
+#ifndef HERMES_ASSIGN_RESULT_OR_RETURN
+#define HERMES_ASSIGN_RESULT_OR_RETURN(R, V, B)                                \
+  if (auto _hermes_result_ = V)                                                \
+    R = std::move(*_hermes_result_);                                           \
+  else {                                                                       \
+    HERMES_ERROR("Error at: {} = {}", #R, #V);                                 \
+    HERMES_ERROR("  w/ err: {}", hermes::to_string(_hermes_result_.status())); \
+    return B;                                                                  \
+  }
+#endif
+
+#ifndef HERMES_ASSIGN_RESULT_OR_RETURN_VOID
+#define HERMES_ASSIGN_RESULT_OR_RETURN_VOID(R, V)                              \
+  if (auto _hermes_result_ = V)                                                \
+    R = std::move(*_hermes_result_);                                           \
+  else {                                                                       \
+    HERMES_ERROR("Error at: {} = {}", #R, #V);                                 \
+    HERMES_ERROR("  w/ err: {}", hermes::to_string(_hermes_result_.status())); \
+    return;                                                                    \
+  }
+#endif

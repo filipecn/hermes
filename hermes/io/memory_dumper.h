@@ -360,7 +360,7 @@ public:
             s.append(std::setfill('0'), std::setw(column_size),
                      static_cast<u32>(byte), ' ');
           else if (contains(options, memory_dumper_option_bits::binary))
-            s.append(cstr::byteToBinary(byte), " ");
+            s.append(cstr::byteToBinary((h_byte)byte), " ");
           else if (contains(options, memory_dumper_option_bits::hexii))
             s.append(std::string(column_size, ' '), " ");
           else
