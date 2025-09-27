@@ -180,7 +180,7 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
 #ifndef HERMES_PUSH_DEBUG_ADDRESS_FIELD
 #define HERMES_PUSH_DEBUG_ADDRESS_FIELD(F)                                     \
   debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
-                   cstr::format("0x{:x}", (uintptr_t)object.F));
+                   hermes::cstr::format("0x{:x}", (uintptr_t)object.F));
 #endif
 
 #ifndef HERMES_PUSH_DEBUG_FIELD_VALUE
