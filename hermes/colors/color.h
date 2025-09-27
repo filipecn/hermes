@@ -170,6 +170,7 @@ struct RGBA_Color : public RGB_Color {
 
 namespace hermes {
 
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(colors::RGBA_Color);
 HERMES_DECLARE_TO_STRING_DEBUG_METHOD(colors::RGB_Color);
 
 } // namespace hermes
