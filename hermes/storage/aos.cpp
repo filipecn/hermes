@@ -110,6 +110,7 @@ AoS::AoS(AoS &&rhs) noexcept { *this = std::move(rhs); }
 
 AoS &AoS::operator=(const AoS &rhs) {
   HERMES_CHECK_HE_RESULT(clear());
+  HERMES_CHECK_HE_RESULT(data_.resize(rhs.dataSize()));
   auto err = data_.copy(rhs.data_);
   if (err != HeError::NO_ERROR) {
     HERMES_ERROR("Failed to copy assign AoS. [err={}]", hermes::to_string(err));

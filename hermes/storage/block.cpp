@@ -156,6 +156,7 @@ HeError Block::resize(const size3 &new_size, h_size new_pitch) {
 }
 
 HeError Block::copy(const Block &memory_block) {
+  HERMES_ASSERT(sizeInBytes() >= memory_block.sizeInBytes());
   return writes::copy(location_, data_, pitch_, size_, memory_block.location_,
                       memory_block.data_, memory_block.pitch_,
                       memory_block.size_);
