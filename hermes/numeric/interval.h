@@ -28,7 +28,6 @@
 #pragma once
 
 #include <hermes/numeric/math.h>
-#include <hermes/numeric/math_element.h>
 
 namespace hermes {
 
@@ -37,7 +36,7 @@ namespace hermes {
 // *****************************************************************************
 
 /// Represents a numeric interval that supports interval arithmetic
-template <typename T> class Interval : public MathElement<T, 2u> {
+template <typename T> class Interval {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, float>::value ||
                     std::is_same<T, double>::value ||

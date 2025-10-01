@@ -98,6 +98,8 @@ TEST_CASE("interval") {
 }
 
 TEST_CASE("Matrix", "[numeric]") {
+  REQUIRE(sizeof(mat4) == sizeof(real_t) * 16);
+  REQUIRE(sizeof(mat3) == sizeof(real_t) * 9);
   SECTION("Identity") {
     mat4 m;
     m.setIdentity();

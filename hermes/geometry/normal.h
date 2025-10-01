@@ -32,8 +32,8 @@
 #ifndef HERMES_GEOMETRY_NORMAL_H
 #define HERMES_GEOMETRY_NORMAL_H
 
-#include <iostream>
 #include <hermes/geometry/vector.h>
+#include <iostream>
 
 namespace hermes {
 
@@ -42,10 +42,12 @@ namespace hermes {
 // *********************************************************************************************************************
 /// \brief Geometric 2-dimensional normal (nx, ny)
 /// \tparam T
-template<typename T> class Normal2 : public MathElement<T, 2u> {
+template <typename T> class Normal2 {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
-                    std::is_same<T, float>::value || std::is_same<T, double>::value,
+                    std::is_same<T, float>::value ||
+                    std::is_same<T, double>::value,
                 "Normal2 must hold an float type!");
+
 public:
   // *******************************************************************************************************************
   //                                                                                                     CONSTRUCTORS
@@ -58,7 +60,7 @@ public:
   HERMES_DEVICE_CALLABLE Normal2(T _x, T _y) : x(_x), y(_y) {}
   /// \brief Constructs from vector
   /// \param v
-  HERMES_DEVICE_CALLABLE Normal2(const Vector2 <T> &v) : x(v.x), y(v.y) {}
+  HERMES_DEVICE_CALLABLE Normal2(const Vector2<T> &v) : x(v.x), y(v.y) {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
@@ -92,11 +94,12 @@ public:
 // *********************************************************************************************************************
 /// \brief Geometric 3-dimensional normal (nx, ny, nz)
 /// \tparam T
-template<typename T> class Normal3 : MathElement<T, 3u> {
+template <typename T> class Normal3 {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, float>::value ||
                     std::is_same<T, double>::value,
                 "Normal3 must hold an float type!");
+
 public:
   // *******************************************************************************************************************
   //                                                                                                   STATIC METHODS
@@ -113,7 +116,8 @@ public:
   HERMES_DEVICE_CALLABLE Normal3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
   /// \brief Constructs from vector
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Normal3(const Vector3 <T> &v) : x(v.x), y(v.y), z(v.z) {}
+  HERMES_DEVICE_CALLABLE explicit Normal3(const Vector3<T> &v)
+      : x(v.x), y(v.y), z(v.z) {}
   // *******************************************************************************************************************
   //                                                                                                        OPERATORS
   // *******************************************************************************************************************
@@ -124,8 +128,10 @@ public:
     return Vector3<T>(x, y, z);
   }
   //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE Normal3 operator-() const { return Normal3(-x, -y, -z); }
-  HERMES_DEVICE_CALLABLE Normal3 &operator+=(const Vector3<T>& v) {
+  HERMES_DEVICE_CALLABLE Normal3 operator-() const {
+    return Normal3(-x, -y, -z);
+  }
+  HERMES_DEVICE_CALLABLE Normal3 &operator+=(const Vector3<T> &v) {
     x += v.x;
     y += v.y;
     z += v.z;
@@ -153,25 +159,25 @@ public:
   /// \brief  reflects **v** from this
   /// \param v vector to be reflected
   /// \returns reflected **v**
-  HERMES_DEVICE_CALLABLE Vector3 <T> reflect(const Vector3 <T> &v) {
+  HERMES_DEVICE_CALLABLE Vector3<T> reflect(const Vector3<T> &v) {
     return reflect(v, *this);
   }
   /// \brief projects **v** on the surface with this normal
   /// \param v vector
   /// \returns projected **v**
-  HERMES_DEVICE_CALLABLE Vector3 <T> project(const Vector3 <T> &v) {
+  HERMES_DEVICE_CALLABLE Vector3<T> project(const Vector3<T> &v) {
     return project(v, *this);
   }
   /// \brief compute the two orthogonal-tangential vectors from this
   /// \param a **[out]** first tangent
   /// \param b **[out]** second tangent
-  HERMES_DEVICE_CALLABLE void tangential(Vector3 <T> &a, Vector3 <T> &b) {
+  HERMES_DEVICE_CALLABLE void tangential(Vector3<T> &a, Vector3<T> &b) {
     //  hermes::tangential(Vector3<T>(x, y, z), a, b);
   }
 
-  T x{0};  //!< 0-th normal component
-  T y{0};  //!< 1-th normal component
-  T z{0};  //!< 2-th normal component
+  T x{0}; //!< 0-th normal component
+  T y{0}; //!< 1-th normal component
+  T z{0}; //!< 2-th normal component
 };
 
 // *********************************************************************************************************************
@@ -181,24 +187,26 @@ public:
 /// \param a vector to be reflected
 /// \param n axis of reflection
 /// \returns reflected **a**
-template<typename T>
-HERMES_DEVICE_CALLABLE Vector2 <T> reflect(const Vector2 <T> &a, const Normal2<T> &n) {
+template <typename T>
+HERMES_DEVICE_CALLABLE Vector2<T> reflect(const Vector2<T> &a,
+                                          const Normal2<T> &n) {
   return a - 2 * dot(a, Vector2<T>(n)) * Vector2<T>(n);
 }
 /// \brief projects **v** on the surface with normal **n**
 /// \param v vector
 /// \param n surface's normal
 /// \returns projected **v**
-template<typename T>
-HERMES_DEVICE_CALLABLE Vector2 <T> project(const Vector2 <T> &v, const Normal2<T> &n) {
+template <typename T>
+HERMES_DEVICE_CALLABLE Vector2<T> project(const Vector2<T> &v,
+                                          const Normal2<T> &n) {
   return v - dot(v, Vector2<T>(n)) * Vector2<T>(n);
 }
 /// \brief Computes normalized copy
 /// \tparam T
 /// \param normal
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE  Normal3<T> normalize(const Normal3<T> &normal) {
+template <typename T>
+HERMES_DEVICE_CALLABLE Normal3<T> normalize(const Normal3<T> &normal) {
   T d = normal.x * normal.x + normal.y * normal.y + normal.z * normal.z;
   if (d == 0.f)
     return normal;
@@ -208,24 +216,26 @@ HERMES_DEVICE_CALLABLE  Normal3<T> normalize(const Normal3<T> &normal) {
 /// \tparam T
 /// \param normal
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE  Normal3<T> abs(const Normal3<T> &normal) {
+template <typename T>
+HERMES_DEVICE_CALLABLE Normal3<T> abs(const Normal3<T> &normal) {
   return Normal3<T>(std::abs(normal.x), std::abs(normal.y), std::abs(normal.z));
 }
 /// \brief reflects **a** on **n**
 /// \param a vector to be reflected
 /// \param n axis of reflection
 /// \returns reflected **a**
-template<typename T>
-HERMES_DEVICE_CALLABLE  Vector3 <T> reflect(const Vector3 <T> &a, const Normal3<T> &n) {
+template <typename T>
+HERMES_DEVICE_CALLABLE Vector3<T> reflect(const Vector3<T> &a,
+                                          const Normal3<T> &n) {
   return a - 2 * dot(a, Vector3<T>(n)) * Vector3<T>(n);
 }
 /// \brief projects **v** on the surface with normal **n**
 /// \param v vector
 /// \param n surface's normal
 /// \returns projected **v**
-template<typename S>
-HERMES_DEVICE_CALLABLE  Vector3 <S> project(const Vector3 <S> &v, const Normal3<S> &n) {
+template <typename S>
+HERMES_DEVICE_CALLABLE Vector3<S> project(const Vector3<S> &v,
+                                          const Normal3<S> &n) {
   return v - dot(v, Vector3<S>(n)) * Vector3<S>(n);
 }
 /// \brief Computes dot product with vector
@@ -233,8 +243,8 @@ HERMES_DEVICE_CALLABLE  Vector3 <S> project(const Vector3 <S> &v, const Normal3<
 /// \param n
 /// \param v
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE  T dot(const Normal3<T> &n, const Vector3 <T> &v) {
+template <typename T>
+HERMES_DEVICE_CALLABLE T dot(const Normal3<T> &n, const Vector3<T> &v) {
   return n.x * v.x + n.y * v.y + n.z * v.z;
 }
 /// \brief Computes dot product with vector
@@ -242,8 +252,8 @@ HERMES_DEVICE_CALLABLE  T dot(const Normal3<T> &n, const Vector3 <T> &v) {
 /// \param v
 /// \param n
 /// \return
-template<typename T>
-HERMES_DEVICE_CALLABLE  T dot(const Vector3 <T> &v, const Normal3<T> &n) {
+template <typename T>
+HERMES_DEVICE_CALLABLE T dot(const Vector3<T> &v, const Normal3<T> &n) {
   return n.x * v.x + n.y * v.y + n.z * v.z;
 }
 ///
@@ -251,8 +261,9 @@ HERMES_DEVICE_CALLABLE  T dot(const Vector3 <T> &v, const Normal3<T> &n) {
 /// \param v
 /// \param n
 /// \return v if is oriented along with n, -v otherwise
-template<typename T>
-HERMES_DEVICE_CALLABLE Vector3 <T> faceForward(const Vector3 <T> &v, const Normal3<T> &n) {
+template <typename T>
+HERMES_DEVICE_CALLABLE Vector3<T> faceForward(const Vector3<T> &v,
+                                              const Normal3<T> &n) {
   return (dot(v, n) < 0.f) ? -v : v;
 }
 
@@ -264,7 +275,7 @@ HERMES_DEVICE_CALLABLE Vector3 <T> faceForward(const Vector3 <T> &v, const Norma
 /// \param os
 /// \param n
 /// \return
-template<typename T>
+template <typename T>
 std::ostream &operator<<(std::ostream &os, const Normal2<T> &n) {
   os << "[Normal3] " << n.x << " " << n.y << std::endl;
   return os;
@@ -274,7 +285,7 @@ std::ostream &operator<<(std::ostream &os, const Normal2<T> &n) {
 /// \param os
 /// \param n
 /// \return
-template<typename T>
+template <typename T>
 std::ostream &operator<<(std::ostream &os, const Normal3<T> &n) {
   os << "[Normal3] " << n.x << " " << n.y << " " << n.z << std::endl;
   return os;

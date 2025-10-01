@@ -42,7 +42,7 @@ template <typename T> class Point2;
 // *****************************************************************************
 /// Geometric 2-dimensional vector (x, y)
 /// \tparam T
-template <typename T> class Vector2 : public MathElement<T, 2u> {
+template <typename T> class Vector2 {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, Interval<f32>>::value ||
                     std::is_same<T, Interval<f64>>::value,
@@ -153,7 +153,7 @@ template <typename T> class Point3;
 // *****************************************************************************
 /// Geometric 3-dimensional vector (x, y, z)
 /// \tparam T
-template <typename T> class Vector3 : public MathElement<T, 3u> {
+template <typename T> class Vector3 {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, Interval<f32>>::value ||
                     std::is_same<T, Interval<f64>>::value,
@@ -412,7 +412,7 @@ public:
 // *****************************************************************************
 /// Geometric 4-dimensional point (x, y, z, w)
 /// \tparam T
-template <typename T> class Vector4 : public MathElement<T, 4> {
+template <typename T> class Vector4 {
 public:
   /// Default constructor
   HERMES_DEVICE_CALLABLE Vector4() : x{0}, y{0}, z{0}, w{0} {}
@@ -698,15 +698,24 @@ MATH_OP(cos, std::cos, 3)
 using vec2 = Vector2<real_t>;
 using vec3 = Vector3<real_t>;
 using vec4 = Vector4<real_t>;
-using vec3d = Vector3<double>;
-using vec3f = Vector3<float>;
-using vec2f = Vector2<float>;
+using vec3d = Vector3<f64>;
+using vec3f = Vector3<f32>;
+using vec2f = Vector2<f32>;
+using vec2d = Vector2<f64>;
 using vec2i = Vector2<Interval<real_t>>;
 using vec3i = Vector3<Interval<real_t>>;
 
 } // namespace hermes::geo
 
 namespace hermes {
+
+HERMES_TYPE_LAYOUT_METHODS(geo::vec2, f32, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec2d, f64, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec3, f32, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec3d, f64, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec4, real_t, 4)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec2i, Interval<real_t>, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec3i, Interval<real_t>, 3)
 
 HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Vector2<T>, typename T)
 HERMES_PUSH_DEBUG_LINE("V[{}, {}]", hermes::to_string(object.x),

@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include <hermes/geometry/transform.h>
 #include <hermes/io/logger.h>
 #include <hermes/io/memory_dumper.h>
 
@@ -114,6 +115,8 @@ TEST_CASE("Console Colors", "[io]") {
 #undef PRINT_COLOR_NAME
 }
 
+template <typename a, u64 t> struct M {};
+
 TEST_CASE("MemoryDumper", "[log]") {
   SECTION("hex") {
     const char s[] = "abcdefghijklmnopqrstuvxzwy";
@@ -154,6 +157,42 @@ TEST_CASE("MemoryDumper", "[log]") {
     MemoryDumper::dump(v, 8, 64, {}, memory_dumper_option_bits::cache_align);
   } //
   SECTION("colored output") {
+    SECTION("sanity") {
+      struct S {
+        geo::Transform t;
+        mat4 m;
+        u32 a;
+      };
+      S v[2] = {{geo::Transform(), mat4::I(), 0}, {{}, mat4::I(), 1}};
+      MemoryDumper::dump(
+          v, 2, 16,
+          MemoryDumper::Layout()
+              .withOffset(0)
+              .withSizeOf<S>(2)
+              .withColor(colors::console::combine(colors::console::yellow,
+                                                  colors::console::dim))
+              .withSubRegion( // m
+                  MemoryDumper::Layout()
+                      .withOffset(offsetof(S, m))
+                      .withSize(sizeof(S::m), 1)
+                      .withColor(colors::console::red)
+                      .withType(DataType::F32))
+              .withSubRegion( // t
+                  MemoryDumper::Layout()
+                      .withOffset(offsetof(S, t))
+                      .withSize(sizeof(S::t), 1)
+                      .withColor(colors::console::green)
+                      .withType(DataType::F32))
+              .withSubRegion( // a
+                  MemoryDumper::Layout()
+                      .withOffset(offsetof(S, a))
+                      .withSize(sizeof(S::a), 1)
+                      .withColor(colors::console::blue)
+                      .withType(DataType::U32)),
+          memory_dumper_option_bits::colored_output |
+              memory_dumper_option_bits::type_values |
+              memory_dumper_option_bits::cache_align);
+    } //
     SECTION("packed members") {
       struct S {
         u64 b;

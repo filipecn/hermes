@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include "hermes/core/debug.h"
-#include "hermes/numeric/math_element.h"
 #include <hermes/geometry/point.h>
 #include <hermes/numeric/matrix.h>
 
@@ -103,7 +101,7 @@ Transform2 inverse(const Transform2 &t);
 //                                                                 Transform2
 // *****************************************************************************
 /// \brief Represents a 2-dimensional transformation
-class Transform2 : public MathElement<real_t, 9> {
+class Transform2 {
 public:
   /// \brief Creates scale transform
   /// \param s
@@ -238,7 +236,7 @@ private:
 //                                                                  Transform
 // *****************************************************************************
 /// \brief Represents a 3-dimensional transformation
-class Transform : public MathElement<real_t, 16> {
+class Transform {
 public:
   /// \brief Creates a Look At Transform
   /// \note This transform is commonly used (in graphics) to orient a camera so
@@ -581,6 +579,9 @@ protected:
 } // namespace hermes::geo
 
 namespace hermes {
+
+HERMES_TYPE_LAYOUT_METHODS(geo::Transform2, f32, 9)
+HERMES_TYPE_LAYOUT_METHODS(geo::Transform, f32, 16)
 
 HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Transform2)
 HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Transform)

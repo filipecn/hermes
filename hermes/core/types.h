@@ -66,7 +66,24 @@ using h_byte = std::byte;   //!< unsigned byte
 using h_size = std::size_t; //!< size type
 
 // *****************************************************************************
-//                                                                 ASSTRIBUTES
+//                                                                      LAYOUT
+// *****************************************************************************
+
+#ifndef HERMES_TYPE_LAYOUT_METHODS
+#define HERMES_TYPE_LAYOUT_METHODS(TYPE, BASE_TYPE, COMPONENT_COUNT)           \
+  template <> inline constexpr h_size componentCountOf<TYPE>() {               \
+    return COMPONENT_COUNT;                                                    \
+  }                                                                            \
+  template <> inline constexpr h_size baseTypeSizeOf<TYPE>() {                 \
+    return sizeof(BASE_TYPE);                                                  \
+  }                                                                            \
+  template <> inline constexpr DataType dataTypeOf<TYPE>() {                   \
+    return DataTypes::typeFrom<BASE_TYPE>();                                   \
+  }
+#endif
+
+// *****************************************************************************
+//                                                                 ATTRIBUTES
 // *****************************************************************************
 
 #ifndef HERMES_NODISCARD
@@ -212,6 +229,18 @@ public:
 #undef TYPE_SIZE
   }
 };
+
+template <typename TYPE> inline constexpr h_size componentCountOf() {
+  return 1;
+}
+
+template <typename TYPE> inline constexpr h_size baseTypeSizeOf() {
+  return sizeof(TYPE);
+}
+
+template <typename TYPE> inline constexpr DataType dataTypeOf() {
+  return DataTypes::typeFrom<TYPE>();
+}
 
 // *****************************************************************************
 //                                                             MEMORY LOCATION

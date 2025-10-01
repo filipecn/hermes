@@ -27,7 +27,10 @@
 
 #pragma once
 
-#include <hermes/numeric/math_element.h>
+#include <hermes/core/types.h>
+#include <hermes/numeric/math.h>
+
+#include <cstring>
 
 namespace hermes {
 
@@ -108,8 +111,7 @@ HERMES_DEVICE_CALLABLE bool gluInvertMatrix(const T m[16], T invOut[16]) {
 // *****************************************************************************
 
 /// \brief NxM Matrix representation (N rows, M columns).
-template <typename T, u32 N, u32 M>
-class MatrixNxM : public MathElement<T, N * M> {
+template <typename T, u32 N, u32 M> class MatrixNxM {
   static_assert(N >= 1 && M >= 1, "MatrixNxM can't have null size.");
 
 public:
@@ -602,8 +604,12 @@ for (int row = 0; row < N; ++row) {
 }
 HERMES_TO_STRING_DEBUG_METHOD_END
 
-typedef MatrixNxM<real_t, 4, 4> mat4;
-typedef MatrixNxM<real_t, 3, 3> mat3;
-typedef MatrixNxM<real_t, 2, 2> mat2;
+using mat4 = MatrixNxM<real_t, 4, 4>;
+using mat3 = MatrixNxM<real_t, 3, 3>;
+using mat2 = MatrixNxM<real_t, 2, 2>;
+
+HERMES_TYPE_LAYOUT_METHODS(mat4, f32, 16)
+HERMES_TYPE_LAYOUT_METHODS(mat3, f32, 9)
+HERMES_TYPE_LAYOUT_METHODS(mat2, f32, 4)
 
 } // namespace hermes

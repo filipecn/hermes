@@ -21,7 +21,6 @@ set(HERMES_HEADERS
 
   numeric/interval.h
   numeric/math.h
-  numeric/math_element.h
   numeric/matrix.h
 
   storage/aos.h

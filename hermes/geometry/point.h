@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include "hermes/core/types.h"
 #include <hermes/geometry/vector.h>
 #include <hermes/numeric/interval.h>
 
@@ -37,7 +36,7 @@ namespace hermes::geo {
 // *****************************************************************************
 /// \brief Geometric 2-dimensional point (x, y)
 /// \tparam T
-template <typename T> class Point2 : public MathElement<T, 2u> {
+template <typename T> class Point2 {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, Interval<f32>>::value ||
                     std::is_same<T, Interval<f64>>::value,
@@ -139,7 +138,7 @@ public:
 // *****************************************************************************
 /// \brief Geometric 3-dimensional vector (x, y, z)
 /// \tparam T
-template <typename T> class Point3 : public MathElement<T, 3u> {
+template <typename T> class Point3 {
   static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value ||
                     std::is_same<T, Interval<f32>>::value ||
                     std::is_same<T, Interval<f64>>::value,
@@ -355,6 +354,13 @@ using point3i = Point3<Interval<real_t>>;
 } // namespace hermes::geo
 
 namespace hermes {
+
+HERMES_TYPE_LAYOUT_METHODS(geo::point2, f32, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::point2d, f64, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::point3, f32, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::point3d, f64, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::point2i, Interval<real_t>, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::point3i, Interval<real_t>, 3)
 
 template <typename T>
 HERMES_DEVICE_CALLABLE const geo::Point2<T> &max(const geo::Point2<T> &a,

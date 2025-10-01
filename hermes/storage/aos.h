@@ -27,7 +27,6 @@
 #pragma once
 
 #include <hermes/base/str.h>
-#include <hermes/numeric/math_element.h>
 #include <hermes/storage/block.h>
 
 #include <string>
@@ -70,17 +69,8 @@ public:
     template <typename T> u64 pushField(const std::string &name) {
       field_id_map_[name] = fields_.size();
       Field d = {name, sizeof(T), size_in_bytes_, 1, DataTypes::typeFrom<T>()};
-#define MATCH_HERMES_TYPES(Type, DT, C)                                        \
-  if (std::is_base_of_v<MathElement<Type, C>, T>) {                            \
-    d.component_count = C;                                                     \
-    d.type = DataType::DT;                                                     \
-  }
-      MATCH_HERMES_TYPES(f32, F32, 2u)
-      MATCH_HERMES_TYPES(f32, F32, 3u)
-      MATCH_HERMES_TYPES(f32, F32, 4u)
-      MATCH_HERMES_TYPES(f32, F32, 9u)
-      MATCH_HERMES_TYPES(f32, F32, 16u)
-#undef MATCH_HERMES_TYPES
+      d.component_count = componentCountOf<T>();
+      d.type = dataTypeOf<T>();
       fields_.emplace_back(d);
       size_in_bytes_ += d.size;
       return fields_.size() - 1;

@@ -26,6 +26,7 @@ HERMES_CUDA_KERNEL(testPoint)(int *result) {
 
 TEST_CASE("Point", "[geometry][point]") {
   SECTION("Point2") {
+    REQUIRE(sizeof(point2) == sizeof(real_t) * 2);
     SECTION("index cast") {
       point2 p = index2(3, 4);
       REQUIRE(p == point2(3, 4));
@@ -50,6 +51,7 @@ TEST_CASE("Point", "[geometry][point]") {
     }
   } //
   SECTION("Point3") {
+    REQUIRE(sizeof(point3) == sizeof(real_t) * 3);
     SECTION("hash") {
       point3 a(0.00001, 0.1, 0.000000001);
       point3 b(0.00001, 0.1, 0.000000001);
@@ -59,6 +61,7 @@ TEST_CASE("Point", "[geometry][point]") {
     }
   } //
   SECTION("interval") {
+    REQUIRE(sizeof(point3i) == sizeof(real_t) * 3 * 2);
     point3i p(1, 2, 3);
     HERMES_LOG_VARIABLE(p);
   } //
@@ -66,6 +69,7 @@ TEST_CASE("Point", "[geometry][point]") {
 
 TEST_CASE("Vector", "[geometry][vector]") {
   SECTION("Vector2") {
+    REQUIRE(sizeof(vec2) == sizeof(real_t) * 2);
     SECTION("hash") {
       vec2 a(0.00001, 0.1);
       vec2 b(0.00001, 0.1);
@@ -83,6 +87,7 @@ TEST_CASE("Vector", "[geometry][vector]") {
     } //
   } //
   SECTION("Vector3") {
+    REQUIRE(sizeof(vec3) == sizeof(real_t) * 3);
     SECTION("hash") {
       vec3 a(0.00001, 0.1, 0.000000001);
       vec3 b(0.00001, 0.1, 0.000000001);
@@ -99,13 +104,13 @@ TEST_CASE("Vector", "[geometry][vector]") {
 
 TEST_CASE("BBox", "[geometry][bounds]") {
   SECTION("bbox2") {
+    REQUIRE(sizeof(bounds::bbox2) == sizeof(point2) * 2);
     SECTION("range") {
       // bounds::bbox2 b = range2({1, 1}, {10, 10});
       // REQUIRE(b == bounds::bbox2({1, 1}, {9, 9}));
       //  REQUIRE(static_cast<range2>(b) == range2({1, 1}, {10, 10}));
     }
   } //
-
   SECTION("union") {
     bounds::bbox3 a(point3(), point3(1));
     bounds::bbox3 b(point3(-1), point3());
@@ -148,6 +153,8 @@ TEST_CASE("BSphere ", "[geometry][bounds]") {
 }
 
 TEST_CASE("Transform", "[geometry]") {
+  REQUIRE(sizeof(Transform2) == sizeof(real_t) * 9);
+  REQUIRE(sizeof(Transform) == sizeof(real_t) * 16);
   SECTION("Sanity") {
     Transform t;
     REQUIRE(t.matrix().isIdentity());
