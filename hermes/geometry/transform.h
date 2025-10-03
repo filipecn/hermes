@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include "hermes/core/debug.h"
 #include <hermes/geometry/point.h>
 #include <hermes/numeric/matrix.h>
 
@@ -57,13 +58,14 @@ enum class transform_option_bits : u32 {
   flip_z = 0x40000,    //!< invert z-axis
 };
 
+using transform_options = hermes::Flags<geo::transform_option_bits>;
+
 } // namespace hermes::geo
 
 namespace hermes {
-using transform_options = Flags<geo::transform_option_bits>;
 template <> struct FlagTraits<geo::transform_option_bits> {
   static HERMES_CONST_OR_CONSTEXPR bool is_bitmask = true;
-  static HERMES_CONST_OR_CONSTEXPR transform_options all_flags =
+  static HERMES_CONST_OR_CONSTEXPR geo::transform_options all_flags =
       geo::transform_option_bits::x_right |
       geo::transform_option_bits::y_right |
       geo::transform_option_bits::z_right |
@@ -80,6 +82,10 @@ template <> struct FlagTraits<geo::transform_option_bits> {
       geo::transform_option_bits::flip_x | geo::transform_option_bits::flip_y |
       geo::transform_option_bits::flip_z;
 };
+
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::transform_option_bits)
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::transform_options)
+
 } // namespace hermes
 
 namespace hermes::geo {

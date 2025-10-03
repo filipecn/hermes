@@ -24,9 +24,81 @@
 /// \author FilipeCN (filipedecn@gmail.com)
 /// \date   2018-08-19
 
+#include "hermes/core/debug.h"
 #include <hermes/geometry/transform.h>
 
 #include <hermes/geometry/quaternion.h>
+
+namespace hermes {
+
+HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::transform_option_bits)
+#define BIT_NAME(B)                                                            \
+  else if (geo::transform_option_bits::B == object)                            \
+      HERMES_PUSH_DEBUG_LINE("{}", #B)
+if (geo::transform_option_bits::x_right == object)
+  HERMES_PUSH_DEBUG_LINE("x_right")
+BIT_NAME(y_right)
+BIT_NAME(z_right)
+BIT_NAME(left_handed)
+BIT_NAME(x_left)
+BIT_NAME(y_left)
+BIT_NAME(z_left)
+BIT_NAME(right_handed)
+BIT_NAME(x_up)
+BIT_NAME(y_up)
+BIT_NAME(z_up)
+BIT_NAME(zero_to_one)
+BIT_NAME(x_down)
+BIT_NAME(y_down)
+BIT_NAME(z_down)
+BIT_NAME(transpose)
+BIT_NAME(flip_x)
+BIT_NAME(flip_y)
+BIT_NAME(flip_z)
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::transform_options)
+std::vector<std::string> values;
+#define CHECK_BIT(B)                                                           \
+  if (geo::transform_option_bits::B & object)                                  \
+    values.push_back(#B);
+CHECK_BIT(x_right)
+CHECK_BIT(y_right)
+CHECK_BIT(z_right)
+CHECK_BIT(left_handed)
+CHECK_BIT(x_left)
+CHECK_BIT(y_left)
+CHECK_BIT(z_left)
+CHECK_BIT(right_handed)
+CHECK_BIT(x_up)
+CHECK_BIT(y_up)
+CHECK_BIT(z_up)
+CHECK_BIT(zero_to_one)
+CHECK_BIT(x_down)
+CHECK_BIT(y_down)
+CHECK_BIT(z_down)
+CHECK_BIT(transpose)
+CHECK_BIT(flip_x)
+CHECK_BIT(flip_y)
+CHECK_BIT(flip_z)
+HERMES_PUSH_DEBUG_LINE("{}", hermes::cstr::join(values, " | "))
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Transform)
+for (int row = 0; row < 4; ++row) {
+  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}, {}]\n", object[row][0], object[row][1],
+                         object[row][2], object[row][3]);
+}
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Transform2)
+for (int row = 0; row < 3; ++row) {
+  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}]", object[row][0], object[row][1],
+                         object[row][2]);
+}
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+} // namespace hermes
 
 namespace hermes::geo {
 
@@ -345,21 +417,3 @@ HERMES_DEVICE_CALLABLE Transform Transform::alignVectors(const vec3 &a,
 }
 
 } // namespace hermes::geo
-
-namespace hermes {
-
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Transform)
-for (int row = 0; row < 4; ++row) {
-  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}, {}]\n", object[row][0], object[row][1],
-                         object[row][2], object[row][3]);
-}
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Transform2)
-for (int row = 0; row < 3; ++row) {
-  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}]", object[row][0], object[row][1],
-                         object[row][2]);
-}
-HERMES_TO_STRING_DEBUG_METHOD_END
-
-} // namespace hermes

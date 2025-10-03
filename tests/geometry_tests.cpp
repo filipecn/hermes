@@ -1,3 +1,4 @@
+#include "hermes/io/logger.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
@@ -155,6 +156,14 @@ TEST_CASE("BSphere ", "[geometry][bounds]") {
 TEST_CASE("Transform", "[geometry]") {
   REQUIRE(sizeof(Transform2) == sizeof(real_t) * 9);
   REQUIRE(sizeof(Transform) == sizeof(real_t) * 16);
+  SECTION("options") {
+    HERMES_LOG_VARIABLE(transform_option_bits::left_handed);
+    transform_options options;
+    options |= transform_option_bits::left_handed;
+    options |= transform_option_bits::transpose;
+    options |= transform_option_bits::z_down;
+    HERMES_LOG_VARIABLE(options);
+  }
   SECTION("Sanity") {
     Transform t;
     REQUIRE(t.matrix().isIdentity());
