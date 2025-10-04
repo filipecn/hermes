@@ -30,6 +30,8 @@
 #include <hermes/geometry/vector.h>
 #include <hermes/numeric/interval.h>
 
+#include <iostream>
+
 namespace hermes::geo {
 
 // *****************************************************************************
@@ -352,6 +354,23 @@ using point3d = Point3<double>;
 using point2i = Point2<Interval<real_t>>;
 using point3i = Point3<Interval<real_t>>;
 
+namespace cmp {
+
+template <typename T>
+bool is_equal(const Point2<T> &a, const Point2<T> &b, f64 e) {
+  return numbers::cmp::is_equal(a.x, b.x, e) &&
+         numbers::cmp::is_equal(a.y, b.y, e);
+}
+
+template <typename T>
+bool is_equal(const Point3<T> &a, const Point3<T> &b, f64 e) {
+  return numbers::cmp::is_equal(a.x, b.x, e) &&
+         numbers::cmp::is_equal(a.y, b.y, e) &&
+         numbers::cmp::is_equal(a.z, b.z, e);
+}
+
+} // namespace cmp
+
 } // namespace hermes::geo
 
 namespace hermes {
@@ -450,3 +469,15 @@ template <typename T> struct hash<hermes::geo::Point3<T>> {
 };
 
 } // namespace std
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const hermes::geo::Point2<T> &p) {
+  os << hermes::to_string(p);
+  return os;
+}
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const hermes::geo::Point3<T> &p) {
+  os << hermes::to_string(p);
+  return os;
+}

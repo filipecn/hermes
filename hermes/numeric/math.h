@@ -104,7 +104,7 @@ struct numbers {
     /// \return constexpr bool
     template <typename T>
     HERMES_DEVICE_CALLABLE static constexpr bool is_equal(T a, T b,
-                                                          f64 e = 1e-8) {
+                                                          f64 e = 1e-6) {
       return fabs(a - b) < e;
     }
     /// Checks if a number is in a open interval

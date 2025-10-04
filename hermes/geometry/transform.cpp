@@ -330,7 +330,9 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   // row 3
   m[3][0] = 0;
   m[3][1] = 0;
-  m[3][2] = right_handed ? -1 : 1;
+  m[3][2] = right_handed
+                ? -1
+                : 1; // this term 'copies' z into w for the perspective divide
   m[3][3] = 0;
   return {m};
 }
