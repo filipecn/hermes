@@ -571,7 +571,7 @@ public:
   HERMES_DEVICE_CALLABLE HERMES_NODISCARD bool hasNaNs() const {
     for (int i = 0; i < 4; ++i)
       for (int j = 0; j < 4; ++j)
-        if (math::check::is_nan(m[i][j]))
+        if (numbers::is_nan(m[i][j]))
           return true;
     return false;
   }

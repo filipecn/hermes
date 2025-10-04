@@ -81,7 +81,7 @@ TEST_CASE("Vector", "[geometry][vector]") {
     SECTION("geometry") {
       vec2 a(1, 2);
       vec2 b(3, 4);
-      REQUIRE(math::check::is_equal(dot(a, b), 11.f));
+      REQUIRE(numbers::cmp::is_equal(dot(a, b), 11.f));
       REQUIRE(normalize(b) == vec2(3 / 5., 4 / 5.));
       REQUIRE(orthonormal(b, true) == vec2(-4 / 5., 3 / 5.));
       REQUIRE(orthonormal(b, false) == vec2(4 / 5., -3 / 5.));
@@ -205,8 +205,7 @@ TEST_CASE("Transform", "[geometry]") {
   SECTION("perspective projection") {
     SECTION("LH") {
       auto t = Transform::perspective(90, 1, 1, 10);
-      auto y_scale =
-          1.f / std::tan(math::trigonometry::degrees2radians(90) * 0.5);
+      auto y_scale = 1.f / std::tan(math::degrees2radians(90) * 0.5);
       //      REQUIRE(t.matrix() == mat4(
       //          y_scale, 0, 0, 0,//
       //          0, y_scale, 0, 0,//
@@ -217,8 +216,7 @@ TEST_CASE("Transform", "[geometry]") {
     SECTION("RH") {
       auto t = Transform::perspective(90, 1, 1, 10,
                                       transform_option_bits::right_handed);
-      auto y_scale =
-          1.f / std::tan(math::trigonometry::degrees2radians(90) * 0.5);
+      auto y_scale = 1.f / std::tan(math::degrees2radians(90) * 0.5);
       //      REQUIRE(t.matrix() == mat4(
       //          y_scale, 0, 0, 0,//
       //          0, y_scale, 0, 0,//
@@ -280,7 +278,7 @@ TEST_CASE("Transform", "[geometry]") {
 
 TEST_CASE("Quaternion") {
   SECTION("rotation") {
-    auto angle = math::trigonometry::degrees2radians(90);
+    auto angle = math::degrees2radians(90);
     quat q({std::sin(angle / 2), 0, 0}, std::cos(angle / 2));
     Transform t(q.matrix());
     REQUIRE(t(vec3(0, 1, 0)) == vec3(0, 0, 1));

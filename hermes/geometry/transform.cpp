@@ -116,8 +116,8 @@ HERMES_DEVICE_CALLABLE Transform2::Transform2(const mat3 &mat) : m(mat) {}
 HERMES_DEVICE_CALLABLE void Transform2::reset() { m.setIdentity(); }
 
 HERMES_DEVICE_CALLABLE Transform2 Transform2::rotate(real_t angle) {
-  real_t sin_a = sinf(math::trigonometry::degrees2radians(angle));
-  real_t cos_a = cosf(math::trigonometry::degrees2radians(angle));
+  real_t sin_a = sinf(math::degrees2radians(angle));
+  real_t cos_a = cosf(math::degrees2radians(angle));
   mat3 m(cos_a, -sin_a, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 1.f);
   return m;
 }
@@ -259,9 +259,7 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   auto right_handed = contains(options, transform_option_bits::right_handed);
   auto flip_y = contains(options, transform_option_bits::flip_y);
 
-  auto y_scale =
-      1.f /
-      std::tan(math::trigonometry::degrees2radians(fovy_in_degrees) * 0.5f);
+  auto y_scale = 1.f / std::tan(math::degrees2radians(fovy_in_degrees) * 0.5f);
   auto d_inv = 1 / (far - near);
 
   MatrixNxM<real_t, 4, 4> m;
@@ -280,7 +278,7 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   m[2][1] = 0;
   m[2][2] =
       (right_handed ? -1.f : 1.f) * (zero_to_one ? far : (far + near)) * d_inv;
-  m[2][3] = (right_handed ? 1.f : -1.f) * (zero_to_one ? 1.f : 2.f) * near *
+  m[2][3] = (right_handed ? -1.f : 1.f) * (zero_to_one ? 1.f : 2.f) * near *
             far * d_inv;
   // row 3
   m[3][0] = 0;
@@ -379,11 +377,11 @@ HERMES_DEVICE_CALLABLE Transform Transform::alignVectors(const vec3 &a,
   vec3 u = cross(na, nb);
   auto c = dot(na, nb);
   // parallel case
-  if (math::check::is_equal(1.f, c))
+  if (numbers::cmp::is_equal(1.f, c))
     return Transform();
   // anti-parallel case
-  if (math::check::is_equal(-1.f, c)) {
-    if (math::check::is_equal(na.z, 1.f)) {
+  if (numbers::cmp::is_equal(-1.f, c)) {
+    if (numbers::cmp::is_equal(na.z, 1.f)) {
       m[0][0] = -1;
       m[2][2] = -1;
     } else {

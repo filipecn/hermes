@@ -115,7 +115,7 @@ public:
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
   HERMES_DEVICE_CALLABLE bool operator==(const Vector2<T> &b) const {
-    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y);
+    return numbers::cmp::is_equal(x, b.x) && numbers::cmp::is_equal(y, b.y);
   }
 
   /// Computes squared magnitude
@@ -225,7 +225,7 @@ public:
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
   HERMES_DEVICE_CALLABLE Vector3<T> &operator/=(T f) {
-    HERMES_CHECK_EXP(math::check::is_zero(f));
+    HERMES_CHECK_EXP(numbers::cmp::is_zero(f));
     T inv = 1.f / f;
     x *= inv;
     y *= inv;
@@ -247,8 +247,8 @@ public:
   }
 
   HERMES_DEVICE_CALLABLE bool operator==(const Vector3<T> &b) const {
-    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y) &&
-           math::check::is_equal(z, b.z);
+    return numbers::cmp::is_equal(x, b.x) && numbers::cmp::is_equal(y, b.y) &&
+           numbers::cmp::is_equal(z, b.z);
   }
   HERMES_DEVICE_CALLABLE bool operator<(const Vector3<T> &b) const {
     if (x < b.x)
@@ -398,8 +398,7 @@ public:
   /// Check for nans
   /// \return
   HERMES_DEVICE_CALLABLE [[nodiscard]] bool hasNaNs() const {
-    return math::check::is_nan(x) || math::check::is_nan(y) ||
-           math::check::is_nan(z);
+    return numbers::is_nan(x) || numbers::is_nan(y) || numbers::is_nan(z);
   }
 
   T x = T(0.0); //!< 0-th component

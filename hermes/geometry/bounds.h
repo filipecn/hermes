@@ -27,8 +27,6 @@
 
 #pragma once
 
-#include "hermes/base/index.h"
-#include "hermes/core/types.h"
 #include <hermes/geometry/point.h>
 
 #include <algorithm>
@@ -48,8 +46,8 @@ public:
   }
 
   HERMES_DEVICE_CALLABLE BoundingBox1() {
-    lower = math::numbers::greatest<T>();
-    upper = math::numbers::lowest<T>();
+    lower = numeric::limits::greatest<T>();
+    upper = numeric::limits::lowest<T>();
   }
   HERMES_DEVICE_CALLABLE explicit BoundingBox1(const T &p)
       : lower(p), upper(p) {}
@@ -87,8 +85,8 @@ public:
   }
 
   HERMES_DEVICE_CALLABLE BoundingBox2() {
-    lower = Point2<T>(math::numbers::greatest<T>());
-    upper = Point2<T>(math::numbers::lowest<T>());
+    lower = Point2<T>(numeric::limits::greatest<T>());
+    upper = Point2<T>(numeric::limits::lowest<T>());
   }
   HERMES_DEVICE_CALLABLE explicit BoundingBox2(const Point2<T> &p)
       : lower(p), upper(p) {}
@@ -192,8 +190,8 @@ public:
 
   /// Creates an empty bounding box
   HERMES_DEVICE_CALLABLE BoundingBox3() {
-    lower = Point3<T>(math::numbers::greatest<T>());
-    upper = Point3<T>(math::numbers::lowest<T>());
+    lower = Point3<T>(numeric::limits::greatest<T>());
+    upper = Point3<T>(numeric::limits::lowest<T>());
   }
   /// Creates a bounding enclosing a single point
   /// \param p point

@@ -19,6 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
 /// \file   point.h
 /// \author FilipeCN (filipedecn@gmail.com)
 /// \date   2017-08-18
@@ -126,7 +127,7 @@ public:
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
   HERMES_DEVICE_CALLABLE bool operator==(const Point2<T> &b) const {
-    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y);
+    return numbers::cmp::is_equal(x, b.x) && numbers::cmp::is_equal(y, b.y);
   }
 
   T x = T(0.0); //!< 0-th component
@@ -258,8 +259,8 @@ public:
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
   HERMES_DEVICE_CALLABLE bool operator==(const Point3<T> &b) const {
-    return math::check::is_equal(x, b.x) && math::check::is_equal(y, b.y) &&
-           math::check::is_equal(z, b.z);
+    return numbers::cmp::is_equal(x, b.x) && numbers::cmp::is_equal(y, b.y) &&
+           numbers::cmp::is_equal(z, b.z);
   }
 
   /// \brief Gets 2-dimensional swizzle (x, y)

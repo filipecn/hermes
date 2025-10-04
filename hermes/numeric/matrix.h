@@ -308,7 +308,7 @@ public:
       return false;
     for (int i = 0; i < N; i++)
       for (int j = 0; j < M; j++)
-        if (!math::check::is_equal(m_[i][j], B[i][j]))
+        if (!numbers::cmp::is_equal(m_[i][j], B[i][j]))
           return false;
     return true;
   }
@@ -348,8 +348,8 @@ public:
     static_assert(N == M, "Can't check identity for non-square matrices.");
     for (int i = 0; i < N; i++)
       for (int j = 0; j < M; j++)
-        if ((i != j && !math::check::is_equal(m_[i][j], 0.f)) ||
-            (i == j && !math::check::is_equal(m_[i][j], 1.f)))
+        if ((i != j && !numbers::cmp::is_equal(m_[i][j], 0.f)) ||
+            (i == j && !numbers::cmp::is_equal(m_[i][j], 1.f)))
           return false;
     return true;
   }
