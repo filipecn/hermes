@@ -104,7 +104,7 @@ namespace hermes::geo {
 
 HERMES_DEVICE_CALLABLE Transform2::Transform2() { m.setIdentity(); }
 
-HERMES_DEVICE_CALLABLE Transform2::Transform2(const mat3 &mat) : m(mat) {}
+HERMES_DEVICE_CALLABLE Transform2::Transform2(const math::mat3 &mat) : m(mat) {}
 
 // HERMES_DEVICE_CALLABLE Transform2::Transform2(const bbox2 &bbox) {
 //   m[0][0] = bbox.upper[0] - bbox.lower[0];
@@ -118,23 +118,24 @@ HERMES_DEVICE_CALLABLE void Transform2::reset() { m.setIdentity(); }
 HERMES_DEVICE_CALLABLE Transform2 Transform2::rotate(real_t angle) {
   real_t sin_a = sinf(math::degrees2radians(angle));
   real_t cos_a = cosf(math::degrees2radians(angle));
-  mat3 m(cos_a, -sin_a, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 1.f);
+  math::mat3 m(cos_a, -sin_a, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 1.f);
   return m;
 }
 
 HERMES_DEVICE_CALLABLE Transform2 Transform2::translate(const vec2 &v) {
-  mat3 m(1.f, 0.f, v.x, 0.f, 1.f, v.y, 0.f, 0.f, 1.f);
+  math::mat3 m(1.f, 0.f, v.x, 0.f, 1.f, v.y, 0.f, 0.f, 1.f);
   return m;
 }
 
 HERMES_DEVICE_CALLABLE Transform::Transform() { m.setIdentity(); }
 
-HERMES_DEVICE_CALLABLE Transform::Transform(const mat4 &mat) : m(mat) {}
+HERMES_DEVICE_CALLABLE Transform::Transform(const math::mat4 &mat) : m(mat) {}
 
 HERMES_DEVICE_CALLABLE Transform::Transform(const real_t mat[4][4]) {
-  m = mat4(mat[0][0], mat[0][1], mat[0][2], mat[0][3], mat[1][0], mat[1][1],
-           mat[1][2], mat[1][3], mat[2][0], mat[2][1], mat[2][2], mat[2][3],
-           mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
+  m = math::mat4(mat[0][0], mat[0][1], mat[0][2], mat[0][3], mat[1][0],
+                 mat[1][1], mat[1][2], mat[1][3], mat[2][0], mat[2][1],
+                 mat[2][2], mat[2][3], mat[3][0], mat[3][1], mat[3][2],
+                 mat[3][3]);
 }
 
 // HERMES_DEVICE_CALLABLE Transform::Transform(const bbox3 &bbox) {
@@ -156,8 +157,8 @@ HERMES_DEVICE_CALLABLE bool Transform::swapsHandedness() const {
 }
 
 HERMES_DEVICE_CALLABLE Transform2 Transform2::scale(const vec2 &s) {
-  mat3 m(s.x, 0, 0, 0, s.y, 0, 0, 0, 1);
-  mat3 inv(1.f / s.x, 0, 0, 0, 1.f / s.y, 0, 0, 0, 1);
+  math::mat3 m(s.x, 0, 0, 0, s.y, 0, 0, 0, 1);
+  math::mat3 inv(1.f / s.x, 0, 0, 0, 1.f / s.y, 0, 0, 0, 1);
   return {m};
 }
 
@@ -182,34 +183,80 @@ HERMES_DEVICE_CALLABLE Transform Transform::lookAt(const point3 &eye,
                                                    transform_options options) {
   auto right_handed = contains(options, transform_option_bits::right_handed);
 
-  MatrixNxM<real_t, 4, 4> m;
+  math::MatrixNxM<real_t, 4, 4> m;
   vec3 v;
   if (right_handed)
     v = normalize(eye - target);
   else
     v = normalize(target - eye);
-  auto r = -normalize(cross(v, up));
-  auto u = cross(v, r);
+  auto r = normalize(cross(v, up));
+  auto u = cross(r, v);
   auto t = eye - point3();
+
+  // invert z (camera points to negative z)
+  v *= -1.f;
+
   // row 0
   m[0][0] = r.x;
   m[0][1] = r.y;
   m[0][2] = r.z;
-  m[0][3] = (right_handed ? 1. : -1.) * dot(t, r);
+  m[0][3] = -dot(t, r);
   // row 1
   m[1][0] = u.x;
   m[1][1] = u.y;
   m[1][2] = u.z;
-  m[1][3] = (right_handed ? 1. : -1.) * dot(t, u);
+  m[1][3] = -dot(t, u);
   // row 2
   m[2][0] = v.x;
   m[2][1] = v.y;
   m[2][2] = v.z;
-  m[2][3] = (right_handed ? 1. : -1.) * dot(t, v);
+  m[2][3] = -dot(t, v);
   // row 3
   m[3][0] = 0;
   m[3][1] = 0;
   m[3][2] = 0;
+  m[3][3] = 1;
+  return {m};
+}
+
+HERMES_DEVICE_CALLABLE Transform Transform::view(const point3 &eye,
+                                                 const point3 &target,
+                                                 const vec3 &up,
+                                                 transform_options options) {
+  auto right_handed = contains(options, transform_option_bits::right_handed);
+
+  math::MatrixNxM<real_t, 4, 4> m;
+  vec3 v;
+  if (right_handed)
+    v = normalize(eye - target);
+  else
+    v = normalize(target - eye);
+  auto r = normalize(cross(v, up));
+  auto u = cross(r, v);
+  auto t = eye - point3();
+
+  // invert z (camera points to negative z)
+  v *= -1.f;
+
+  // col 0
+  m[0][0] = r.x;
+  m[1][0] = r.y;
+  m[2][0] = r.z;
+  m[3][0] = 0;
+  // col 1
+  m[0][1] = u.x;
+  m[1][1] = u.y;
+  m[2][1] = u.z;
+  m[3][1] = 0;
+  // col 2
+  m[0][2] = v.x;
+  m[1][2] = v.y;
+  m[2][2] = v.z;
+  m[3][2] = 0;
+  // col 3
+  m[0][3] = dot(t, r);
+  m[1][3] = dot(t, u);
+  m[2][3] = dot(t, v);
   m[3][3] = 1;
   return {m};
 }
@@ -226,7 +273,7 @@ HERMES_DEVICE_CALLABLE Transform Transform::ortho(real_t left, real_t right,
   auto w_inv = 1 / (right - left);
   auto h_inv = 1 / (top - bottom);
   auto d_inv = 1 / (far - near);
-  MatrixNxM<real_t, 4, 4> m;
+  math::MatrixNxM<real_t, 4, 4> m;
   // row 0
   m[0][0] = 2 * w_inv;
   m[0][1] = 0;
@@ -262,7 +309,7 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   auto y_scale = 1.f / std::tan(math::degrees2radians(fovy_in_degrees) * 0.5f);
   auto d_inv = 1 / (far - near);
 
-  MatrixNxM<real_t, 4, 4> m;
+  math::MatrixNxM<real_t, 4, 4> m;
   // row 0
   m[0][0] = y_scale / aspect_ratio;
   m[0][1] = 0;
@@ -278,7 +325,7 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   m[2][1] = 0;
   m[2][2] =
       (right_handed ? -1.f : 1.f) * (zero_to_one ? far : (far + near)) * d_inv;
-  m[2][3] = (right_handed ? -1.f : 1.f) * (zero_to_one ? 1.f : 2.f) * near *
+  m[2][3] = (right_handed ? 1.f : -1.f) * (zero_to_one ? 1.f : 2.f) * near *
             far * d_inv;
   // row 3
   m[3][0] = 0;
@@ -289,25 +336,26 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
 }
 
 HERMES_DEVICE_CALLABLE Transform Transform::translate(const vec3 &d) {
-  mat4 m(1.f, 0.f, 0.f, d.x, 0.f, 1.f, 0.f, d.y, 0.f, 0.f, 1.f, d.z, 0.f, 0.f,
-         0.f, 1.f);
-  mat4 m_inv(1.f, 0.f, 0.f, -d.x, 0.f, 1.f, 0.f, -d.y, 0.f, 0.f, 1.f, -d.z, 0.f,
-             0.f, 0.f, 1.f);
+  math::mat4 m(1.f, 0.f, 0.f, d.x, 0.f, 1.f, 0.f, d.y, 0.f, 0.f, 1.f, d.z, 0.f,
+               0.f, 0.f, 1.f);
+  math::mat4 m_inv(1.f, 0.f, 0.f, -d.x, 0.f, 1.f, 0.f, -d.y, 0.f, 0.f, 1.f,
+                   -d.z, 0.f, 0.f, 0.f, 1.f);
   return {m};
 }
 
 HERMES_DEVICE_CALLABLE Transform Transform::scale(real_t x, real_t y,
                                                   real_t z) {
-  mat4 m(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
-  mat4 inv(1.f / x, 0, 0, 0, 0, 1.f / y, 0, 0, 0, 0, 1.f / z, 0, 0, 0, 0, 1);
+  math::mat4 m(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
+  math::mat4 inv(1.f / x, 0, 0, 0, 0, 1.f / y, 0, 0, 0, 0, 1.f / z, 0, 0, 0, 0,
+                 1);
   return {m};
 }
 
 HERMES_DEVICE_CALLABLE Transform Transform::rotateX(real_t angle_in_radians) {
   real_t sin_a = sinf(angle_in_radians);
   real_t cos_a = cosf(angle_in_radians);
-  mat4 m(1.f, 0.f, 0.f, 0.f, 0.f, cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f,
-         0.f, 0.f, 0.f, 1.f);
+  math::mat4 m(1.f, 0.f, 0.f, 0.f, 0.f, cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a,
+               0.f, 0.f, 0.f, 0.f, 1.f);
   //  return {m, transpose(m)};
   return m;
 }
@@ -315,8 +363,8 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotateX(real_t angle_in_radians) {
 HERMES_DEVICE_CALLABLE Transform Transform::rotateY(real_t angle_in_radians) {
   real_t sin_a = sinf(angle_in_radians);
   real_t cos_a = cosf(angle_in_radians);
-  mat4 m(cos_a, 0.f, sin_a, 0.f, 0.f, 1.f, 0.f, 0.f, -sin_a, 0.f, cos_a, 0.f,
-         0.f, 0.f, 0.f, 1.f);
+  math::mat4 m(cos_a, 0.f, sin_a, 0.f, 0.f, 1.f, 0.f, 0.f, -sin_a, 0.f, cos_a,
+               0.f, 0.f, 0.f, 0.f, 1.f);
   //  return {m, transpose(m)};
   return m;
 }
@@ -324,8 +372,8 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotateY(real_t angle_in_radians) {
 HERMES_DEVICE_CALLABLE Transform Transform::rotateZ(real_t angle_in_radians) {
   real_t sin_a = sinf(angle_in_radians);
   real_t cos_a = cosf(angle_in_radians);
-  mat4 m(cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f,
-         0.f, 0.f, 0.f, 1.f);
+  math::mat4 m(cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 0.f, 1.f,
+               0.f, 0.f, 0.f, 0.f, 1.f);
   //  return {m, transpose(m)};
   return m;
 }
@@ -360,7 +408,7 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotate(real_t angle_in_radians,
   m[3][2] = 0;
   m[3][3] = 1;
 
-  mat4 mat(m);
+  math::mat4 mat(m);
   return mat;
 }
 
@@ -369,7 +417,7 @@ HERMES_DEVICE_CALLABLE Transform Transform::alignVectors(const vec3 &a,
   // based on
   // https://www.theochem.ru.nl/%7Epwormer/Knowino/knowino.org/wiki/Rotation_matrix.html#Vector_rotation
 
-  auto m = mat4::I();
+  auto m = math::mat4::I();
 
   vec3 na = normalize(a);
   vec3 nb = normalize(b);

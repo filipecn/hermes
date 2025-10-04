@@ -131,7 +131,7 @@ public:
   HERMES_DEVICE_CALLABLE Transform2();
   /// \brief Constructs from matrix
   /// \param mat
-  HERMES_DEVICE_CALLABLE Transform2(const mat3 &mat);
+  HERMES_DEVICE_CALLABLE Transform2(const math::mat3 &mat);
   /// \brief Constructs from bounding box
   /// \param bbox
   HERMES_DEVICE_CALLABLE Transform2(const bbox2 &bbox);
@@ -217,7 +217,9 @@ public:
   }
   /// \brief Extracts rotation matrix
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE mat3 getMatrix() const { return m; }
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE math::mat3 getMatrix() const {
+    return m;
+  }
 
   /// \brief Gets transform matrix row
   /// \param row_index
@@ -233,7 +235,7 @@ public:
   }
 
 private:
-  mat3 m;
+  math::mat3 m;
 
   HERMES_TO_STRING_FRIEND(Transform2)
 };
@@ -244,38 +246,76 @@ private:
 /// \brief Represents a 3-dimensional transformation
 class Transform {
 public:
-  /// \brief Creates a Look At Transform
-  /// \note This transform is commonly used (in graphics) to orient a camera so
+  /// Creates a Look At Transform
+  ///
+  /// This transform is commonly used (in graphics) to orient a camera so
   /// it looks at a certain **target** position from its **eye** position.
   /// Given an **up** vector to define the camera orientation, a new coordinate
   /// basis consisting of three vectors {r, u, v} is defined. Where
   /// v = (eye - target) / ||eye - target||
-  /// r = -(v x up) / ||(v x up)||
+  /// r = (up x v) / ||(up x v)||
   /// u = v x r
-  /// \note The transform is then composed of a translation (to camera **eye**
+  ///
+  /// The transform is then composed of a translation (to camera **eye**
   /// position) and a basis transform to align r with (1,0,0), u with (0,1,0)
   /// and v with (0,0,1). The final matrix is
-  ///     rx  ry  rz  -dot(t, r)
-  ///     rx  ry  rz  -dot(t, u)
-  ///     rx  ry  rz  -dot(t, v)
-  ///      0   0   0      1
-  /// \note Note that this transform is built on a left handed coordinate
-  /// system.
-  /// \param eye
-  /// \param target
-  /// \param up
-  /// \param options
-  /// \return
+  ///     rx   ry   rz  -dot(t, r)
+  ///     ux   uy   uz  -dot(t, u)
+  ///    -vx  -vy  -vz  -dot(t, v)
+  ///      0    0    0      1
+  /// \note Note that v is negated in the matrix to orient the camera to -z.
+  /// \note Note that this transform is built on a left handed coordinates. The
+  ///       right-handed version can be selected with
+  ///       transform_option_bits::right-handed
+  /// \note This is a camera to world transform, and not the so called view
+  ///       transform.
+  /// \param eye camera position.
+  /// \param target camera target.
+  /// \param up camera orientation.
+  /// \param options right/left handed versions.
   HERMES_DEVICE_CALLABLE static Transform
   lookAt(const point3 &eye, const point3 &target = {0, 0, 0},
          const vec3 &up = {0, 1, 0},
          transform_options options = transform_option_bits::left_handed);
-  /// \brief Creates an Orthographic Projection
-  /// \note In an orthographic projection, parallel lines remain parallel and
-  /// objects maintain the same size regardless the distance.
-  /// \note This transform projects points into the cube (-1,-1,-1) x (1, 1, 1).
-  /// It is also possible to choose to project to (-1,-1, 0) x (1, 1, 1) with
-  /// the zero_to_one option.
+  /// Creates a View Transform
+  ///
+  /// This transform is commonly used (in graphics) to transform vertex to
+  /// camera space (world to camera). This is essentially the inverse of the
+  /// lookAt transform.
+  ///
+  /// The camera looks at a **target** position from its **eye** position. Given
+  /// an **up** vector to define the camera orientation, a new coordinate basis
+  /// consisting of three vectors {r, u, v} is defined. Where
+  /// v = (eye - target) / ||eye - target||
+  /// r = (up x v) / ||(up x v)||
+  /// u = v x r
+  ///
+  /// The final matrix is the inverse of the lookAt transform:
+  ///        rx         ux       -vx       0
+  ///        ry         uy       -vy       0
+  ///        rz         uz       -vz       0
+  ///     dot(t, r)  dot(t, u) dot(t, v)   1
+  ///
+  /// \note Note that v is negated in the matrix to orient the camera to -z.
+  /// \note Note that this transform is built on a left handed coordinates. The
+  ///       right-handed version can be selected with
+  ///       transform_option_bits::right-handed
+  /// \param eye camera position.
+  /// \param target camera target.
+  /// \param up camera orientation.
+  /// \param options right/left handed versions.
+  HERMES_DEVICE_CALLABLE static Transform
+  view(const point3 &eye, const point3 &target = {0, 0, 0},
+       const vec3 &up = {0, 1, 0},
+       transform_options options = transform_option_bits::left_handed);
+  /// Creates an Orthographic Projection
+  ///
+  /// In an orthographic projection, parallel lines remain parallel and objects
+  /// maintain the same size regardless the distance. This transform projects
+  /// points into the cube (-1,-1,-1) x (1, 1, 1).
+  ///
+  /// \note It is also possible to choose to project to (-1,-1, 0) x (1, 1, 1)
+  ///       with the zero_to_one option.
   /// \note The matrix takes the form:
   ///     2 / (r - l)       0             0         -(r + l) / (r - l)
   ///         0         2 / (t - b)       0         -(t + b) / (t - b)
@@ -286,9 +326,9 @@ public:
   ///         0         2 / (t - b)       0         -(t + b) / (t - b)
   ///         0             0         1 / (f - n)          n / (f - n)
   ///         0             0             0                  1
-  /// \note - Note that n > f. This function negates the values of near and
-  /// far in case the given values are f > n. Because by default, this
-  /// transform uses a left-handed coordinate system.
+  /// \note Note that n > f. This function negates the values of near and far in
+  ///       case the given values are f > n. Because by default, this transform
+  ///       uses a left-handed coordinate system.
   /// \param left
   /// \param right
   /// \param bottom
@@ -301,19 +341,20 @@ public:
   ortho(real_t left, real_t right, real_t bottom, real_t top, real_t near,
         real_t far,
         transform_options options = transform_option_bits::left_handed);
-  /// \brief Creates a Perspective Projection
-  /// \note The perspective projection transforms the view frustrum (a pyramid
+  /// Creates a Perspective Projection
+  ///
+  /// The perspective projection transforms the view frustrum (a pyramid
   /// truncated by a near plane and a far plane, both orthogonal to the view
   /// direction) into the cube (-1,-1,-1) x (1, 1, 1).
-  /// \note In a right-handed coordinate system when x points to the right, z
-  /// points forward if y points downward and z points backwards if y points
-  /// upwards.
-  /// \note In a left-handed coordinate system when x points to the right, z
-  /// points forwards if y points upward and z points backward if y points
-  /// downwards.
   ///
+  /// \note In a right-handed coordinate system when x points to the right, z
+  ///       points forward if y points downward and z points backwards if y
+  ///       points upwards.
+  /// \note In a left-handed coordinate system when x points to the right, z
+  ///       points forwards if y points upward and z points backward if y points
+  ///       downwards.
   /// \note It is also possible to choose to project to (-1,-1, 0) x (1, 1, 1)
-  /// with the zero_to_one option.
+  ///       with the zero_to_one option.
   /// \param fovy_in_degrees
   /// \param aspect_ratio
   /// \param near
@@ -368,7 +409,7 @@ public:
   HERMES_DEVICE_CALLABLE Transform();
   /// \brief Constructs from matrix
   /// \param mat
-  HERMES_DEVICE_CALLABLE Transform(const mat4 &mat);
+  HERMES_DEVICE_CALLABLE Transform(const math::mat4 &mat);
   /// \brief Constructs from array matrix
   /// \param mat
   HERMES_DEVICE_CALLABLE explicit Transform(const real_t mat[4][4]);
@@ -470,7 +511,7 @@ public:
   /// \return
   HERMES_DEVICE_CALLABLE Transform &operator=(const Transform2 &t) {
     m.setIdentity();
-    mat3 m3 = t.getMatrix();
+    math::mat3 m3 = t.getMatrix();
     m[0][0] = m3[0][0];
     m[0][1] = m3[0][1];
     m[0][3] = m3[0][2];
@@ -484,7 +525,7 @@ public:
   /// \param t
   /// \return
   HERMES_DEVICE_CALLABLE Transform operator*(const Transform &t) const {
-    mat4 m1 = m * t.m;
+    math::mat4 m1 = m * t.m;
     return {m1};
   }
   /// \brief Applies this transform to geometric vector
@@ -544,14 +585,14 @@ public:
     return &m[0][0];
   }
   /// \brief Gets transformation matrix
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE const mat4 &matrix() const {
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE const math::mat4 &matrix() const {
     return m;
   }
   /// \brief Gets upper left matrix
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE mat3 upperLeftMatrix() const {
-    return mat3(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2], m[2][0],
-                m[2][1], m[2][2]);
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE math::mat3 upperLeftMatrix() const {
+    return math::mat3(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2],
+                      m[2][0], m[2][1], m[2][2]);
   }
   /// \brief Gets transformation matrix row
   /// \param row_index
@@ -577,7 +618,7 @@ public:
   }
 
 protected:
-  mat4 m; //!< transformation matrix
+  math::mat4 m; //!< transformation matrix
 
   HERMES_TO_STRING_FRIEND(Transform)
 };

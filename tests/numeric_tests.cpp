@@ -99,10 +99,10 @@ TEST_CASE("interval") {
 }
 
 TEST_CASE("Matrix", "[numeric]") {
-  REQUIRE(sizeof(mat4) == sizeof(real_t) * 16);
-  REQUIRE(sizeof(mat3) == sizeof(real_t) * 9);
+  REQUIRE(sizeof(math::mat4) == sizeof(real_t) * 16);
+  REQUIRE(sizeof(math::mat3) == sizeof(real_t) * 9);
   SECTION("Identity") {
-    mat4 m;
+    math::mat4 m;
     m.setIdentity();
     for (int r = 0; r < 4; ++r)
       for (int c = 0; c < 4; ++c)
@@ -114,20 +114,20 @@ TEST_CASE("Matrix", "[numeric]") {
     HERMES_ERROR("{}", hermes::to_string(m));
   }
   SECTION("Multiplication") {
-    mat4 I;
+    math::mat4 I;
     I.setIdentity();
     I = I * 2.f;
-    mat4 a(1, 2, 3, 4,    //
-           5, 6, 7, 8,    //
-           9, 10, 11, 12, //
-           13, 14, 15, 16);
+    math::mat4 a(1, 2, 3, 4,    //
+                 5, 6, 7, 8,    //
+                 9, 10, 11, 12, //
+                 13, 14, 15, 16);
     HERMES_LOG_VARIABLE(I);
     HERMES_LOG_VARIABLE(a);
     HERMES_LOG_VARIABLE(I * a);
     HERMES_LOG_VARIABLE(a * I);
   } //
   SECTION("Sanity") {
-    mat3 m;
+    math::mat3 m;
     for (int i = 0; i < 3; ++i)
       for (int j = 0; j < 3; ++j)
         m[i][j] = i * 10 + j;

@@ -32,7 +32,7 @@
 
 #include <cstring>
 
-namespace hermes {
+namespace hermes::math {
 
 /// \brief Inverts a 4x4 matrix
 /// \note function extracted from MESA implementation of the GLU library
@@ -592,8 +592,16 @@ HERMES_DEVICE_CALLABLE MatrixNxM<T, 3, 3> star(const MatrixNxM<T, 3, 1> a) {
                             -a[1][0], a[0][0], 0);
 }
 
+using mat4 = MatrixNxM<real_t, 4, 4>;
+using mat3 = MatrixNxM<real_t, 3, 3>;
+using mat2 = MatrixNxM<real_t, 2, 2>;
+
+} // namespace hermes::math
+
+namespace hermes {
+
 HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(
-    MatrixNxM<T HERMES_COMMA N HERMES_COMMA M>, typename T, u32 N, u32 M)
+    math::MatrixNxM<T HERMES_COMMA N HERMES_COMMA M>, typename T, u32 N, u32 M)
 for (int row = 0; row < N; ++row) {
   hermes::Str<char> s;
   for (int col = 0; col < M; ++col) {
@@ -604,12 +612,8 @@ for (int row = 0; row < N; ++row) {
 }
 HERMES_TO_STRING_DEBUG_METHOD_END
 
-using mat4 = MatrixNxM<real_t, 4, 4>;
-using mat3 = MatrixNxM<real_t, 3, 3>;
-using mat2 = MatrixNxM<real_t, 2, 2>;
-
-HERMES_TYPE_LAYOUT_METHODS(mat4, f32, 16)
-HERMES_TYPE_LAYOUT_METHODS(mat3, f32, 9)
-HERMES_TYPE_LAYOUT_METHODS(mat2, f32, 4)
+HERMES_TYPE_LAYOUT_METHODS(math::mat4, f32, 16)
+HERMES_TYPE_LAYOUT_METHODS(math::mat3, f32, 9)
+HERMES_TYPE_LAYOUT_METHODS(math::mat2, f32, 4)
 
 } // namespace hermes

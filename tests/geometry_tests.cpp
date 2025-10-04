@@ -1,4 +1,3 @@
-#include "hermes/io/logger.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
@@ -185,28 +184,28 @@ TEST_CASE("Transform", "[geometry]") {
     } //
     SECTION("cube") {
       auto t = Transform::ortho(-10, 10, -20, 20, -1, 1);
-      REQUIRE(t.matrix() == mat4(0.1, 0, 0, 0,  //
-                                 0, 0.05, 0, 0, //
-                                 0, 0, 1, 0,    //
-                                 0, 0, 0, 1     //
-                                 ));
+      REQUIRE(t.matrix() == math::mat4(0.1, 0, 0, 0,  //
+                                       0, 0.05, 0, 0, //
+                                       0, 0, 1, 0,    //
+                                       0, 0, 0, 1     //
+                                       ));
     } //
     SECTION("zero to one") {
       auto t = Transform::ortho(-10, 10, -20, 20, -1, 1,
                                 transform_option_bits::right_handed |
                                     transform_option_bits::zero_to_one);
-      REQUIRE(t.matrix() == mat4(0.1, 0, 0, -0,   //
-                                 0, 0.05, 0, -0,  //
-                                 0, 0, -0.5, 0.5, //
-                                 0, 0, 0, 1       //
-                                 ));
+      REQUIRE(t.matrix() == math::mat4(0.1, 0, 0, -0,   //
+                                       0, 0.05, 0, -0,  //
+                                       0, 0, -0.5, 0.5, //
+                                       0, 0, 0, 1       //
+                                       ));
     } //
   } //
   SECTION("perspective projection") {
     SECTION("LH") {
       auto t = Transform::perspective(90, 1, 1, 10);
       auto y_scale = 1.f / std::tan(math::degrees2radians(90) * 0.5);
-      //      REQUIRE(t.matrix() == mat4(
+      //      REQUIRE(t.matrix() == math::mat4(
       //          y_scale, 0, 0, 0,//
       //          0, y_scale, 0, 0,//
       //          0, 0, 11./9, -20./9,//
@@ -217,7 +216,7 @@ TEST_CASE("Transform", "[geometry]") {
       auto t = Transform::perspective(90, 1, 1, 10,
                                       transform_option_bits::right_handed);
       auto y_scale = 1.f / std::tan(math::degrees2radians(90) * 0.5);
-      //      REQUIRE(t.matrix() == mat4(
+      //      REQUIRE(t.matrix() == math::mat4(
       //          y_scale, 0, 0, 0,//
       //          0, y_scale, 0, 0,//
       //          0, 0, -11./9, 20./9,//
@@ -226,22 +225,29 @@ TEST_CASE("Transform", "[geometry]") {
     } //
   } //
   SECTION("look at") {
+    SECTION("view") {
+      auto t = Transform::lookAt({1.f, 1.f, 1.f});
+      // REQUIRE(t.matrix() == math::mat4(0.707107, 0, -0.707107, 0, //
+      //                                  -0.408248, 0.816497, -0.408248, 0, //
+      //                                  0.57735, 0.57735, 0.57735, -1.7320508,
+      //                                  // 0, 0, 0, 1));
+    } //
     SECTION("left handed") {
       auto t = Transform::lookAt({1.f, 0.f, 0.f});
-      REQUIRE(t.matrix() == mat4(0, 0, 1, 0,  //
-                                 0, 1, 0, 0,  //
-                                 -1, 0, 0, 1, //
-                                 0, 0, 0, 1   //
-                                 ));
+      REQUIRE(t.matrix() == math::mat4(0, 0, -1, 0, //
+                                       0, 1, 0, 0,  //
+                                       1, 0, 0, -1, //
+                                       0, 0, 0, 1   //
+                                       ));
     } //
     SECTION("right handed") {
       auto t = Transform::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0},
                                  transform_option_bits::right_handed);
-      REQUIRE(t.matrix() == mat4(0, 0, -1, 0, //
-                                 0, 1, 0, 0,  //
-                                 1, 0, 0, 1,  //
-                                 0, 0, 0, 1   //
-                                 ));
+      REQUIRE(t.matrix() == math::mat4(0, 0, 1, 0,  //
+                                       0, 1, 0, 0,  //
+                                       -1, 0, 0, 1, //
+                                       0, 0, 0, 1   //
+                                       ));
     } //
   } //
   SECTION("align vectors") {

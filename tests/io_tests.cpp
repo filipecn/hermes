@@ -160,10 +160,11 @@ TEST_CASE("MemoryDumper", "[log]") {
     SECTION("sanity") {
       struct S {
         geo::Transform t;
-        mat4 m;
+        math::mat4 m;
         u32 a;
       };
-      S v[2] = {{geo::Transform(), mat4::I(), 0}, {{}, mat4::I(), 1}};
+      S v[2] = {{geo::Transform(), math::mat4::I(), 0},
+                {{}, math::mat4::I(), 1}};
       MemoryDumper::dump(
           v, 2, 16,
           MemoryDumper::Layout()
