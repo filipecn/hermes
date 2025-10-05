@@ -259,7 +259,7 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   auto flip_y = contains(options, transform_option_bits::flip_y);
 
   auto y_scale = 1.f / std::tan(math::degrees2radians(fovy_in_degrees) * 0.5f);
-  auto d_inv = 1 / (far - near);
+  auto d_inv = 1 / (near - far);
 
   math::MatrixNxM<real_t, 4, 4> m;
   // row 0
@@ -277,14 +277,14 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   m[2][1] = 0;
   m[2][2] =
       (right_handed ? -1.f : 1.f) * (zero_to_one ? far : (far + near)) * d_inv;
-  m[2][3] = (right_handed ? 1.f : -1.f) * (zero_to_one ? 1.f : 2.f) * near *
+  m[2][3] = (right_handed ? -1.f : 1.f) * (zero_to_one ? 1.f : 2.f) * near *
             far * d_inv;
   // row 3
   m[3][0] = 0;
   m[3][1] = 0;
   m[3][2] = right_handed
-                ? -1
-                : 1; // this term 'copies' z into w for the perspective divide
+                ? 1
+                : -1; // this term 'copies' z into w for the perspective divide
   m[3][3] = 0;
   return {m};
 }

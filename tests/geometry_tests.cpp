@@ -206,26 +206,27 @@ TEST_CASE("Transform", "[geometry]") {
   SECTION("perspective projection") {
     SECTION("LH") {
       auto t = Transform::perspective(90, 1, 1, 11);
+      HERMES_LOG_VARIABLE(t);
       // near
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(0, 0, -1),
-                                         t(hermes::geo::point3(0, 0, 1)),
+                                         t(hermes::geo::point3(0, 0, -1)),
                                          1e-6));
       // far
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(0, 0, 1),
-                                         t(hermes::geo::point3(0, 0, 11)),
+                                         t(hermes::geo::point3(0, 0, -11)),
                                          1e-6));
       // (-1,-1,-1)
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(-1, -1, -1),
-                                         t(hermes::geo::point3(-1, -1, 1)),
+                                         t(hermes::geo::point3(-1, -1, -1)),
                                          1e-6));
       // (1,1,1)
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(1, 1, 1),
-                                         t(hermes::geo::point3(11, 11, 11)),
+                                         t(hermes::geo::point3(11, 11, -11)),
                                          1e-6));
       // (0,0,0)
       REQUIRE(hermes::geo::cmp::is_equal(
           hermes::geo::point3(0, 0, 0),
-          t(hermes::geo::point3(0, 0, 11.f / 6.f)), 1e-6));
+          t(hermes::geo::point3(0, 0, -11.f / 6.f)), 1e-6));
     } //
     SECTION("RH") {
       auto t = Transform::perspective(90, 1, 1, 10,
