@@ -25,6 +25,7 @@
 /// \date   2018-08-19
 
 #include "hermes/core/debug.h"
+#include "hermes/io/logger.h"
 #include <hermes/geometry/transform.h>
 
 #include <hermes/geometry/quaternion.h>
@@ -184,17 +185,10 @@ HERMES_DEVICE_CALLABLE Transform Transform::lookAt(const point3 &eye,
   auto right_handed = contains(options, transform_option_bits::right_handed);
 
   math::MatrixNxM<real_t, 4, 4> m;
-  vec3 v;
-  if (right_handed)
-    v = normalize(eye - target);
-  else
-    v = normalize(target - eye);
-  auto r = normalize(cross(v, up));
-  auto u = cross(r, v);
+  vec3 v = normalize(eye - target);
+  auto r = normalize(cross(up, v));
+  auto u = cross(v, r);
   auto t = eye - point3();
-
-  // invert z (camera points to negative z)
-  v *= -1.f;
 
   // row 0
   m[0][0] = r.x;
@@ -215,48 +209,6 @@ HERMES_DEVICE_CALLABLE Transform Transform::lookAt(const point3 &eye,
   m[3][0] = 0;
   m[3][1] = 0;
   m[3][2] = 0;
-  m[3][3] = 1;
-  return {m};
-}
-
-HERMES_DEVICE_CALLABLE Transform Transform::view(const point3 &eye,
-                                                 const point3 &target,
-                                                 const vec3 &up,
-                                                 transform_options options) {
-  auto right_handed = contains(options, transform_option_bits::right_handed);
-
-  math::MatrixNxM<real_t, 4, 4> m;
-  vec3 v;
-  if (right_handed)
-    v = normalize(eye - target);
-  else
-    v = normalize(target - eye);
-  auto r = normalize(cross(v, up));
-  auto u = cross(r, v);
-  auto t = eye - point3();
-
-  // invert z (camera points to negative z)
-  v *= -1.f;
-
-  // col 0
-  m[0][0] = r.x;
-  m[1][0] = r.y;
-  m[2][0] = r.z;
-  m[3][0] = 0;
-  // col 1
-  m[0][1] = u.x;
-  m[1][1] = u.y;
-  m[2][1] = u.z;
-  m[3][1] = 0;
-  // col 2
-  m[0][2] = v.x;
-  m[1][2] = v.y;
-  m[2][2] = v.z;
-  m[3][2] = 0;
-  // col 3
-  m[0][3] = dot(t, r);
-  m[1][3] = dot(t, u);
-  m[2][3] = dot(t, v);
   m[3][3] = 1;
   return {m};
 }

@@ -261,7 +261,7 @@ public:
   /// and v with (0,0,1). The final matrix is
   ///     rx   ry   rz  -dot(t, r)
   ///     ux   uy   uz  -dot(t, u)
-  ///    -vx  -vy  -vz  -dot(t, v)
+  ///     vx   vy   vz  -dot(t, v)
   ///      0    0    0      1
   /// \note Note that v is negated in the matrix to orient the camera to -z.
   /// \note Note that this transform is built on a left handed coordinates. The
@@ -277,37 +277,6 @@ public:
   lookAt(const point3 &eye, const point3 &target = {0, 0, 0},
          const vec3 &up = {0, 1, 0},
          transform_options options = transform_option_bits::left_handed);
-  /// Creates a View Transform
-  ///
-  /// This transform is commonly used (in graphics) to transform vertex to
-  /// camera space (world to camera). This is essentially the inverse of the
-  /// lookAt transform.
-  ///
-  /// The camera looks at a **target** position from its **eye** position. Given
-  /// an **up** vector to define the camera orientation, a new coordinate basis
-  /// consisting of three vectors {r, u, v} is defined. Where
-  /// v = (eye - target) / ||eye - target||
-  /// r = (up x v) / ||(up x v)||
-  /// u = v x r
-  ///
-  /// The final matrix is the inverse of the lookAt transform:
-  ///        rx         ux       -vx       0
-  ///        ry         uy       -vy       0
-  ///        rz         uz       -vz       0
-  ///     dot(t, r)  dot(t, u) dot(t, v)   1
-  ///
-  /// \note Note that v is negated in the matrix to orient the camera to -z.
-  /// \note Note that this transform is built on a left handed coordinates. The
-  ///       right-handed version can be selected with
-  ///       transform_option_bits::right-handed
-  /// \param eye camera position.
-  /// \param target camera target.
-  /// \param up camera orientation.
-  /// \param options right/left handed versions.
-  HERMES_DEVICE_CALLABLE static Transform
-  view(const point3 &eye, const point3 &target = {0, 0, 0},
-       const vec3 &up = {0, 1, 0},
-       transform_options options = transform_option_bits::left_handed);
   /// Creates an Orthographic Projection
   ///
   /// In an orthographic projection, parallel lines remain parallel and objects

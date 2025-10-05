@@ -35,506 +35,500 @@
 
 namespace hermes {
 
-struct numbers {
-  struct cmp {
-    /// Computes minimum between two numbers
-    /// \tparam T
-    /// \param a
-    /// \param b
-    /// \return
-    template <typename T>
-    HERMES_DEVICE_CALLABLE static constexpr T min(const T &a, const T &b) {
-      if (a < b)
-        return a;
-      return b;
-    }
-    /// Computes maximum between two numbers
-    /// \tparam T
-    /// \param a
-    /// \param b
-    /// \return
-    template <typename T>
-    HERMES_DEVICE_CALLABLE static constexpr T max(const T &a, const T &b) {
-      if (a > b)
-        return a;
-      return b;
-    }
-    /// Computes minimum value from input
-    /// \tparam T
-    /// \param l
-    /// \return
-    template <typename T>
-    HERMES_DEVICE_CALLABLE static inline constexpr T
-    min(std::initializer_list<T> l) {
-      T m = *l.begin();
-      for (auto n : l)
-        if (m > n)
-          m = n;
-      return m;
-    }
-    /// Computes maximum value from input
-    /// \tparam T
-    /// \param l
-    /// \return
-    template <typename T>
-    HERMES_DEVICE_CALLABLE static inline constexpr T
-    max(std::initializer_list<T> l) {
-      T m = *l.begin();
-      for (auto n : l)
-        if (m < n)
-          m = n;
-      return m;
-    }
-    /// Checks if number is 0
-    /// \tparam T
-    /// \param a **[in]**
-    /// \return constexpr bool
-    template <typename T>
-    HERMES_DEVICE_CALLABLE static constexpr bool is_zero(T a, real_t e = 1e-8) {
+namespace numbers {
+namespace cmp {
+/// Computes minimum between two numbers
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
+template <typename T>
+HERMES_DEVICE_CALLABLE constexpr T min(const T &a, const T &b) {
+  if (a < b)
+    return a;
+  return b;
+}
+/// Computes maximum between two numbers
+/// \tparam T
+/// \param a
+/// \param b
+/// \return
+template <typename T>
+HERMES_DEVICE_CALLABLE constexpr T max(const T &a, const T &b) {
+  if (a > b)
+    return a;
+  return b;
+}
+/// Computes minimum value from input
+/// \tparam T
+/// \param l
+/// \return
+template <typename T>
+HERMES_DEVICE_CALLABLE inline constexpr T min(std::initializer_list<T> l) {
+  T m = *l.begin();
+  for (auto n : l)
+    if (m > n)
+      m = n;
+  return m;
+}
+/// Computes maximum value from input
+/// \tparam T
+/// \param l
+/// \return
+template <typename T>
+HERMES_DEVICE_CALLABLE inline constexpr T max(std::initializer_list<T> l) {
+  T m = *l.begin();
+  for (auto n : l)
+    if (m < n)
+      m = n;
+  return m;
+}
+/// Checks if number is 0
+/// \tparam T
+/// \param a **[in]**
+/// \return constexpr bool
+template <typename T>
+HERMES_DEVICE_CALLABLE constexpr bool is_zero(T a, real_t e = 1e-8) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-      return fabs(a) < e;
+  return fabs(a) < e;
 #else
-      return std::fabs(a) < e;
+  return std::fabs(a) < e;
 #endif
-    }
-    /// Checks if two numbers are at most 1e-8 apart
-    /// \tparam T
-    /// \param a **[in]**
-    /// \param b **[in]**
-    /// \return constexpr bool
-    template <typename T>
-    HERMES_DEVICE_CALLABLE static constexpr bool is_equal(T a, T b,
-                                                          f64 e = 1e-6) {
-      return fabs(a - b) < e;
-    }
-    /// Checks if a number is in a open interval
-    /// \tparam T
-    /// \param x **[in]**
-    /// \param a **[in]**
-    /// \param b **[in]**
-    /// \return constexpr bool
-    template <typename T> static constexpr bool is_between(T x, T a, T b) {
-      return x > a && x < b;
-    }
-    /// Checks if a number is in a closed interval
-    /// \tparam T
-    /// \param x **[in]**
-    /// \param a **[in]**
-    /// \param b **[in]**
-    /// \return constexpr bool
-    template <typename T>
-    static constexpr bool is_between_closed(T x, T a, T b) {
-      return x >= a && x <= b;
-    }
-  };
+}
+/// Checks if two numbers are at most 1e-8 apart
+/// \tparam T
+/// \param a **[in]**
+/// \param b **[in]**
+/// \return constexpr bool
+template <typename T>
+HERMES_DEVICE_CALLABLE constexpr bool is_equal(T a, T b, f64 e = 1e-6) {
+  return fabs(a - b) < e;
+}
+/// Checks if a number is in a open interval
+/// \tparam T
+/// \param x **[in]**
+/// \param a **[in]**
+/// \param b **[in]**
+/// \return constexpr bool
+template <typename T> constexpr bool is_between(T x, T a, T b) {
+  return x > a && x < b;
+}
+/// Checks if a number is in a closed interval
+/// \tparam T
+/// \param x **[in]**
+/// \param a **[in]**
+/// \param b **[in]**
+/// \return constexpr bool
+template <typename T> constexpr bool is_between_closed(T x, T a, T b) {
+  return x >= a && x <= b;
+}
+} // namespace cmp
 
-  /// Clamps value to closed interval
-  /// \param n **[in]** value
-  /// \param l **[in]** low
-  /// \param u **[in]** high
-  /// \return clamp **b** to be in **[l, h]**
-  template <typename T>
-  HERMES_DEVICE_CALLABLE static T clamp(const T &n, const T &l, const T &u) {
-    return fmaxf(l, fminf(n, u));
-  }
-  /// Checks if integer is power of 2
-  /// \param v **[in]** value
-  /// \return **true** if **v** is power of 2
-  HERMES_DEVICE_CALLABLE static constexpr inline bool isPowerOf2(int v) {
-    return (v & (v - 1)) == 0;
-  }
-  /// Checks if number representation is `nan`
-  /// \tparam T
-  /// \param v
-  /// \return
-  template <typename T>
-  HERMES_DEVICE_CALLABLE static inline
-      typename std::enable_if_t<std::is_floating_point<T>::value, bool>
-      is_nan(T v) {
+/// Clamps value to closed interval
+/// \param n **[in]** value
+/// \param l **[in]** low
+/// \param u **[in]** high
+/// \return clamp **b** to be in **[l, h]**
+template <typename T>
+HERMES_DEVICE_CALLABLE T clamp(const T &n, const T &l, const T &u) {
+  return fmaxf(l, fminf(n, u));
+}
+/// Checks if integer is power of 2
+/// \param v **[in]** value
+/// \return **true** if **v** is power of 2
+HERMES_DEVICE_CALLABLE constexpr inline bool isPowerOf2(int v) {
+  return (v & (v - 1)) == 0;
+}
+/// Checks if number representation is `nan`
+/// \tparam T
+/// \param v
+/// \return
+template <typename T>
+HERMES_DEVICE_CALLABLE inline
+    typename std::enable_if_t<std::is_floating_point<T>::value, bool>
+    is_nan(T v) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-    return isnan(v);
+  return isnan(v);
 #else
-    return std::isnan(v);
+  return std::isnan(v);
 #endif
+}
+/// Counts hexadecimal digits
+/// \tparam T
+/// \param n
+/// \return
+template <typename T> HERMES_DEVICE_CALLABLE u8 countHexDigits(T n) {
+  u8 count = 0;
+  while (n) {
+    count++;
+    n >>= 4;
   }
-  /// Counts hexadecimal digits
-  /// \tparam T
-  /// \param n
-  /// \return
-  template <typename T> HERMES_DEVICE_CALLABLE static u8 countHexDigits(T n) {
-    u8 count = 0;
-    while (n) {
-      count++;
-      n >>= 4;
-    }
-    return count;
-  }
-  /// Separate bits by 1 bit-space
-  /// \param n
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline u32 separateBitsBy1(u32 n) {
-    n = (n ^ (n << 8)) & 0x00ff00ff;
-    n = (n ^ (n << 4)) & 0x0f0f0f0f;
-    n = (n ^ (n << 2)) & 0x33333333;
-    n = (n ^ (n << 1)) & 0x55555555;
-    return n;
-  }
-  /// Separate bits by 2 bit-spaces
-  /// \param n
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline u32 separateBitsBy2(u32 n) {
-    n = (n ^ (n << 16)) & 0xff0000ff;
-    n = (n ^ (n << 8)) & 0x0300f00f;
-    n = (n ^ (n << 4)) & 0x030c30c3;
-    n = (n ^ (n << 2)) & 0x09249249;
-    return n;
-  }
-  /// Interleaves bits of three integers
-  /// \param x
-  /// \param y
-  /// \param z
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline u32 interleaveBits(u32 x, u32 y, u32 z) {
-    return (separateBitsBy2(z) << 2) + (separateBitsBy2(y) << 1) +
-           separateBitsBy2(x);
-  }
-  /// Interleaves bits of two integers
-  /// \param x
-  /// \param y
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline u32 interleaveBits(u32 x, u32 y) {
-    return (separateBitsBy1(y) << 1) + separateBitsBy1(x);
-  }
-  /// Extracts exponent from floating-point number
-  /// \param v
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline int floatExponent(f32 v) {
-    return (float2bits(v) >> 23) - 127;
-  }
-  /// Extracts significand bits
-  /// \param v
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline int floatSignificand(f32 v) {
-    return float2bits(v) & ((1 << 23) - 1);
-  }
-  /// Extracts sign bit
-  /// \param v
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline uint32_t floatSignBit(f32 v) {
-    return float2bits(v) & 0x80000000;
-  }
-  /// Interprets a floating-point value into a integer type
-  /// \param f f32 value
-  /// \return  a 32 bit unsigned integer containing the bits of **f**
-  HERMES_DEVICE_CALLABLE static inline uint32_t float2bits(f32 f) {
+  return count;
+}
+/// Separate bits by 1 bit-space
+/// \param n
+/// \return
+HERMES_DEVICE_CALLABLE inline u32 separateBitsBy1(u32 n) {
+  n = (n ^ (n << 8)) & 0x00ff00ff;
+  n = (n ^ (n << 4)) & 0x0f0f0f0f;
+  n = (n ^ (n << 2)) & 0x33333333;
+  n = (n ^ (n << 1)) & 0x55555555;
+  return n;
+}
+/// Separate bits by 2 bit-spaces
+/// \param n
+/// \return
+HERMES_DEVICE_CALLABLE inline u32 separateBitsBy2(u32 n) {
+  n = (n ^ (n << 16)) & 0xff0000ff;
+  n = (n ^ (n << 8)) & 0x0300f00f;
+  n = (n ^ (n << 4)) & 0x030c30c3;
+  n = (n ^ (n << 2)) & 0x09249249;
+  return n;
+}
+/// Interleaves bits of three integers
+/// \param x
+/// \param y
+/// \param z
+/// \return
+HERMES_DEVICE_CALLABLE inline u32 interleaveBits(u32 x, u32 y, u32 z) {
+  return (separateBitsBy2(z) << 2) + (separateBitsBy2(y) << 1) +
+         separateBitsBy2(x);
+}
+/// Interleaves bits of two integers
+/// \param x
+/// \param y
+/// \return
+HERMES_DEVICE_CALLABLE inline u32 interleaveBits(u32 x, u32 y) {
+  return (separateBitsBy1(y) << 1) + separateBitsBy1(x);
+}
+/// Interprets a floating-point value into a integer type
+/// \param f f32 value
+/// \return  a 32 bit unsigned integer containing the bits of **f**
+HERMES_DEVICE_CALLABLE inline uint32_t float2bits(f32 f) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    return __float_as_uint(f);
+  return __float_as_uint(f);
 #else
-    uint32_t ui(0);
-    std::memcpy(&ui, &f, sizeof(f32));
-    return ui;
+  uint32_t ui(0);
+  std::memcpy(&ui, &f, sizeof(f32));
+  return ui;
 #endif
-  }
-  /// Fills a f32 variable data
-  /// \param ui bits
-  /// \return a f32 built from bits of **ui**
-  HERMES_DEVICE_CALLABLE static inline f32 bitsToFloat(uint32_t ui) {
+}
+/// Interprets a f64-point value into a integer type
+/// \param d f64 value
+/// \return  a 64 bit unsigned integer containing the bits of **f**
+HERMES_DEVICE_CALLABLE inline uint64_t float2bits(f64 d) {
+  uint64_t ui(0);
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    return __uint_as_float(ui);
+  memcpy(&ui, &d, sizeof(f64));
 #else
-    f32 f(0.f);
-    std::memcpy(&f, &ui, sizeof(uint32_t));
-    return f;
+  std::memcpy(&ui, &d, sizeof(f64));
 #endif
-  }
-  /// Interprets a f64-point value into a integer type
-  /// \param d f64 value
-  /// \return  a 64 bit unsigned integer containing the bits of **f**
-  HERMES_DEVICE_CALLABLE static inline uint64_t float2bits(f64 d) {
-    uint64_t ui(0);
+  return ui;
+}
+/// Fills a f32 variable data
+/// \param ui bits
+/// \return a f32 built from bits of **ui**
+HERMES_DEVICE_CALLABLE inline f32 bitsToFloat(uint32_t ui) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    memcpy(&ui, &d, sizeof(f64));
+  return __uint_as_float(ui);
 #else
-    std::memcpy(&ui, &d, sizeof(f64));
+  f32 f(0.f);
+  std::memcpy(&f, &ui, sizeof(uint32_t));
+  return f;
 #endif
-    return ui;
-  }
-  /// Fills a f64 variable data
-  /// \param ui bits
-  /// \return a f64 built from bits of **ui**
-  HERMES_DEVICE_CALLABLE static inline f64 bits2double(uint64_t ui) {
-    f64 d(0.f);
+}
+/// Fills a f64 variable data
+/// \param ui bits
+/// \return a f64 built from bits of **ui**
+HERMES_DEVICE_CALLABLE inline f64 bits2double(uint64_t ui) {
+  f64 d(0.f);
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    memcpy(&d, &ui, sizeof(uint64_t));
+  memcpy(&d, &ui, sizeof(uint64_t));
 #else
-    std::memcpy(&d, &ui, sizeof(uint64_t));
+  std::memcpy(&d, &ui, sizeof(uint64_t));
 #endif
-    return d;
-  }
-  /// Computes the next greater representable floating-point value
-  /// \param v floating point value
-  /// \return the next greater floating point value
-  HERMES_DEVICE_CALLABLE static inline f32 nextFloatUp(f32 v) {
+  return d;
+}
+/// Extracts exponent from floating-point number
+/// \param v
+/// \return
+HERMES_DEVICE_CALLABLE inline int floatExponent(f32 v) {
+  return (float2bits(v) >> 23) - 127;
+}
+/// Extracts significand bits
+/// \param v
+/// \return
+HERMES_DEVICE_CALLABLE inline int floatSignificand(f32 v) {
+  return float2bits(v) & ((1 << 23) - 1);
+}
+/// Extracts sign bit
+/// \param v
+/// \return
+HERMES_DEVICE_CALLABLE inline uint32_t floatSignBit(f32 v) {
+  return float2bits(v) & 0x80000000;
+}
+/// Computes the next greater representable floating-point value
+/// \param v floating point value
+/// \return the next greater floating point value
+HERMES_DEVICE_CALLABLE inline f32 nextFloatUp(f32 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    if (isinf(v) && v > 0.)
+  if (isinf(v) && v > 0.)
 #else
-    if (std::isinf(v) && v > 0.f)
+  if (std::isinf(v) && v > 0.f)
 #endif
-      return v;
-    if (v == -0.f)
-      v = 0.f;
-    uint32_t ui = float2bits(v);
-    if (v >= 0)
-      ++ui;
-    else
-      --ui;
-    return bitsToFloat(ui);
-  }
-  /// Computes the next smaller representable floating-point value
-  /// \param v floating point value
-  /// \return the next smaller floating point value
-  HERMES_DEVICE_CALLABLE static inline f32 nextFloatDown(f32 v) {
+    return v;
+  if (v == -0.f)
+    v = 0.f;
+  uint32_t ui = float2bits(v);
+  if (v >= 0)
+    ++ui;
+  else
+    --ui;
+  return bitsToFloat(ui);
+}
+/// Computes the next smaller representable floating-point value
+/// \param v floating point value
+/// \return the next smaller floating point value
+HERMES_DEVICE_CALLABLE inline f32 nextFloatDown(f32 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    if (isinf(v) && v > 0.)
+  if (isinf(v) && v > 0.)
 #else
-    if (std::isinf(v) && v > 0.f)
+  if (std::isinf(v) && v > 0.f)
 #endif
-      return v;
-    if (v == 0.f)
-      v = -0.f;
-    uint32_t ui = float2bits(v);
-    if (v > 0)
-      --ui;
-    else
-      ++ui;
-    return bitsToFloat(ui);
-  }
-  /// Computes the next greater representable floating-point value
-  /// \param v floating point value
-  /// \return the next greater floating point value
-  HERMES_DEVICE_CALLABLE static inline f64 nextDoubleUp(f64 v) {
+    return v;
+  if (v == 0.f)
+    v = -0.f;
+  uint32_t ui = float2bits(v);
+  if (v > 0)
+    --ui;
+  else
+    ++ui;
+  return bitsToFloat(ui);
+}
+/// Computes the next greater representable floating-point value
+/// \param v floating point value
+/// \return the next greater floating point value
+HERMES_DEVICE_CALLABLE inline f64 nextDoubleUp(f64 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    if (isinf(v) && v > 0.)
+  if (isinf(v) && v > 0.)
 #else
-    if (std::isinf(v) && v > 0.)
+  if (std::isinf(v) && v > 0.)
 #endif
-      return v;
-    if (v == -0.f)
-      v = 0.f;
-    uint64_t ui = float2bits(v);
-    if (v >= 0)
-      ++ui;
-    else
-      --ui;
-    return bits2double(ui);
-  }
-  /// Computes the next smaller representable floating-point value
-  /// \param v floating point value
-  /// \return the next smaller floating point value
-  HERMES_DEVICE_CALLABLE static f64 nextDoubleDown(f64 v) {
+    return v;
+  if (v == -0.f)
+    v = 0.f;
+  uint64_t ui = float2bits(v);
+  if (v >= 0)
+    ++ui;
+  else
+    --ui;
+  return bits2double(ui);
+}
+/// Computes the next smaller representable floating-point value
+/// \param v floating point value
+/// \return the next smaller floating point value
+HERMES_DEVICE_CALLABLE inline f64 nextDoubleDown(f64 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
-    if (isinf(v) && v > 0.)
+  if (isinf(v) && v > 0.)
 #else
-    if (std::isinf(v) && v > 0.)
+  if (std::isinf(v) && v > 0.)
 #endif
-      return v;
-    if (v == 0.)
-      v = -0.f;
-    uint64_t ui = float2bits(v);
-    if (v > 0)
-      --ui;
-    else
-      ++ui;
-    return bits2double(ui);
-  }
-  /// Extract decimal fraction from x
-  /// \param x
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t fract(real_t x) {
-    if (x >= 0.)
-      return x - floor(x);
-    else
-      return x - ceil(x);
-  }
-  /// Multiplies and rounds down to the next smaller float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t mulRoundDown(real_t a, real_t b) {
+    return v;
+  if (v == 0.)
+    v = -0.f;
+  uint64_t ui = float2bits(v);
+  if (v > 0)
+    --ui;
+  else
+    ++ui;
+  return bits2double(ui);
+}
+/// Extract decimal fraction from x
+/// \param x
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t fract(real_t x) {
+  if (x >= 0.)
+    return x - floor(x);
+  else
+    return x - ceil(x);
+}
+/// Multiplies and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t mulRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dmul_rd(a, b);
+  return __dmul_rd(a, b);
 #else
-    return __fmul_rd(a, b);
+  return __fmul_rd(a, b);
 #endif
 #else
-    return nextFloatDown(a * b);
+  return nextFloatDown(a * b);
 #endif
-  }
-  /// Multiplies and rounds up to the next float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t mulRoundUp(real_t a, real_t b) {
+}
+/// Multiplies and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t mulRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dmul_ru(a, b);
+  return __dmul_ru(a, b);
 #else
-    return __fmul_ru(a, b);
+  return __fmul_ru(a, b);
 #endif
 #else
-    return nextFloatUp(a * b);
+  return nextFloatUp(a * b);
 #endif
-  }
-  /// Divides and rounds down to the next smaller float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t divRoundDown(real_t a, real_t b) {
+}
+/// Divides and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t divRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __ddiv_rd(a, b);
+  return __ddiv_rd(a, b);
 #else
-    return __fdiv_rd(a, b);
+  return __fdiv_rd(a, b);
 #endif
 #else
-    return nextFloatDown(a / b);
+  return nextFloatDown(a / b);
 #endif
-  }
-  /// Divides and rounds up to the next float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t divRoundUp(real_t a, real_t b) {
+}
+/// Divides and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t divRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __ddiv_ru(a, b);
+  return __ddiv_ru(a, b);
 #else
-    return __fdiv_ru(a, b);
+  return __fdiv_ru(a, b);
 #endif
 #else
-    return nextFloatUp(a / b);
+  return nextFloatUp(a / b);
 #endif
-  }
-  /// Adds and rounds down to the next smaller float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t addRoundDown(real_t a, real_t b) {
+}
+/// Adds and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t addRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dadd_rd(a, b);
+  return __dadd_rd(a, b);
 #else
-    return __fadd_rd(a, b);
+  return __fadd_rd(a, b);
 #endif
 #else
-    return nextFloatDown(a + b);
+  return nextFloatDown(a + b);
 #endif
-  }
-  /// Adds and rounds up to the next float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t addRoundUp(real_t a, real_t b) {
+}
+/// Adds and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t addRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dadd_ru(a, b);
+  return __dadd_ru(a, b);
 #else
-    return __fadd_ru(a, b);
+  return __fadd_ru(a, b);
 #endif
 #else
-    return nextFloatUp(a + b);
+  return nextFloatUp(a + b);
 #endif
-  }
-  /// Subtracts and rounds down to the next smaller float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t subRoundDown(real_t a, real_t b) {
+}
+/// Subtracts and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t subRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dsub_rd(a, b);
+  return __dsub_rd(a, b);
 #else
-    return __fsub_rd(a, b);
+  return __fsub_rd(a, b);
 #endif
 #else
-    return nextFloatDown(a - b);
+  return nextFloatDown(a - b);
 #endif
-  }
-  /// Subtracts and rounds up to the next float value
-  /// \param a
-  /// \param b
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t subRoundUp(real_t a, real_t b) {
+}
+/// Subtracts and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t subRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dsub_ru(a, b);
+  return __dsub_ru(a, b);
 #else
-    return __fsub_ru(a, b);
+  return __fsub_ru(a, b);
 #endif
 #else
-    return nextFloatUp(a - b);
+  return nextFloatUp(a - b);
 #endif
-  }
-  /// Computes square root rounded down to the next smaller float value
-  /// \param a
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t sqrtRoundDown(real_t a) {
+}
+/// Computes square root rounded down to the next smaller float value
+/// \param a
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t sqrtRoundDown(real_t a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dsqrt_rd(a);
+  return __dsqrt_rd(a);
 #else
-    return __fsqrt_rd(a);
+  return __fsqrt_rd(a);
 #endif
 #else
-    return cmp::max<real_t>(0, nextFloatDown(std::sqrt(a)));
+  return cmp::max<real_t>(0, nextFloatDown(std::sqrt(a)));
 #endif
-  }
-  /// Computes square root rounded up to the next float value
-  /// \param a
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline real_t sqrtRoundUp(real_t a) {
+}
+/// Computes square root rounded up to the next float value
+/// \param a
+/// \return
+HERMES_DEVICE_CALLABLE inline real_t sqrtRoundUp(real_t a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-    return __dsqrt_ru(a);
+  return __dsqrt_ru(a);
 #else
-    return __fsqrt_ru(a);
+  return __fsqrt_ru(a);
 #endif
 #else
-    return nextFloatUp(std::sqrt(a));
+  return nextFloatUp(std::sqrt(a));
 #endif
+}
+/// rounds up
+/// \param f **[in]**
+/// \return ceil of **f**
+HERMES_DEVICE_CALLABLE inline int ceil2Int(float f) {
+  return static_cast<int>(f + 0.5f);
+}
+/// rounds down
+/// \param f **[in]**
+/// \return floor of **f**
+HERMES_DEVICE_CALLABLE inline int floor2Int(float f) {
+  return static_cast<int>(f);
+}
+/// rounds to closest integer
+/// \param f **[in]**
+/// \return next integer greater or equal to **f**
+HERMES_DEVICE_CALLABLE inline int round2Int(float f) { return f + .5f; }
+/// Computes number of digits
+/// \param t
+/// \param base
+/// \return
+HERMES_DEVICE_CALLABLE inline u8 countDigits(u64 t, u8 base = 10) {
+  u8 count{0};
+  while (t) {
+    count++;
+    t /= base;
   }
-  /// rounds up
-  /// \param f **[in]**
-  /// \return ceil of **f**
-  HERMES_DEVICE_CALLABLE static inline int ceil2Int(float f) {
-    return static_cast<int>(f + 0.5f);
-  }
-  /// rounds down
-  /// \param f **[in]**
-  /// \return floor of **f**
-  HERMES_DEVICE_CALLABLE static inline int floor2Int(float f) {
-    return static_cast<int>(f);
-  }
-  /// rounds to closest integer
-  /// \param f **[in]**
-  /// \return next integer greater or equal to **f**
-  HERMES_DEVICE_CALLABLE static inline int round2Int(float f) {
-    return f + .5f;
-  }
-  /// Computes number of digits
-  /// \param t
-  /// \param base
-  /// \return
-  HERMES_DEVICE_CALLABLE static inline u8 countDigits(u64 t, u8 base = 10) {
-    u8 count{0};
-    while (t) {
-      count++;
-      t /= base;
-    }
-    return count;
-  }
-};
+  return count;
+}
+} // namespace numbers
 
 namespace numeric {
 

@@ -596,6 +596,20 @@ using mat4 = MatrixNxM<real_t, 4, 4>;
 using mat3 = MatrixNxM<real_t, 3, 3>;
 using mat2 = MatrixNxM<real_t, 2, 2>;
 
+namespace cmp {
+
+template <typename T, u32 N, u32 M>
+HERMES_DEVICE_CALLABLE bool is_equal(const MatrixNxM<T, N, M> &a,
+                                     const MatrixNxM<T, N, M> &b, f64 e) {
+  for (int l = 0; l < N; ++l)
+    for (int c = 0; c < M; ++c)
+      if (!numbers::cmp::is_equal(a[l][c], b[l][c], e))
+        return false;
+  return true;
+}
+
+} // namespace cmp
+
 } // namespace hermes::math
 
 namespace hermes {

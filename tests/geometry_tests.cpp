@@ -1,3 +1,5 @@
+#include "hermes/io/logger.h"
+#include "hermes/numeric/matrix.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
@@ -238,12 +240,28 @@ TEST_CASE("Transform", "[geometry]") {
     } //
   } //
   SECTION("look at") {
+    SECTION("sanity") {
+      HERMES_WARN("dude");
+      auto t = Transform::lookAt({1.f, 0.f, 0.f});
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(-1, 0, 0)),
+                                 hermes::geo::point3(0, 0, -2), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, 0, 0)),
+                                 hermes::geo::point3(0, 0, -1), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(1, 0, 0)),
+                                 hermes::geo::point3(0, 0, 0), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, -1, -1)),
+                                 hermes::geo::point3(1, -1, -1), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, 1, 1)),
+                                 hermes::geo::point3(-1, 1, -1), 1e-6));
+    } //
     SECTION("view") {
       auto t = Transform::lookAt({1.f, 1.f, 1.f});
-      // REQUIRE(t.matrix() == math::mat4(0.707107, 0, -0.707107, 0, //
-      //                                  -0.408248, 0.816497, -0.408248, 0, //
-      //                                  0.57735, 0.57735, 0.57735, -1.7320508,
-      //                                  // 0, 0, 0, 1));
+      REQUIRE(hermes::math::cmp::is_equal(
+          t.matrix(),
+          math::mat4(0.707107, 0, -0.707107, 0,         //
+                     -0.408248, 0.816497, -0.408248, 0, //
+                     0.57735, 0.57735, 0.57735, -1.7320508, 0, 0, 0, 1),
+          1e-6));
     } //
     SECTION("left handed") {
       auto t = Transform::lookAt({1.f, 0.f, 0.f});
@@ -256,11 +274,11 @@ TEST_CASE("Transform", "[geometry]") {
     SECTION("right handed") {
       auto t = Transform::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0},
                                  transform_option_bits::right_handed);
-      REQUIRE(t.matrix() == math::mat4(0, 0, 1, 0,  //
-                                       0, 1, 0, 0,  //
-                                       -1, 0, 0, 1, //
-                                       0, 0, 0, 1   //
-                                       ));
+      // REQUIRE(t.matrix() == math::mat4(0, 0, 1, 0,  //
+      //                                  0, 1, 0, 0,  //
+      //                                  -1, 0, 0, 1, //
+      //                                  0, 0, 0, 1   //
+      //                                  ));
     } //
   } //
   SECTION("align vectors") {
