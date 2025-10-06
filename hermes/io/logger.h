@@ -101,8 +101,7 @@ public:
 #else
     // merge options_
     message_options = options_ | message_options;
-    bool use_colors =
-        contains(message_options, logging_option_bits::use_colors);
+    bool use_colors = message_options.contain(logging_option_bits::use_colors);
     cstr s;
     // message
     if (use_colors)
@@ -126,7 +125,7 @@ public:
           final += '\n';
       }
     }
-    if (contains(message_options, logging_option_bits::callback_only))
+    if (message_options.contain(logging_option_bits::callback_only))
       return;
     *os_ << final;
 #endif

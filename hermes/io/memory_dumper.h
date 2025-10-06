@@ -264,19 +264,19 @@ public:
        const Layout &region = Layout(),
        memory_dumper_options options = memory_dumper_option_bits::none) {
     // check options_
-    auto hide_zeros = contains(options, memory_dumper_option_bits::hide_zeros);
+    auto hide_zeros = options.contain(memory_dumper_option_bits::hide_zeros);
     auto include_header =
-        !contains(options, memory_dumper_option_bits::hide_header);
-    auto align_data = contains(options, memory_dumper_option_bits::cache_align);
-    auto show_ascii = contains(options, memory_dumper_option_bits::show_ascii);
+        !options.contain(memory_dumper_option_bits::hide_header);
+    auto align_data = options.contain(memory_dumper_option_bits::cache_align);
+    auto show_ascii = options.contain(memory_dumper_option_bits::show_ascii);
     auto write_to_console =
-        contains(options, memory_dumper_option_bits::write_to_console);
+        options.contain(memory_dumper_option_bits::write_to_console);
     auto save_string =
-        contains(options, memory_dumper_option_bits::save_to_string);
+        options.contain(memory_dumper_option_bits::save_to_string);
     auto colored_output =
-        contains(options, memory_dumper_option_bits::colored_output);
+        options.contain(memory_dumper_option_bits::colored_output);
     auto show_type_values =
-        contains(options, memory_dumper_option_bits::type_values);
+        options.contain(memory_dumper_option_bits::type_values);
     if (!write_to_console && !save_string)
       write_to_console = true;
     // output string
@@ -285,9 +285,9 @@ public:
     u32 address_digit_count = 8;
     // compute column size for text alignment
     u8 data_digit_count = 2;
-    if (contains(options, memory_dumper_option_bits::decimal))
+    if (options.contain(memory_dumper_option_bits::decimal))
       data_digit_count = 3;
-    else if (contains(options, memory_dumper_option_bits::binary))
+    else if (options.contain(memory_dumper_option_bits::binary))
       data_digit_count = 8;
     u8 header_digit_count = numbers::countHexDigits(bytes_per_row);
     u8 column_size = std::max(header_digit_count, data_digit_count);
@@ -354,14 +354,14 @@ public:
         u8 byte = *(reinterpret_cast<u8 *>(aligned_base_address + byte_offset));
         cstr s;
         if (!hide_zeros || byte) {
-          if (contains(options, memory_dumper_option_bits::hexadecimal))
+          if (options.contain(memory_dumper_option_bits::hexadecimal))
             s.append(cstr::binaryToHex(byte), " ");
-          else if (contains(options, memory_dumper_option_bits::decimal))
+          else if (options.contain(memory_dumper_option_bits::decimal))
             s.append(std::setfill('0'), std::setw(column_size),
                      static_cast<u32>(byte), ' ');
-          else if (contains(options, memory_dumper_option_bits::binary))
+          else if (options.contain(memory_dumper_option_bits::binary))
             s.append(cstr::byteToBinary((h_byte)byte), " ");
-          else if (contains(options, memory_dumper_option_bits::hexii))
+          else if (options.contain(memory_dumper_option_bits::hexii))
             s.append(std::string(column_size, ' '), " ");
           else
             s.append(cstr::binaryToHex(byte), " ");

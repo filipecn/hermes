@@ -145,69 +145,70 @@ public:
     return mask_;
   }
 
+  HERMES_CONSTEXPR bool contain(BitType bit) const HERMES_NOEXCEPT;
+
 private:
   MaskType mask_;
 };
 
+} // namespace hermes
+
 // bitwise operators
 
 template <typename BitType>
-HERMES_CONSTEXPR Flags<BitType>
-operator&(BitType bit, const Flags<BitType> &flags) HERMES_NOEXCEPT {
+HERMES_CONSTEXPR hermes::Flags<BitType>
+operator&(BitType bit, const hermes::Flags<BitType> &flags) HERMES_NOEXCEPT {
   return flags.operator&(bit);
 }
 
 template <typename BitType>
-HERMES_CONSTEXPR Flags<BitType>
-operator|(BitType bit, const Flags<BitType> &flags) HERMES_NOEXCEPT {
+HERMES_CONSTEXPR hermes::Flags<BitType>
+operator|(BitType bit, const hermes::Flags<BitType> &flags) HERMES_NOEXCEPT {
   return flags.operator|(bit);
 }
 
 template <typename BitType>
-HERMES_CONSTEXPR Flags<BitType>
-operator^(BitType bit, const Flags<BitType> &flags) HERMES_NOEXCEPT {
+HERMES_CONSTEXPR hermes::Flags<BitType>
+operator^(BitType bit, const hermes::Flags<BitType> &flags) HERMES_NOEXCEPT {
   return flags.operator^(bit);
 }
 
 // bitwise operators on BitType
 
-template <
-    typename BitType,
-    typename std::enable_if<FlagTraits<BitType>::is_bitmask, bool>::type = true>
-inline HERMES_CONSTEXPR Flags<BitType> operator&(BitType lhs,
-                                                 BitType rhs) HERMES_NOEXCEPT {
-  return Flags<BitType>(lhs) & rhs;
+template <typename BitType,
+          typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
+                                  bool>::type = true>
+inline HERMES_CONSTEXPR hermes::Flags<BitType>
+operator&(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
+  return hermes::Flags<BitType>(lhs) & rhs;
 }
 
-template <
-    typename BitType,
-    typename std::enable_if<FlagTraits<BitType>::is_bitmask, bool>::type = true>
-inline HERMES_CONSTEXPR Flags<BitType> operator|(BitType lhs,
-                                                 BitType rhs) HERMES_NOEXCEPT {
-  return Flags<BitType>(lhs) | rhs;
+template <typename BitType,
+          typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
+                                  bool>::type = true>
+inline HERMES_CONSTEXPR hermes::Flags<BitType>
+operator|(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
+  return hermes::Flags<BitType>(lhs) | rhs;
 }
 
-template <
-    typename BitType,
-    typename std::enable_if<FlagTraits<BitType>::is_bitmask, bool>::type = true>
-inline HERMES_CONSTEXPR Flags<BitType> operator^(BitType lhs,
-                                                 BitType rhs) HERMES_NOEXCEPT {
-  return Flags<BitType>(lhs) ^ rhs;
+template <typename BitType,
+          typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
+                                  bool>::type = true>
+inline HERMES_CONSTEXPR hermes::Flags<BitType>
+operator^(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
+  return hermes::Flags<BitType>(lhs) ^ rhs;
 }
 
-template <
-    typename BitType,
-    typename std::enable_if<FlagTraits<BitType>::is_bitmask, bool>::type = true>
-inline HERMES_CONSTEXPR Flags<BitType> operator~(BitType bit) HERMES_NOEXCEPT {
+template <typename BitType,
+          typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
+                                  bool>::type = true>
+inline HERMES_CONSTEXPR hermes::Flags<BitType>
+operator~(BitType bit) HERMES_NOEXCEPT {
   return ~(Flags<BitType>(bit));
 }
 
-template <
-    typename BitType,
-    typename std::enable_if<FlagTraits<BitType>::is_bitmask, bool>::type = true>
-inline HERMES_CONSTEXPR bool contains(const Flags<BitType> &flags,
-                                      BitType bit) HERMES_NOEXCEPT {
-  return (flags & bit) == bit;
+template <typename BitType>
+HERMES_CONSTEXPR bool
+hermes::Flags<BitType>::contain(BitType bit) const HERMES_NOEXCEPT {
+  return (*this & bit) == bit;
 }
-
-} // namespace hermes

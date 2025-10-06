@@ -77,18 +77,18 @@ cstr Logger::label(const logging_options &message_options, Logger::Level level,
                    const Logger::Location &location) {
   cstr s;
 
-  if (contains(message_options, logging_option_bits::use_colors))
+  if (message_options.contain(logging_option_bits::use_colors))
     s += colors::console::threadColor(std::this_thread::get_id());
   s += std::format("[{} | {}] ", std::this_thread::get_id(),
                    timeLabel(SystemTime::wallTime()));
 
   static const char *level_names[6] = {"DEBUG", "TRACE", "INFO",
                                        "WARN",  "ERROR", "CRITICAL"};
-  if (contains(message_options, logging_option_bits::use_colors))
+  if (message_options.contain(logging_option_bits::use_colors))
     s += colors::console::color(label_colors_[static_cast<std::size_t>(level)]);
 
-  if (contains(message_options, logging_option_bits::location) ||
-      contains(message_options, logging_option_bits::full_path_location))
+  if (message_options.contain(logging_option_bits::location) ||
+      message_options.contain(logging_option_bits::full_path_location))
     s +=
         std::format("[{}][{}][{}][{}] ",
                     processPath(message_options,
@@ -103,7 +103,7 @@ cstr Logger::label(const logging_options &message_options, Logger::Level level,
 
 cstr Logger::abbreviate(logging_options message_options, const char *str) {
   cstr s;
-  if (contains(message_options, logging_option_bits::abbreviate)) {
+  if (message_options.contain(logging_option_bits::abbreviate)) {
     size_t l = std::strlen(str);
     if (l > abbreviation_size_ + 3) {
       s += "...";
@@ -116,7 +116,7 @@ cstr Logger::abbreviate(logging_options message_options, const char *str) {
 
 cstr Logger::processPath(logging_options options,
                          const std::filesystem::path &path) {
-  if (!contains(options, logging_option_bits::full_path_location))
+  if (!options.contain(logging_option_bits::full_path_location))
     return path.stem().c_str();
   return path.c_str();
 }

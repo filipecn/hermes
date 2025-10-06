@@ -180,7 +180,7 @@ HERMES_DEVICE_CALLABLE Transform Transform::lookAt(const point3 &eye,
                                                    const point3 &target,
                                                    const vec3 &up,
                                                    transform_options options) {
-  auto right_handed = contains(options, transform_option_bits::right_handed);
+  auto right_handed = options.contain(transform_option_bits::right_handed);
 
   math::MatrixNxM<real_t, 4, 4> m;
   vec3 v = normalize(right_handed ? eye - target : target - eye);
@@ -215,10 +215,9 @@ HERMES_DEVICE_CALLABLE Transform Transform::ortho(real_t left, real_t right,
                                                   real_t bottom, real_t top,
                                                   real_t near, real_t far,
                                                   transform_options options) {
-  const auto zero_to_one =
-      contains(options, transform_option_bits::zero_to_one);
-  auto right_handed = contains(options, transform_option_bits::right_handed);
-  auto flip_y = contains(options, transform_option_bits::flip_y);
+  const auto zero_to_one = options.contain(transform_option_bits::zero_to_one);
+  auto right_handed = options.contain(transform_option_bits::right_handed);
+  auto flip_y = options.contain(transform_option_bits::flip_y);
 
   auto w_inv = 1 / (right - left);
   auto h_inv = 1 / (top - bottom);
@@ -251,10 +250,9 @@ HERMES_DEVICE_CALLABLE Transform Transform::ortho(real_t left, real_t right,
 HERMES_DEVICE_CALLABLE Transform
 Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
                        real_t far, transform_options options) {
-  const auto zero_to_one =
-      contains(options, transform_option_bits::zero_to_one);
-  auto right_handed = contains(options, transform_option_bits::right_handed);
-  auto flip_y = contains(options, transform_option_bits::flip_y);
+  const auto zero_to_one = options.contain(transform_option_bits::zero_to_one);
+  auto right_handed = options.contain(transform_option_bits::right_handed);
+  auto flip_y = options.contain(transform_option_bits::flip_y);
 
   auto y_scale = 1.f / std::tan(math::degrees2radians(fovy_in_degrees) * 0.5f);
   auto d_inv = 1 / (near - far);

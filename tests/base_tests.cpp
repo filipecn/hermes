@@ -5,9 +5,7 @@
 #include <hermes/base/index.h>
 #include <hermes/base/str.h>
 
-using namespace hermes;
-
-namespace hermes {
+namespace hermes::test {
 enum class test_bits : u32 {
   a = 1 << 0,
   b = 1 << 1,
@@ -17,22 +15,29 @@ enum class test_bits : u32 {
 
 using test_flags = Flags<test_bits>;
 
-template <> struct FlagTraits<test_bits> {
+} // namespace hermes::test
+
+namespace hermes {
+template <> struct FlagTraits<hermes::test::test_bits> {
   static HERMES_CONST_OR_CONSTEXPR bool is_bitmask = true;
-  static HERMES_CONST_OR_CONSTEXPR test_flags all_flags =
-      test_bits::a | test_bits::b | test_bits::c | test_bits::d;
+  static HERMES_CONST_OR_CONSTEXPR hermes::test::test_flags all_flags =
+      hermes::test::test_bits::a | hermes::test::test_bits::b |
+      hermes::test::test_bits::c | hermes::test::test_bits::d;
 };
 } // namespace hermes
 
 TEST_CASE("flags", "[base]") {
-  REQUIRE(test_bits::a != test_bits::b);
-  REQUIRE(test_bits::a | test_bits::b);
-  test_flags flags = test_bits::a | test_bits::c;
-  REQUIRE(contains(flags, test_bits::a));
-  REQUIRE(!contains(flags, test_bits::b));
-  REQUIRE(contains(flags, test_bits::c));
-  REQUIRE(!contains(flags, test_bits::d));
+  REQUIRE(hermes::test::test_bits::a != hermes::test::test_bits::b);
+  REQUIRE((hermes::test::test_bits::a | hermes::test::test_bits::b));
+  hermes::test::test_flags flags =
+      hermes::test::test_bits::a | hermes::test::test_bits::c;
+  REQUIRE(flags.contain(hermes::test::test_bits::a));
+  REQUIRE(!flags.contain(hermes::test::test_bits::b));
+  REQUIRE(flags.contain(hermes::test::test_bits::c));
+  REQUIRE(!flags.contain(hermes::test::test_bits::d));
 }
+
+using namespace hermes;
 
 TEST_CASE("cstr", "[base]") {
   SECTION("abbreviation") {

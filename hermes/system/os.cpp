@@ -254,22 +254,22 @@ std::vector<std::filesystem::path> ls(const std::filesystem::path &path,
                                       ls_options options) {
   std::vector<std::filesystem::path> l;
 
-  if (contains(options, ls_option_bits::recursive)) {
+  if (options.contain(ls_option_bits::recursive)) {
     for (auto const &dir_entry :
          std::filesystem::recursive_directory_iterator{path}) {
       bool is_directory = std::filesystem::is_directory(dir_entry);
-      if (contains(options, ls_option_bits::directories) && !is_directory)
+      if (options.contain(ls_option_bits::directories) && !is_directory)
         continue;
-      if (contains(options, ls_option_bits::files) && is_directory)
+      if (options.contain(ls_option_bits::files) && is_directory)
         continue;
       l.emplace_back(dir_entry);
     }
   } else {
     for (auto const &dir_entry : std::filesystem::directory_iterator{path}) {
       bool is_directory = std::filesystem::is_directory(dir_entry);
-      if (contains(options, ls_option_bits::directories) && !is_directory)
+      if (options.contain(ls_option_bits::directories) && !is_directory)
         continue;
-      if (contains(options, ls_option_bits::files) && is_directory)
+      if (options.contain(ls_option_bits::files) && is_directory)
         continue;
       l.emplace_back(dir_entry);
     }
