@@ -206,44 +206,70 @@ TEST_CASE("Transform", "[geometry]") {
   SECTION("perspective projection") {
     SECTION("LH") {
       auto t = Transform::perspective(90, 1, 1, 11);
-      HERMES_LOG_VARIABLE(t);
       // near
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(0, 0, -1),
-                                         t(hermes::geo::point3(0, 0, -1)),
+                                         t(hermes::geo::point3(0, 0, 1)),
                                          1e-6));
       // far
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(0, 0, 1),
+                                         t(hermes::geo::point3(0, 0, 11)),
+                                         1e-6));
+      // (-1,-1,-1)
+      REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(-1, -1, -1),
+                                         t(hermes::geo::point3(-1, -1, 1)),
+                                         1e-6));
+      // (1,1,1)
+      REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(1, 1, 1),
+                                         t(hermes::geo::point3(11, 11, 11)),
+                                         1e-6));
+      // (0,0,0)
+      HERMES_LOG_VARIABLE(t(hermes::geo::point3(0, 0, 11.f / 6.f)));
+      REQUIRE(hermes::geo::cmp::is_equal(
+          hermes::geo::point3(0, 0, 0),
+          t(hermes::geo::point3(0, 0, 11.f / 6.f)), 1e-6));
+    } //
+    SECTION("RH") {
+      auto t = Transform::perspective(90, 1, 1, 11,
+                                      transform_option_bits::right_handed);
+      // near
+      REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(0, 0, 1),
+                                         t(hermes::geo::point3(0, 0, -1)),
+                                         1e-6));
+      // far
+      REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(0, 0, -1),
                                          t(hermes::geo::point3(0, 0, -11)),
                                          1e-6));
       // (-1,-1,-1)
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(-1, -1, -1),
-                                         t(hermes::geo::point3(-1, -1, -1)),
+                                         t(hermes::geo::point3(-11, -11, -11)),
                                          1e-6));
       // (1,1,1)
       REQUIRE(hermes::geo::cmp::is_equal(hermes::geo::point3(1, 1, 1),
-                                         t(hermes::geo::point3(11, 11, -11)),
+                                         t(hermes::geo::point3(1, 1, -1)),
                                          1e-6));
       // (0,0,0)
       REQUIRE(hermes::geo::cmp::is_equal(
           hermes::geo::point3(0, 0, 0),
           t(hermes::geo::point3(0, 0, -11.f / 6.f)), 1e-6));
     } //
-    SECTION("RH") {
-      auto t = Transform::perspective(90, 1, 1, 10,
-                                      transform_option_bits::right_handed);
-      auto y_scale = 1.f / std::tan(math::degrees2radians(90) * 0.5);
-      //      REQUIRE(t.matrix() == math::mat4(
-      //          y_scale, 0, 0, 0,//
-      //          0, y_scale, 0, 0,//
-      //          0, 0, -11./9, 20./9,//
-      //          0, 0, -1, 0//
-      //      ));
-    } //
   } //
   SECTION("look at") {
-    SECTION("sanity") {
-      HERMES_WARN("dude");
-      auto t = Transform::lookAt({1.f, 0.f, 0.f});
+    SECTION("LH") {
+      auto t = Transform::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0});
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(-1, 0, 0)),
+                                 hermes::geo::point3(0, 0, 2), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, 0, 0)),
+                                 hermes::geo::point3(0, 0, 1), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(1, 0, 0)),
+                                 hermes::geo::point3(0, 0, 0), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, -1, -1)),
+                                 hermes::geo::point3(-1, -1, 1), 1e-6));
+      REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, 1, 1)),
+                                 hermes::geo::point3(1, 1, 1), 1e-6));
+    } //
+    SECTION("RH") {
+      auto t = Transform::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0},
+                                 transform_option_bits::right_handed);
       REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(-1, 0, 0)),
                                  hermes::geo::point3(0, 0, -2), 1e-6));
       REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, 0, 0)),
@@ -254,32 +280,6 @@ TEST_CASE("Transform", "[geometry]") {
                                  hermes::geo::point3(1, -1, -1), 1e-6));
       REQUIRE(geo::cmp::is_equal(t(hermes::geo::point3(0, 1, 1)),
                                  hermes::geo::point3(-1, 1, -1), 1e-6));
-    } //
-    SECTION("view") {
-      auto t = Transform::lookAt({1.f, 1.f, 1.f});
-      REQUIRE(hermes::math::cmp::is_equal(
-          t.matrix(),
-          math::mat4(0.707107, 0, -0.707107, 0,         //
-                     -0.408248, 0.816497, -0.408248, 0, //
-                     0.57735, 0.57735, 0.57735, -1.7320508, 0, 0, 0, 1),
-          1e-6));
-    } //
-    SECTION("left handed") {
-      auto t = Transform::lookAt({1.f, 0.f, 0.f});
-      REQUIRE(t.matrix() == math::mat4(0, 0, -1, 0, //
-                                       0, 1, 0, 0,  //
-                                       1, 0, 0, -1, //
-                                       0, 0, 0, 1   //
-                                       ));
-    } //
-    SECTION("right handed") {
-      auto t = Transform::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0},
-                                 transform_option_bits::right_handed);
-      // REQUIRE(t.matrix() == math::mat4(0, 0, 1, 0,  //
-      //                                  0, 1, 0, 0,  //
-      //                                  -1, 0, 0, 1, //
-      //                                  0, 0, 0, 1   //
-      //                                  ));
     } //
   } //
   SECTION("align vectors") {

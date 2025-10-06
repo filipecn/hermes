@@ -24,8 +24,6 @@
 /// \author FilipeCN (filipedecn@gmail.com)
 /// \date   2018-08-19
 
-#include "hermes/core/debug.h"
-#include "hermes/io/logger.h"
 #include <hermes/geometry/transform.h>
 
 #include <hermes/geometry/quaternion.h>
@@ -185,26 +183,26 @@ HERMES_DEVICE_CALLABLE Transform Transform::lookAt(const point3 &eye,
   auto right_handed = contains(options, transform_option_bits::right_handed);
 
   math::MatrixNxM<real_t, 4, 4> m;
-  vec3 v = normalize(eye - target);
+  vec3 v = normalize(right_handed ? eye - target : target - eye);
   auto r = normalize(cross(up, v));
   auto u = cross(v, r);
-  auto t = eye - point3();
+  auto e = eye - point3();
 
   // row 0
   m[0][0] = r.x;
   m[0][1] = r.y;
   m[0][2] = r.z;
-  m[0][3] = -dot(t, r);
+  m[0][3] = -dot(e, r);
   // row 1
   m[1][0] = u.x;
   m[1][1] = u.y;
   m[1][2] = u.z;
-  m[1][3] = -dot(t, u);
+  m[1][3] = -dot(e, u);
   // row 2
   m[2][0] = v.x;
   m[2][1] = v.y;
   m[2][2] = v.z;
-  m[2][3] = -dot(t, v);
+  m[2][3] = -dot(e, v);
   // row 3
   m[3][0] = 0;
   m[3][1] = 0;
@@ -276,15 +274,15 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   m[2][0] = 0;
   m[2][1] = 0;
   m[2][2] =
-      (right_handed ? -1.f : 1.f) * (zero_to_one ? far : (far + near)) * d_inv;
+      (right_handed ? -1.f : -1.f) * (zero_to_one ? far : (far + near)) * d_inv;
   m[2][3] = (right_handed ? -1.f : 1.f) * (zero_to_one ? 1.f : 2.f) * near *
             far * d_inv;
   // row 3
   m[3][0] = 0;
   m[3][1] = 0;
   m[3][2] = right_handed
-                ? 1
-                : -1; // this term 'copies' z into w for the perspective divide
+                ? -1
+                : 1; // this term 'copies' z into w for the perspective divide
   m[3][3] = 0;
   return {m};
 }
