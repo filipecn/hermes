@@ -273,8 +273,8 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   // row 2
   m[2][0] = 0;
   m[2][1] = 0;
-  m[2][2] =
-      (right_handed ? -1.f : -1.f) * (zero_to_one ? far : (far + near)) * d_inv;
+  m[2][2] = (right_handed ? -1.f : -1.f) * (zero_to_one ? near : (far + near)) *
+            d_inv;
   m[2][3] = (right_handed ? -1.f : 1.f) * (zero_to_one ? 1.f : 2.f) * near *
             far * d_inv;
   // row 3
