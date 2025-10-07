@@ -7,6 +7,7 @@ set(HERMES_HEADERS
   colors/color.h
 
   core/debug.h
+  core/ref.h
   core/result.h
   core/types.h
 

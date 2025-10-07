@@ -1,8 +1,8 @@
-
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <hermes/core/debug.h>
+#include <hermes/core/ref.h>
 
 #ifdef HERMES_INCLUDE_TO_STRING
 
@@ -63,3 +63,32 @@ TEST_CASE("to_string") {
 }
 
 #endif
+
+TEST_CASE("ref") {
+  SECTION("sanity") {
+    hermes::Ref<int> r;
+    REQUIRE(*r == nullptr);
+  } //
+  SECTION("not owner") {
+    int i = 3;
+    auto r = hermes::Ref<int>::ptr(&i);
+    auto i_ptr = *r;
+    REQUIRE(*i_ptr == i);
+    {
+      // const
+      const auto &cr = r;
+      REQUIRE(**cr == i);
+    }
+  } //
+  SECTION("shared") {
+    int i = 3;
+    auto r = hermes::Ref<int>::shared(i);
+    auto i_ptr = *r;
+    REQUIRE(*i_ptr == i);
+    {
+      // const
+      const auto &cr = r;
+      REQUIRE(**cr == i);
+    }
+  } //
+}
