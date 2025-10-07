@@ -124,8 +124,8 @@ public:
 
   HERMES_DEVICE_CALLABLE static inline MatrixNxM One() {
     MatrixNxM<T, N, M> m;
-    for (int i = 0; i < N; ++i)
-      for (int j = 0; j < M; ++j)
+    for (u32 i = 0; i < N; ++i)
+      for (u32 j = 0; j < M; ++j)
         m[i][j] = 1;
     return m;
   }
@@ -136,7 +136,7 @@ public:
   Diag(const MatrixNxM<T, N, 1> &d) {
     static_assert(N == M, "Can't create non-squared matrices from diagonal.");
     MatrixNxM<T, N, M> m;
-    for (int i = 0; i < N; ++i)
+    for (u32 i = 0; i < N; ++i)
       m[i][i] = d[i][0];
     return m;
   }
@@ -170,18 +170,18 @@ public:
                                             bool columnMajor = false) {
     size_t k = 0;
     if (columnMajor)
-      for (int c = 0; c < M; c++)
+      for (u32 c = 0; c < M; c++)
         for (auto &l : m_)
           l[c] = mat[k++];
     else
       for (auto &l : m_)
-        for (int c = 0; c < N; c++)
+        for (u32 c = 0; c < N; c++)
           l[c] = mat[k++];
   }
   /// \param mat matrix entries in [ROW][COLUMN] form
   HERMES_DEVICE_CALLABLE explicit MatrixNxM(T mat[N][M]) {
-    for (int i = 0; i < N; i++)
-      for (int j = 0; j < M; j++)
+    for (u32 i = 0; i < N; i++)
+      for (u32 j = 0; j < M; j++)
         m_[i][j] = mat[i][j];
   }
   /// \param m00 value of entry at row 0 column 0
@@ -248,10 +248,10 @@ public:
   HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M>
   operator*(const MatrixNxM<T, M, O> &B) const {
     MatrixNxM<T, N, O> r;
-    for (int i = 0; i < N; ++i)
-      for (int j = 0; j < O; ++j) {
+    for (u32 i = 0; i < N; ++i)
+      for (u32 j = 0; j < O; ++j) {
         r[i][j] = 0;
-        for (int k = 0; k < M; ++k)
+        for (u32 k = 0; k < M; ++k)
           r[i][j] += m_[i][k] * B[k][j];
       }
     return r;
@@ -259,24 +259,24 @@ public:
   HERMES_DEVICE_CALLABLE MatrixNxM<T, N, 1>
   operator*(const MatrixNxM<T, N, 1> &v) const {
     MatrixNxM<T, N, 1> r;
-    for (int i = 0; i < 4; i++)
-      for (int j = 0; j < 4; j++)
+    for (u32 i = 0; i < 4; i++)
+      for (u32 j = 0; j < 4; j++)
         r[i][0] += m_[i][j] * v[j][0];
     return r;
   }
 #define ARITHMETIC_OP(OP)                                                      \
   HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> &operator OP##=(                   \
       const MatrixNxM<T, N, M> &B) {                                           \
-    for (int i = 0; i < N; ++i)                                                \
-      for (int j = 0; j < M; ++j)                                              \
+    for (u32 i = 0; i < N; ++i)                                                \
+      for (u32 j = 0; j < M; ++j)                                              \
         m_[i][j] OP## = B[i][j];                                               \
     return *this;                                                              \
   }                                                                            \
   HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> operator OP(                       \
       const MatrixNxM<T, N, M> &B) const {                                     \
     MatrixNxM<T, N, M> r;                                                      \
-    for (int i = 0; i < N; ++i)                                                \
-      for (int j = 0; j < M; ++j)                                              \
+    for (u32 i = 0; i < N; ++i)                                                \
+      for (u32 j = 0; j < M; ++j)                                              \
         r[i][j] = m_[i][j] OP B[i][j];                                         \
     return r;                                                                  \
   }
@@ -286,15 +286,15 @@ public:
 
 #define SCALAR_OP(OP)                                                          \
   HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> &operator OP##=(const T & s) {     \
-    for (int i = 0; i < N; ++i)                                                \
-      for (int j = 0; j < M; ++j)                                              \
+    for (u32 i = 0; i < N; ++i)                                                \
+      for (u32 j = 0; j < M; ++j)                                              \
         m_[i][j] OP## = s;                                                     \
     return *this;                                                              \
   }                                                                            \
   HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> operator OP(const T & s) const {   \
     MatrixNxM<T, N, M> r;                                                      \
-    for (int i = 0; i < N; ++i)                                                \
-      for (int j = 0; j < M; ++j)                                              \
+    for (u32 i = 0; i < N; ++i)                                                \
+      for (u32 j = 0; j < M; ++j)                                              \
         r[i][j] = m_[i][j] OP s;                                               \
     return r;                                                                  \
   }
@@ -306,8 +306,8 @@ public:
   HERMES_DEVICE_CALLABLE bool operator==(const MatrixNxM<T, O, P> &B) const {
     if (O != N || P != M)
       return false;
-    for (int i = 0; i < N; i++)
-      for (int j = 0; j < M; j++)
+    for (u32 i = 0; i < N; i++)
+      for (u32 j = 0; j < M; j++)
         if (!numbers::cmp::is_equal(m_[i][j], B[i][j]))
           return false;
     return true;
@@ -321,12 +321,12 @@ public:
     static_assert(N == M, "Can't set identity for non-square matrices.");
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     for (auto &i : m_)
-      for (int j = 0; j < M; j++)
+      for (u32 j = 0; j < M; j++)
         i[j] = 0.f;
 #else
     std::memset(m_, 0, sizeof(m_));
 #endif
-    for (int i = 0; i < M; i++)
+    for (u32 i = 0; i < M; i++)
       m_[i][i] = 1.f;
     return *this;
   }
@@ -334,20 +334,20 @@ public:
   HERMES_DEVICE_CALLABLE void row_major(T *a) const {
     int k = 0;
     for (auto &i : m_)
-      for (int j = 0; j < M; j++)
+      for (u32 j = 0; j < M; j++)
         a[k++] = i[j];
   }
   /// \param[out] a Receives matrix elements in column major.
   HERMES_DEVICE_CALLABLE void column_major(T *a) const {
     int k = 0;
-    for (int i = 0; i < N; i++)
+    for (u32 i = 0; i < N; i++)
       for (auto &j : m_)
         a[k++] = j[i];
   }
   HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool isIdentity() const {
     static_assert(N == M, "Can't check identity for non-square matrices.");
-    for (int i = 0; i < N; i++)
-      for (int j = 0; j < M; j++)
+    for (u32 i = 0; i < N; i++)
+      for (u32 j = 0; j < M; j++)
         if ((i != j && !numbers::cmp::is_equal(m_[i][j], 0.f)) ||
             (i == j && !numbers::cmp::is_equal(m_[i][j], 1.f)))
           return false;
@@ -364,7 +364,7 @@ public:
   HERMES_DEVICE_CALLABLE MatrixNxM<T, N, 1> diagonal() const {
     static_assert(N == M, "Can't create non-squared matrices from diagonal.");
     MatrixNxM<T, N, 1> d;
-    for (int i = 0; i < N; ++i)
+    for (u32 i = 0; i < N; ++i)
       d[i][0] = m_[i][i];
     return d;
   }
@@ -390,8 +390,8 @@ template <typename T, u32 N, u32 M>
 HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M>
 transpose(const MatrixNxM<T, M, N> &m) {
   MatrixNxM<T, M, N> t;
-  for (int r = 0; r < N; ++r)
-    for (int c = 0; c < M; ++c)
+  for (u32 r = 0; r < N; ++r)
+    for (u32 c = 0; c < M; ++c)
       t[c][r] = m[r][c];
   return t;
 }
@@ -409,8 +409,8 @@ HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4> inverse(const MatrixNxM<T, 4, 4> &m) {
   m.row_major(mm);
   if (gluInvertMatrix(mm, inv)) {
     int k = 0;
-    for (int i = 0; i < 4; i++)
-      for (int j = 0; j < 4; j++)
+    for (u32 i = 0; i < 4; i++)
+      for (u32 j = 0; j < 4; j++)
         r[i][j] = inv[k++];
     return r;
   }
@@ -522,12 +522,12 @@ HERMES_DEVICE_CALLABLE void decompose(const MatrixNxM<T, 4, 4> &m,
     // compute next matrix in series
     MatrixNxM<T, 4, 4> Rnext;
     MatrixNxM<T, 4, 4> Rit = inverse(transpose(r));
-    for (int i = 0; i < 4; i++)
-      for (int j = 0; j < 4; j++)
+    for (u32 i = 0; i < 4; i++)
+      for (u32 j = 0; j < 4; j++)
         Rnext[i][j] = .5f * (r[i][j] + Rit[i][j]);
     // compute norm difference between R and Rnext
     norm = 0.f;
-    for (int i = 0; i < 3; i++) {
+    for (u32 i = 0; i < 3; i++) {
       T n = fabsf(r[i][0] - Rnext[i][0]) + fabsf(r[i][1] - Rnext[i][1]) +
             fabsf(r[i][2] - Rnext[i][2]);
       norm = std::max(norm, n);
@@ -601,8 +601,8 @@ namespace cmp {
 template <typename T, u32 N, u32 M>
 HERMES_DEVICE_CALLABLE bool is_equal(const MatrixNxM<T, N, M> &a,
                                      const MatrixNxM<T, N, M> &b, f64 e) {
-  for (int l = 0; l < N; ++l)
-    for (int c = 0; c < M; ++c)
+  for (u32 l = 0; l < N; ++l)
+    for (u32 c = 0; c < M; ++c)
       if (!numbers::cmp::is_equal(a[l][c], b[l][c], e))
         return false;
   return true;
@@ -616,9 +616,9 @@ namespace hermes {
 
 HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(
     math::MatrixNxM<T HERMES_COMMA N HERMES_COMMA M>, typename T, u32 N, u32 M)
-for (int row = 0; row < N; ++row) {
+for (u32 row = 0; row < N; ++row) {
   hermes::Str<char> s;
-  for (int col = 0; col < M; ++col) {
+  for (u32 col = 0; col < M; ++col) {
     s += object[row][col];
     s += " ";
   }

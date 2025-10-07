@@ -136,13 +136,14 @@ TEST_CASE("os", "[system]") {
     REQUIRE(os::mkdir("os::find_dir/folder"));
     REQUIRE(os::touch(os::cd(find_dir, "folder") / "file5.ext1"));
     { // search ext2
-      auto f = os::find("os::find_dir", ".*\.ext2", os::find_option_bits::sort);
+      auto f =
+          os::find("os::find_dir", ".*\\.ext2", os::find_option_bits::sort);
       REQUIRE(f.size() == 5);
       for (int i = 0; i < 5; ++i)
         REQUIRE(f[i].filename().c_str() == (cstr() << "file" << i << ".ext2"));
     }
     { // search ext1 rec
-      auto f = os::find("os::find_dir", ".*\.ext1",
+      auto f = os::find("os::find_dir", ".*\\.ext1",
                         os::find_option_bits::sort |
                             os::find_option_bits::recursive);
       REQUIRE(f.size() == 6);

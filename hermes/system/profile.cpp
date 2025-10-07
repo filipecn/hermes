@@ -202,6 +202,7 @@ void Profiler::setMaxBlockCount(size_t max_block_count) {
 
 void Profiler::reset() {
   auto &p = instance();
+  HERMES_UNUSED_VARIABLE(p);
   HERMES_NOT_IMPLEMENTED;
   // p.block_list_start_ = 0;
   // p.block_stack_ = std::stack<u32>();

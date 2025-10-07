@@ -98,8 +98,8 @@ public:
     /// \param name
     /// \param color
     explicit BlockDescriptor(const char *name, u32 color);
-    u32 color{};        //!< block color
     u32 id{};           //!< block unique id
+    u32 color{};        //!< block color
     u32 line{};         //!< code line
     const char *name{}; //!< block name
   };

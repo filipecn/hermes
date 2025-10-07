@@ -85,13 +85,12 @@ Block::~Block() noexcept { HERMES_CHECK_HE_RESULT(clear()); }
 
 Block &Block::operator=(const Block &rhs) {
   HERMES_CHECK_HE_RESULT(clear());
-  if (auto err = (int)resize(rhs.size_, rhs.pitch_)) {
+  auto err = resize(rhs.size_, rhs.pitch_);
+  if (err != HeError::NO_ERROR) {
     HERMES_ERROR("Could not copy assign memory block.");
     return *this;
   }
-  if (auto err = (int)copy(rhs)) {
-    HERMES_ERROR("Could not copy assign memory block.");
-  }
+  HERMES_CHECK_HE_RESULT(copy(rhs));
   return *this;
 }
 

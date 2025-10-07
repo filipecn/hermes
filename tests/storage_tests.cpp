@@ -1,3 +1,4 @@
+#include "hermes/core/debug.h"
 #include "hermes/core/result.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
@@ -87,6 +88,7 @@ TEST_CASE("Block", "[storage]") {
     Block hm = dm;
     return checkHostMemory(hm);
   };
+  HERMES_UNUSED_VARIABLE(checkDeviceMemory);
 
   SECTION("copy") {
 #ifdef HERMES_DEVICE_ENABLED
@@ -231,9 +233,9 @@ HERMES_CUDA_KERNEL(fillStackAllocator)(StackAllocatorView stack_allocator,
                                        ArrayView<AddressIndex> handles,
                                        HeResult *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
-  for (int i = 0; i < 20; ++i)
+  for (u32 i = 0; i < 20; ++i)
     handles.emplace(i, stack_allocator.pushAligned<int>(0));
-  for (int i = 0; i < 20; ++i) {
+  for (u32 i = 0; i < 20; ++i) {
     *result = stack_allocator.set(handles[i], i);
     if (*result != HeResult::SUCCESS)
       return;
@@ -244,7 +246,7 @@ HERMES_CUDA_KERNEL(checkStackAllocator)(StackAllocatorView stack_allocator,
                                         ArrayView<AddressIndex> handles,
                                         HeResult *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
-  for (int i = 0; i < 20; ++i)
+  for (u32 i = 0; i < 20; ++i)
     if (i != *stack_allocator.get<int>(handles[i]))
       *result = HeResult::BAD_OPERATION;
 }
@@ -293,27 +295,27 @@ TEST_CASE("StackAllocator", "[memory]") {
       StackAllocator stack_allocator(80);
       std::vector<AddressIndex> handles;
       handles.reserve(20);
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         handles.emplace_back(stack_allocator.pushAligned<int>(0));
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(*stack_allocator.get<int>(handles[i]) == i);
     } //
     SECTION("view") {
       StackAllocator stack_allocator(80);
       std::vector<AddressIndex> handles;
       handles.reserve(20);
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         handles.emplace_back(stack_allocator.pushAligned<int>(0));
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
       auto view = stack_allocator.view();
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(*view.get<int>(handles[i]) == i);
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(view.set(handles[i], 2 * i) == HeResult::SUCCESS);
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(*stack_allocator.get<int>(handles[i]) == 2 * i);
     } //
   } //
@@ -360,14 +362,14 @@ TEST_CASE("StackAllocator", "[memory]") {
       UnifiedStackAllocator stack_allocator(80);
       std::vector<AddressIndex> handles;
       handles.reserve(20);
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         handles.emplace_back(stack_allocator.allocateAligned<int>(0));
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(stack_allocator.set(handles[i], i) == HeResult::SUCCESS);
 #ifdef ODYSSEUS_DEBUG
       stack_allocator.dump();
 #endif
-      for (int i = 0; i < 20; ++i)
+      for (u32 i = 0; i < 20; ++i)
         REQUIRE(*stack_allocator.get<int>(handles[i]) == i);
     }
   } //
@@ -410,11 +412,11 @@ TEST_CASE("CArray") {
   SECTION("sanity") {
     CArray<int, 10> a;
     a = 3;
-    for (int i = 0; i < 10; ++i)
+    for (u32 i = 0; i < 10; ++i)
       REQUIRE(a[i] == 3);
     CArray<int, 10> b;
     b = a;
-    for (int i = 0; i < 10; ++i)
+    for (u32 i = 0; i < 10; ++i)
       REQUIRE(b[i] == 3);
     REQUIRE(a == b);
     int count = 0;
@@ -448,7 +450,7 @@ TEST_CASE("DataArray", "[storage][array]") {
   SECTION("Operators") {
     SECTION("assignment") {
       Array<i32> a(10);
-      for (int i = 0; i < 10; ++i)
+      for (u32 i = 0; i < 10; ++i)
         a[i] = i;
 #ifdef HERMES_DEVICE_ENABLED
       DeviceArray<i32> dda(a);
@@ -458,7 +460,7 @@ TEST_CASE("DataArray", "[storage][array]") {
       REQUIRE(da.size() == size3(10, 1, 1));
       REQUIRE(da.sizeInBytes() == 10 * sizeof(i32));
       Array<i32> ha = da;
-      for (int i = 0; i < 10; ++i)
+      for (u32 i = 0; i < 10; ++i)
         REQUIRE(a[i] == i);
 #endif
       SECTION("std vector") {
@@ -467,7 +469,7 @@ TEST_CASE("DataArray", "[storage][array]") {
         b = v;
         REQUIRE(b.sizeInBytes() == sizeof(i32) * v.size());
         REQUIRE(b.size() == size3(v.size(), 1, 1));
-        for (int i = 0; i < v.size(); ++i)
+        for (u32 i = 0; i < v.size(); ++i)
           REQUIRE(b[i] == i + 1);
 #ifdef HERMES_DEVICE_ENABLED
         DeviceArray<i32> db;
@@ -475,7 +477,7 @@ TEST_CASE("DataArray", "[storage][array]") {
         REQUIRE(db.sizeInBytes() == sizeof(i32) * v.size());
         REQUIRE(db.size() == size3(v.size(), 1, 1));
         Array<i32> c = db;
-        for (int i = 0; i < v.size(); ++i)
+        for (u32 i = 0; i < v.size(); ++i)
           REQUIRE(c[i] == i + 1);
 #endif
       } //
@@ -605,11 +607,11 @@ TEST_CASE("Array1", "[storage][array]") {
       v.emplace_back(10);
       v.emplace_back(10);
       v.emplace_back(10);
-      for (int i = 0; i < 3; i++)
+      for (u32 i = 0; i < 3; i++)
         for (u64 j = 0; j < v[i].size(); ++j)
           v[i][j] = j * 10;
       std::vector<Array1<int>> vv = v;
-      for (int i = 0; i < 3; i++)
+      for (u32 i = 0; i < 3; i++)
         for (u64 j = 0; j < v[i].size(); ++j)
           REQUIRE(vv[i][j] == j * 10);
     } //
@@ -690,11 +692,11 @@ TEST_CASE("Array2", "[storage][array]") {
       v.emplace_back(size2(10, 10));
       v.emplace_back(size2(10, 10));
       v.emplace_back(size2(10, 10));
-      for (int i = 0; i < 3; i++)
+      for (u32 i = 0; i < 3; i++)
         for (index2 ij : Index2Range<i32>(v[i].size()))
           v[i][ij] = ij.i * 10 + ij.j;
       std::vector<Array2<int>> vv = v;
-      for (int i = 0; i < 3; i++)
+      for (u32 i = 0; i < 3; i++)
         for (index2 ij : Index2Range<i32>(v[i].size()))
           REQUIRE(vv[i][ij] == ij.i * 10 + ij.j);
     }
@@ -767,7 +769,7 @@ HERMES_CUDA_KERNEL(aos_view)(AoSView aos, int *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
   if (aos.size() != 5)
     *result = 1;
-  for (int i = 0; i < aos.size(); ++i) {
+  for (u32 i = 0; i < aos.size(); ++i) {
     if (aos.valueAt<index2>(0, i) != index2(i, i + 1))
       *result = (i + 1) * 10;
     if (aos.valueAt<i32>(1, i) != -(i + 1))
@@ -822,11 +824,11 @@ TEST_CASE("AOS", "[storage][aos]") {
         i32 i{};
       };
       std::vector<SD> data(5);
-      for (int i = 0; i < 5; ++i) {
+      for (i32 i = 0; i < 5; ++i) {
         data[i].s = aos.valueAt<size2>(0, i) = {i * 3u, i * 7u};
         data[i].i = aos.valueAt<i32>(1, i) = i;
       }
-      for (int i = 0; i < 5; ++i) {
+      for (i32 i = 0; i < 5; ++i) {
         REQUIRE(aos.layout().valueAt<size2>(
                     reinterpret_cast<const void *>(*aos.data()), 0, i) ==
                 size2(i * 3u, i * 7u));
@@ -838,7 +840,7 @@ TEST_CASE("AOS", "[storage][aos]") {
         aos.layout().valueAt<i32>(reinterpret_cast<void *>(data.data()), 1, i) =
             -i;
       }
-      for (int i = 0; i < 5; ++i) {
+      for (i32 i = 0; i < 5; ++i) {
         REQUIRE(aos.layout().valueAt<size2>(
                     reinterpret_cast<const void *>(data.data()), 0, i) ==
                 size2(i * 5u, i * 13u));
@@ -884,12 +886,12 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.layout().offsetOf("f32") == sizeof(geo::vec3));
     REQUIRE(aos.layout().offsetOf("int") == sizeof(geo::vec3) + sizeof(f32));
     REQUIRE(aos.dataSize() == aos.stride() * 4);
-    for (int i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i) {
       aos.valueAt<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       aos.valueAt<f32>(1, i) = 1.f * i;
       aos.valueAt<int>(2, i) = i + 1;
     }
-    for (int i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i) {
       REQUIRE(aos.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(aos.valueAt<f32>(1, i), Catch::Matchers::WithinRel(1.f * i));
@@ -928,15 +930,15 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos.pushField<int>();
     aos.pushField<hermes::geo::vec2>();
     REQUIRE(aos.resize(5) == HeError::NO_ERROR);
-    for (int i = 0; i < aos.size(); ++i) {
+    for (u32 i = 0; i < aos.size(); ++i) {
       aos.valueAt<int>(0, i) = i;
       aos.valueAt<hermes::geo::vec2>(1, i) = {i * 0.1f, -i * 1.f};
     }
     aos.pushField<int>();
     REQUIRE(aos.dataSize() ==
             5 * (sizeof(int) + sizeof(hermes::geo::vec2) + sizeof(int)));
-    for (int i = 0; i < aos.size(); ++i) {
-      REQUIRE(aos.valueAt<int>(0, i) == i);
+    for (u32 i = 0; i < aos.size(); ++i) {
+      REQUIRE(aos.valueAt<int>(0, i) == (i32)i);
       REQUIRE(aos.valueAt<hermes::geo::vec2>(1, i) ==
               hermes::geo::vec2(i * 0.1f, -i * 1.f));
     }
@@ -950,12 +952,12 @@ TEST_CASE("AOS", "[storage][aos]") {
     auto vec3_field = aos.field<geo::vec3>("geo::vec3");
     auto f32_field = aos.field<f32>("f32");
     auto int_field = aos.field<int>("int");
-    for (int i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < 4; ++i) {
       vec3_field[i] = {1.f + i, 2.f + i, 3.f + i};
       f32_field[i] = 1.f * i;
       int_field[i] = i + 1;
     }
-    for (int i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i) {
       REQUIRE(aos.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(aos.valueAt<f32>(1, i), Catch::Matchers::WithinRel(1.f * i));
@@ -975,12 +977,12 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos.pushField<int>("int");
     REQUIRE(aos.resize(4) == HeError::NO_ERROR);
     auto acc = aos.view();
-    for (int i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i) {
       acc.valueAt<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       acc.valueAt<f32>(1, i) = 1.f * i;
       acc.valueAt<int>(2, i) = i + 1;
     }
-    for (int i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i) {
       REQUIRE(acc.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(acc.valueAt<f32>(1, i), Catch::Matchers::WithinRel(1.f * i));
@@ -988,7 +990,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     }
     const auto &caos = aos;
     auto cacc = caos.view();
-    for (int i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i) {
       REQUIRE(cacc.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(cacc.valueAt<f32>(1, i),
@@ -1000,7 +1002,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos2.pushField<f32>("f32");
     aos2.pushField<int>("int");
     REQUIRE(aos2.resize(4) == HeError::NO_ERROR);
-    for (int i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < 4; ++i) {
       aos2.valueAt<geo::vec3>(0, i) = {-1.f + i, -2.f + i, -3.f + i};
       aos2.valueAt<f32>(1, i) = -1.f * i;
       aos2.valueAt<int>(2, i) = i - 1;
@@ -1015,7 +1017,7 @@ TEST_CASE("AOS", "[storage][aos]") {
         {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5},
     };
     auto i32_field = aos.field<i32>(1) = {-1, -2, -3, -4, -5};
-    for (int i = 0; i < 5; ++i) {
+    for (i32 i = 0; i < 5; ++i) {
       REQUIRE(sizes_field[i] == size2(i, i + 1));
       REQUIRE(i32_field[i] == -(i + 1));
     }
@@ -1029,7 +1031,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos.pushField<int>("int");
     REQUIRE(aos.resize(4) == HeError::NO_ERROR);
     auto acc = aos.view();
-    for (int i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < 4; ++i) {
       acc.valueAt<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       acc.valueAt<f32>(1, i) = 1.f * i;
       acc.valueAt<int>(2, i) = i + 1;
@@ -1045,7 +1047,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.dataSize() == aos2.dataSize());
     REQUIRE(aos.stride() == aos2.stride());
     auto acc2 = aos2.view();
-    for (int i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < 4; ++i) {
       REQUIRE_THAT(acc2.valueAt<geo::vec3>(0, i).x,
                    Catch::Matchers::WithinRel(acc.valueAt<geo::vec3>(0, i).x));
       REQUIRE_THAT(acc2.valueAt<geo::vec3>(0, i).y,

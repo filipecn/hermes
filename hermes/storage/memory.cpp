@@ -24,6 +24,7 @@
 /// \author FilipeCN (filipedecn@gmail.com)
 /// \date   2021-09-22
 
+#include "hermes/core/debug.h"
 #include <hermes/storage/memory.h>
 
 #include <tuple>
@@ -185,6 +186,9 @@ allocation::allocate(const size3 &size, MemoryLocation location) {
 
 HeError writes::copyDevice2Device(void *dst, const void *src,
                                   h_size byte_count) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(byte_count);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(
       cudaMemcpy(dst, src, byte_count, cudaMemcpyDeviceToDevice));
@@ -193,6 +197,9 @@ HeError writes::copyDevice2Device(void *dst, const void *src,
 }
 
 HeError writes::copyDevice2Host(void *dst, const void *src, h_size byte_count) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(byte_count);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(
       cudaMemcpy(dst, src, byte_count, cudaMemcpyDeviceToHost));
@@ -201,6 +208,9 @@ HeError writes::copyDevice2Host(void *dst, const void *src, h_size byte_count) {
 }
 
 HeError writes::copyHost2Device(void *dst, const void *src, h_size byte_count) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(byte_count);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(
       cudaMemcpy(dst, src, byte_count, cudaMemcpyHostToDevice));
@@ -220,28 +230,32 @@ HeError writes::copy(MemoryLocation dst_location, void *dst,
   switch (src_location) {
   case MemoryLocation::HOST:
     switch (dst_location) {
-    case MemoryLocation::HOST:
-    case MemoryLocation::UNIFIED:
-      return copyHost2Host(dst, src, byte_count);
     case MemoryLocation::DEVICE:
       return copyHost2Device(dst, src, byte_count);
+      break;
+    default:
+      return copyHost2Host(dst, src, byte_count);
     }
+    break;
   case MemoryLocation::DEVICE:
     switch (dst_location) {
     case MemoryLocation::HOST:
       return copyDevice2Host(dst, src, byte_count);
+      break;
     case MemoryLocation::DEVICE:
       return copyDevice2Device(dst, src, byte_count);
+      break;
     case MemoryLocation::UNIFIED:
       return HeError::NOT_IMPLEMENTED;
     }
+    break;
   case MemoryLocation::UNIFIED:
     switch (dst_location) {
-    case MemoryLocation::HOST:
-    case MemoryLocation::UNIFIED:
-      return copyHost2Host(dst, src, byte_count);
     case MemoryLocation::DEVICE:
       return copyHost2Device(dst, src, byte_count);
+      break;
+    default:
+      return copyHost2Host(dst, src, byte_count);
     }
   }
   return HeError::NO_ERROR;
@@ -249,6 +263,11 @@ HeError writes::copy(MemoryLocation dst_location, void *dst,
 
 HeError writes::copyHost2Device(void *dst, h_size dst_pitch, const void *src,
                                 h_size src_pitch, const size2 &src_size) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(dst_pitch);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(src_pitch);
+  HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(dst, dst_pitch, src, src_pitch,
                                       src_size.width, src_size_.height,
@@ -259,6 +278,11 @@ HeError writes::copyHost2Device(void *dst, h_size dst_pitch, const void *src,
 
 HeError writes::copyDevice2Host(void *dst, h_size dst_pitch, const void *src,
                                 h_size src_pitch, const size2 &src_size) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(dst_pitch);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(src_pitch);
+  HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(dst, dst_pitch, src, src_pitch,
                                       src_size.width, src_size_.height,
@@ -269,6 +293,11 @@ HeError writes::copyDevice2Host(void *dst, h_size dst_pitch, const void *src,
 
 HeError writes::copyDevice2Device(void *dst, h_size dst_pitch, const void *src,
                                   h_size src_pitch, const size2 &src_size) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(dst_pitch);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(src_pitch);
+  HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(dst, dst_pitch, src, src_pitch,
                                       src_size.width, src_size_.height,
@@ -285,12 +314,12 @@ HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
   switch (src_location) {
   case MemoryLocation::HOST:
     switch (dst_location) {
-    case MemoryLocation::HOST:
-    case MemoryLocation::UNIFIED:
-      return copyHost2Host(dst, src, src_pitch * src_size.height);
     case MemoryLocation::DEVICE:
       return copyHost2Device(dst, dst_pitch, src, src_pitch, src_size);
+    default:
+      return copyHost2Host(dst, src, src_pitch * src_size.height);
     }
+    break;
   case MemoryLocation::DEVICE:
     switch (dst_location) {
     case MemoryLocation::HOST:
@@ -300,13 +329,13 @@ HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
     case MemoryLocation::UNIFIED:
       return HeError::NOT_IMPLEMENTED;
     }
+    break;
   case MemoryLocation::UNIFIED:
     switch (dst_location) {
-    case MemoryLocation::HOST:
-    case MemoryLocation::UNIFIED:
-      return copyHost2Host(dst, src, src_pitch * src_size.height);
     case MemoryLocation::DEVICE:
       return copyHost2Device(dst, dst_pitch, src, src_pitch, src_size);
+    default:
+      return copyHost2Host(dst, src, src_pitch * src_size.height);
     }
   }
   return HeError::NO_ERROR;
@@ -315,6 +344,12 @@ HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
 HeError writes::copyHost2Device(void *dst, h_size dst_pitch,
                                 const size3 &dst_size, const void *src,
                                 h_size src_pitch, const size3 &src_size) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(dst_pitch);
+  HERMES_UNUSED_VARIABLE(dst_size);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(src_pitch);
+  HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   // 3d pitched memory
   cudaMemcpy3DParms p = {};
@@ -338,6 +373,12 @@ HeError writes::copyHost2Device(void *dst, h_size dst_pitch,
 HeError writes::copyDevice2Host(void *dst, h_size dst_pitch,
                                 const size3 &dst_size, const void *src,
                                 h_size src_pitch, const size3 &src_size) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(dst_pitch);
+  HERMES_UNUSED_VARIABLE(dst_size);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(src_pitch);
+  HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   // 3d pitched memory
   cudaMemcpy3DParms p = {};
@@ -361,6 +402,12 @@ HeError writes::copyDevice2Host(void *dst, h_size dst_pitch,
 HeError writes::copyDevice2Device(void *dst, h_size dst_pitch,
                                   const size3 &dst_size, const void *src,
                                   h_size src_pitch, const size3 &src_size) {
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(dst_pitch);
+  HERMES_UNUSED_VARIABLE(dst_size);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(src_pitch);
+  HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   // 3d pitched memory
   cudaMemcpy3DParms p = {};
@@ -392,14 +439,14 @@ HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
   switch (src_location) {
   case MemoryLocation::HOST:
     switch (dst_location) {
-    case MemoryLocation::HOST:
-    case MemoryLocation::UNIFIED:
-      return copyHost2Host(dst, src,
-                           src_pitch * src_size.height * src_size.depth);
     case MemoryLocation::DEVICE:
       return copyHost2Device(dst, dst_pitch, dst_size, src, src_pitch,
                              src_size);
+    default:
+      return copyHost2Host(dst, src,
+                           src_pitch * src_size.height * src_size.depth);
     }
+    break;
   case MemoryLocation::DEVICE:
     switch (dst_location) {
     case MemoryLocation::HOST:
@@ -411,14 +458,14 @@ HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
     case MemoryLocation::UNIFIED:
       return HeError::NOT_IMPLEMENTED;
     }
+    break;
   case MemoryLocation::UNIFIED:
     switch (dst_location) {
-    case MemoryLocation::HOST:
-    case MemoryLocation::UNIFIED:
-      return copyHost2Host(dst, src, src_pitch * src_size.height);
     case MemoryLocation::DEVICE:
       return copyHost2Device(dst, dst_pitch, dst_size, src, src_pitch,
                              src_size);
+    default:
+      return copyHost2Host(dst, src, src_pitch * src_size.height);
     }
   }
   return HeError::NO_ERROR;

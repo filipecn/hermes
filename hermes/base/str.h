@@ -652,7 +652,10 @@ public:
   /// \param args
   template <class... Args> void appendLine(const Args &...args) {
     std::basic_stringstream<CharType> s;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-value"
     (s << ... << args);
+#pragma GCC diagnostic pop
     s << '\n';
     s_ += s.str();
   }

@@ -255,6 +255,7 @@ enum class MemoryLocation {
 
 #ifdef HERMES_INCLUDE_TO_STRING
 inline std::string_view to_string(DataType type, u32 tab_size = 0) {
+  ((void)tab_size);
 #define DATA_TYPE_NAME(Type)                                                   \
   if (DataType::Type == type)                                                  \
     return #Type;
@@ -277,6 +278,7 @@ inline std::string_view to_string(DataType type, u32 tab_size = 0) {
 }
 
 inline std::string_view to_string(MemoryLocation location, u32 tab_size = 0) {
+  ((void)tab_size);
 #define ENUM_NAME(E)                                                           \
   if (MemoryLocation::E == location)                                           \
     return #E;

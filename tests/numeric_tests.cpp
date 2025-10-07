@@ -1,3 +1,4 @@
+#include "hermes/core/debug.h"
 #include "hermes/io/logger.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
@@ -92,6 +93,7 @@ TEST_CASE("interval") {
   SECTION("sanity") {
     hermes::Interval<f32> a(-1, 1), b(0, 2);
     auto c = a * b;
+    HERMES_UNUSED_VARIABLE(c);
     // HERMES_LOG_VARIABLE(c);
     // HERMES_LOG_VARIABLE(c.sqr());
     // HERMES_LOG_VARIABLE(c.sqrt());
