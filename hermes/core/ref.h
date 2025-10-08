@@ -38,12 +38,15 @@ namespace hermes {
 /// Holds a reference for an (owned or not) object.
 template <typename T> class Ref {
 public:
-  using StorageType = std::variant<std::monostate, T *, std::shared_ptr<T>>;
+  using StorageType =
+      std::variant<std::monostate, T *, std::shared_ptr<T>, std::weak_ptr<T>>;
 
   template <class... Args> static Ref shared(Args &&...args) {
-    Ref r;
-    r.data_ = std::make_shared<T>(std::forward<Args>(args)...);
-    return r;
+    return Ref(std::make_shared<T>(std::forward<Args>(args)...));
+  }
+  static Ref weak(const std::shared_ptr<T> &ptr) {
+    std::weak_ptr p = ptr;
+    return Ref(p);
   }
   static Ref ptr(T *ptr) {
     Ref r;
@@ -53,6 +56,7 @@ public:
   Ref() = default;
   Ref(T *ptr) : data_(ptr) {}
   Ref(const std::shared_ptr<T> &ptr) : data_(ptr) {}
+  Ref(const std::weak_ptr<T> &ptr) : data_(ptr) {}
 
   template <typename D>
     requires std::is_base_of_v<T, D>
@@ -81,6 +85,9 @@ public:
           if constexpr (std::is_same_v<V, D *>) {
             data_ = reinterpret_cast<T *>(arg);
           } else if constexpr (std::is_same_v<V, std::shared_ptr<D>>) {
+            std::shared_ptr<T> p = arg;
+            data_ = p;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<D>>) {
             data_ = arg;
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             data_ = {};
@@ -101,6 +108,9 @@ public:
           if constexpr (std::is_same_v<V, D *>) {
             data_ = reinterpret_cast<T *>(arg);
           } else if constexpr (std::is_same_v<V, std::shared_ptr<D>>) {
+            std::shared_ptr<T> p = arg;
+            data_ = p;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<D>>) {
             data_ = arg;
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             data_ = {};
@@ -120,6 +130,8 @@ public:
             return arg != nullptr;
           } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
             return arg.get() != nullptr;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return !arg.expired();
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             return false;
           } else
@@ -136,6 +148,8 @@ public:
             return arg;
           } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
             return arg.get();
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return arg.lock().get();
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             return nullptr;
           } else
@@ -152,6 +166,8 @@ public:
             return arg;
           } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
             return arg.get();
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return arg.lock().get();
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             return nullptr;
           } else
@@ -168,6 +184,8 @@ public:
             return *arg;
           } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
             return *arg;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return *(arg.lock());
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             return dummy_;
           } else
@@ -184,6 +202,8 @@ public:
             return *arg;
           } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
             return *arg;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return *(arg.lock());
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             return dummy_;
           } else
