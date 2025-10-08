@@ -44,8 +44,16 @@ public:
   template <class... Args> static Ref shared(Args &&...args) {
     return Ref(std::make_shared<T>(std::forward<Args>(args)...));
   }
-  static Ref weak(const std::shared_ptr<T> &ptr) {
-    std::weak_ptr p = ptr;
+  template <typename D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
+  static Ref weak(const std::shared_ptr<D> &ptr) {
+    std::weak_ptr<T> p = ptr;
+    return Ref(p);
+  }
+  template <typename D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
+  static Ref weak(const Ref<D> &ptr) {
+    std::weak_ptr<T> p = (std::shared_ptr<D>)ptr;
     return Ref(p);
   }
   static Ref ptr(T *ptr) {
@@ -54,29 +62,27 @@ public:
     return r;
   }
   Ref() = default;
-  Ref(T *ptr) : data_(ptr) {}
-  Ref(const std::shared_ptr<T> &ptr) : data_(ptr) {}
   Ref(const std::weak_ptr<T> &ptr) : data_(ptr) {}
 
   template <typename D>
-    requires std::is_base_of_v<T, D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
   Ref(D *ptr) : data_(reinterpret_cast<T *>(ptr)) {}
   template <typename D>
-    requires std::is_base_of_v<T, D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
   Ref(const std::shared_ptr<D> &ptr) : data_(ptr) {}
   template <typename D>
-    requires std::is_base_of_v<T, D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
   Ref(const Ref<D> &ref) {
     *this = ref;
   }
   template <typename D>
-    requires std::is_base_of_v<T, D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
   Ref(Ref<D> &&ref) {
     *this = std::move(ref);
   }
 
   template <typename D>
-    requires std::is_base_of_v<T, D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
   Ref &operator=(const Ref<D> &rhs) {
     destroy();
     std::visit(
@@ -99,7 +105,7 @@ public:
   }
 
   template <typename D>
-    requires std::is_base_of_v<T, D>
+    requires std::is_base_of_v<T, D> || std::is_same_v<T, D>
   Ref &operator=(Ref<D> &&rhs) {
     destroy();
     std::visit(
@@ -132,6 +138,64 @@ public:
             return arg.get() != nullptr;
           } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
             return !arg.expired();
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return false;
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
+
+  operator std::shared_ptr<T>() const { return getShared(); }
+
+  operator std::weak_ptr<T>() const { return getWeak(); }
+
+  bool isWeak() const {
+    return std::visit(
+        [](auto &&arg) -> bool {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return false;
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return false;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return true;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return false;
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
+
+  bool isShared() const {
+    return std::visit(
+        [](auto &&arg) -> bool {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return false;
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return true;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return false;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return false;
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
+
+  bool isPtr() const {
+    return std::visit(
+        [](auto &&arg) -> bool {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return true;
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return false;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return false;
           } else if constexpr (std::is_same_v<V, std::monostate>) {
             return false;
           } else
@@ -219,7 +283,44 @@ public:
   void destroy() { data_ = {}; }
 
   StorageType &data() { return data_; }
+
   const StorageType &data() const { return data_; }
+
+  std::shared_ptr<T> getShared() const {
+    return std::visit(
+        [](auto &&arg) -> std::shared_ptr<T> {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return std::shared_ptr<T>();
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return arg;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return arg.lock();
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return std::shared_ptr<T>();
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
+
+  std::weak_ptr<T> getWeak() const {
+    return std::visit(
+        [](auto &&arg) -> std::weak_ptr<T> {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return std::weak_ptr<T>();
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return arg;
+          } else if constexpr (std::is_same_v<V, std::weak_ptr<T>>) {
+            return arg;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return std::shared_ptr<T>();
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
 
 private:
   static T dummy_;

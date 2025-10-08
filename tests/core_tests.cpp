@@ -77,6 +77,9 @@ TEST_CASE("ref") {
   SECTION("sanity") {
     hermes::Ref<int> r;
     REQUIRE((bool)r == false);
+    REQUIRE(r.isPtr() == false);
+    REQUIRE(r.isWeak() == false);
+    REQUIRE(r.isShared() == false);
     REQUIRE(r.get() == nullptr);
   } //
   SECTION("polymorphism") {
@@ -144,6 +147,7 @@ TEST_CASE("ref") {
   } //
   SECTION("not owner") {
     auto r = hermes::Ref<E>::ptr(&e);
+    REQUIRE(r.isPtr() == true);
     REQUIRE((*r).a == e.a);
     REQUIRE((*r).b == e.b);
     REQUIRE(r->a == e.a);
@@ -165,6 +169,7 @@ TEST_CASE("ref") {
   } //
   SECTION("shared") {
     auto r = hermes::Ref<E>::shared(e);
+    REQUIRE(r.isShared() == true);
     REQUIRE((*r).a == e.a);
     REQUIRE((*r).b == e.b);
     REQUIRE(r->a == e.a);
@@ -183,5 +188,37 @@ TEST_CASE("ref") {
       REQUIRE(rr->a == e.a);
       REQUIRE(rr->b == e.b);
     }
+  } //
+  SECTION("weak") {
+    auto r = hermes::Ref<E>::shared(e);
+    auto w = hermes::Ref<E>::weak(r);
+    REQUIRE(w.isWeak() == true);
+    REQUIRE((*w).a == e.a);
+    REQUIRE((*w).b == e.b);
+    REQUIRE(w->a == e.a);
+    REQUIRE(w->b == e.b);
+    {
+      // const
+      const auto &cr = r;
+      REQUIRE((*cr).a == e.a);
+      REQUIRE((*cr).b == e.b);
+      REQUIRE(cr->a == e.a);
+      REQUIRE(cr->b == e.b);
+    }
+    {
+      // copy
+      auto rr = r;
+      REQUIRE(rr->a == e.a);
+      REQUIRE(rr->b == e.b);
+    }
+    {
+      // convert
+      auto rs = (std::shared_ptr<E>)r;
+      auto ws = w.getShared();
+      REQUIRE(rs);
+      REQUIRE(ws);
+      auto ww = w.getWeak();
+      REQUIRE(!ww.expired());
+    } //
   } //
 }
