@@ -65,30 +65,48 @@ TEST_CASE("to_string") {
 #endif
 
 TEST_CASE("ref") {
+  struct E {
+    int a;
+    int b;
+  };
+
+  E e;
+  e.a = 2;
+  e.b = -1;
+
   SECTION("sanity") {
     hermes::Ref<int> r;
-    REQUIRE(*r == nullptr);
+    REQUIRE((bool)r == false);
+    REQUIRE(r.get() == nullptr);
   } //
   SECTION("not owner") {
-    int i = 3;
-    auto r = hermes::Ref<int>::ptr(&i);
-    auto i_ptr = *r;
-    REQUIRE(*i_ptr == i);
+    auto r = hermes::Ref<E>::ptr(&e);
+    REQUIRE((*r).a == e.a);
+    REQUIRE((*r).b == e.b);
+    REQUIRE(r->a == e.a);
+    REQUIRE(r->b == e.b);
     {
       // const
       const auto &cr = r;
-      REQUIRE(**cr == i);
+      REQUIRE((*cr).a == e.a);
+      REQUIRE((*cr).b == e.b);
+      REQUIRE(cr->a == e.a);
+      REQUIRE(cr->b == e.b);
     }
   } //
   SECTION("shared") {
-    int i = 3;
-    auto r = hermes::Ref<int>::shared(i);
-    auto i_ptr = *r;
-    REQUIRE(*i_ptr == i);
+    auto r = hermes::Ref<E>::shared(e);
+    REQUIRE((*r).a == e.a);
+    REQUIRE((*r).b == e.b);
+    REQUIRE(r->a == e.a);
+    REQUIRE(r->b == e.b);
     {
       // const
       const auto &cr = r;
-      REQUIRE(**cr == i);
+      REQUIRE((*cr).a == e.a);
+      REQUIRE((*cr).b == e.b);
+      REQUIRE(cr->a == e.a);
+      REQUIRE(cr->b == e.b);
     }
   } //
 }

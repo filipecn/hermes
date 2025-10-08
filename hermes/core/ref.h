@@ -28,13 +28,17 @@
 #pragma once
 
 #include <hermes/core/result.h>
+
 #include <memory>
+#include <type_traits>
 #include <variant>
 
 namespace hermes {
 
 /// Holds a reference for an (owned or not) object.
-template <typename T> class Ref {
+template <typename T>
+  requires std::is_trivially_constructible_v<T>
+class Ref {
 public:
   template <class... Args> static Ref shared(Args &&...args) {
     Ref r;
@@ -50,40 +54,98 @@ public:
   Ref(T *ptr) : data_(ptr) {}
   Ref(std::shared_ptr<T> ptr) : data_(ptr) {}
 
-  T *operator*() {
-    T *d = nullptr;
-    std::visit(
-        [&d](auto &&arg) {
+  operator bool() const {
+    return std::visit(
+        [](auto &&arg) -> bool {
           using V = std::decay_t<decltype(arg)>;
           if constexpr (std::is_same_v<V, T *>) {
-            d = arg;
+            return arg != nullptr;
           } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
-            d = arg.get();
+            return arg.get() != nullptr;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return false;
           } else
             static_assert(false, "hermes internal error (Ref)");
         },
         data_);
-    return d;
   }
 
-  const T *operator*() const {
-    const T *d = nullptr;
-    std::visit(
-        [&d](auto &&arg) {
+  T *get() {
+    return std::visit(
+        [](auto &&arg) -> T * {
           using V = std::decay_t<decltype(arg)>;
           if constexpr (std::is_same_v<V, T *>) {
-            d = arg;
+            return arg;
           } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
-            d = arg.get();
+            return arg.get();
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return nullptr;
           } else
             static_assert(false, "hermes internal error (Ref)");
         },
         data_);
-    return d;
   }
+
+  const T *get() const {
+    return std::visit(
+        [](auto &&arg) -> const T * {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return arg;
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return arg.get();
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return nullptr;
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
+
+  T &operator*() {
+    return std::visit(
+        [](auto &&arg) -> T & {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return *arg;
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return *arg;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return dummy_;
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
+
+  const T &operator*() const {
+    return std::visit(
+        [](auto &&arg) -> const T & {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, T *>) {
+            return *arg;
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<T>>) {
+            return *arg;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            return dummy_;
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        data_);
+  }
+
+  T *operator->() { return get(); }
+
+  const T *operator->() const { return get(); }
 
 private:
-  std::variant<T *, std::shared_ptr<T>> data_;
+  static T dummy_;
+
+  std::variant<std::monostate, T *, std::shared_ptr<T>> data_;
 };
+
+template <typename T>
+  requires std::is_trivially_constructible_v<T>
+T Ref<T>::dummy_{};
 
 } // namespace hermes
