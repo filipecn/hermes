@@ -36,9 +36,7 @@
 namespace hermes {
 
 /// Holds a reference for an (owned or not) object.
-template <typename T>
-  requires std::is_trivially_constructible_v<T>
-class Ref {
+template <typename T> class Ref {
 public:
   template <class... Args> static Ref shared(Args &&...args) {
     Ref r;
@@ -144,8 +142,6 @@ private:
   std::variant<std::monostate, T *, std::shared_ptr<T>> data_;
 };
 
-template <typename T>
-  requires std::is_trivially_constructible_v<T>
-T Ref<T>::dummy_{};
+template <typename T> T Ref<T>::dummy_{};
 
 } // namespace hermes
