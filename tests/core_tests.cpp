@@ -79,6 +79,69 @@ TEST_CASE("ref") {
     REQUIRE((bool)r == false);
     REQUIRE(r.get() == nullptr);
   } //
+  SECTION("polymorphism") {
+    struct F : public E {
+      int c;
+    };
+
+    F f;
+    f.a = 1;
+    f.b = 2;
+    f.c = 3;
+
+    SECTION("not owner") {
+      {
+        // copy
+        hermes::Ref<E> re;
+        auto rf = hermes::Ref<F>::ptr(&f);
+        re = rf;
+        REQUIRE(re->a == f.a);
+        REQUIRE(re->b == f.b);
+        REQUIRE(reinterpret_cast<F *>(re.get())->c == f.c);
+        REQUIRE(rf->a == f.a);
+        REQUIRE(rf->b == f.b);
+        REQUIRE(rf->c == f.c);
+      }
+      {
+        // move
+        hermes::Ref<E> re;
+        auto rf = hermes::Ref<F>::ptr(&f);
+        re = std::move(rf);
+        REQUIRE((bool)rf == false);
+        REQUIRE(re->a == f.a);
+        REQUIRE(re->b == f.b);
+        REQUIRE(reinterpret_cast<F *>(re.get())->c == f.c);
+      }
+      {
+        // copy constructor
+        auto rf = hermes::Ref<F>::ptr(&f);
+        hermes::Ref<E> re(rf);
+        REQUIRE(re->a == f.a);
+        REQUIRE(re->b == f.b);
+        REQUIRE(reinterpret_cast<F *>(re.get())->c == f.c);
+        REQUIRE(rf->a == f.a);
+        REQUIRE(rf->b == f.b);
+        REQUIRE(rf->c == f.c);
+      }
+      {
+        // move constructor
+        auto rf = hermes::Ref<F>::ptr(&f);
+        hermes::Ref<E> re(std::move(rf));
+        REQUIRE((bool)rf == false);
+        REQUIRE(re->a == f.a);
+        REQUIRE(re->b == f.b);
+        REQUIRE(reinterpret_cast<F *>(re.get())->c == f.c);
+      }
+
+    } //
+    SECTION("shared") {
+      hermes::Ref<E> re;
+      auto rf = hermes::Ref<F>::ptr(&f);
+      re = rf;
+      REQUIRE(re->a == f.a);
+      REQUIRE(re->b == f.b);
+    } //
+  } //
   SECTION("not owner") {
     auto r = hermes::Ref<E>::ptr(&e);
     REQUIRE((*r).a == e.a);
@@ -92,6 +155,12 @@ TEST_CASE("ref") {
       REQUIRE((*cr).b == e.b);
       REQUIRE(cr->a == e.a);
       REQUIRE(cr->b == e.b);
+    }
+    {
+      // copy
+      auto rr = r;
+      REQUIRE(rr->a == e.a);
+      REQUIRE(rr->b == e.b);
     }
   } //
   SECTION("shared") {
@@ -107,6 +176,12 @@ TEST_CASE("ref") {
       REQUIRE((*cr).b == e.b);
       REQUIRE(cr->a == e.a);
       REQUIRE(cr->b == e.b);
+    }
+    {
+      // copy
+      auto rr = r;
+      REQUIRE(rr->a == e.a);
+      REQUIRE(rr->b == e.b);
     }
   } //
 }

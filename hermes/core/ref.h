@@ -38,6 +38,8 @@ namespace hermes {
 /// Holds a reference for an (owned or not) object.
 template <typename T> class Ref {
 public:
+  using StorageType = std::variant<std::monostate, T *, std::shared_ptr<T>>;
+
   template <class... Args> static Ref shared(Args &&...args) {
     Ref r;
     r.data_ = std::make_shared<T>(std::forward<Args>(args)...);
@@ -50,7 +52,65 @@ public:
   }
   Ref() = default;
   Ref(T *ptr) : data_(ptr) {}
-  Ref(std::shared_ptr<T> ptr) : data_(ptr) {}
+  Ref(const std::shared_ptr<T> &ptr) : data_(ptr) {}
+
+  template <typename D>
+    requires std::is_base_of_v<T, D>
+  Ref(D *ptr) : data_(reinterpret_cast<T *>(ptr)) {}
+  template <typename D>
+    requires std::is_base_of_v<T, D>
+  Ref(const std::shared_ptr<D> &ptr) : data_(ptr) {}
+  template <typename D>
+    requires std::is_base_of_v<T, D>
+  Ref(const Ref<D> &ref) {
+    *this = ref;
+  }
+  template <typename D>
+    requires std::is_base_of_v<T, D>
+  Ref(Ref<D> &&ref) {
+    *this = std::move(ref);
+  }
+
+  template <typename D>
+    requires std::is_base_of_v<T, D>
+  Ref &operator=(const Ref<D> &rhs) {
+    destroy();
+    std::visit(
+        [&](auto &&arg) {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, D *>) {
+            data_ = reinterpret_cast<T *>(arg);
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<D>>) {
+            data_ = arg;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            data_ = {};
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        rhs.data());
+    return *this;
+  }
+
+  template <typename D>
+    requires std::is_base_of_v<T, D>
+  Ref &operator=(Ref<D> &&rhs) {
+    destroy();
+    std::visit(
+        [&](auto &&arg) {
+          using V = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<V, D *>) {
+            data_ = reinterpret_cast<T *>(arg);
+          } else if constexpr (std::is_same_v<V, std::shared_ptr<D>>) {
+            data_ = arg;
+          } else if constexpr (std::is_same_v<V, std::monostate>) {
+            data_ = {};
+          } else
+            static_assert(false, "hermes internal error (Ref)");
+        },
+        rhs.data());
+    rhs.destroy();
+    return *this;
+  }
 
   operator bool() const {
     return std::visit(
@@ -136,10 +196,15 @@ public:
 
   const T *operator->() const { return get(); }
 
+  void destroy() { data_ = {}; }
+
+  StorageType &data() { return data_; }
+  const StorageType &data() const { return data_; }
+
 private:
   static T dummy_;
 
-  std::variant<std::monostate, T *, std::shared_ptr<T>> data_;
+  StorageType data_;
 };
 
 template <typename T> T Ref<T>::dummy_{};
