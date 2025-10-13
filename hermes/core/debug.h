@@ -144,6 +144,8 @@ struct HERMES_DebugFields {
 #ifndef HERMES_TO_STRING_DEBUG_METHOD_BEGIN
 #define HERMES_TO_STRING_DEBUG_METHOD_BEGIN(OBJECT)                            \
   template <> std::string to_string(const OBJECT &object, u32 tab_size) {      \
+    HERMES_UNUSED_VARIABLE(object);                                            \
+    HERMES_UNUSED_VARIABLE(tab_size);                                          \
     std::string _debug_method_title_ = #OBJECT;                                \
     HERMES_DebugFields debug_fields;
 #endif
