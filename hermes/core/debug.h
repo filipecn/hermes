@@ -45,6 +45,22 @@
 #endif
 
 // *****************************************************************************
+//                                                       COMPILATION WARNINGS
+// *****************************************************************************
+#ifndef HERMES_UNUSED_VARIABLE
+/// \brief Specifies that variable is not used in this scope
+/// \param x variable
+#define HERMES_UNUSED_VARIABLE(x) ((void)x);
+#endif
+
+#ifndef HERMES_NOT_IMPLEMENTED
+/// \brief Logs "calling code not implemented" warning
+#define HERMES_NOT_IMPLEMENTED                                                 \
+  printf("[%s][%d][%s] calling not implemented function.", __FILE__, __LINE__, \
+         __FUNCTION__);
+#endif
+
+// *****************************************************************************
 //                                                                      UTILS
 // *****************************************************************************
 
@@ -119,6 +135,8 @@ struct HERMES_DebugFields {
 #define HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(OBJECT, ...)             \
   template <__VA_ARGS__>                                                       \
   std::string to_string(const OBJECT &object, u32 tab_size = 0) {              \
+    HERMES_UNUSED_VARIABLE(object);                                            \
+    HERMES_UNUSED_VARIABLE(tab_size);                                          \
     std::string _debug_method_title_ = #OBJECT;                                \
     HERMES_DebugFields debug_fields;
 #endif
@@ -252,21 +270,6 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
 
 #endif
 
-// *****************************************************************************
-//                                                       COMPILATION WARNINGS
-// *****************************************************************************
-#ifndef HERMES_UNUSED_VARIABLE
-/// \brief Specifies that variable is not used in this scope
-/// \param x variable
-#define HERMES_UNUSED_VARIABLE(x) ((void)x);
-#endif
-
-#ifndef HERMES_NOT_IMPLEMENTED
-/// \brief Logs "calling code not implemented" warning
-#define HERMES_NOT_IMPLEMENTED                                                 \
-  printf("[%s][%d][%s] calling not implemented function.", __FILE__, __LINE__, \
-         __FUNCTION__);
-#endif
 // *****************************************************************************
 //                                                                 DEBUG MODE
 // *****************************************************************************
