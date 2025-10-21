@@ -1,57 +1,51 @@
-/// Copyright (c) 2021, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file queries.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2021-06-28
-///
-///\brief
+/*
+ * Copyright (c) 2021 FilipeCN
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
 
-#ifndef HERMES_GEOMETRY_QUERIES_H
-#define HERMES_GEOMETRY_QUERIES_H
+/// \file   queries.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2021-06-28
+/// Geometric queries classes
 
-#include <hermes/geometry/bbox.h>
-#include <hermes/geometry/ray.h>
-#include <hermes/geometry/transform.h>
-#include <hermes/geometry/utils.h>
-#include <hermes/geometry/vector.h>
+#pragma once
+
 #include <hermes/geometry/line.h>
 #include <hermes/geometry/plane.h>
-#include <hermes/geometry/sphere.h>
-#include <hermes/common/result.h>
 
-namespace hermes {
+namespace hermes::geo {
 
-struct GeometricQueries {
+struct queries {
   ///
   /// \param box
   /// \param p
   /// \return
-  static point3 closestPoint(const bbox3 &box, const point3 &p);
+  // static point3 closestPoint(const bbox3 &box, const point3 &p);
   ///
   /// \param pl
   /// \param l
   /// \param p
   /// \return
-  static bool intersect(const Plane &pl, const Line &l, point3 &p);
+  static bool intersect(const Plane &pl, const Line &l, point3 *p = nullptr);
   ///  \brief  intersection test
   /// \param s **[in]** sphere
   /// \param l **[in]** line
@@ -63,70 +57,53 @@ struct GeometricQueries {
   /// **p1** = **p2** if line is tangent to sphere
   ///
   /// /return **true** if intersection exists
-  static bool intersect(const Sphere &s, const Line &l, point3 &p1, point3 &p2);
-/** \brief  intersection test
- * \param box **[in]**
- * \param ray **[in]**
- * \param hit1 **[out]** first intersection
- * \param hit2 **[out]** second intersection
- * \param normal **[out | optional]** collision normal
- *
- * bbox2D / Ray intersection test.
- *
- * **hit1** and **hit2** are in the ray's parametric coordinate.
- *
- * **hit1** = **hit2** if a single point is found.
- *
- * /return **true** if intersectiton exists
- */
-  static bool intersect(const bbox2 &box, const Ray2 &ray, real_t &hit1,
-                                    real_t &hit2, real_t *normal = nullptr);
-/** \brief  intersection test
- * \param box **[in]**
- * \param ray **[in]**
- * \param hit1 **[out]** first intersection
- * \param hit2 **[out]** second intersection
- *
- * BBox / Ray3 intersection test.
- *
- * **hit1** and **hit2** are in the ray's parametric coordinate.
- *
- * **hit1** = **hit2** if a single point is found.
- *
- * /return **true** if intersectiton exists
- */
-  [[deprecated]] static bool intersect(const bbox3 &box, const Ray3 &ray, real_t &hit1,
-                                                   real_t &hit2);
-/** \brief  intersection test
- * \param box **[in]**
- * \param ray **[in]**
- * \param hit1 **[out]** closest intersection
- *
- * BBox / Ray3 intersection test. Computes the closest intersection from the
- *ray's origin.
- *
- * **hit1** in in the ray's parametric coordinate.
- *
- * /return **true** if intersection exists
- */
-  static bool intersect(const bbox3 &box, const Ray3 &ray, real_t &hit1);
+  // static bool intersect(const Sphere &s, const Line &l, point3 &p1, point3
+  // &p2);
+  /** \brief  intersection test
+   * \param box **[in]**
+   * \param ray **[in]**
+   * \param hit1 **[out]** first intersection
+   * \param hit2 **[out]** second intersection
+   * \param normal **[out | optional]** collision normal
+   *
+   * bbox2D / Ray intersection test.
+   *
+   * **hit1** and **hit2** are in the ray's parametric coordinate.
+   *
+   * **hit1** = **hit2** if a single point is found.
+   *
+   * /return **true** if intersectiton exists
+   */
+  // static bool intersect(const bbox2 &box, const Ray2 &ray, real_t &hit1,
+  //                       real_t &hit2, real_t *normal = nullptr);
+  /** \brief  intersection test
+   * \param box **[in]**
+   * \param ray **[in]**
+   * \param hit1 **[out]** closest intersection
+   *
+   * BBox / Ray3 intersection test. Computes the closest intersection from the
+   *ray's origin.
+   *
+   * **hit1** in in the ray's parametric coordinate.
+   *
+   * /return **true** if intersection exists
+   */
+  // static bool intersect(const bbox3 &box, const Ray3 &ray, real_t &hit1);
   /// \brief Intersects a line by a ray
   /// \param line
   /// \param ray
   /// \return true if intersection exists
-  static bool intersect(const hermes::Line2& line, const ray2& ray);
+  // static bool intersect(const hermes::Line2 &line, const ray2 &ray);
 };
 
-// *********************************************************************************************************************
-//                                                                                                GeometricPredicates
-// *********************************************************************************************************************
 /// \brief Set of geometric predicates
-struct GeometricPredicates {
+struct predicates {
   /// \brief Intersects a line by a ray
   /// \param line
   /// \param ray
   /// \return the ray parametric coordinate of the intersection
-  static Result<real_t> intersect(const hermes::Line2& line, const ray2& ray);
+  // static Result<real_t> intersect(const hermes::Line2 &line, const ray2
+  // &ray);
   ///
   /// \param bounds
   /// \param ray
@@ -134,19 +111,20 @@ struct GeometricPredicates {
   /// \param dir_is_neg
   /// \param max_t
   /// \return
-  static Result<real_t> intersect(const hermes::bbox3 &bounds,
-                                         const ray3 &ray,
-                                         const hermes::vec3 &inv_dir,
-                                         const i32 dir_is_neg[3],
-                                         real_t max_t = Constants::real_infinity);
+  // static Result<real_t> intersect(const hermes::bbox3 &bounds, const ray3
+  // &ray,
+  //                                 const hermes::vec3 &inv_dir,
+  //                                const i32 dir_is_neg[3],
+  //                                real_t max_t = Constants::real_infinity);
   ///
   /// \param bounds
   /// \param ray
   /// \param second_hit
   /// \return
-  static Result<real_t> intersect(const hermes::bbox3 &bounds,
-                                         const ray3 &ray, real_t *second_hit = nullptr);
-
+  // static Result<real_t> intersect(const hermes::bbox3 &bounds, const ray3
+  // &ray,
+  //                                 real_t *second_hit = nullptr);
+  //
   /// BBox / Ray3 intersection test.
   /// **b1** and **b2**, if not null, receive the barycentric coordinates of the
   /// intersection point.
@@ -158,16 +136,15 @@ struct GeometricPredicates {
   /// \param b1 **[out]** barycentric coordinate
   /// \param b2 **[out]** barycentric coordinate
   /// return **true** if intersection exists
-  static Result<real_t> intersect(const point3 &p1, const point3 &p2,
-                                         const point3 &p3, const Ray3 &ray,
-                                         real_t *b1 = nullptr, real_t *b2 = nullptr);
+  // static Result<real_t> intersect(const point3 &p1, const point3 &p2,
+  //                                 const point3 &p3, const Ray3 &ray,
+  //                                 real_t *b1 = nullptr, real_t *b2 =
+  //                                 nullptr);
   ///
   /// \param plane
   /// \param ray
   /// \return
-  static Result<real_t> intersect(const Plane& plane, const Ray3& ray);
+  // static Result<real_t> intersect(const Plane &plane, const Ray3 &ray);
 };
 
-} // namespace hermes
-
-#endif // HERMES_GEOMETRY_QUERIES_H
+} // namespace hermes::geo

@@ -12,7 +12,11 @@ set(HERMES_HEADERS
   core/types.h
 
   geometry/bounds.h
+  geometry/line.h
+  geometry/normal.h
+  geometry/plane.h
   geometry/point.h
+  geometry/queries.h
   geometry/transform.h
   geometry/vector.h
 
@@ -37,6 +41,9 @@ set(HERMES_HEADERS
 set(HERMES_SOURCES
   colors/color.cpp
 
+  geometry/line.cpp
+  geometry/plane.cpp
+  geometry/queries.cpp
   geometry/transform.cpp
 
   io/logger.cpp

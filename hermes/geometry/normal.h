@@ -1,45 +1,39 @@
-/// Copyright (c) 2017, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file normal.h
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2017-08-18
-///
-///\brief Geometric normal classes
-///
-///\ingroup geometry
-///\addtogroup geometry
-/// @{
+/* Copyright (c) 2017, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
-#ifndef HERMES_GEOMETRY_NORMAL_H
-#define HERMES_GEOMETRY_NORMAL_H
+/// \file   normal.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2017-08-19
+///  Geometric normal classes
+
+#pragma once
 
 #include <hermes/geometry/vector.h>
-#include <iostream>
 
-namespace hermes {
+namespace hermes::geo {
 
-// *********************************************************************************************************************
-//                                                                                                            Normal2
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                    Normal2
+// *****************************************************************************
 /// \brief Geometric 2-dimensional normal (nx, ny)
 /// \tparam T
 template <typename T> class Normal2 {
@@ -49,9 +43,6 @@ template <typename T> class Normal2 {
                 "Normal2 must hold an float type!");
 
 public:
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
   /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Normal2() : x{0}, y{0} {};
   /// \brief Constructs from component values
@@ -61,16 +52,11 @@ public:
   /// \brief Constructs from vector
   /// \param v
   HERMES_DEVICE_CALLABLE Normal2(const Vector2<T> &v) : x(v.x), y(v.y) {}
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  //                                                                                                          casting
   /// \brief Casts to vector
   /// \return
   HERMES_DEVICE_CALLABLE explicit operator Vector2<T>() const {
     return Vector2<T>(x, y);
   }
-  //                                                                                                       arithmetic
   HERMES_DEVICE_CALLABLE Normal2 operator-() const { return Normal2(-x, -y); }
   HERMES_DEVICE_CALLABLE Normal2 &operator*=(T f) {
     x *= f;
@@ -82,16 +68,14 @@ public:
     y /= f;
     return *this;
   }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
+
   T x{0}; //!< 0-th normal component
   T y{0}; //!< 1-th normal component
 };
 
-// *********************************************************************************************************************
-//                                                                                                            Normal3
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                    Normal3
+// *****************************************************************************
 /// \brief Geometric 3-dimensional normal (nx, ny, nz)
 /// \tparam T
 template <typename T> class Normal3 {
@@ -101,12 +85,6 @@ template <typename T> class Normal3 {
                 "Normal3 must hold an float type!");
 
 public:
-  // *******************************************************************************************************************
-  //                                                                                                   STATIC METHODS
-  // *******************************************************************************************************************
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
   /// \brief Default constructor
   HERMES_DEVICE_CALLABLE Normal3() { x = y = z = 0; }
   /// \brief Constructs from component values
@@ -118,10 +96,7 @@ public:
   /// \param v
   HERMES_DEVICE_CALLABLE explicit Normal3(const Vector3<T> &v)
       : x(v.x), y(v.y), z(v.z) {}
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
-  //                                                                                                          casting
+
   /// \brief Casts to vector
   /// \return
   HERMES_DEVICE_CALLABLE explicit operator Vector3<T>() const {
@@ -149,13 +124,11 @@ public:
     z /= f;
     return *this;
   }
-  //                                                                                                          boolean
+
   HERMES_DEVICE_CALLABLE bool operator!=(const Normal3 &n) const {
     return n.x != x || n.y != y || n.z != z;
   }
-  // *******************************************************************************************************************
-  //                                                                                                         GEOMETRY
-  // *******************************************************************************************************************
+
   /// \brief  reflects **v** from this
   /// \param v vector to be reflected
   /// \returns reflected **v**
@@ -180,9 +153,9 @@ public:
   T z{0}; //!< 2-th normal component
 };
 
-// *********************************************************************************************************************
-//                                                                                                          FUNCTIONS
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                         EXTERNAL FUNCTIONS
+// *****************************************************************************
 /// \brief  reflects **a** on **n**
 /// \param a vector to be reflected
 /// \param n axis of reflection
@@ -267,42 +240,31 @@ HERMES_DEVICE_CALLABLE Vector3<T> faceForward(const Vector3<T> &v,
   return (dot(v, n) < 0.f) ? -v : v;
 }
 
-// *********************************************************************************************************************
-//                                                                                                                 IO
-// *********************************************************************************************************************
-/// \brief Normal's support for `std::ostream::<<` operator
-/// \tparam T
-/// \param os
-/// \param n
-/// \return
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const Normal2<T> &n) {
-  os << "[Normal3] " << n.x << " " << n.y << std::endl;
-  return os;
-}
-/// \brief Normal's support for `std::ostream::<<` operator
-/// \tparam T
-/// \param os
-/// \param n
-/// \return
-template <typename T>
-std::ostream &operator<<(std::ostream &os, const Normal3<T> &n) {
-  os << "[Normal3] " << n.x << " " << n.y << " " << n.z << std::endl;
-  return os;
-}
-
-// *********************************************************************************************************************
-//                                                                                                           TYPEDEFS
-// *********************************************************************************************************************
 using normal2 = Normal2<real_t>;
-using normal2f = Normal2<float>;
-using normal2d = Normal2<double>;
+using normal2f = Normal2<f32>;
+using normal2d = Normal2<f64>;
 using normal3 = Normal3<real_t>;
-using normal3f = Normal3<float>;
-using normal3d = Normal3<double>;
+using normal3f = Normal3<f32>;
+using normal3d = Normal3<f64>;
+
+} // namespace hermes::geo
+
+namespace hermes {
+
+HERMES_TYPE_LAYOUT_METHODS(geo::normal2, f32, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::normal2d, f64, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::normal3, f32, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::normal3d, f64, 3)
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Normal2<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("N[{}, {}]", hermes::to_string(object.x),
+                       hermes::to_string(object.y));
+HERMES_TO_STRING_DEBUG_METHOD_END
+
+HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Normal3<T>, typename T)
+HERMES_PUSH_DEBUG_LINE("N[{}, {}, {}]", hermes::to_string(object.x),
+                       hermes::to_string(object.y),
+                       hermes::to_string(object.z));
+HERMES_TO_STRING_DEBUG_METHOD_END
 
 } // namespace hermes
-
-#endif
-
-/// @}

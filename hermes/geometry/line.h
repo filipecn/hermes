@@ -22,114 +22,80 @@
  *
  */
 
-#ifndef HERMES_GEOMETRY_LINE_H
-#define HERMES_GEOMETRY_LINE_H
+/// \file   line.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2017-08-19
+/// Geometric line classes
 
+#pragma once
+
+#include "hermes/core/debug.h"
+#include "hermes/core/types.h"
 #include <hermes/geometry/point.h>
 #include <hermes/geometry/vector.h>
 
-namespace hermes {
+namespace hermes::geo {
 
-// *********************************************************************************************************************
-//                                                                                                               Line
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                       Line
+// *****************************************************************************
 /// \brief Represents a 2D line by a point and a vector.
 class Line2 {
 public:
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
   Line2() = default;
-  /// \param _a line point
-  /// \param _d direction
-  Line2(point2 _a, vec2 _d) {
-    a = _a;
-    d = normalize(_d);
-  }
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
+  /// \param a line point
+  /// \param d direction
+  Line2(const point2 &a, const vec2 &d);
   /// \param t parametric coordinate
   /// \return euclidean point from parametric coordinate **t**
-  point2 operator()(float t) const { return a + d * t; }
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
-  //                                                                                                           access
+  point2 operator()(real_t t) const;
   /// \return unit vector representing line direction
-  [[nodiscard]] vec2 direction() const { return normalize(d); }
-  //                                                                                                          queries
+  HERMES_NODISCARD vec2 direction() const;
   /// \param p point
   /// \return parametric coordinate of **p** projection into line
-  [[nodiscard]] float projection(point2 p) const { return dot((p - a), d); }
+  HERMES_NODISCARD real_t projection(const point2 &p) const;
   /// \param p point
   /// \return closest point in line from **p**
-  [[nodiscard]] point2 closestPoint(point2 p) const { return (*this)(projection(p)); }
-  // *******************************************************************************************************************
-  //                                                                                                            DEBUG
-  // *******************************************************************************************************************
-  friend std::ostream &operator<<(std::ostream &os, const Line2 &p) {
-    os << "[Line]\n";
-    os << p.a << p.d;
-    return os;
-  }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
+  HERMES_NODISCARD point2 closestPoint(const point2 &p) const;
+
   point2 a; //!< line point
   vec2 d;   //!< line direction
 };
 
-// *********************************************************************************************************************
-//                                                                                                               Line
-// *********************************************************************************************************************
+// *****************************************************************************
+//                                                                       Line
+// *****************************************************************************
 /// \brief Represents a line by a point and a vector.
 class Line {
 public:
-  // *******************************************************************************************************************
-  //                                                                                                     CONSTRUCTORS
-  // *******************************************************************************************************************
   Line() = default;
   /// \param _a line point
   /// \param _d direction
-  Line(point3 _a, vec3 _d) {
-    a = _a;
-    d = normalize(_d);
-  }
-  // *******************************************************************************************************************
-  //                                                                                                        OPERATORS
-  // *******************************************************************************************************************
+  Line(const point3 &a, const vec3 &d);
   /// \param t parametric coordinate
   /// \return euclidean point from parametric coordinate **t**
-  point3 operator()(float t) const { return a + d * t; }
-  // *******************************************************************************************************************
-  //                                                                                                          METHODS
-  // *******************************************************************************************************************
-  //                                                                                                           access
+  point3 operator()(real_t t) const;
   /// \return unit vector representing line direction
-  [[nodiscard]] vec3 direction() const { return normalize(d); }
-  //                                                                                                          queries
+  HERMES_NODISCARD vec3 direction() const;
   /// \param p point
   /// \return parametric coordinate of **p** projection into line
-  [[nodiscard]] float projection(point3 p) const { return dot((p - a), d); }
+  HERMES_NODISCARD real_t projection(const point3 &p) const;
   /// \param p point
   /// \return closest point in line from **p**
-  [[nodiscard]] point3 closestPoint(point3 p) const { return (*this)(projection(p)); }
-  // *******************************************************************************************************************
-  //                                                                                                            DEBUG
-  // *******************************************************************************************************************
-  friend std::ostream &operator<<(std::ostream &os, const Line &p) {
-    os << "[Line]\n";
-    os << p.a << p.d;
-    return os;
-  }
-  // *******************************************************************************************************************
-  //                                                                                                    PUBLIC FIELDS
-  // *******************************************************************************************************************
+  HERMES_NODISCARD point3 closestpoint(const point3 &p) const;
+
   point3 a; //!< line point
   vec3 d;   //!< line direction
 };
 
-} // hermes namespace
+} // namespace hermes::geo
 
-#endif
+namespace hermes {
+
+HERMES_TYPE_LAYOUT_METHODS(geo::Line2, real_t, 4)
+HERMES_TYPE_LAYOUT_METHODS(geo::Line, real_t, 6)
+
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Line2)
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Line)
+
+} // namespace hermes

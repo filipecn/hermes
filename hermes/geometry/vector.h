@@ -343,7 +343,7 @@ public:
   /// Gets index of component with maximum value
   /// \note Defined as argmax_i v_i
   /// \return Index of component with greatest value
-  [[nodiscard]] HERMES_DEVICE_CALLABLE int maxDimension() const {
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE int maxDimension() const {
     if (x > y && x > z)
       return 0;
     if (y > x && y > z)
@@ -353,7 +353,7 @@ public:
   /// Gets index of component with maximum absolute value
   /// \note Defined as argmax_i |v_i|
   /// \return Index of dimension with greatest value
-  [[nodiscard]] HERMES_DEVICE_CALLABLE int maxAbsDimension() const {
+  HERMES_NODISCARD HERMES_DEVICE_CALLABLE int maxAbsDimension() const {
     if (std::abs(x) > std::abs(y) && std::abs(x) > std::abs(z))
       return 0;
     if (std::abs(y) > std::abs(x) && std::abs(y) > std::abs(z))
@@ -397,7 +397,7 @@ public:
 
   /// Check for nans
   /// \return
-  HERMES_DEVICE_CALLABLE [[nodiscard]] bool hasNaNs() const {
+  HERMES_DEVICE_CALLABLE HERMES_NODISCARD bool hasNaNs() const {
     return numbers::is_nan(x) || numbers::is_nan(y) || numbers::is_nan(z);
   }
 

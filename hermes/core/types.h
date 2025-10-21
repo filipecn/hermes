@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -34,6 +35,12 @@
 #ifdef HERMES_INCLUDE_TO_STRING
 #include <string_view>
 #endif
+
+// *****************************************************************************
+//                                                                    CONCEPTS
+// *****************************************************************************
+template <typename T>
+concept HeFloatingPointType = std::floating_point<T>;
 
 // *****************************************************************************
 //                                                              INTEGRAL TYPES

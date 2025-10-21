@@ -22,136 +22,125 @@
  *
  */
 
-#ifndef HERMES_GEOMETRY_PLANE_H
-#define HERMES_GEOMETRY_PLANE_H
+/// \file   line.h
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2017-08-19
+/// Geometric plane classes
 
-#include <hermes/geometry/point.h>
+#pragma once
+
 #include <hermes/geometry/normal.h>
-#include <hermes/geometry/surface.h>
+#include <hermes/geometry/point.h>
 #include <hermes/geometry/vector.h>
 
-#include <iostream>
-
-namespace hermes {
+namespace hermes::geo {
 
 /** Implements the equation normal X = offset.
  */
 class Plane {
 public:
   /// default_color constructor
-  Plane() { offset = 0; }
+  Plane();
   /** Constructor
    * \param n **[in]** normal
    * \param o **[in]** offset
    */
-  Plane(normal3 n, real_t o) {
-    normal = n;
-    offset = o;
-  }
-  Plane(normal3 n, point3 p) {
-    normal = n;
-    offset = dot(n, (vec3) p);
-  }
+  Plane(normal3 n, real_t o);
+  Plane(normal3 n, point3 p);
   /// \param invert_normal
   /// \return a plane with offset = 0 and normal(0,0,1)
-  static Plane XY(bool invert_normal = false) {
-    return {normal3(0, 0, invert_normal ? -1 : 1), 0};
-  }
+  static Plane XY(bool invert_normal = false);
   /// \param invert_normal
   /// \return a plane with offset = 0 and normal(0,1,0)
-  static Plane XZ(bool invert_normal = false) {
-    return {normal3(0, invert_normal ? -1 : 1, 0), 0};
-  }
+  static Plane XZ(bool invert_normal = false);
   /// \param invert_normal
   /// \return a plane with offset = 0 and normal(1,0,0)
-  static Plane YZ(bool invert_normal = false) {
-    return {
-        normal3(invert_normal ? -1 : 1, 0, 0), 0};
-  }
+  static Plane YZ(bool invert_normal = false);
 
-  [[nodiscard]] point3 closestPoint(const point3 &p) const {
-    float t = (dot(vec3(normal), vec3(p)) - offset) / vec3(normal).length2();
-    return p - t * vec3(normal);
-  }
+  HERMES_NODISCARD point3 closestPoint(const point3 &p) const;
   /** \brief  projects **v** on plane
    * \param v
    * \returns projected **v**
    */
-  [[nodiscard]] vec3 project(const vec3 &v) const { return hermes::project(v, normal); }
+  HERMES_NODISCARD vec3 project(const vec3 &v) const;
   /** \brief  reflects **v** fron plane
    * \param v
    * \returns reflected **v**
    */
-  [[nodiscard]] vec3 reflect(const vec3 &v) const { return hermes::reflect(v, normal); }
-  [[nodiscard]] bool onNormalSide(const point3 &p) const {
-    return dot(vec3(normal), p - closestPoint(p)) >= 0;
-  }
-
-  friend std::ostream &operator<<(std::ostream &os, const Plane &p) {
-    os << "[Plane] offset " << p.offset << " " << p.normal;
-    return os;
-  }
+  HERMES_NODISCARD vec3 reflect(const vec3 &v) const;
+  HERMES_NODISCARD bool isOnNormalSide(const point3 &p) const;
 
   normal3 normal;
   real_t offset;
 };
 
-/** Implements the equation normal X = offset.
- */
-class ImplicitPlane2D : public ImplicitCurveInterface {
-public:
-  /// default_color constructor
-  ImplicitPlane2D() { offset = 0.f; }
-  /** Constructor
-   * \param n **[in]** normal
-   * \param o **[in]** offset
-   */
-  ImplicitPlane2D(normal2 n, real_t o) {
-    normal = n;
-    offset = o;
-  }
-  ImplicitPlane2D(point2 p, normal2 n) {
-    normal = n;
-    offset = dot(vec2(normal), vec2(p));
-  }
-  /** \brief  projects **v** on plane
-   * \param v
-   * \returns projected **v**
-   */
-  [[nodiscard]] vec2 project(const vec2 &v) const { return hermes::project(v, normal); }
-  /** \brief  reflects **v** fron plane
-   * \param v
-   * \returns reflected **v**
-   */
-  [[nodiscard]] vec2 reflect(const vec2 &v) const { return hermes::reflect(v, normal); }
-  [[nodiscard]] point2 closestPoint(const point2 &p) const override {
-    real_t t = (dot(vec2(normal), vec2(p)) - offset) / vec2(normal).length2();
-    return p - t * vec2(normal);
-  }
-  [[nodiscard]] normal2 closestNormal(const point2 &p) const override {
-    if (dot(vec2(normal), vec2(p)) < 0.f)
-      return -normal;
-    return normal;
-  }
-  [[nodiscard]] bbox2 boundingBox() const override { return bbox2(); }
-  void closestIntersection(const Ray2 &r,
-                           CurveRayIntersection *i) const override {
-    HERMES_UNUSED_VARIABLE(r);
-    HERMES_UNUSED_VARIABLE(i);
-  }
-  [[nodiscard]] double signedDistance(const point2 &p) const override {
-    return (dot(vec2(p), vec2(normal)) - offset) / vec2(normal).length();
-  }
+} // namespace hermes::geo
 
-  friend std::ostream &operator<<(std::ostream &os, const ImplicitPlane2D &p) {
-    os << "[Plane] offset " << p.offset << " " << p.normal;
-    return os;
-  }
+namespace hermes {
 
-  normal2 normal;
-  real_t offset;
-};
+HERMES_TYPE_LAYOUT_METHODS(geo::Plane, real_t, 4)
+
+HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Plane)
 
 } // namespace hermes
 
-#endif
+///** Implements the equation normal X = offset.
+// */
+// class ImplicitPlane2D : public ImplicitCurveInterface {
+// public:
+//  /// default_color constructor
+//  ImplicitPlane2D() { offset = 0.f; }
+//  /** Constructor
+//   * \param n **[in]** normal
+//   * \param o **[in]** offset
+//   */
+//  ImplicitPlane2D(normal2 n, real_t o) {
+//    normal = n;
+//    offset = o;
+//  }
+//  ImplicitPlane2D(point2 p, normal2 n) {
+//    normal = n;
+//    offset = dot(vec2(normal), vec2(p));
+//  }
+//  /** \brief  projects **v** on plane
+//   * \param v
+//   * \returns projected **v**
+//   */
+//  HERMES_NODISCARD vec2 project(const vec2 &v) const {
+//    return hermes::project(v, normal);
+//  }
+//  /** \brief  reflects **v** fron plane
+//   * \param v
+//   * \returns reflected **v**
+//   */
+//  HERMES_NODISCARD vec2 reflect(const vec2 &v) const {
+//    return hermes::reflect(v, normal);
+//  }
+//  HERMES_NODISCARD point2 closestPoint(const point2 &p) const override {
+//    real_t t = (dot(vec2(normal), vec2(p)) - offset) / vec2(normal).length2();
+//    return p - t * vec2(normal);
+//  }
+//  HERMES_NODISCARD normal2 closestNormal(const point2 &p) const override {
+//    if (dot(vec2(normal), vec2(p)) < 0.f)
+//      return -normal;
+//    return normal;
+//  }
+//  HERMES_NODISCARD bbox2 boundingBox() const override { return bbox2(); }
+//  void closestIntersection(const Ray2 &r,
+//                           CurveRayIntersection *i) const override {
+//    HERMES_UNUSED_VARIABLE(r);
+//    HERMES_UNUSED_VARIABLE(i);
+//  }
+//  HERMES_NODISCARD double signedDistance(const point2 &p) const override {
+//    return (dot(vec2(p), vec2(normal)) - offset) / vec2(normal).length();
+//  }
+//
+//  friend std::ostream &operator<<(std::ostream &os, const ImplicitPlane2D &p)
+//  {
+//    os << "[Plane] offset " << p.offset << " " << p.normal;
+//    return os;
+//  }
+//
+//  normal2 normal;
+//  real_t offset;
+//};
