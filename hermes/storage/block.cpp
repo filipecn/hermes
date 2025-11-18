@@ -170,6 +170,8 @@ HeError Block::copy(const Block &memory_block) {
 
 HeError Block::copy(void *data, h_size size_in_bytes, h_size offset,
                     MemoryLocation data_location) {
+  HERMES_ASSERT(offset == 0);
+  HERMES_UNUSED_VARIABLE(offset);
   HERMES_ASSERT(sizeInBytes() >= size_in_bytes);
   return writes::copy(location_, data_, data_location, data, size_in_bytes);
 }

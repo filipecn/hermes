@@ -83,9 +83,6 @@ public:
   HERMES_NODISCARD HeError
   copy(void *data, h_size size_in_bytes, h_size offset,
        MemoryLocation data_location = MemoryLocation::HOST);
-  /// \tparam T
-  /// \param data
-  /// \param offset offset into memory block
   template <typename T>
   HERMES_NODISCARD HeError
   copy(T *data, h_size offset = 0,

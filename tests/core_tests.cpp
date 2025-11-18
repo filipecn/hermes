@@ -82,13 +82,21 @@ public:
   }
   ResultTest() { constructor_count++; }
   ~ResultTest() { destructor_count++; }
-  ResultTest(ResultTest &&rhs) { assign_constructor_count++; }
-  ResultTest(const ResultTest &rhs) { copy_constructor_count++; }
+  ResultTest(ResultTest &&rhs) {
+    HERMES_UNUSED_VARIABLE(rhs);
+    assign_constructor_count++;
+  }
+  ResultTest(const ResultTest &rhs) {
+    HERMES_UNUSED_VARIABLE(rhs);
+    copy_constructor_count++;
+  }
   ResultTest &operator=(ResultTest &&rhs) {
+    HERMES_UNUSED_VARIABLE(rhs);
     assign_operator_count++;
     return *this;
   }
   ResultTest &operator=(const ResultTest &rhs) {
+    HERMES_UNUSED_VARIABLE(rhs);
     copy_operator_count++;
     return *this;
   }

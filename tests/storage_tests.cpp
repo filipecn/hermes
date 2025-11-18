@@ -118,7 +118,7 @@ TEST_CASE("Block", "[storage]") {
         CopyTest ct;
         ct.a = 3;
         ct.b = 6;
-        REQUIRE(hm.copy(&ct, sizeof(CopyTest)) == HeError::NO_ERROR);
+        REQUIRE(hm.copy(&ct) == HeError::NO_ERROR);
         CopyTest *d = reinterpret_cast<CopyTest *>(hm.data());
         REQUIRE(d->a == ct.a);
         REQUIRE(d->b == ct.b);
