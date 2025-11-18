@@ -45,47 +45,46 @@ template <typename T> struct Size2 {
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size2 must hold an unsigned integer type!");
 
-  HERMES_DEVICE_CALLABLE Size2() : width{0}, height{0} {};
-  HERMES_DEVICE_CALLABLE explicit Size2(T size) : width(size), height(size) {}
-  HERMES_DEVICE_CALLABLE Size2(T width, T height)
-      : width(width), height(height) {}
+  HERMES_CPU_GPU Size2() : width{0}, height{0} {};
+  HERMES_CPU_GPU explicit Size2(T size) : width(size), height(size) {}
+  HERMES_CPU_GPU Size2(T width, T height) : width(width), height(height) {}
 
   /// \param i Dimension index.
   /// \return Size value in dimension i % 2.
-  HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&width)[i % 2]; }
+  HERMES_CPU_GPU T operator[](int i) const { return (&width)[i % 2]; }
   /// \param i Dimension index.
   /// \return Reference to size value in dimension i % 2.
-  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&width)[i % 2]; }
+  HERMES_CPU_GPU T &operator[](int i) { return (&width)[i % 2]; }
 
   /// \return [ this[i] + b[i] ]
-  HERMES_DEVICE_CALLABLE Size2<T> operator+(const Size2<T> &b) const {
+  HERMES_CPU_GPU Size2<T> operator+(const Size2<T> &b) const {
     return Size2<T>(width + b.width, height + b.height);
   }
   /// \return [ this[i] / n ]
-  HERMES_DEVICE_CALLABLE Size2<T> operator/(T n) const {
+  HERMES_CPU_GPU Size2<T> operator/(T n) const {
     return Size2<T>(width / n, height / n);
   }
   /// \return [ this[i] * s ]
-  HERMES_DEVICE_CALLABLE Size2<T> operator*(T s) const {
+  HERMES_CPU_GPU Size2<T> operator*(T s) const {
     return Size2<T>(width * s, height * s);
   }
 
   /// \return this[i] == b[i] for all i.
-  HERMES_DEVICE_CALLABLE bool operator==(const Size2<T> &b) const {
+  HERMES_CPU_GPU bool operator==(const Size2<T> &b) const {
     return width == b.width && height == b.height;
   }
   /// \return this[i] != b[i] for any i.
-  HERMES_DEVICE_CALLABLE bool operator!=(const Size2<T> &b) const {
+  HERMES_CPU_GPU bool operator!=(const Size2<T> &b) const {
     return width != b.width || height != b.height;
   }
 
   /// Computes total size area
   /// \return width * height
-  HERMES_DEVICE_CALLABLE T total() const { return width * height; }
+  HERMES_CPU_GPU T total() const { return width * height; }
   /// \param i Coordinate in width dimension.
   /// \param j Coordinate in height dimension.
   /// \return True if coordinate is inside half-open range [0, size).
-  [[nodiscard]] HERMES_DEVICE_CALLABLE bool contains(int i, int j) const {
+  [[nodiscard]] HERMES_CPU_GPU bool contains(int i, int j) const {
     return i >= 0 && j >= 0 && i < static_cast<i64>(width) &&
            j < static_cast<i64>(height);
   }
@@ -106,47 +105,47 @@ template <typename T> struct Size3 {
                     std::is_same<T, u32>::value || std::is_same<T, u64>::value,
                 "Size3 must hold an unsigned integer type!");
 
-  HERMES_DEVICE_CALLABLE Size3() : width{0}, height{0}, depth{0} {};
-  HERMES_DEVICE_CALLABLE explicit Size3(T size)
+  HERMES_CPU_GPU Size3() : width{0}, height{0}, depth{0} {};
+  HERMES_CPU_GPU explicit Size3(T size)
       : width(size), height(size), depth(size) {}
-  HERMES_DEVICE_CALLABLE Size3(T _width, T _height, T _depth)
+  HERMES_CPU_GPU Size3(T _width, T _height, T _depth)
       : width(_width), height(_height), depth(_depth) {}
 
   /// \param i Dimension index.
   /// \return Size value in dimension i % 3.
-  HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&width)[i % 3]; }
+  HERMES_CPU_GPU T operator[](int i) const { return (&width)[i % 3]; }
   /// \param i Dimension index.
   /// \return Reference to size value in dimension i % 3.
-  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&width)[i % 3]; }
+  HERMES_CPU_GPU T &operator[](int i) { return (&width)[i % 3]; }
 
   /// \note This does not check for over-flows.
   /// \return [ this[i] + b[i] ]
-  HERMES_DEVICE_CALLABLE Size3<T> operator+(const Size3<T> &b) const {
+  HERMES_CPU_GPU Size3<T> operator+(const Size3<T> &b) const {
     return {width + b.width, height + b.height, depth + b.depth};
   }
   /// \note This does not check for under-flows.
   /// \return [ this[i] - b[i] ]
-  HERMES_DEVICE_CALLABLE Size3<T> operator-(const Size3<T> &b) const {
+  HERMES_CPU_GPU Size3<T> operator-(const Size3<T> &b) const {
     return {width - b.width, height - b.height, depth - b.depth};
   }
 
   /// \return this[i] == b[i] for all i.
-  HERMES_DEVICE_CALLABLE bool operator==(const Size3<T> &b) const {
+  HERMES_CPU_GPU bool operator==(const Size3<T> &b) const {
     return width == b.width && height == b.height && depth == b.depth;
   }
   /// \return this[i] != b[i] for any i.
-  HERMES_DEVICE_CALLABLE bool operator!=(const Size3<T> &b) const {
+  HERMES_CPU_GPU bool operator!=(const Size3<T> &b) const {
     return width != b.width || height != b.height || depth != b.depth;
   }
 
   /// Computes total size area.
   /// \return width * height * depth
-  HERMES_DEVICE_CALLABLE T total() const { return width * height * depth; }
+  HERMES_CPU_GPU T total() const { return width * height * depth; }
   /// Gets 2-dimensional slice.
   /// \param d1 Dimension index associated to the first 2D dimension index.
   /// \param d2 Dimension index associated to the first 2D dimension index.
   /// \return Slice2(this[d1],this[d2]).
-  HERMES_DEVICE_CALLABLE Size2<T> slice(int d1 = 0, int d2 = 1) const {
+  HERMES_CPU_GPU Size2<T> slice(int d1 = 0, int d2 = 1) const {
     return Size2<T>((&width)[d1], (&width)[d2]);
   }
 

@@ -91,14 +91,16 @@ public:
   /// \param location
   /// \param args
   template <typename... Ts>
-  HERMES_DEVICE_CALLABLE static inline void
-  message(logging_options message_options, Level level, const char *fmt,
-          Location location, Ts &&...args) {
+  HERMES_CPU_GPU static inline void message(logging_options message_options,
+                                            Level level, const char *fmt,
+                                            Location location, Ts &&...args) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+    // printf(fmt, std::forward<Ts>(args)...);
+    printf("CUDA LOG not supported");
+    return;
+#else
     if (static_cast<u8>(level) < static_cast<u8>(filter_level_))
       return;
-#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-    printf(fmt, std::forward<Ts>(args)...);
-#else
     // merge options_
     message_options = options_ | message_options;
     bool use_colors = message_options.contain(logging_option_bits::use_colors);

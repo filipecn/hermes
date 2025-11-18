@@ -173,8 +173,7 @@ struct HERMES_DebugFields {
                             : "nullptr");
 #endif
 
-template <typename... Ts>
-HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
+template <typename... Ts> std::string fmtDebug(const char *fmt, Ts &&...args) {
   return std::vformat(fmt, std::make_format_args(args...));
 }
 
@@ -281,6 +280,14 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
 #define HERMES_DEBUG_CODE(CODE_CONTENT)
 #endif
 
+#ifndef HERMES_CSTR_FORMAT
+#ifdef HERMES_DEVICE_ENABLED
+#define HERMES_CSTR_FORMAT(...) ""
+#else
+#define HERMES_CSTR_FORMAT(...) hermes::cstr::format(__VA_ARGS__)
+#endif
+#endif
+
 // *****************************************************************************
 //                                                                     CHECKS
 // *****************************************************************************
@@ -296,7 +303,7 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
         hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
         "[CHECK_EQUAL FAIL {} == {}] {}",                                      \
         hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#A),      \
-        (#B), A, B, hermes::cstr::format(__VA_ARGS__));                        \
+        (#B), A, B, HERMES_CSTR_FORMAT(__VA_ARGS__));                          \
   }
 
 /// \brief Warns if expression is false
@@ -308,12 +315,12 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
         hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
         "[CHECK_EXP FAIL {}] {}",                                              \
         hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr),   \
-        hermes::cstr::format(__VA_ARGS__));                                    \
+        HERMES_CSTR_FORMAT(__VA_ARGS__));                                      \
   }
 
 #else
 
-#define HERMES_CHECK_EXP(expr, ...)
+#define HERMES_CHECK(expr, ...)
 
 #endif // CHECKS_ENABLED
 // *****************************************************************************
@@ -333,7 +340,7 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
         hermes::logging_option_bits::none, hermes::Logger::Level::error,       \
         "[ASSERT FAIL {}] {}",                                                 \
         hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #expr,     \
-        hermes::cstr::format(__VA_ARGS__));                                    \
+        HERMES_CSTR_FORMAT(__VA_ARGS__));                                      \
     debugBreak();                                                              \
   }
 #else
@@ -449,8 +456,8 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
   }
 #endif
 
-#ifndef HERMES_ASSIGN_RESULT_OR
-#define HERMES_ASSIGN_RESULT_OR(R, V, O)                                       \
+#ifndef HERMES_ASSIGN_OR
+#define HERMES_ASSIGN_OR(R, V, O)                                              \
   if (auto _hermes_result_ = V)                                                \
     R = std::move(*_hermes_result_);                                           \
   else {                                                                       \
@@ -460,8 +467,8 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
   }
 #endif
 
-#ifndef HERMES_ASSIGN_RESULT_OR_RETURN_BAD_RESULT
-#define HERMES_ASSIGN_RESULT_OR_RETURN_BAD_RESULT(R, V)                        \
+#ifndef HERMES_ASSIGN_OR_RETURN_BAD_RESULT
+#define HERMES_ASSIGN_OR_RETURN_BAD_RESULT(R, V)                               \
   if (auto _hermes_result_ = V)                                                \
     R = std::move(*_hermes_result_);                                           \
   else {                                                                       \
@@ -472,8 +479,8 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
 
 #endif
 
-#ifndef HERMES_ASSIGN_RESULT_OR_RETURN_HE_ERROR
-#define HERMES_ASSIGN_RESULT_OR_RETURN_HE_ERROR(R, V)                          \
+#ifndef HERMES_ASSIGN_OR_RETURN_HE_ERROR
+#define HERMES_ASSIGN_OR_RETURN_HE_ERROR(R, V)                                 \
   if (auto _hermes_result_ = V)                                                \
     R = std::move(*_hermes_result_);                                           \
   else {                                                                       \
@@ -484,8 +491,8 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
 
 #endif
 
-#ifndef HERMES_ASSIGN_RESULT_OR_RETURN
-#define HERMES_ASSIGN_RESULT_OR_RETURN(R, V, B)                                \
+#ifndef HERMES_ASSIGN_OR_RETURN
+#define HERMES_ASSIGN_OR_RETURN(R, V, B)                                       \
   if (auto _hermes_result_ = V)                                                \
     R = std::move(*_hermes_result_);                                           \
   else {                                                                       \
@@ -495,8 +502,8 @@ HERMES_DEVICE_CALLABLE std::string fmtDebug(const char *fmt, Ts &&...args) {
   }
 #endif
 
-#ifndef HERMES_ASSIGN_RESULT_OR_RETURN_VOID
-#define HERMES_ASSIGN_RESULT_OR_RETURN_VOID(R, V)                              \
+#ifndef HERMES_ASSIGN_OR_RETURN_VOID
+#define HERMES_ASSIGN_OR_RETURN_VOID(R, V)                                     \
   if (auto _hermes_result_ = V)                                                \
     R = std::move(*_hermes_result_);                                           \
   else {                                                                       \

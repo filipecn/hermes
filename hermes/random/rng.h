@@ -55,8 +55,8 @@
 
 #include <hermes/common/defs.h>
 #include <hermes/geometry/bbox.h>
-#include <hermes/numeric/numeric.h>
 #include <hermes/numeric/interpolation.h>
+#include <hermes/numeric/numeric.h>
 
 namespace hermes {
 
@@ -98,23 +98,23 @@ public:
 /// PCG RNG (O'Neill 2014)
 class PCGRNG {
 public:
-  HERMES_DEVICE_CALLABLE PCGRNG() {}
-  HERMES_DEVICE_CALLABLE PCGRNG(u64 sequence_index) { setSequence(sequence_index); }
-  HERMES_DEVICE_CALLABLE void setSequence(u64 sequence_index) {
+  HERMES_CPU_GPU PCGRNG() {}
+  HERMES_CPU_GPU PCGRNG(u64 sequence_index) { setSequence(sequence_index); }
+  HERMES_CPU_GPU void setSequence(u64 sequence_index) {
     state = 0u;
     inc = (sequence_index << 1u) | 1u;
     uniformU32();
     state += 0x853c49e6748fea9bULL;
     uniformU32();
   }
-  HERMES_DEVICE_CALLABLE u32 uniformU32() {
+  HERMES_CPU_GPU u32 uniformU32() {
     u64 old_state = state;
     state = old_state * 0x5851f42d4c957f2dULL + inc;
-    u32 xor_shifted = (u32) (((old_state >> 18u) ^ old_state) >> 27u);
-    u32 rot = (u32) (old_state >> 59u);
+    u32 xor_shifted = (u32)(((old_state >> 18u) ^ old_state) >> 27u);
+    u32 rot = (u32)(old_state >> 59u);
     return (xor_shifted >> rot) | (xor_shifted << ((~rot + 1u) & 31));
   }
-  HERMES_DEVICE_CALLABLE u32 uniformU32(u32 b) {
+  HERMES_CPU_GPU u32 uniformU32(u32 b) {
     u32 threshold = (~b + 1u) % b;
     while (true) {
       auto r = uniformU32();
@@ -122,13 +122,16 @@ public:
         return r % b;
     }
   }
-  HERMES_DEVICE_CALLABLE real_t uniformFloat() {
+  HERMES_CPU_GPU real_t uniformFloat() {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-    return ::min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));
+    return ::min(Constants::one_minus_epsilon,
+                 real_t(uniformU32() * 2.3283064365386963e-10f));
 #else
-    return std::min(Constants::one_minus_epsilon, real_t(uniformU32() * 2.3283064365386963e-10f));
+    return std::min(Constants::one_minus_epsilon,
+                    real_t(uniformU32() * 2.3283064365386963e-10f));
 #endif
   }
+
 private:
   u64 state{0x853c49e6748fea9bULL}, inc{0xda3e39cb94b95bdbULL};
 };
@@ -137,7 +140,7 @@ private:
 //                                                                                                     HaltonSequence
 // *********************************************************************************************************************
 /// \brief Random Number Generator
-///Implements the "Halton Sequence".
+/// Implements the "Halton Sequence".
 class HaltonSequence : public RNG {
 public:
   // *******************************************************************************************************************
@@ -174,7 +177,9 @@ public:
   /// \param a lower bound
   /// \param b upper bound
   /// \return random float in the range [a,b)
-  float randomFloat(float a, float b) { return interpolation::lerp(randomFloat(), a, b); }
+  float randomFloat(float a, float b) {
+    return interpolation::lerp(randomFloat(), a, b);
+  }
 
 private:
   uint base, ind;

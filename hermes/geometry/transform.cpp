@@ -101,43 +101,41 @@ HERMES_TO_STRING_DEBUG_METHOD_END
 
 namespace hermes::geo {
 
-HERMES_DEVICE_CALLABLE Transform2::Transform2() { m.setIdentity(); }
+HERMES_CPU_GPU Transform2::Transform2() { m.setIdentity(); }
 
-HERMES_DEVICE_CALLABLE Transform2::Transform2(const math::mat3 &mat) : m(mat) {}
+HERMES_CPU_GPU Transform2::Transform2(const math::mat3 &mat) : m(mat) {}
 
-// HERMES_DEVICE_CALLABLE Transform2::Transform2(const bbox2 &bbox) {
+// HERMES_CPU_GPU Transform2::Transform2(const bbox2 &bbox) {
 //   m[0][0] = bbox.upper[0] - bbox.lower[0];
 //   m[1][1] = bbox.upper[1] - bbox.lower[1];
 //   m[0][2] = bbox.lower[0];
 //   m[1][2] = bbox.lower[1];
 // }
 
-HERMES_DEVICE_CALLABLE void Transform2::reset() { m.setIdentity(); }
+HERMES_CPU_GPU void Transform2::reset() { m.setIdentity(); }
 
-HERMES_DEVICE_CALLABLE Transform2 Transform2::rotate(real_t angle) {
+HERMES_CPU_GPU Transform2 Transform2::rotate(real_t angle) {
   real_t sin_a = sinf(math::degrees2radians(angle));
   real_t cos_a = cosf(math::degrees2radians(angle));
   math::mat3 m(cos_a, -sin_a, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 1.f);
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform2 Transform2::translate(const vec2 &v) {
+HERMES_CPU_GPU Transform2 Transform2::translate(const vec2 &v) {
   math::mat3 m(1.f, 0.f, v.x, 0.f, 1.f, v.y, 0.f, 0.f, 1.f);
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform::Transform() { m.setIdentity(); }
+HERMES_CPU_GPU Transform::Transform(const math::mat4 &mat) : m(mat) {}
 
-HERMES_DEVICE_CALLABLE Transform::Transform(const math::mat4 &mat) : m(mat) {}
-
-HERMES_DEVICE_CALLABLE Transform::Transform(const real_t mat[4][4]) {
+HERMES_CPU_GPU Transform::Transform(const real_t mat[4][4]) {
   m = math::mat4(mat[0][0], mat[0][1], mat[0][2], mat[0][3], mat[1][0],
                  mat[1][1], mat[1][2], mat[1][3], mat[2][0], mat[2][1],
                  mat[2][2], mat[2][3], mat[3][0], mat[3][1], mat[3][2],
                  mat[3][3]);
 }
 
-// HERMES_DEVICE_CALLABLE Transform::Transform(const bbox3 &bbox) {
+// HERMES_CPU_GPU Transform::Transform(const bbox3 &bbox) {
 //   m[0][0] = bbox.upper[0] - bbox.lower[0];
 //   m[1][1] = bbox.upper[1] - bbox.lower[1];
 //   m[2][2] = bbox.upper[2] - bbox.lower[2];
@@ -146,23 +144,23 @@ HERMES_DEVICE_CALLABLE Transform::Transform(const real_t mat[4][4]) {
 //   m[2][3] = bbox.lower[2];
 // }
 
-HERMES_DEVICE_CALLABLE void Transform::reset() { m.setIdentity(); }
+HERMES_CPU_GPU void Transform::reset() { m.setIdentity(); }
 
-HERMES_DEVICE_CALLABLE bool Transform::swapsHandedness() const {
+HERMES_CPU_GPU bool Transform::swapsHandedness() const {
   real_t det = (m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])) -
                (m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])) +
                (m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]));
   return det < 0;
 }
 
-HERMES_DEVICE_CALLABLE Transform2 Transform2::scale(const vec2 &s) {
+HERMES_CPU_GPU Transform2 Transform2::scale(const vec2 &s) {
   math::mat3 m(s.x, 0, 0, 0, s.y, 0, 0, 0, 1);
   math::mat3 inv(1.f / s.x, 0, 0, 0, 1.f / s.y, 0, 0, 0, 1);
   return {m};
 }
 
-HERMES_DEVICE_CALLABLE Transform segmentToSegmentTransform(point3 a, point3 b,
-                                                           point3 c, point3 d) {
+HERMES_CPU_GPU Transform segmentToSegmentTransform(point3 a, point3 b, point3 c,
+                                                   point3 d) {
   HERMES_UNUSED_VARIABLE(a);
   HERMES_UNUSED_VARIABLE(b);
   HERMES_UNUSED_VARIABLE(c);
@@ -172,14 +170,11 @@ HERMES_DEVICE_CALLABLE Transform segmentToSegmentTransform(point3 a, point3 b,
   return {};
 }
 
-HERMES_DEVICE_CALLABLE Transform inverse(const Transform &t) {
-  return inverse(t.m);
-}
+HERMES_CPU_GPU Transform inverse(const Transform &t) { return inverse(t.m); }
 
-HERMES_DEVICE_CALLABLE Transform Transform::lookAt(const point3 &eye,
-                                                   const point3 &target,
-                                                   const vec3 &up,
-                                                   transform_options options) {
+HERMES_CPU_GPU Transform Transform::lookAt(const point3 &eye,
+                                           const point3 &target, const vec3 &up,
+                                           transform_options options) {
   auto right_handed = options.contain(transform_option_bits::right_handed);
 
   math::MatrixNxM<real_t, 4, 4> m;
@@ -211,10 +206,10 @@ HERMES_DEVICE_CALLABLE Transform Transform::lookAt(const point3 &eye,
   return {m};
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::ortho(real_t left, real_t right,
-                                                  real_t bottom, real_t top,
-                                                  real_t near, real_t far,
-                                                  transform_options options) {
+HERMES_CPU_GPU Transform Transform::ortho(real_t left, real_t right,
+                                          real_t bottom, real_t top,
+                                          real_t near, real_t far,
+                                          transform_options options) {
   const auto zero_to_one = options.contain(transform_option_bits::zero_to_one);
   auto right_handed = options.contain(transform_option_bits::right_handed);
   auto flip_y = options.contain(transform_option_bits::flip_y);
@@ -247,9 +242,10 @@ HERMES_DEVICE_CALLABLE Transform Transform::ortho(real_t left, real_t right,
   return {m};
 }
 
-HERMES_DEVICE_CALLABLE Transform
-Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
-                       real_t far, transform_options options) {
+HERMES_CPU_GPU Transform Transform::perspective(real_t fovy_in_degrees,
+                                                real_t aspect_ratio,
+                                                real_t near, real_t far,
+                                                transform_options options) {
   const auto zero_to_one = options.contain(transform_option_bits::zero_to_one);
   auto right_handed = options.contain(transform_option_bits::right_handed);
   auto flip_y = options.contain(transform_option_bits::flip_y);
@@ -285,7 +281,7 @@ Transform::perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
   return {m};
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::translate(const vec3 &d) {
+HERMES_CPU_GPU Transform Transform::translate(const vec3 &d) {
   math::mat4 m(1.f, 0.f, 0.f, d.x, 0.f, 1.f, 0.f, d.y, 0.f, 0.f, 1.f, d.z, 0.f,
                0.f, 0.f, 1.f);
   math::mat4 m_inv(1.f, 0.f, 0.f, -d.x, 0.f, 1.f, 0.f, -d.y, 0.f, 0.f, 1.f,
@@ -293,15 +289,14 @@ HERMES_DEVICE_CALLABLE Transform Transform::translate(const vec3 &d) {
   return {m};
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::scale(real_t x, real_t y,
-                                                  real_t z) {
+HERMES_CPU_GPU Transform Transform::scale(real_t x, real_t y, real_t z) {
   math::mat4 m(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
   math::mat4 inv(1.f / x, 0, 0, 0, 0, 1.f / y, 0, 0, 0, 0, 1.f / z, 0, 0, 0, 0,
                  1);
   return {m};
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotateX(real_t angle_in_radians) {
+HERMES_CPU_GPU Transform Transform::rotateX(real_t angle_in_radians) {
   real_t sin_a = sinf(angle_in_radians);
   real_t cos_a = cosf(angle_in_radians);
   math::mat4 m(1.f, 0.f, 0.f, 0.f, 0.f, cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a,
@@ -310,7 +305,7 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotateX(real_t angle_in_radians) {
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotateY(real_t angle_in_radians) {
+HERMES_CPU_GPU Transform Transform::rotateY(real_t angle_in_radians) {
   real_t sin_a = sinf(angle_in_radians);
   real_t cos_a = cosf(angle_in_radians);
   math::mat4 m(cos_a, 0.f, sin_a, 0.f, 0.f, 1.f, 0.f, 0.f, -sin_a, 0.f, cos_a,
@@ -319,7 +314,7 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotateY(real_t angle_in_radians) {
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotateZ(real_t angle_in_radians) {
+HERMES_CPU_GPU Transform Transform::rotateZ(real_t angle_in_radians) {
   real_t sin_a = sinf(angle_in_radians);
   real_t cos_a = cosf(angle_in_radians);
   math::mat4 m(cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f, 0.f, 0.f, 0.f, 1.f,
@@ -328,8 +323,8 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotateZ(real_t angle_in_radians) {
   return m;
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::rotate(real_t angle_in_radians,
-                                                   const vec3 &axis) {
+HERMES_CPU_GPU Transform Transform::rotate(real_t angle_in_radians,
+                                           const vec3 &axis) {
   quat q(sinf(angle_in_radians / 2) * axis, cosf(angle_in_radians / 2));
   return {q.normalized().matrix()};
 
@@ -362,8 +357,7 @@ HERMES_DEVICE_CALLABLE Transform Transform::rotate(real_t angle_in_radians,
   return mat;
 }
 
-HERMES_DEVICE_CALLABLE Transform Transform::alignVectors(const vec3 &a,
-                                                         const vec3 &b) {
+HERMES_CPU_GPU Transform Transform::alignVectors(const vec3 &a, const vec3 &b) {
   // based on
   // https://www.theochem.ru.nl/%7Epwormer/Knowino/knowino.org/wiki/Rotation_matrix.html#Vector_rotation
 

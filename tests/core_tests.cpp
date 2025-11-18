@@ -64,6 +64,102 @@ TEST_CASE("to_string") {
 
 #endif
 
+class ResultTest {
+public:
+  static u32 constructor_count;
+  static u32 destructor_count;
+  static u32 copy_constructor_count;
+  static u32 assign_constructor_count;
+  static u32 copy_operator_count;
+  static u32 assign_operator_count;
+  static void reset() {
+    constructor_count = 0;
+    destructor_count = 0;
+    copy_constructor_count = 0;
+    assign_constructor_count = 0;
+    copy_operator_count = 0;
+    assign_operator_count = 0;
+  }
+  ResultTest() { constructor_count++; }
+  ~ResultTest() { destructor_count++; }
+  ResultTest(ResultTest &&rhs) { assign_constructor_count++; }
+  ResultTest(const ResultTest &rhs) { copy_constructor_count++; }
+  ResultTest &operator=(ResultTest &&rhs) {
+    assign_operator_count++;
+    return *this;
+  }
+  ResultTest &operator=(const ResultTest &rhs) {
+    copy_operator_count++;
+    return *this;
+  }
+};
+
+u32 ResultTest::constructor_count = 0;
+u32 ResultTest::destructor_count = 0;
+u32 ResultTest::copy_constructor_count = 0;
+u32 ResultTest::assign_constructor_count = 0;
+u32 ResultTest::copy_operator_count = 0;
+u32 ResultTest::assign_operator_count = 0;
+
+TEST_CASE("result") {
+  SECTION("copy assignment") {
+    {
+      ResultTest::reset();
+      ResultTest rt;
+      hermes::Result<ResultTest> r = rt;
+    }
+    REQUIRE(ResultTest::constructor_count == 1);
+    REQUIRE(ResultTest::destructor_count == 2);
+    REQUIRE(ResultTest::copy_constructor_count == 1);
+    REQUIRE(ResultTest::assign_constructor_count == 0);
+    REQUIRE(ResultTest::copy_operator_count == 0);
+    REQUIRE(ResultTest::assign_operator_count == 0);
+  }
+  SECTION("move assignment") {
+    {
+      ResultTest::reset();
+      ResultTest rt;
+      hermes::Result<ResultTest> r = std::move(rt);
+    }
+    REQUIRE(ResultTest::constructor_count == 1);
+    REQUIRE(ResultTest::destructor_count == 2);
+    REQUIRE(ResultTest::copy_constructor_count == 0);
+    REQUIRE(ResultTest::assign_constructor_count == 1);
+    REQUIRE(ResultTest::copy_operator_count == 0);
+    REQUIRE(ResultTest::assign_operator_count == 0);
+  }
+  SECTION("move assignment") {
+    {
+      ResultTest::reset();
+      hermes::Result<ResultTest> r = ResultTest();
+      ResultTest rt = std::move(r).value();
+    }
+    REQUIRE(ResultTest::constructor_count == 1);
+    REQUIRE(ResultTest::destructor_count == 3);
+    REQUIRE(ResultTest::copy_constructor_count == 0);
+    REQUIRE(ResultTest::assign_constructor_count == 2);
+    REQUIRE(ResultTest::copy_operator_count == 0);
+    REQUIRE(ResultTest::assign_operator_count == 0);
+  }
+  SECTION("move assignment") {
+    {
+      ResultTest::reset();
+      auto f = []() {
+        ResultTest t;
+        return hermes::Result<ResultTest>(std::move(t));
+      };
+      ResultTest rt;
+      rt = std::move(f().value());
+    }
+    REQUIRE(ResultTest::constructor_count == 2);
+    REQUIRE(ResultTest::destructor_count == 4);
+    REQUIRE(ResultTest::copy_constructor_count == 0);
+    REQUIRE(ResultTest::assign_constructor_count == 2);
+    REQUIRE(ResultTest::copy_operator_count == 0);
+    REQUIRE(ResultTest::assign_operator_count == 1);
+  }
+}
+
 TEST_CASE("ref") {
   struct E {
     int a;

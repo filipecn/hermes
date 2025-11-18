@@ -44,26 +44,26 @@ template <typename T> class Normal2 {
 
 public:
   /// \brief Default constructor
-  HERMES_DEVICE_CALLABLE Normal2() : x{0}, y{0} {};
+  HERMES_CPU_GPU Normal2() : x{0}, y{0} {};
   /// \brief Constructs from component values
   /// \param _x
   /// \param _y
-  HERMES_DEVICE_CALLABLE Normal2(T _x, T _y) : x(_x), y(_y) {}
+  HERMES_CPU_GPU Normal2(T _x, T _y) : x(_x), y(_y) {}
   /// \brief Constructs from vector
   /// \param v
-  HERMES_DEVICE_CALLABLE Normal2(const Vector2<T> &v) : x(v.x), y(v.y) {}
+  HERMES_CPU_GPU Normal2(const Vector2<T> &v) : x(v.x), y(v.y) {}
   /// \brief Casts to vector
   /// \return
-  HERMES_DEVICE_CALLABLE explicit operator Vector2<T>() const {
+  HERMES_CPU_GPU explicit operator Vector2<T>() const {
     return Vector2<T>(x, y);
   }
-  HERMES_DEVICE_CALLABLE Normal2 operator-() const { return Normal2(-x, -y); }
-  HERMES_DEVICE_CALLABLE Normal2 &operator*=(T f) {
+  HERMES_CPU_GPU Normal2 operator-() const { return Normal2(-x, -y); }
+  HERMES_CPU_GPU Normal2 &operator*=(T f) {
     x *= f;
     y *= f;
     return *this;
   }
-  HERMES_DEVICE_CALLABLE Normal2 &operator/=(T f) {
+  HERMES_CPU_GPU Normal2 &operator/=(T f) {
     x /= f;
     y /= f;
     return *this;
@@ -86,65 +86,63 @@ template <typename T> class Normal3 {
 
 public:
   /// \brief Default constructor
-  HERMES_DEVICE_CALLABLE Normal3() { x = y = z = 0; }
+  HERMES_CPU_GPU Normal3() { x = y = z = 0; }
   /// \brief Constructs from component values
   /// \param _x
   /// \param _y
   /// \param _z
-  HERMES_DEVICE_CALLABLE Normal3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
+  HERMES_CPU_GPU Normal3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
   /// \brief Constructs from vector
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Normal3(const Vector3<T> &v)
+  HERMES_CPU_GPU explicit Normal3(const Vector3<T> &v)
       : x(v.x), y(v.y), z(v.z) {}
 
   /// \brief Casts to vector
   /// \return
-  HERMES_DEVICE_CALLABLE explicit operator Vector3<T>() const {
+  HERMES_CPU_GPU explicit operator Vector3<T>() const {
     return Vector3<T>(x, y, z);
   }
   //                                                                                                       arithmetic
-  HERMES_DEVICE_CALLABLE Normal3 operator-() const {
-    return Normal3(-x, -y, -z);
-  }
-  HERMES_DEVICE_CALLABLE Normal3 &operator+=(const Vector3<T> &v) {
+  HERMES_CPU_GPU Normal3 operator-() const { return Normal3(-x, -y, -z); }
+  HERMES_CPU_GPU Normal3 &operator+=(const Vector3<T> &v) {
     x += v.x;
     y += v.y;
     z += v.z;
     return *this;
   }
-  HERMES_DEVICE_CALLABLE Normal3 &operator*=(T f) {
+  HERMES_CPU_GPU Normal3 &operator*=(T f) {
     x *= f;
     y *= f;
     z *= f;
     return *this;
   }
-  HERMES_DEVICE_CALLABLE Normal3 &operator/=(T f) {
+  HERMES_CPU_GPU Normal3 &operator/=(T f) {
     x /= f;
     y /= f;
     z /= f;
     return *this;
   }
 
-  HERMES_DEVICE_CALLABLE bool operator!=(const Normal3 &n) const {
+  HERMES_CPU_GPU bool operator!=(const Normal3 &n) const {
     return n.x != x || n.y != y || n.z != z;
   }
 
   /// \brief  reflects **v** from this
   /// \param v vector to be reflected
   /// \returns reflected **v**
-  HERMES_DEVICE_CALLABLE Vector3<T> reflect(const Vector3<T> &v) {
+  HERMES_CPU_GPU Vector3<T> reflect(const Vector3<T> &v) {
     return reflect(v, *this);
   }
   /// \brief projects **v** on the surface with this normal
   /// \param v vector
   /// \returns projected **v**
-  HERMES_DEVICE_CALLABLE Vector3<T> project(const Vector3<T> &v) {
+  HERMES_CPU_GPU Vector3<T> project(const Vector3<T> &v) {
     return project(v, *this);
   }
   /// \brief compute the two orthogonal-tangential vectors from this
   /// \param a **[out]** first tangent
   /// \param b **[out]** second tangent
-  HERMES_DEVICE_CALLABLE void tangential(Vector3<T> &a, Vector3<T> &b) {
+  HERMES_CPU_GPU void tangential(Vector3<T> &a, Vector3<T> &b) {
     //  hermes::tangential(Vector3<T>(x, y, z), a, b);
   }
 
@@ -161,8 +159,7 @@ public:
 /// \param n axis of reflection
 /// \returns reflected **a**
 template <typename T>
-HERMES_DEVICE_CALLABLE Vector2<T> reflect(const Vector2<T> &a,
-                                          const Normal2<T> &n) {
+HERMES_CPU_GPU Vector2<T> reflect(const Vector2<T> &a, const Normal2<T> &n) {
   return a - 2 * dot(a, Vector2<T>(n)) * Vector2<T>(n);
 }
 /// \brief projects **v** on the surface with normal **n**
@@ -170,8 +167,7 @@ HERMES_DEVICE_CALLABLE Vector2<T> reflect(const Vector2<T> &a,
 /// \param n surface's normal
 /// \returns projected **v**
 template <typename T>
-HERMES_DEVICE_CALLABLE Vector2<T> project(const Vector2<T> &v,
-                                          const Normal2<T> &n) {
+HERMES_CPU_GPU Vector2<T> project(const Vector2<T> &v, const Normal2<T> &n) {
   return v - dot(v, Vector2<T>(n)) * Vector2<T>(n);
 }
 /// \brief Computes normalized copy
@@ -179,7 +175,7 @@ HERMES_DEVICE_CALLABLE Vector2<T> project(const Vector2<T> &v,
 /// \param normal
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE Normal3<T> normalize(const Normal3<T> &normal) {
+HERMES_CPU_GPU Normal3<T> normalize(const Normal3<T> &normal) {
   T d = normal.x * normal.x + normal.y * normal.y + normal.z * normal.z;
   if (d == 0.f)
     return normal;
@@ -189,8 +185,7 @@ HERMES_DEVICE_CALLABLE Normal3<T> normalize(const Normal3<T> &normal) {
 /// \tparam T
 /// \param normal
 /// \return
-template <typename T>
-HERMES_DEVICE_CALLABLE Normal3<T> abs(const Normal3<T> &normal) {
+template <typename T> HERMES_CPU_GPU Normal3<T> abs(const Normal3<T> &normal) {
   return Normal3<T>(std::abs(normal.x), std::abs(normal.y), std::abs(normal.z));
 }
 /// \brief reflects **a** on **n**
@@ -198,8 +193,7 @@ HERMES_DEVICE_CALLABLE Normal3<T> abs(const Normal3<T> &normal) {
 /// \param n axis of reflection
 /// \returns reflected **a**
 template <typename T>
-HERMES_DEVICE_CALLABLE Vector3<T> reflect(const Vector3<T> &a,
-                                          const Normal3<T> &n) {
+HERMES_CPU_GPU Vector3<T> reflect(const Vector3<T> &a, const Normal3<T> &n) {
   return a - 2 * dot(a, Vector3<T>(n)) * Vector3<T>(n);
 }
 /// \brief projects **v** on the surface with normal **n**
@@ -207,8 +201,7 @@ HERMES_DEVICE_CALLABLE Vector3<T> reflect(const Vector3<T> &a,
 /// \param n surface's normal
 /// \returns projected **v**
 template <typename S>
-HERMES_DEVICE_CALLABLE Vector3<S> project(const Vector3<S> &v,
-                                          const Normal3<S> &n) {
+HERMES_CPU_GPU Vector3<S> project(const Vector3<S> &v, const Normal3<S> &n) {
   return v - dot(v, Vector3<S>(n)) * Vector3<S>(n);
 }
 /// \brief Computes dot product with vector
@@ -217,7 +210,7 @@ HERMES_DEVICE_CALLABLE Vector3<S> project(const Vector3<S> &v,
 /// \param v
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE T dot(const Normal3<T> &n, const Vector3<T> &v) {
+HERMES_CPU_GPU T dot(const Normal3<T> &n, const Vector3<T> &v) {
   return n.x * v.x + n.y * v.y + n.z * v.z;
 }
 /// \brief Computes dot product with vector
@@ -226,7 +219,7 @@ HERMES_DEVICE_CALLABLE T dot(const Normal3<T> &n, const Vector3<T> &v) {
 /// \param n
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE T dot(const Vector3<T> &v, const Normal3<T> &n) {
+HERMES_CPU_GPU T dot(const Vector3<T> &v, const Normal3<T> &n) {
   return n.x * v.x + n.y * v.y + n.z * v.z;
 }
 ///
@@ -235,8 +228,8 @@ HERMES_DEVICE_CALLABLE T dot(const Vector3<T> &v, const Normal3<T> &n) {
 /// \param n
 /// \return v if is oriented along with n, -v otherwise
 template <typename T>
-HERMES_DEVICE_CALLABLE Vector3<T> faceForward(const Vector3<T> &v,
-                                              const Normal3<T> &n) {
+HERMES_CPU_GPU Vector3<T> faceForward(const Vector3<T> &v,
+                                      const Normal3<T> &n) {
   return (dot(v, n) < 0.f) ? -v : v;
 }
 

@@ -24,8 +24,6 @@
 /// \author FilipeCN (filipedecn@gmail.com)
 /// \date   2021-09-22
 
-#include "hermes/core/debug.h"
-#include "hermes/core/result.h"
 #include <hermes/storage/block.h>
 
 namespace hermes {
@@ -50,6 +48,7 @@ Block::Config &Block::Config::setSize(h_size size) {
   size_.width = size;
   size_.height = 1;
   size_.depth = 1;
+  dimensions_ = 1;
   return *this;
 }
 
@@ -57,11 +56,13 @@ Block::Config &Block::Config::setSize(const size2 &size) {
   size_.width = size.width;
   size_.height = size.height;
   size_.depth = 1;
+  dimensions_ = 2;
   return *this;
 }
 
 Block::Config &Block::Config::setSize(const size3 &size) {
   size_ = size;
+  dimensions_ = 3;
   return *this;
 }
 
@@ -73,7 +74,13 @@ Block::Config &Block::Config::setPitch(h_size pitch_size) {
 Result<Block> Block::Config::create() const {
   Block block;
   block.location_ = location_;
-  HERMES_RETURN_BAD_RESULT(block.resize(size_, pitch_));
+  if (dimensions_ == 3) {
+    HERMES_RETURN_BAD_RESULT(block.resize(size_, pitch_));
+  } else if (dimensions_ == 2) {
+    HERMES_RETURN_BAD_RESULT(block.resize(size_.slice(0, 1), pitch_));
+  } else {
+    HERMES_RETURN_BAD_RESULT(block.resize(size_.total()));
+  }
   return Result<Block>(std::move(block));
 }
 
@@ -126,7 +133,7 @@ HeError Block::resize(h_size new_size_in_bytes) {
   if (size_ == new_size)
     return HeError::NO_ERROR;
   HERMES_RETURN_HE_ERROR(clear());
-  HERMES_ASSIGN_RESULT_OR_RETURN_HE_ERROR(
+  HERMES_ASSIGN_OR_RETURN_HE_ERROR(
       data_, allocation::allocate(new_size_in_bytes, location_));
   size_ = new_size;
   pitch_ = new_size_in_bytes;
@@ -138,8 +145,8 @@ HeError Block::resize(const size2 &new_size, h_size new_pitch) {
   if (size_ == s3 && pitch_ == new_pitch)
     return HeError::NO_ERROR;
   HERMES_RETURN_HE_ERROR(clear());
-  HERMES_ASSIGN_RESULT_OR_RETURN_HE_ERROR(
-      std::tie(data_, pitch_), allocation::allocate(new_size, location_));
+  HERMES_ASSIGN_OR_RETURN_HE_ERROR(std::tie(data_, pitch_),
+                                   allocation::allocate(new_size, location_));
   size_ = s3;
   return HeError::NO_ERROR;
 }
@@ -148,8 +155,8 @@ HeError Block::resize(const size3 &new_size, h_size new_pitch) {
   if (size_ == new_size && pitch_ == new_pitch)
     return HeError::NO_ERROR;
   HERMES_RETURN_HE_ERROR(clear());
-  HERMES_ASSIGN_RESULT_OR_RETURN_HE_ERROR(
-      std::tie(data_, pitch_), allocation::allocate(new_size, location_));
+  HERMES_ASSIGN_OR_RETURN_HE_ERROR(std::tie(data_, pitch_),
+                                   allocation::allocate(new_size, location_));
   size_ = new_size;
   return HeError::NO_ERROR;
 }
@@ -159,6 +166,12 @@ HeError Block::copy(const Block &memory_block) {
   return writes::copy(location_, data_, pitch_, size_, memory_block.location_,
                       memory_block.data_, memory_block.pitch_,
                       memory_block.size_);
+}
+
+HeError Block::copy(void *data, h_size size_in_bytes, h_size offset,
+                    MemoryLocation data_location) {
+  HERMES_ASSERT(sizeInBytes() >= size_in_bytes);
+  return writes::copy(location_, data_, data_location, data, size_in_bytes);
 }
 
 h_size Block::sizeInBytes() const {

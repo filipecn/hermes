@@ -32,13 +32,20 @@ set(HERMES_HEADERS
   storage/block.h
   storage/memory.h
 
+  system/gpu.h
   system/os.h
   system/profile.h
   system/time.h
   system/threads.h
 )
 
-set(HERMES_SOURCES
+set(HERMES_SOURCES 
+  io/logger.cpp
+
+  system/profile.cpp
+)
+
+set(HERMES_CUDA_SOURCES
   colors/color.cpp
 
   geometry/line.cpp
@@ -46,42 +53,41 @@ set(HERMES_SOURCES
   geometry/queries.cpp
   geometry/transform.cpp
 
-  io/logger.cpp
 
   storage/aos.cpp
   storage/block.cpp
   storage/memory.cpp
   
   system/os.cpp
-  system/profile.cpp
   system/time.cpp
   system/threads.cpp
 )
 
-add_library(hermes STATIC ${HERMES_HEADERS} ${HERMES_SOURCES})
+add_library(hermes STATIC ${HERMES_HEADERS} ${HERMES_SOURCES} ${HERMES_CUDA_SOURCES})
 
 target_include_directories(
-  hermes PUBLIC "$<BUILD_INTERFACE:${HERMES_INCLUDE_DIR}>"
+  hermes 
+  PUBLIC 
+  "$<BUILD_INTERFACE:${HERMES_INCLUDE_DIR}>"
   "$<INSTALL_INTERFACE:${HERMES_INCLUDE_DIR}>"
+  INTERFACE
+  $<INSTALL_INTERFACE:include/hermes>
 )
 
 if(HERMES_INCLUDE_TO_STRING)
   target_compile_definitions(hermes PUBLIC HERMES_INCLUDE_TO_STRING)
 endif(HERMES_INCLUDE_TO_STRING)
 
-set_target_properties(
-  hermes
-  PROPERTIES CXX_STANDART 23
-  CXX_STANDARD_REQUIRED YES
-  LINKER_LANGUAGE CXX
+setup_target(hermes)
+
+set_target_properties(hermes PROPERTIES
   OUTPUT_NAME "hermes"
   FOLDER "HERMES")
-# CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-format-style='file';-fix;-p;")
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-  target_compile_options(
-    hermes
-    PUBLIC
-    "$<$<CONFIG:Debug>:-g;-pg;-Wall;-Werror;-Wextra;-O0;-fprofile-arcs;-ftest-coverage;--coverage;-fPIC>"
-    "$<$<CONFIG:Release>:-O3;-fPIC;>")
-endif(CMAKE_COMPILER_IS_GNUCXX)
+
+if(HERMES_ENABLE_CUDA)
+ set_source_files_properties(
+   ${HERMES_CUDA_SOURCES}
+   PROPERTIES LANGUAGE CUDA)
+endif(HERMES_ENABLE_CUDA)
+

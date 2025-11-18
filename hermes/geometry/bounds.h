@@ -41,33 +41,24 @@ namespace hermes::geo::bounds {
 /// \tparam T coordinates type
 template <typename T> class BoundingBox1 {
 public:
-  HERMES_DEVICE_CALLABLE static BoundingBox1 Unit() {
-    return BoundingBox1<T>(0, 1);
-  }
+  HERMES_CPU_GPU static BoundingBox1 Unit() { return BoundingBox1<T>(0, 1); }
 
-  HERMES_DEVICE_CALLABLE BoundingBox1() {
+  HERMES_CPU_GPU BoundingBox1() {
     lower = numeric::limits::greatest<T>();
     upper = numeric::limits::lowest<T>();
   }
-  HERMES_DEVICE_CALLABLE explicit BoundingBox1(const T &p)
-      : lower(p), upper(p) {}
-  HERMES_DEVICE_CALLABLE BoundingBox1(const T &p1, const T &p2)
+  HERMES_CPU_GPU explicit BoundingBox1(const T &p) : lower(p), upper(p) {}
+  HERMES_CPU_GPU BoundingBox1(const T &p1, const T &p2)
       : lower(std::min(p1, p2)), upper(std::max(p1, p2)) {}
-  HERMES_DEVICE_CALLABLE bool contains(const T &p) const {
+  HERMES_CPU_GPU bool contains(const T &p) const {
     return p >= lower && p <= upper;
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE real_t size() const {
-    return upper - lower;
-  }
-  HERMES_DEVICE_CALLABLE T extends() const { return upper - lower; }
-  HERMES_DEVICE_CALLABLE T center() const {
-    return lower + (upper - lower) * 0.5;
-  }
-  HERMES_DEVICE_CALLABLE T centroid() const { return lower * .5 + upper * .5; }
-  HERMES_DEVICE_CALLABLE const T &operator[](int i) const {
-    return (&lower)[i];
-  }
-  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&lower)[i]; }
+  HERMES_NODISCARD HERMES_CPU_GPU real_t size() const { return upper - lower; }
+  HERMES_CPU_GPU T extends() const { return upper - lower; }
+  HERMES_CPU_GPU T center() const { return lower + (upper - lower) * 0.5; }
+  HERMES_CPU_GPU T centroid() const { return lower * .5 + upper * .5; }
+  HERMES_CPU_GPU const T &operator[](int i) const { return (&lower)[i]; }
+  HERMES_CPU_GPU T &operator[](int i) { return (&lower)[i]; }
 
   T lower, upper;
 };
@@ -80,18 +71,17 @@ public:
 /// \tparam T coordinates type
 template <typename T> class BoundingBox2 {
 public:
-  HERMES_DEVICE_CALLABLE static BoundingBox2<T> Unit() {
+  HERMES_CPU_GPU static BoundingBox2<T> Unit() {
     return {Point2<T>(), Point2<T>(1, 1)};
   }
 
-  HERMES_DEVICE_CALLABLE BoundingBox2() {
+  HERMES_CPU_GPU BoundingBox2() {
     lower = Point2<T>(numeric::limits::greatest<T>());
     upper = Point2<T>(numeric::limits::lowest<T>());
   }
-  HERMES_DEVICE_CALLABLE explicit BoundingBox2(const Point2<T> &p)
+  HERMES_CPU_GPU explicit BoundingBox2(const Point2<T> &p)
       : lower(p), upper(p) {}
-  HERMES_DEVICE_CALLABLE BoundingBox2(const Point2<T> &p1,
-                                      const Point2<T> &p2) {
+  HERMES_CPU_GPU BoundingBox2(const Point2<T> &p1, const Point2<T> &p2) {
 #ifdef HERMES_DEVICE_ENABLED
     lower = Point2<T>(fminf(p1.x, p2.x), fminf(p1.y, p2.y));
     upper = Point2<T>(fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y));
@@ -101,52 +91,50 @@ public:
 #endif
   }
   template <typename U>
-  HERMES_DEVICE_CALLABLE BoundingBox2(const Index2<U>::Range &range)
+  HERMES_CPU_GPU BoundingBox2(const Index2<U>::Range &range)
       : lower{range.lower()}, upper{range.upper() - Index2<U>(1, 1)} {}
 
   template <typename U>
-  HERMES_DEVICE_CALLABLE BoundingBox2 &
-  operator=(const Index2<U>::Range &range) {
+  HERMES_CPU_GPU BoundingBox2 &operator=(const Index2<U>::Range &range) {
     lower = range.lower();
     upper = range.upper();
     return *this;
   }
 
   template <typename U>
-  HERMES_DEVICE_CALLABLE explicit operator typename Index2<U>::Range() const {
+  HERMES_CPU_GPU explicit operator typename Index2<U>::Range() const {
     return Index2<U>::Range(lower, Index2<U>(upper.x + 1, upper.y + 1));
   }
 
-  HERMES_DEVICE_CALLABLE const Point2<T> &operator[](int i) const {
+  HERMES_CPU_GPU const Point2<T> &operator[](int i) const {
     return (i == 0) ? lower : upper;
   }
-  HERMES_DEVICE_CALLABLE Point2<T> &operator[](int i) {
+  HERMES_CPU_GPU Point2<T> &operator[](int i) {
     return (i == 0) ? lower : upper;
   }
 
 #define ARITHMETIC_OP(OP, O)                                                   \
-  HERMES_DEVICE_CALLABLE BoundingBox2 &operator OP##=(const O & o) {           \
+  HERMES_CPU_GPU BoundingBox2 &operator OP## = (const O &o) {                  \
     *this = make_union(*this, o);                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE BoundingBox2 operator OP(const O &o) {                \
+  HERMES_CPU_GPU BoundingBox2 operator OP(const O &o) {                        \
     return make_union(*this, o);                                               \
   }
   ARITHMETIC_OP(+, BoundingBox2)
   ARITHMETIC_OP(+, Point2<T>)
 #undef ARITHMETIC_OP
 
-  HERMES_DEVICE_CALLABLE bool operator==(const BoundingBox2 &b) const {
+  HERMES_CPU_GPU bool operator==(const BoundingBox2 &b) const {
     return lower == b.lower && upper == b.upper;
   }
 
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool
-  contains(const Point2<T> &p) const {
+  HERMES_NODISCARD HERMES_CPU_GPU bool contains(const Point2<T> &p) const {
     return (p.x >= lower.x && p.x <= upper.x && p.y >= lower.y &&
             p.y <= upper.y);
   }
 
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE real_t size(int d) const {
+  HERMES_NODISCARD HERMES_CPU_GPU real_t size(int d) const {
 #ifdef HERMES_DEVICE_ENABLED
     d = fmaxf(0, fminf(1, d));
 #else
@@ -154,16 +142,16 @@ public:
 #endif
     return upper[d] - lower[d];
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Vector2<T> extends() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Vector2<T> extends() const {
     return upper - lower;
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Point2<T> center() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Point2<T> center() const {
     return lower + (upper - lower) * .5f;
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Point2<T> centroid() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Point2<T> centroid() const {
     return lower * .5f + vec2(upper * .5f);
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE int maxExtent() const {
+  HERMES_NODISCARD HERMES_CPU_GPU int maxExtent() const {
     Vector2<T> diag = upper - lower;
     if (diag.x > diag.y)
       return 0;
@@ -181,34 +169,32 @@ public:
 /// \tparam T coordinates type
 template <typename T> class BoundingBox3 {
 public:
-  HERMES_DEVICE_CALLABLE static BoundingBox3
-  unitBox(bool centroid_center = false) {
+  HERMES_CPU_GPU static BoundingBox3 unitBox(bool centroid_center = false) {
     if (centroid_center)
       return {Point3<T>(-0.5), Point3<T>(0.5)};
     return {Point3<T>(), Point3<T>(1, 1, 1)};
   }
 
   /// Creates an empty bounding box
-  HERMES_DEVICE_CALLABLE BoundingBox3() {
+  HERMES_CPU_GPU BoundingBox3() {
     lower = Point3<T>(numeric::limits::greatest<T>());
     upper = Point3<T>(numeric::limits::lowest<T>());
   }
   /// Creates a bounding enclosing a single point
   /// \param p point
-  HERMES_DEVICE_CALLABLE explicit BoundingBox3(const Point3<T> &p)
+  HERMES_CPU_GPU explicit BoundingBox3(const Point3<T> &p)
       : lower(p), upper(p) {}
   /// Creates a bounding box of 2r side centered at c
   /// \param c center point
   /// \param r radius
-  HERMES_DEVICE_CALLABLE BoundingBox3(const Point3<T> &c, real_t r) {
+  HERMES_CPU_GPU BoundingBox3(const Point3<T> &c, real_t r) {
     lower = c - Vector3<T>(r, r, r);
     upper = c + Vector3<T>(r, r, r);
   }
   /// Creates a bounding box enclosing two points
   /// \param p1 first point
   /// \param p2 second point
-  HERMES_DEVICE_CALLABLE BoundingBox3(const Point3<T> &p1,
-                                      const Point3<T> &p2) {
+  HERMES_CPU_GPU BoundingBox3(const Point3<T> &p1, const Point3<T> &p2) {
 #ifdef HERMES_DEVICE_ENABLED
     lower = Point3<T>(fminf(p1.x, p2.x), fminf(p1.y, p2.y), fminf(p1.z, p2.z));
     upper = Point3<T>(fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y), fmaxf(p1.z, p2.z));
@@ -222,21 +208,19 @@ public:
 
   /// \param p
   /// \return true if this bounding box encloses **p**
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool
-  contains(const Point3<T> &p) const {
+  HERMES_NODISCARD HERMES_CPU_GPU bool contains(const Point3<T> &p) const {
     return (p.x >= lower.x && p.x <= upper.x && p.y >= lower.y &&
             p.y <= upper.y && p.z >= lower.z && p.z <= upper.z);
   }
   /// \param b bbox
   /// \return true if bbox is fully inside
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool
-  contains(const BoundingBox3 &b) const {
+  HERMES_NODISCARD HERMES_CPU_GPU bool contains(const BoundingBox3 &b) const {
     return contains(b.lower) && contains(b.upper);
   }
   /// Doesn't consider points on the upper boundary to be inside the bbox
   /// \param p point
   /// \return true if contains exclusive
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool
+  HERMES_NODISCARD HERMES_CPU_GPU bool
   containsExclusive(const Point3<T> &p) const {
     return (p.x >= lower.x && p.x < upper.x && p.y >= lower.y &&
             p.y < upper.y && p.z >= lower.z && p.z < upper.z);
@@ -244,16 +228,16 @@ public:
 
   /// Pads the bbox in both dimensions
   /// \param delta expansion factor (lower - delta, upper + delta)
-  HERMES_DEVICE_CALLABLE void expand(real_t delta) {
+  HERMES_CPU_GPU void expand(real_t delta) {
     lower -= Vector3<T>(delta, delta, delta);
     upper += Vector3<T>(delta, delta, delta);
   }
   /// \return vector along the diagonal upper - lower
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Vector3<T> diagonal() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Vector3<T> diagonal() const {
     return upper - lower;
   }
   /// \return index of longest axis
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE int maxExtent() const {
+  HERMES_NODISCARD HERMES_CPU_GPU int maxExtent() const {
     Vector3<T> diag = upper - lower;
     if (diag.x > diag.y && diag.x > diag.z)
       return 0;
@@ -264,8 +248,7 @@ public:
   /// \param p point
   /// \return position of **p** relative to the corners where lower has offset
   /// (0,0,0) and upper (1,1,1)
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Vector3<T>
-  offset(const Point3<T> &p) const {
+  HERMES_NODISCARD HERMES_CPU_GPU Vector3<T> offset(const Point3<T> &p) const {
     hermes::geo::Vector3<T> o = p - lower;
     if (upper.x > lower.x)
       o.x /= upper.x - lower.x;
@@ -276,12 +259,12 @@ public:
     return o;
   }
   /// \return surface area of the six faces
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T surfaceArea() const {
+  HERMES_NODISCARD HERMES_CPU_GPU T surfaceArea() const {
     Vector3<T> d = upper - lower;
     return 2 * (d.x * d.y + d.x * d.z + d.y * d.z);
   }
   /// \return volume inside the bounds
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T volume() const {
+  HERMES_NODISCARD HERMES_CPU_GPU T volume() const {
     Vector3<T> d = upper - lower;
     return d.x * d.y * d.z;
   }
@@ -315,39 +298,39 @@ public:
                           Point3<T>(upper.x, upper.y, upper.z));
     return children;
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Point3<T> center() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Point3<T> center() const {
     return lower + (upper - lower) * .5f;
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Point3<T> centroid() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Point3<T> centroid() const {
     return lower * .5f + vec3(upper * .5f);
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T size(u32 d) const {
+  HERMES_NODISCARD HERMES_CPU_GPU T size(u32 d) const {
     return upper[d] - lower[d];
   }
 
   /// \param i 0 = lower, 1 = upper
   /// \return lower or upper point
-  HERMES_DEVICE_CALLABLE const Point3<T> &operator[](int i) const {
+  HERMES_CPU_GPU const Point3<T> &operator[](int i) const {
     return (i == 0) ? lower : upper;
   }
   /// \param i 0 = lower, 1 = upper
   /// \return lower or upper point
-  HERMES_DEVICE_CALLABLE Point3<T> &operator[](int i) {
+  HERMES_CPU_GPU Point3<T> &operator[](int i) {
     return (i == 0) ? lower : upper;
   }
   /// \param c corner index
   /// \return corner point
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Point3<T> corner(int c) const {
+  HERMES_NODISCARD HERMES_CPU_GPU Point3<T> corner(int c) const {
     return Point3<T>((*this)[(c & 1)].x, (*this)[(c & 2) ? 1 : 0].y,
                      (*this)[(c & 4) ? 1 : 0].z);
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE BoundingBox2<T> xy() const {
+  HERMES_NODISCARD HERMES_CPU_GPU BoundingBox2<T> xy() const {
     return BoundingBox2<T>(lower.xy(), upper.xy());
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE BoundingBox2<T> yz() const {
+  HERMES_NODISCARD HERMES_CPU_GPU BoundingBox2<T> yz() const {
     return BoundingBox2<T>(lower.yz(), upper.yz());
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE BoundingBox2<T> xz() const {
+  HERMES_NODISCARD HERMES_CPU_GPU BoundingBox2<T> xz() const {
     return BoundingBox2<T>(lower.xz(), upper.xz());
   }
 
@@ -362,31 +345,31 @@ public:
 /// \tparam T coordinates type.
 template <typename T> struct BoundingSphere3 {
 
-  HERMES_DEVICE_CALLABLE static BoundingSphere3 Unit() {
+  HERMES_CPU_GPU static BoundingSphere3 Unit() {
     return BoundingSphere3().setCenter({0.f, 0.f, 0.f}).setRadius(1.f);
   }
 
-  HERMES_DEVICE_CALLABLE BoundingSphere3() = default;
-  HERMES_DEVICE_CALLABLE BoundingSphere3(const Point3<T> &c, T r)
+  HERMES_CPU_GPU BoundingSphere3() {}
+  HERMES_CPU_GPU BoundingSphere3(const Point3<T> &c, T r)
       : center(c), radius(r) {}
-  HERMES_DEVICE_CALLABLE ~BoundingSphere3() = default;
+  HERMES_CPU_GPU ~BoundingSphere3() {}
 
-  HERMES_DEVICE_CALLABLE BoundingSphere3 &setCenter(const Point3<T> &p) {
+  HERMES_CPU_GPU BoundingSphere3 &setCenter(const Point3<T> &p) {
     center = p;
     return *this;
   }
 
-  HERMES_DEVICE_CALLABLE BoundingSphere3 &setRadius(T r) {
+  HERMES_CPU_GPU BoundingSphere3 &setRadius(T r) {
     radius = r;
     return *this;
   }
 
 #define ARITHMETIC_OP(OP, O)                                                   \
-  HERMES_DEVICE_CALLABLE BoundingSphere3 &operator OP##=(const O & o) {        \
+  HERMES_CPU_GPU BoundingSphere3 &operator OP## = (const O &o) {               \
     *this = make_union(*this, o);                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE BoundingSphere3 operator OP(const O &o) {             \
+  HERMES_CPU_GPU BoundingSphere3 operator OP(const O &o) {                     \
     return make_union(*this, o);                                               \
   }
   ARITHMETIC_OP(+, BoundingSphere3)
@@ -400,23 +383,23 @@ template <typename T> struct BoundingSphere3 {
 };
 
 template <typename T>
-HERMES_DEVICE_CALLABLE BoundingBox1<T> make_union(const BoundingBox1<T> &b,
-                                                  const T &p) {
+HERMES_CPU_GPU BoundingBox1<T> make_union(const BoundingBox1<T> &b,
+                                          const T &p) {
   BoundingBox1 ret = b;
   ret.lower = std::min(b.lower, p);
   ret.upper = std::max(b.upper, p);
   return ret;
 }
 template <typename T>
-HERMES_DEVICE_CALLABLE BoundingBox1<T> make_union(const BoundingBox1<T> &a,
-                                                  const BoundingBox1<T> &b) {
+HERMES_CPU_GPU BoundingBox1<T> make_union(const BoundingBox1<T> &a,
+                                          const BoundingBox1<T> &b) {
   BoundingBox1 ret = make_union(a, b.lower);
   return make_union(ret, b.upper);
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE inline BoundingBox2<T>
-make_union(const BoundingBox2<T> &b, const Point2<T> &p) {
+HERMES_CPU_GPU inline BoundingBox2<T> make_union(const BoundingBox2<T> &b,
+                                                 const Point2<T> &p) {
   BoundingBox2<T> ret = b;
 #ifdef HERMES_DEVICE_ENABLED
   ret.lower.x = fminf(b.lower.x, p.x);
@@ -433,8 +416,8 @@ make_union(const BoundingBox2<T> &b, const Point2<T> &p) {
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE inline BoundingBox2<T>
-make_union(const BoundingBox2<T> &a, const BoundingBox2<T> &b) {
+HERMES_CPU_GPU inline BoundingBox2<T> make_union(const BoundingBox2<T> &a,
+                                                 const BoundingBox2<T> &b) {
   BoundingBox2<T> ret = make_union(a, b.lower);
   return make_union(ret, b.upper);
 }
@@ -444,8 +427,8 @@ make_union(const BoundingBox2<T> &a, const BoundingBox2<T> &b) {
 /// \param b second bounding box
 /// \return true if they overlap
 template <typename T>
-HERMES_DEVICE_CALLABLE bool overlaps(const BoundingBox3<T> &a,
-                                     const BoundingBox3<T> &b) {
+HERMES_CPU_GPU bool overlaps(const BoundingBox3<T> &a,
+                             const BoundingBox3<T> &b) {
   bool x = (a.upper.x >= b.lower.x) && (a.lower.x <= b.upper.x);
   bool y = (a.upper.y >= b.lower.y) && (a.lower.y <= b.upper.y);
   bool z = (a.upper.z >= b.lower.z) && (a.lower.z <= b.upper.z);
@@ -456,8 +439,8 @@ HERMES_DEVICE_CALLABLE bool overlaps(const BoundingBox3<T> &a,
 /// \param p point
 /// \return a new bounding box that encompasses **b** and **p**
 template <typename T>
-HERMES_DEVICE_CALLABLE BoundingBox3<T> make_union(const BoundingBox3<T> &b,
-                                                  const Point3<T> &p) {
+HERMES_CPU_GPU BoundingBox3<T> make_union(const BoundingBox3<T> &b,
+                                          const Point3<T> &p) {
   BoundingBox3<T> ret = b;
 #ifdef HERMES_DEVICE_ENABLED
   ret.lower.x = fminf(b.lower.x, p.x);
@@ -481,8 +464,8 @@ HERMES_DEVICE_CALLABLE BoundingBox3<T> make_union(const BoundingBox3<T> &b,
 /// \param b bounding box
 /// \return a new bounding box that encompasses **a** and **b**
 template <typename T>
-HERMES_DEVICE_CALLABLE inline BoundingBox3<T>
-make_union(const BoundingBox3<T> &a, const BoundingBox3<T> &b) {
+HERMES_CPU_GPU inline BoundingBox3<T> make_union(const BoundingBox3<T> &a,
+                                                 const BoundingBox3<T> &b) {
   BoundingBox3<T> ret = make_union(a, b.lower);
   return make_union(ret, b.upper);
 }
@@ -491,7 +474,7 @@ make_union(const BoundingBox3<T> &a, const BoundingBox3<T> &b) {
 /// \param b bounding sphere
 /// \return a new bounding sphere that encompasses **a** and **b**
 template <typename T>
-HERMES_DEVICE_CALLABLE inline BoundingSphere3<T>
+HERMES_CPU_GPU inline BoundingSphere3<T>
 make_union(const BoundingSphere3<T> &a, const BoundingSphere3<T> &b) {
   auto ab_dist = hermes::geo::distance(a.center, b.center);
   if (ab_dist + a.radius < b.radius)
@@ -508,8 +491,8 @@ make_union(const BoundingSphere3<T> &a, const BoundingSphere3<T> &b) {
 /// \param b bounding box
 /// \return a new bbox resulting from the intersection of **a** and **b**
 template <typename T>
-HERMES_DEVICE_CALLABLE BoundingBox3<T> intersect(const BoundingBox3<T> &a,
-                                                 const BoundingBox3<T> &b) {
+HERMES_CPU_GPU BoundingBox3<T> intersect(const BoundingBox3<T> &a,
+                                         const BoundingBox3<T> &b) {
 #ifdef HERMES_DEVICE_ENABLED
   return BoundingBox3<T>(
       Point3<T>(max(a.lower.x, b.lower.x), max(a.lower.x, b.lower.y),

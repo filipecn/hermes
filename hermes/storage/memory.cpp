@@ -24,8 +24,8 @@
 /// \author FilipeCN (filipedecn@gmail.com)
 /// \date   2021-09-22
 
-#include "hermes/core/debug.h"
 #include <hermes/storage/memory.h>
+#include <hermes/system/gpu.h>
 
 #include <tuple>
 
@@ -102,7 +102,7 @@ HeError allocation::freeMemory(void *data, MemoryLocation location) {
     break;
   case MemoryLocation::UNIFIED:
 #ifdef HERMES_DEVICE_ENABLED
-    HERMES_CHECK_CUDA_CALL(cudaFree(data_))
+    HERMES_CHECK_CUDA_CALL(cudaFree(data))
 #endif
     break;
   }
@@ -123,7 +123,7 @@ Result<void *> allocation::allocate(h_size byte_count,
     break;
   case MemoryLocation::UNIFIED:
 #ifdef HERMES_DEVICE_ENABLED
-    HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data_, byte_count))
+    HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data, byte_count))
 #endif
     break;
   }
@@ -149,7 +149,7 @@ allocation::allocate(const size2 &size, MemoryLocation location) {
     break;
   case MemoryLocation::UNIFIED:
 #ifdef HERMES_DEVICE_ENABLED
-    HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data_, size.total()))
+    HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data, size.total()))
     pitch = size.width;
 #endif
     break;
@@ -168,24 +168,27 @@ allocation::allocate(const size3 &size, MemoryLocation location) {
     break;
   case MemoryLocation::DEVICE:
 #ifdef HERMES_DEVICE_ENABLED
+  {
     cudaPitchedPtr pdata{};
     cudaExtent extent = make_cudaExtent(size.width, size.height, size.depth);
     HERMES_CHECK_CUDA_CALL(cudaMalloc3D(&pdata, extent));
     pitch = pdata.pitch;
+  }
 #endif
-    break;
+  break;
   case MemoryLocation::UNIFIED:
 #ifdef HERMES_DEVICE_ENABLED
-    HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data_, size.total()))
+  {
+    HERMES_CHECK_CUDA_CALL(cudaMallocManaged(&data, size.total()))
     pitch = size.width;
+  }
 #endif
-    break;
+  break;
   }
   return std::tuple<void *, h_size>(data, pitch);
 }
 
-HeError writes::copyDevice2Device(void *dst, const void *src,
-                                  h_size byte_count) {
+HeError writes::copyDevice2Device(void *dst, void *src, h_size byte_count) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(src);
   HERMES_UNUSED_VARIABLE(byte_count);
@@ -196,7 +199,7 @@ HeError writes::copyDevice2Device(void *dst, const void *src,
   return HeError::NO_ERROR;
 }
 
-HeError writes::copyDevice2Host(void *dst, const void *src, h_size byte_count) {
+HeError writes::copyDevice2Host(void *dst, void *src, h_size byte_count) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(src);
   HERMES_UNUSED_VARIABLE(byte_count);
@@ -207,24 +210,25 @@ HeError writes::copyDevice2Host(void *dst, const void *src, h_size byte_count) {
   return HeError::NO_ERROR;
 }
 
-HeError writes::copyHost2Device(void *dst, const void *src, h_size byte_count) {
-  HERMES_UNUSED_VARIABLE(dst);
-  HERMES_UNUSED_VARIABLE(src);
-  HERMES_UNUSED_VARIABLE(byte_count);
+HeError writes::copyHost2Device(void *dst, void *src, h_size byte_count) {
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(
       cudaMemcpy(dst, src, byte_count, cudaMemcpyHostToDevice));
+#else
+  HERMES_UNUSED_VARIABLE(dst);
+  HERMES_UNUSED_VARIABLE(src);
+  HERMES_UNUSED_VARIABLE(byte_count);
 #endif
   return HeError::NO_ERROR;
 }
 
-HeError writes::copyHost2Host(void *dst, const void *src, h_size byte_count) {
+HeError writes::copyHost2Host(void *dst, void *src, h_size byte_count) {
   std::memcpy(dst, src, byte_count);
   return HeError::NO_ERROR;
 }
 
 HeError writes::copy(MemoryLocation dst_location, void *dst,
-                     MemoryLocation src_location, const void *src,
+                     MemoryLocation src_location, void *src,
                      h_size byte_count) {
 
   switch (src_location) {
@@ -261,7 +265,7 @@ HeError writes::copy(MemoryLocation dst_location, void *dst,
   return HeError::NO_ERROR;
 }
 
-HeError writes::copyHost2Device(void *dst, h_size dst_pitch, const void *src,
+HeError writes::copyHost2Device(void *dst, h_size dst_pitch, void *src,
                                 h_size src_pitch, const size2 &src_size) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(dst_pitch);
@@ -270,13 +274,13 @@ HeError writes::copyHost2Device(void *dst, h_size dst_pitch, const void *src,
   HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(dst, dst_pitch, src, src_pitch,
-                                      src_size.width, src_size_.height,
+                                      src_size.width, src_size.height,
                                       cudaMemcpyHostToDevice));
 #endif
   return HeError::NO_ERROR;
 }
 
-HeError writes::copyDevice2Host(void *dst, h_size dst_pitch, const void *src,
+HeError writes::copyDevice2Host(void *dst, h_size dst_pitch, void *src,
                                 h_size src_pitch, const size2 &src_size) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(dst_pitch);
@@ -285,13 +289,13 @@ HeError writes::copyDevice2Host(void *dst, h_size dst_pitch, const void *src,
   HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(dst, dst_pitch, src, src_pitch,
-                                      src_size.width, src_size_.height,
+                                      src_size.width, src_size.height,
                                       cudaMemcpyHostToDevice));
 #endif
   return HeError::NO_ERROR;
 }
 
-HeError writes::copyDevice2Device(void *dst, h_size dst_pitch, const void *src,
+HeError writes::copyDevice2Device(void *dst, h_size dst_pitch, void *src,
                                   h_size src_pitch, const size2 &src_size) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(dst_pitch);
@@ -300,15 +304,15 @@ HeError writes::copyDevice2Device(void *dst, h_size dst_pitch, const void *src,
   HERMES_UNUSED_VARIABLE(src_size);
 #ifdef HERMES_DEVICE_ENABLED
   HERMES_CHECK_CUDA_CALL(cudaMemcpy2D(dst, dst_pitch, src, src_pitch,
-                                      src_size.width, src_size_.height,
+                                      src_size.width, src_size.height,
                                       cudaMemcpyDeviceToDevice));
 #endif
   return HeError::NO_ERROR;
 }
 
 HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
-                     MemoryLocation src_location, const void *src,
-                     h_size src_pitch, const size2 &src_size) {
+                     MemoryLocation src_location, void *src, h_size src_pitch,
+                     const size2 &src_size) {
   if (src_size.height == 1)
     return copy(dst_location, dst, src_location, src, src_pitch);
   switch (src_location) {
@@ -342,7 +346,7 @@ HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
 }
 
 HeError writes::copyHost2Device(void *dst, h_size dst_pitch,
-                                const size3 &dst_size, const void *src,
+                                const size3 &dst_size, void *src,
                                 h_size src_pitch, const size3 &src_size) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(dst_pitch);
@@ -353,7 +357,7 @@ HeError writes::copyHost2Device(void *dst, h_size dst_pitch,
 #ifdef HERMES_DEVICE_ENABLED
   // 3d pitched memory
   cudaMemcpy3DParms p = {};
-  p.srcPtr.ptr = src_data;
+  p.srcPtr.ptr = src;
   p.srcPtr.pitch = src_pitch;
   p.srcPtr.xsize = src_size.width;
   p.srcPtr.ysize = src_size.height;
@@ -371,7 +375,7 @@ HeError writes::copyHost2Device(void *dst, h_size dst_pitch,
 }
 
 HeError writes::copyDevice2Host(void *dst, h_size dst_pitch,
-                                const size3 &dst_size, const void *src,
+                                const size3 &dst_size, void *src,
                                 h_size src_pitch, const size3 &src_size) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(dst_pitch);
@@ -382,7 +386,7 @@ HeError writes::copyDevice2Host(void *dst, h_size dst_pitch,
 #ifdef HERMES_DEVICE_ENABLED
   // 3d pitched memory
   cudaMemcpy3DParms p = {};
-  p.srcPtr.ptr = src_data;
+  p.srcPtr.ptr = src;
   p.srcPtr.pitch = src_pitch;
   p.srcPtr.xsize = src_size.width;
   p.srcPtr.ysize = src_size.height;
@@ -400,7 +404,7 @@ HeError writes::copyDevice2Host(void *dst, h_size dst_pitch,
 }
 
 HeError writes::copyDevice2Device(void *dst, h_size dst_pitch,
-                                  const size3 &dst_size, const void *src,
+                                  const size3 &dst_size, void *src,
                                   h_size src_pitch, const size3 &src_size) {
   HERMES_UNUSED_VARIABLE(dst);
   HERMES_UNUSED_VARIABLE(dst_pitch);
@@ -411,7 +415,7 @@ HeError writes::copyDevice2Device(void *dst, h_size dst_pitch,
 #ifdef HERMES_DEVICE_ENABLED
   // 3d pitched memory
   cudaMemcpy3DParms p = {};
-  p.srcPtr.ptr = src_data;
+  p.srcPtr.ptr = src;
   p.srcPtr.pitch = src_pitch;
   p.srcPtr.xsize = src_size.width;
   p.srcPtr.ysize = src_size.height;
@@ -430,7 +434,7 @@ HeError writes::copyDevice2Device(void *dst, h_size dst_pitch,
 
 HeError writes::copy(MemoryLocation dst_location, void *dst, h_size dst_pitch,
                      const size3 &dst_size, MemoryLocation src_location,
-                     const void *src, h_size src_pitch, const size3 &src_size) {
+                     void *src, h_size src_pitch, const size3 &src_size) {
   if (src_size.depth == 1 && src_size.height == 1)
     return copy(dst_location, dst, src_location, src, src_pitch);
   if (src_size.depth == 1)

@@ -48,25 +48,25 @@ template <typename T> class Point2 {
 public:
   /// \brief Constructs from single component value
   /// \param f
-  HERMES_DEVICE_CALLABLE explicit Point2(T f = T(0)) { x = y = f; }
+  HERMES_CPU_GPU explicit Point2(T f = T(0)) { x = y = f; }
   /// \brief Constructs from component array
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Point2(const real_t *v) : x(v[0]), y(v[1]) {}
+  HERMES_CPU_GPU explicit Point2(const real_t *v) : x(v[0]), y(v[1]) {}
   /// \brief Constructs from component values
   /// \param _x
   /// \param _y
-  HERMES_DEVICE_CALLABLE Point2(real_t _x, real_t _y) : x(_x), y(_y) {}
+  HERMES_CPU_GPU Point2(real_t _x, real_t _y) : x(_x), y(_y) {}
   /// \brief Constructs from index2
   /// \tparam U
   /// \param index
   template <typename U>
-  HERMES_DEVICE_CALLABLE Point2(const Index2<U> &index)
+  HERMES_CPU_GPU Point2(const Index2<U> &index)
       : x{static_cast<T>(index.i)}, y{static_cast<T>(index.j)} {}
 
   /// \brief Casts to index2
   /// \tparam U
   /// \return
-  template <typename U> HERMES_DEVICE_CALLABLE operator Index2<U>() const {
+  template <typename U> HERMES_CPU_GPU operator Index2<U>() const {
     return Index2<U>(x, y);
   }
   //                                                                                                       assignment
@@ -75,7 +75,7 @@ public:
   /// \param index
   /// \return
   template <typename U>
-  HERMES_DEVICE_CALLABLE Point2 &operator=(const Index2<U> &index) {
+  HERMES_CPU_GPU Point2 &operator=(const Index2<U> &index) {
     x = index.i;
     y = index.j;
     return *this;
@@ -85,41 +85,39 @@ public:
   /// \warning `i` is not checked
   /// \param i component index in [0, 1]
   /// \return
-  HERMES_DEVICE_CALLABLE const T &operator[](int i) const { return (&x)[i]; }
+  HERMES_CPU_GPU const T &operator[](int i) const { return (&x)[i]; }
   /// \brief Get i-th component reference
   /// \warning `i` is not checked
   /// \param i component index in [0, 1]
   /// \return
-  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&x)[i]; }
+  HERMES_CPU_GPU T &operator[](int i) { return (&x)[i]; }
   //                                                                                                       arithmetic
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_DEVICE_CALLABLE Point2 &operator OP##=(const Vector2<T> &v) {         \
+  HERMES_CPU_GPU Point2 &operator OP## = (const Vector2<T> &v) {               \
     x OP## = v.x;                                                              \
     y OP## = v.y;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Point2 &operator OP##=(real_t f) {                    \
+  HERMES_CPU_GPU Point2 &operator OP## = (real_t f) {                          \
     x OP## = f;                                                                \
     y OP## = f;                                                                \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Point2 operator OP(const Vector2<T> &v) const {       \
+  HERMES_CPU_GPU Point2 operator OP(const Vector2<T> &v) const {               \
     return {x OP v.x, y OP v.y};                                               \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Point2 operator OP(real_t f) const {                  \
-    return {x OP f, y OP f};                                                   \
-  }
+  HERMES_CPU_GPU Point2 operator OP(real_t f) const { return {x OP f, y OP f}; }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
   ARITHMETIC_OP(/)
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
-  HERMES_DEVICE_CALLABLE Vector2<T> operator-(const Point2<T> &b) const {
+  HERMES_CPU_GPU Vector2<T> operator-(const Point2<T> &b) const {
     return Vector2<T>(x - b.x, y - b.y);
   }
   //                                                                                                       relational
 #define RELATIONAL_OP(OP, CO)                                                  \
-  HERMES_DEVICE_CALLABLE bool operator OP(const Point2<T> &b) const {          \
+  HERMES_CPU_GPU bool operator OP(const Point2<T> &b) const {                  \
     return x OP b.x CO y OP b.y;                                               \
   }
   RELATIONAL_OP(<, &&)
@@ -128,7 +126,7 @@ public:
   RELATIONAL_OP(>=, &&)
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
-  HERMES_DEVICE_CALLABLE bool operator==(const Point2<T> &b) const {
+  HERMES_CPU_GPU bool operator==(const Point2<T> &b) const {
     return numbers::cmp::is_equal(x, b.x) && numbers::cmp::is_equal(y, b.y);
   }
 
@@ -149,30 +147,29 @@ template <typename T> class Point3 {
 
 public:
   /// \brief Default constructor
-  HERMES_DEVICE_CALLABLE Point3() : x{0}, y{0}, z{0} {}
+  HERMES_CPU_GPU Point3() : x{0}, y{0}, z{0} {}
   /// \brief Constructs from single component value
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Point3(T v) { x = y = z = v; }
+  HERMES_CPU_GPU explicit Point3(T v) { x = y = z = v; }
   /// \brief Constructs from component values
   /// \param _x
   /// \param _y
   /// \param _z
-  HERMES_DEVICE_CALLABLE Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
+  HERMES_CPU_GPU Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
   /// \brief Constructs from point2
   /// \param p
-  HERMES_DEVICE_CALLABLE explicit Point3(const Point2<T> &p, T _z = 0)
+  HERMES_CPU_GPU explicit Point3(const Point2<T> &p, T _z = 0)
       : x(p.x), y(p.y), z(_z) {}
   /// \brief Constructs from component array
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Point3(const real_t *v)
-      : x(v[0]), y(v[1]), z(v[2]) {}
+  HERMES_CPU_GPU explicit Point3(const real_t *v) : x(v[0]), y(v[1]), z(v[2]) {}
   /// \brief Constructs from interval center and radius
   /// \tparam S
   /// \tparam C
   /// \param c
   /// \param r
   template <typename S, typename C = T>
-  HERMES_DEVICE_CALLABLE explicit Point3(
+  HERMES_CPU_GPU explicit Point3(
       const Point3<S> &c, const Vector3<S> &r,
       typename std::enable_if_t<std::is_same_v<C, Interval<f32>> ||
                                 std::is_same_v<C, Interval<f64>>> * = nullptr)
@@ -182,14 +179,14 @@ public:
   //                                                                                                       conversion
   /// \brief Constructs from vector
   /// \param v
-  HERMES_DEVICE_CALLABLE explicit Point3(const Vector3<T> &v)
+  HERMES_CPU_GPU explicit Point3(const Vector3<T> &v)
       : x(v.x), y(v.y), z(v.z) {}
   /// \brief Constructs from interval point3
   /// \tparam S
   /// \tparam C
   /// \param vi
   template <typename S, typename C = T>
-  HERMES_DEVICE_CALLABLE explicit Point3(
+  HERMES_CPU_GPU explicit Point3(
       const Point3<Interval<S>> &vi,
       typename std::enable_if_t<!std::is_same_v<C, Interval<f32>> &&
                                 !std::is_same_v<C, Interval<f64>>> * = nullptr)
@@ -198,7 +195,7 @@ public:
   /// \tparam U
   /// \param index
   template <typename U>
-  HERMES_DEVICE_CALLABLE Point3(const Index3<U> &index)
+  HERMES_CPU_GPU Point3(const Index3<U> &index)
       : x{static_cast<T>(index.i)}, y{static_cast<T>(index.j)},
         z{static_cast<T>(index.k)} {}
   // *******************************************************************************************************************
@@ -207,7 +204,7 @@ public:
   //                                                                                                          casting
   /// \brief Converts to vector3
   /// \return
-  HERMES_DEVICE_CALLABLE explicit operator Vector3<T>() const {
+  HERMES_CPU_GPU explicit operator Vector3<T>() const {
     return Vector3<T>(x, y, z);
   }
 
@@ -215,30 +212,30 @@ public:
   /// \warning `i` is not checked
   /// \param i component index in [0, 2]
   /// \return
-  HERMES_DEVICE_CALLABLE T operator[](int i) const { return (&x)[i]; }
+  HERMES_CPU_GPU T operator[](int i) const { return (&x)[i]; }
   /// \brief Get i-th component reference
   /// \warning `i` is not checked
   /// \param i component index in [0, 2]
   /// \return
-  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&x)[i]; }
+  HERMES_CPU_GPU T &operator[](int i) { return (&x)[i]; }
 
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_DEVICE_CALLABLE Point3 &operator OP##=(const Vector3<T> &v) {         \
+  HERMES_CPU_GPU Point3 &operator OP## = (const Vector3<T> &v) {               \
     x OP## = v.x;                                                              \
     y OP## = v.y;                                                              \
     z OP## = v.z;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Point3 &operator OP##=(real_t f) {                    \
+  HERMES_CPU_GPU Point3 &operator OP## = (real_t f) {                          \
     x OP## = f;                                                                \
     y OP## = f;                                                                \
     z OP## = f;                                                                \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Point3 operator OP(const Vector3<T> &v) const {       \
+  HERMES_CPU_GPU Point3 operator OP(const Vector3<T> &v) const {               \
     return {x OP v.x, y OP v.y, z OP v.z};                                     \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Point3 operator OP(T f) const {                       \
+  HERMES_CPU_GPU Point3 operator OP(T f) const {                               \
     return {x OP f, y OP f, z OP f};                                           \
   }
   ARITHMETIC_OP(+)
@@ -246,12 +243,12 @@ public:
   ARITHMETIC_OP(/)
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
-  HERMES_DEVICE_CALLABLE Vector3<T> operator-(const Point3<T> &b) const {
+  HERMES_CPU_GPU Vector3<T> operator-(const Point3<T> &b) const {
     return Vector3<T>(x - b.x, y - b.y, z - b.z);
   }
 
 #define RELATIONAL_OP(OP, CO)                                                  \
-  HERMES_DEVICE_CALLABLE bool operator OP(const Point3<T> &b) const {          \
+  HERMES_CPU_GPU bool operator OP(const Point3<T> &b) const {                  \
     return x OP b.x CO y OP b.y CO z OP b.z;                                   \
   }
   RELATIONAL_OP(<, &&)
@@ -260,20 +257,20 @@ public:
   RELATIONAL_OP(>=, &&)
   RELATIONAL_OP(!=, ||)
 #undef RELATIONAL_OP
-  HERMES_DEVICE_CALLABLE bool operator==(const Point3<T> &b) const {
+  HERMES_CPU_GPU bool operator==(const Point3<T> &b) const {
     return numbers::cmp::is_equal(x, b.x) && numbers::cmp::is_equal(y, b.y) &&
            numbers::cmp::is_equal(z, b.z);
   }
 
   /// \brief Gets 2-dimensional swizzle (x, y)
   /// \return
-  HERMES_DEVICE_CALLABLE Point2<T> xy() const { return Point2<T>(x, y); }
+  HERMES_CPU_GPU Point2<T> xy() const { return Point2<T>(x, y); }
   /// \brief Gets 2-dimensional swizzle (y, z)
   /// \return
-  HERMES_DEVICE_CALLABLE Point2<T> yz() const { return Point2<T>(y, z); }
+  HERMES_CPU_GPU Point2<T> yz() const { return Point2<T>(y, z); }
   /// \brief Gets 2-dimensional swizzle (x, z)
   /// \return
-  HERMES_DEVICE_CALLABLE Point2<T> xz() const { return Point2<T>(x, z); }
+  HERMES_CPU_GPU Point2<T> xz() const { return Point2<T>(x, z); }
 
   T x = T(0.0); //!< 0-th component
   T y = T(0.0); //!< 1-th component
@@ -286,7 +283,7 @@ public:
 /// \param a
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE Point2<T> operator*(real_t f, const Point2<T> &a) {
+HERMES_CPU_GPU Point2<T> operator*(real_t f, const Point2<T> &a) {
   return Point2<T>(a.x * f, a.y * f);
 }
 
@@ -296,7 +293,7 @@ HERMES_DEVICE_CALLABLE Point2<T> operator*(real_t f, const Point2<T> &a) {
 /// \param b
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE real_t distance(const Point2<T> &a, const Point2<T> &b) {
+HERMES_CPU_GPU real_t distance(const Point2<T> &a, const Point2<T> &b) {
   return (a - b).length();
 }
 /// \brief Computes the squared Euclidean distance between two points
@@ -305,8 +302,7 @@ HERMES_DEVICE_CALLABLE real_t distance(const Point2<T> &a, const Point2<T> &b) {
 /// \param b
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE real_t distance2(const Point2<T> &a,
-                                        const Point2<T> &b) {
+HERMES_CPU_GPU real_t distance2(const Point2<T> &a, const Point2<T> &b) {
   return (a - b).length2();
 }
 /// \brief Computes the Euclidean distance between two points
@@ -315,7 +311,7 @@ HERMES_DEVICE_CALLABLE real_t distance2(const Point2<T> &a,
 /// \param b
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE real_t distance(const Point3<T> &a, const Point3<T> &b) {
+HERMES_CPU_GPU real_t distance(const Point3<T> &a, const Point3<T> &b) {
   return (a - b).length();
 }
 /// \brief Computes the squared Euclidean distance between two points
@@ -324,14 +320,12 @@ HERMES_DEVICE_CALLABLE real_t distance(const Point3<T> &a, const Point3<T> &b) {
 /// \param b
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE real_t distance2(const Point3<T> &a,
-                                        const Point3<T> &b) {
+HERMES_CPU_GPU real_t distance2(const Point3<T> &a, const Point3<T> &b) {
   return (a - b).length2();
 }
 //                                                                                                            numbers
 #define MATH_OP(NAME, OP)                                                      \
-  template <typename T>                                                        \
-  HERMES_DEVICE_CALLABLE Point2<T> NAME(const Point2<T> &p) {                  \
+  template <typename T> HERMES_CPU_GPU Point2<T> NAME(const Point2<T> &p) {    \
     return Point2<T>(OP(p.x), OP(p.y));                                        \
   }
 #ifdef HERMES_DEVICE_ENABLED
@@ -383,26 +377,26 @@ HERMES_TYPE_LAYOUT_METHODS(geo::point2i, Interval<real_t>, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::point3i, Interval<real_t>, 3)
 
 template <typename T>
-HERMES_DEVICE_CALLABLE const geo::Point2<T> &max(const geo::Point2<T> &a,
-                                                 const geo::Point2<T> &b) {
+HERMES_CPU_GPU const geo::Point2<T> &max(const geo::Point2<T> &a,
+                                         const geo::Point2<T> &b) {
   return a > b ? a : b;
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE const geo::Point3<T> &max(const geo::Point3<T> &a,
-                                                 const geo::Point3<T> &b) {
+HERMES_CPU_GPU const geo::Point3<T> &max(const geo::Point3<T> &a,
+                                         const geo::Point3<T> &b) {
   return a > b ? a : b;
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE const geo::Point2<T> &min(const geo::Point2<T> &a,
-                                                 const geo::Point2<T> &b) {
+HERMES_CPU_GPU const geo::Point2<T> &min(const geo::Point2<T> &a,
+                                         const geo::Point2<T> &b) {
   return a < b ? a : b;
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE const geo::Point3<T> &min(const geo::Point3<T> &a,
-                                                 const geo::Point3<T> &b) {
+HERMES_CPU_GPU const geo::Point3<T> &min(const geo::Point3<T> &a,
+                                         const geo::Point3<T> &b) {
   return a < b ? a : b;
 }
 

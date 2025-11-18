@@ -51,16 +51,17 @@ namespace hermes {
 template <typename CharType> class Str {
 public:
   using StringType = std::basic_string<CharType>;
-  using StringTypeIterator = std::basic_string<CharType>::const_iterator;
+  using StringTypeIterator =
+      typename std::basic_string<CharType>::const_iterator;
   using StringStreamType = std::basic_stringstream<CharType>;
 
   struct regex {
     using MatchResults = std::match_results<StringTypeIterator>;
-    static inline const CharType floating_point_number[] =
+    static inline constexpr char floating_point_number[] =
         "[-+]?[0-9]*\\.?[0-9]*e?[-+]?[0-9]+";
-    static inline const CharType integer_number[] = "[-+]?[0-9]+";
-    static inline const CharType alpha_numeric_word[] = "[a-zA-Z0-9]+";
-    static inline const CharType c_identifier[] = "[_a-zA-Z]+[0-9a-zA-Z_]*";
+    static inline const char integer_number[] = "[-+]?[0-9]+";
+    static inline const char alpha_numeric_word[] = "[a-zA-Z0-9]+";
+    static inline const char c_identifier[] = "[_a-zA-Z]+[0-9a-zA-Z_]*";
 
     /// \brief Checks if a string s matches exactly a regular expression
     /// \param s input string

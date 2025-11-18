@@ -35,19 +35,19 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set(DEBUG_FLAGS "-g -pg -Wall -Wextra -O0 -fprofile-arcs -ftest-coverage --coverage -fPIC")
-    set(RELEASE_FLAGS "-O3 -fPIC")
+  set(DEBUG_FLAGS "-g -pg -Wall -Wextra -O0 -fprofile-arcs -ftest-coverage --coverage -fPIC")
+  set(RELEASE_FLAGS "-O3 -fPIC")
 endif (CMAKE_COMPILER_IS_GNUCXX)
 
 # ##############################################################################
 #                                                                         CUDA #
 # ##############################################################################
-if (HERMES_BUILD_WITH_CUDA)
-    set(CMAKE_CUDA_STANDARD 17)
-    set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
-    set(CMAKE_CXX_EXTENSIONS Off)
-    set(CMAKE_CUDA_EXTENSIONS Off)
-  endif (HERMES_BUILD_WITH_CUDA)
+if (HERMES_ENABLE_CUDA)
+  set(CMAKE_CUDA_STANDARD 23)
+  set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
+  set(CMAKE_CXX_EXTENSIONS Off)
+  set(CMAKE_CUDA_EXTENSIONS Off)
+endif (HERMES_ENABLE_CUDA)
 
 # ##############################################################################
 #                                                                     PROFILES #

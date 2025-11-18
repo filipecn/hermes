@@ -41,7 +41,7 @@ namespace hermes::math {
 /// \param invOut
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE bool gluInvertMatrix(const T m[16], T invOut[16]) {
+HERMES_CPU_GPU bool gluInvertMatrix(const T m[16], T invOut[16]) {
   T inv[16], det;
   int i;
 
@@ -118,11 +118,11 @@ public:
   // static
 
   /// Setup identity matrix.
-  HERMES_DEVICE_CALLABLE static inline MatrixNxM I() {
+  HERMES_CPU_GPU static inline MatrixNxM I() {
     return MatrixNxM().setIdentity();
   }
 
-  HERMES_DEVICE_CALLABLE static inline MatrixNxM One() {
+  HERMES_CPU_GPU static inline MatrixNxM One() {
     MatrixNxM<T, N, M> m;
     for (u32 i = 0; i < N; ++i)
       for (u32 j = 0; j < M; ++j)
@@ -130,10 +130,9 @@ public:
     return m;
   }
 
-  HERMES_DEVICE_CALLABLE static inline MatrixNxM Zero() { return {}; }
+  HERMES_CPU_GPU static inline MatrixNxM Zero() { return {}; }
 
-  HERMES_DEVICE_CALLABLE static inline MatrixNxM
-  Diag(const MatrixNxM<T, N, 1> &d) {
+  HERMES_CPU_GPU static inline MatrixNxM Diag(const MatrixNxM<T, N, 1> &d) {
     static_assert(N == M, "Can't create non-squared matrices from diagonal.");
     MatrixNxM<T, N, M> m;
     for (u32 i = 0; i < N; ++i)
@@ -143,13 +142,11 @@ public:
 
   // constructors
 
-  HERMES_DEVICE_CALLABLE explicit MatrixNxM() {
-    std::memset(m_, 0, sizeof(m_));
-  }
+  HERMES_CPU_GPU explicit MatrixNxM() { std::memset(m_, 0, sizeof(m_)); }
   /// \param values list of values
   /// \param isColumnMajor [optional | default = false] values configuration
-  HERMES_DEVICE_CALLABLE MatrixNxM(std::initializer_list<T> values,
-                                   bool columnMajor = false) {
+  HERMES_CPU_GPU MatrixNxM(std::initializer_list<T> values,
+                           bool columnMajor = false) {
     size_t l = 0, c = 0;
     for (auto v : values) {
       m_[l][c] = v;
@@ -166,8 +163,8 @@ public:
   }
   /// \param mat list of values
   /// \param isColumnMajor [optional | default = false] values configuration
-  HERMES_DEVICE_CALLABLE explicit MatrixNxM(const T mat[N * M],
-                                            bool columnMajor = false) {
+  HERMES_CPU_GPU explicit MatrixNxM(const T mat[N * M],
+                                    bool columnMajor = false) {
     size_t k = 0;
     if (columnMajor)
       for (u32 c = 0; c < M; c++)
@@ -179,7 +176,7 @@ public:
           l[c] = mat[k++];
   }
   /// \param mat matrix entries in [ROW][COLUMN] form
-  HERMES_DEVICE_CALLABLE explicit MatrixNxM(T mat[N][M]) {
+  HERMES_CPU_GPU explicit MatrixNxM(T mat[N][M]) {
     for (u32 i = 0; i < N; i++)
       for (u32 j = 0; j < M; j++)
         m_[i][j] = mat[i][j];
@@ -200,9 +197,9 @@ public:
   /// \param m31 value of entry at row 3 column 1
   /// \param m32 value of entry at row 3 column 2
   /// \param m33 value of entry at row 3 column 3
-  HERMES_DEVICE_CALLABLE MatrixNxM(T m00, T m01, T m02, T m03, T m10, T m11,
-                                   T m12, T m13, T m20, T m21, T m22, T m23,
-                                   T m30, T m31, T m32, T m33) {
+  HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m02, T m03, T m10, T m11, T m12,
+                           T m13, T m20, T m21, T m22, T m23, T m30, T m31,
+                           T m32, T m33) {
     static_assert(N == 4 && M == 4, "This constructor works only for M4x4");
     m_[0][0] = m00;
     m_[0][1] = m01;
@@ -221,8 +218,8 @@ public:
     m_[3][2] = m32;
     m_[3][3] = m33;
   }
-  HERMES_DEVICE_CALLABLE MatrixNxM(T m00, T m01, T m02, T m10, T m11, T m12,
-                                   T m20, T m21, T m22) {
+  HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m02, T m10, T m11, T m12, T m20,
+                           T m21, T m22) {
     static_assert(N == 3 && M == 3, "This constructor works only for M3x3");
     m_[0][0] = m00;
     m_[0][1] = m01;
@@ -234,7 +231,7 @@ public:
     m_[2][1] = m21;
     m_[2][2] = m22;
   }
-  HERMES_DEVICE_CALLABLE MatrixNxM(T m00, T m01, T m10, T m11) {
+  HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m10, T m11) {
     static_assert(N == 2 && M == 2, "This constructor works only for M2x2");
     m_[0][0] = m00;
     m_[0][1] = m01;
@@ -245,7 +242,7 @@ public:
   // operators
 
   template <u32 O>
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M>
+  HERMES_CPU_GPU MatrixNxM<T, N, M>
   operator*(const MatrixNxM<T, M, O> &B) const {
     MatrixNxM<T, N, O> r;
     for (u32 i = 0; i < N; ++i)
@@ -256,7 +253,7 @@ public:
       }
     return r;
   }
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, 1>
+  HERMES_CPU_GPU MatrixNxM<T, N, 1>
   operator*(const MatrixNxM<T, N, 1> &v) const {
     MatrixNxM<T, N, 1> r;
     for (u32 i = 0; i < 4; i++)
@@ -265,15 +262,15 @@ public:
     return r;
   }
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> &operator OP##=(                   \
-      const MatrixNxM<T, N, M> &B) {                                           \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> &operator OP## =                           \
+      (const MatrixNxM<T, N, M> &B) {                                          \
     for (u32 i = 0; i < N; ++i)                                                \
       for (u32 j = 0; j < M; ++j)                                              \
         m_[i][j] OP## = B[i][j];                                               \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> operator OP(                       \
-      const MatrixNxM<T, N, M> &B) const {                                     \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> operator OP(const MatrixNxM<T, N, M> &B)   \
+      const {                                                                  \
     MatrixNxM<T, N, M> r;                                                      \
     for (u32 i = 0; i < N; ++i)                                                \
       for (u32 j = 0; j < M; ++j)                                              \
@@ -285,13 +282,13 @@ public:
 #undef ARITHMETIC_OP
 
 #define SCALAR_OP(OP)                                                          \
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> &operator OP##=(const T & s) {     \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> &operator OP## = (const T &s) {            \
     for (u32 i = 0; i < N; ++i)                                                \
       for (u32 j = 0; j < M; ++j)                                              \
         m_[i][j] OP## = s;                                                     \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> operator OP(const T & s) const {   \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> operator OP(const T &s) const {            \
     MatrixNxM<T, N, M> r;                                                      \
     for (u32 i = 0; i < N; ++i)                                                \
       for (u32 j = 0; j < M; ++j)                                              \
@@ -303,7 +300,7 @@ public:
 #undef SCALAR_OP
 
   template <u32 O, u32 P>
-  HERMES_DEVICE_CALLABLE bool operator==(const MatrixNxM<T, O, P> &B) const {
+  HERMES_CPU_GPU bool operator==(const MatrixNxM<T, O, P> &B) const {
     if (O != N || P != M)
       return false;
     for (u32 i = 0; i < N; i++)
@@ -313,11 +310,11 @@ public:
     return true;
   }
   template <u32 O, u32 P>
-  HERMES_DEVICE_CALLABLE bool operator!=(const MatrixNxM<T, O, P> &B) const {
+  HERMES_CPU_GPU bool operator!=(const MatrixNxM<T, O, P> &B) const {
     return !((*this) == B);
   }
 
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M> &setIdentity() {
+  HERMES_CPU_GPU MatrixNxM<T, N, M> &setIdentity() {
     static_assert(N == M, "Can't set identity for non-square matrices.");
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     for (auto &i : m_)
@@ -331,20 +328,20 @@ public:
     return *this;
   }
   /// \param[out] a Receives matrix elements in row major.
-  HERMES_DEVICE_CALLABLE void row_major(T *a) const {
+  HERMES_CPU_GPU void row_major(T *a) const {
     int k = 0;
     for (auto &i : m_)
       for (u32 j = 0; j < M; j++)
         a[k++] = i[j];
   }
   /// \param[out] a Receives matrix elements in column major.
-  HERMES_DEVICE_CALLABLE void column_major(T *a) const {
+  HERMES_CPU_GPU void column_major(T *a) const {
     int k = 0;
     for (u32 i = 0; i < N; i++)
       for (auto &j : m_)
         a[k++] = j[i];
   }
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool isIdentity() const {
+  HERMES_NODISCARD HERMES_CPU_GPU bool isIdentity() const {
     static_assert(N == M, "Can't check identity for non-square matrices.");
     for (u32 i = 0; i < N; i++)
       for (u32 j = 0; j < M; j++)
@@ -354,14 +351,14 @@ public:
     return true;
   }
 
-  HERMES_DEVICE_CALLABLE T determinant() const {
+  HERMES_CPU_GPU T determinant() const {
     return m_[0][0] * m_[1][1] - m_[0][1] * m_[1][0];
     return m_[0][0] * m_[1][1] * m_[2][2] + m_[0][1] * m_[1][2] * m_[2][0] +
            m_[0][2] * m_[1][0] * m_[2][1] - m_[2][0] * m_[1][1] * m_[0][2] -
            m_[2][1] * m_[1][2] * m_[0][0] - m_[2][2] * m_[1][0] * m_[0][1];
   }
 
-  HERMES_DEVICE_CALLABLE MatrixNxM<T, N, 1> diagonal() const {
+  HERMES_CPU_GPU MatrixNxM<T, N, 1> diagonal() const {
     static_assert(N == M, "Can't create non-squared matrices from diagonal.");
     MatrixNxM<T, N, 1> d;
     for (u32 i = 0; i < N; ++i)
@@ -369,8 +366,8 @@ public:
     return d;
   }
 
-  HERMES_DEVICE_CALLABLE T *operator[](u32 row_index) { return m_[row_index]; }
-  HERMES_DEVICE_CALLABLE const T *operator[](u32 row_index) const {
+  HERMES_CPU_GPU T *operator[](u32 row_index) { return m_[row_index]; }
+  HERMES_CPU_GPU const T *operator[](u32 row_index) const {
     return m_[row_index];
   }
 
@@ -379,16 +376,15 @@ private:
 };
 
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4>
-rowReduce(const MatrixNxM<T, 4, 4> &p, const MatrixNxM<T, 4, 4> &q) {
+HERMES_CPU_GPU MatrixNxM<T, 4, 4> rowReduce(const MatrixNxM<T, 4, 4> &p,
+                                            const MatrixNxM<T, 4, 4> &q) {
   MatrixNxM<T, 4, 4> l = p, r = q;
   // TODO implement with gauss jordan elimination
   HERMES_NOT_IMPLEMENTED;
   return r;
 }
 template <typename T, u32 N, u32 M>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M>
-transpose(const MatrixNxM<T, M, N> &m) {
+HERMES_CPU_GPU MatrixNxM<T, N, M> transpose(const MatrixNxM<T, M, N> &m) {
   MatrixNxM<T, M, N> t;
   for (u32 r = 0; r < N; ++r)
     for (u32 c = 0; c < M; ++c)
@@ -396,14 +392,13 @@ transpose(const MatrixNxM<T, M, N> &m) {
   return t;
 }
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4>
-transpose(const MatrixNxM<T, 4, 4> &m) {
+HERMES_CPU_GPU MatrixNxM<T, 4, 4> transpose(const MatrixNxM<T, 4, 4> &m) {
   return MatrixNxM<T, 4, 4>(
       m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], m[2][1], m[3][1],
       m[0][2], m[1][2], m[2][2], m[3][2], m[0][3], m[1][3], m[2][3], m[3][3]);
 }
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4> inverse(const MatrixNxM<T, 4, 4> &m) {
+HERMES_CPU_GPU MatrixNxM<T, 4, 4> inverse(const MatrixNxM<T, 4, 4> &m) {
   MatrixNxM<T, 4, 4> r;
   T mm[16], inv[16];
   m.row_major(mm);
@@ -511,9 +506,8 @@ HERMES_DEVICE_CALLABLE MatrixNxM<T, 4, 4> inverse(const MatrixNxM<T, 4, 4> &m) {
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE void decompose(const MatrixNxM<T, 4, 4> &m,
-                                      MatrixNxM<T, 4, 4> &r,
-                                      MatrixNxM<T, 4, 4> &s) {
+HERMES_CPU_GPU void decompose(const MatrixNxM<T, 4, 4> &m,
+                              MatrixNxM<T, 4, 4> &r, MatrixNxM<T, 4, 4> &s) {
   // extract rotation r from transformation matrix
   T norm;
   int count = 0;
@@ -537,12 +531,11 @@ HERMES_DEVICE_CALLABLE void decompose(const MatrixNxM<T, 4, 4> &m,
   s = inverse(r) * m;
 }
 template <typename T, u32 N, u32 M>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, N, M>
-operator*(T f, const MatrixNxM<T, N, M> &m) {
+HERMES_CPU_GPU MatrixNxM<T, N, M> operator*(T f, const MatrixNxM<T, N, M> &m) {
   return m * f;
 }
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 2, 2> inverse(const MatrixNxM<T, 2, 2> &m) {
+HERMES_CPU_GPU MatrixNxM<T, 2, 2> inverse(const MatrixNxM<T, 2, 2> &m) {
   MatrixNxM<T, 2, 2> r;
   T det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
   if (det == 0.f)
@@ -556,12 +549,11 @@ HERMES_DEVICE_CALLABLE MatrixNxM<T, 2, 2> inverse(const MatrixNxM<T, 2, 2> &m) {
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 2, 2>
-transpose(const MatrixNxM<T, 2, 2> &m) {
+HERMES_CPU_GPU MatrixNxM<T, 2, 2> transpose(const MatrixNxM<T, 2, 2> &m) {
   return MatrixNxM<T, 2, 2>(m[0][0], m[1][0], m[0][1], m[1][1]);
 }
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 3, 3> inverse(const MatrixNxM<T, 3, 3> &m) {
+HERMES_CPU_GPU MatrixNxM<T, 3, 3> inverse(const MatrixNxM<T, 3, 3> &m) {
   MatrixNxM<T, 3, 3> r;
   T det = m[0][0] * m[1][1] * m[2][2] + m[1][0] * m[2][1] * m[0][2] +
           m[2][0] * m[0][1] * m[1][2] - m[0][0] * m[2][1] * m[1][2] -
@@ -580,14 +572,13 @@ HERMES_DEVICE_CALLABLE MatrixNxM<T, 3, 3> inverse(const MatrixNxM<T, 3, 3> &m) {
   return r;
 }
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 3, 3>
-transpose(const MatrixNxM<T, 3, 3> &m) {
+HERMES_CPU_GPU MatrixNxM<T, 3, 3> transpose(const MatrixNxM<T, 3, 3> &m) {
   return MatrixNxM<T, 3, 3>(m[0][0], m[1][0], m[2][0], m[0][1], m[1][1],
                             m[2][1], m[0][2], m[1][2], m[2][2]);
 }
 
 template <typename T>
-HERMES_DEVICE_CALLABLE MatrixNxM<T, 3, 3> star(const MatrixNxM<T, 3, 1> a) {
+HERMES_CPU_GPU MatrixNxM<T, 3, 3> star(const MatrixNxM<T, 3, 1> a) {
   return MatrixNxM<T, 3, 3>(0, -a[2][0], a[1][0], a[2][0], 0, -a[0][0],
                             -a[1][0], a[0][0], 0);
 }
@@ -599,8 +590,8 @@ using mat2 = MatrixNxM<real_t, 2, 2>;
 namespace cmp {
 
 template <typename T, u32 N, u32 M>
-HERMES_DEVICE_CALLABLE bool is_equal(const MatrixNxM<T, N, M> &a,
-                                     const MatrixNxM<T, N, M> &b, f64 e) {
+HERMES_CPU_GPU bool is_equal(const MatrixNxM<T, N, M> &a,
+                             const MatrixNxM<T, N, M> &b, f64 e) {
   for (u32 l = 0; l < N; ++l)
     for (u32 c = 0; c < M; ++c)
       if (!numbers::cmp::is_equal(a[l][c], b[l][c], e))

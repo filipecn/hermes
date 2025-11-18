@@ -64,7 +64,7 @@ public:
 
   /// \param e
   /// \return
-  HERMES_DEVICE_CALLABLE static Result<T, E> error(E e) {
+  HERMES_CPU_GPU static Result<T, E> error(E e) {
     return Result<T, E>(detail::UnexpectedResultType<E>{e});
   }
 
@@ -74,47 +74,46 @@ public:
 
   /// Error constructor.
   /// \param err
-  HERMES_DEVICE_CALLABLE Result(const E &err) : ok_(false) {
+  HERMES_CPU_GPU Result(const E &err) : ok_(false) {
     new (reinterpret_cast<E *>(&err_)) E(err);
   }
   /// Error constructor.
   /// \param err
-  HERMES_DEVICE_CALLABLE Result(const detail::UnexpectedResultType<E> &err = {})
+  HERMES_CPU_GPU Result(const detail::UnexpectedResultType<E> &err = {})
       : ok_(false) {
     new (reinterpret_cast<E *>(&err_)) E(err.value);
   }
   /// Value constructor
   /// \param v
-  HERMES_DEVICE_CALLABLE Result(const T &v) : ok_(true) {
+  HERMES_CPU_GPU Result(const T &v) : ok_(true) {
     new (reinterpret_cast<T *>(&value_)) T(v);
   }
   /// Move value constructor
   /// \param v
-  HERMES_DEVICE_CALLABLE Result(T &&v) : ok_(true) {
+  HERMES_CPU_GPU Result(T &&v) : ok_(true) {
     new (reinterpret_cast<T *>(&value_)) T(std::move(v));
   }
   /// Copy constructor
   /// \param rhs
-  HERMES_DEVICE_CALLABLE Result(const Result &rhs) { *this = rhs; }
+  HERMES_CPU_GPU Result(const Result &rhs) { *this = rhs; }
   /// Move constructor
   /// \param rhs
-  HERMES_DEVICE_CALLABLE Result(Result &&rhs) HERMES_NOEXCEPT {
+  HERMES_CPU_GPU Result(Result &&rhs) HERMES_NOEXCEPT {
     *this = std::move(rhs);
   }
+  HERMES_CPU_GPU ~Result() noexcept { reset(); }
 
   // ***************************************************************************
   //                                                                OPERATORS
   // ***************************************************************************
 
   /// Casts to bool (indicates whether this contains a value).
-  HERMES_DEVICE_CALLABLE explicit operator bool() const HERMES_NOEXCEPT {
-    return ok_;
-  }
+  HERMES_CPU_GPU explicit operator bool() const HERMES_NOEXCEPT { return ok_; }
 
   //                                                               assignment
 
   /// Copy assignment.
-  HERMES_DEVICE_CALLABLE Result &operator=(const Result &rhs) {
+  HERMES_CPU_GPU Result &operator=(const Result &rhs) {
     reset();
     ok_ = rhs.ok_;
     if (rhs.ok_)
@@ -124,7 +123,7 @@ public:
     return *this;
   }
   /// Move assignment.
-  HERMES_DEVICE_CALLABLE Result &operator=(Result &&rhs) HERMES_NOEXCEPT {
+  HERMES_CPU_GPU Result &operator=(Result &&rhs) HERMES_NOEXCEPT {
     reset();
     ok_ = rhs.ok_;
     if (rhs.ok_)
@@ -134,14 +133,14 @@ public:
     return *this;
   }
   /// Value assignment.
-  HERMES_DEVICE_CALLABLE Result &operator=(const T &v) {
+  HERMES_CPU_GPU Result &operator=(const T &v) {
     reset();
     ok_ = true;
     new (reinterpret_cast<T *>(&value_)) T(v);
     return *this;
   }
   /// Move value assignment.
-  HERMES_DEVICE_CALLABLE Result &operator=(T &&v) {
+  HERMES_CPU_GPU Result &operator=(T &&v) {
     reset();
     ok_ = true;
     new (reinterpret_cast<T *>(&value_)) T(std::move(v));
@@ -151,24 +150,24 @@ public:
   //                                                                    access
 
   /// \return Pointer to the stored value.
-  HERMES_DEVICE_CALLABLE T *operator->() { return &value(); }
+  HERMES_CPU_GPU T *operator->() { return &value(); }
   /// \return Const pointer to the stored value.
-  HERMES_DEVICE_CALLABLE const T *operator->() const { return &value(); }
+  HERMES_CPU_GPU const T *operator->() const { return &value(); }
   /// \return Reference to value.
-  HERMES_DEVICE_CALLABLE T &operator*() { return value(); }
+  HERMES_CPU_GPU T &operator*() { return value(); }
   /// \return Const reference to value.
-  HERMES_DEVICE_CALLABLE const T &operator*() const { return value(); }
+  HERMES_CPU_GPU const T &operator*() const { return value(); }
 
   // ***************************************************************************
   //                                                                  METHODS
   // ***************************************************************************
 
   /// \return True if this holds a valid value or false if it holds an error.
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool good() const { return ok_; }
+  HERMES_NODISCARD HERMES_CPU_GPU bool good() const { return ok_; }
   /// \return Error status.
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE E status() const { return err_; }
+  HERMES_NODISCARD HERMES_CPU_GPU E status() const { return err_; }
   /// Destroys stored value (if present) by calling its destructor.
-  HERMES_DEVICE_CALLABLE void reset() {
+  HERMES_CPU_GPU void reset() {
     if (good()) {
       value().~T();
       ok_ = false;
@@ -179,17 +178,20 @@ public:
 
   /// \param fallback_value value returned on error.
   /// \return A copy to the stored value, or 'fallback_value' otherwise.
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T
-  valueOr(const T &fallback_value) const {
+  HERMES_NODISCARD HERMES_CPU_GPU T valueOr(const T &fallback_value) const {
     return good() ? value() : fallback_value;
   }
   /// \return Reference to the stored value.
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T &value() {
+  HERMES_NODISCARD HERMES_CPU_GPU T &value() & {
     return *reinterpret_cast<T *>(&value_);
   }
   /// \return Const reference to value.
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE const T &value() const {
+  HERMES_NODISCARD HERMES_CPU_GPU const T &value() const & {
     return *reinterpret_cast<const T *>(&value_);
+  }
+  /// \return Moved stored value.
+  HERMES_NODISCARD HERMES_CPU_GPU T value() && {
+    return std::move(*reinterpret_cast<T *>(&value_));
   }
 
 private:

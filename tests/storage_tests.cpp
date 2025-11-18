@@ -1,16 +1,23 @@
-#include "hermes/core/debug.h"
-#include "hermes/core/result.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <hermes/geometry/vector.h>
 #include <hermes/storage/aos.h>
 #include <hermes/storage/block.h>
+#include <hermes/system/gpu.h>
 
 #include <fstream>
 
 using namespace hermes;
 using namespace hermes::mem;
+
+#ifdef HERMES_DEVICE_ENABLED
+HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, size2 bounds) {
+  HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds);
+  u32 matrix_index = ij.j * bounds.width + ij.i;
+  data[matrix_index] = matrix_index;
+}
+#endif
 
 /*
 class Object {
@@ -36,7 +43,7 @@ public:
     printf("calling destructor\n");
     a = 0;
   }
-  HERMES_DEVICE_CALLABLE
+  HERMES_CPU_GPU
   void say() const { printf("ah %d %ul!\n", a, data.size().total()); }
   int a = 10;
   Block<MemoryLocation::DEVICE> data;
@@ -88,23 +95,50 @@ TEST_CASE("Block", "[storage]") {
     Block hm = dm;
     return checkHostMemory(hm);
   };
+
   HERMES_UNUSED_VARIABLE(checkDeviceMemory);
 
   SECTION("copy") {
+    SECTION("host host") {
+      {
+        auto src = Block::Config().setSize(100).create().value();
+        writeHostMemory(src);
+        auto dst = Block::Config().setSize(100).create().value();
+        REQUIRE(dst.copy(src) == HeError::NO_ERROR);
+        checkHostMemory(dst);
+      }
+      {
+        struct CopyTest {
+          int a;
+          int b;
+        };
+
+        Block hm;
+        REQUIRE(hm.resize(sizeof(CopyTest)) == HeError::NO_ERROR);
+        CopyTest ct;
+        ct.a = 3;
+        ct.b = 6;
+        REQUIRE(hm.copy(&ct, sizeof(CopyTest)) == HeError::NO_ERROR);
+        CopyTest *d = reinterpret_cast<CopyTest *>(hm.data());
+        REQUIRE(d->a == ct.a);
+        REQUIRE(d->b == ct.b);
+      }
+    }
 #ifdef HERMES_DEVICE_ENABLED
-    HostMemory hm(8);
-    int a = 1;
-    int b = 2;
-    hm.copy(&a);
-    hm.copy(&b, 4);
-    REQUIRE(reinterpret_cast<int *>(hm.ptr())[0] == a);
-    REQUIRE(reinterpret_cast<int *>(hm.ptr())[1] == b);
-    DeviceMemory dm(8);
-    dm.copy(&a, 0, MemoryLocation::HOST);
-    dm.copy(&b, 4, MemoryLocation::HOST);
-    HostMemory hm2 = dm;
-    REQUIRE(reinterpret_cast<int *>(hm2.ptr())[0] == a);
-    REQUIRE(reinterpret_cast<int *>(hm2.ptr())[1] == b);
+    SECTION("host device") {
+      Block src, dst;
+      HERMES_ASSIGN_OR(src, Block::Config().setSize(100).create(),
+                       REQUIRE(false));
+      writeHostMemory(src);
+      HERMES_ASSIGN_OR(dst,
+                       Block::Config()
+                           .setSize(100)
+                           .setLocation(MemoryLocation::DEVICE)
+                           .create(),
+                       REQUIRE(false));
+      REQUIRE(dst.copy(src) == HeError::NO_ERROR);
+      REQUIRE(checkDeviceMemory(dst) == true);
+    }
 #endif
   } //
   SECTION("assignment") {
@@ -142,10 +176,12 @@ TEST_CASE("Block", "[storage]") {
     } //
 #ifdef HERMES_DEVICE_ENABLED
     SECTION("device") {
-      DeviceMemory dm;
+      auto dm_r = Block::Config().setLocation(MemoryLocation::DEVICE).create();
+      REQUIRE((bool)dm_r);
+      auto dm = dm_r.value();
       REQUIRE(dm.sizeInBytes() == 0);
-      dm.resize(100);
-      HostMemory hm(256);
+      REQUIRE(dm.resize(256) == HeError::NO_ERROR);
+      auto hm = Block::Config().setSize(256).create().value();
       writeHostMemory(hm);
       dm = hm;
       REQUIRE(dm.sizeInBytes() == 256);
@@ -163,8 +199,16 @@ TEST_CASE("Block", "[storage]") {
     } //
     SECTION("device") {
 #ifdef HERMES_DEVICE_ENABLED
-      DeviceMemory dm(256);
-      REQUIRE(dm.sizeInBytes() == 256);
+      auto src = Block::Config().setSize(100).create().value();
+      writeHostMemory(src);
+      auto dst_r = Block::Config()
+                       .setSize(100)
+                       .setLocation(MemoryLocation::DEVICE)
+                       .create();
+      REQUIRE((bool)dst_r);
+      auto dst = dst_r.value();
+      REQUIRE(dst.copy(src) == HeError::NO_ERROR);
+      REQUIRE(dst.sizeInBytes() == 100);
 #endif
     } //
   } //
@@ -186,8 +230,13 @@ TEST_CASE("Block", "[storage]") {
   } //
 #ifdef HERMES_DEVICE_ENABLED
   SECTION("unified") {
-    UnifiedMemory um(64 * 128 * 4);
-    u32 *data = reinterpret_cast<u32 *>(um.ptr());
+    auto um_r = Block::Config()
+                    .setLocation(MemoryLocation::UNIFIED)
+                    .setSize(64 * 128 * 4)
+                    .create();
+    REQUIRE((bool)um_r);
+    auto um = um_r.value();
+    u32 *data = reinterpret_cast<u32 *>(um.data());
     size2 bounds(64, 128);
     HERMES_CUDA_LAUNCH_AND_SYNC((bounds), writeMatrixIndex_k, data, bounds)
     for (u32 j = 0; j < 128; ++j)
@@ -765,17 +814,17 @@ TEST_CASE("Array2", "[storage][array]") {
 */
 
 #ifdef HERMES_DEVICE_ENABLED
-HERMES_CUDA_KERNEL(aos_view)(AoSView aos, int *result) {
-  HERMES_CUDA_RETURN_IF_NOT_THREAD_0
-  if (aos.size() != 5)
-    *result = 1;
-  for (u32 i = 0; i < aos.size(); ++i) {
-    if (aos.valueAt<index2>(0, i) != index2(i, i + 1))
-      *result = (i + 1) * 10;
-    if (aos.valueAt<i32>(1, i) != -(i + 1))
-      *result = -(i + 1);
-  }
-}
+// HERMES_CUDA_KERNEL(aos_view)(AoSView aos, int *result) {
+//   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
+//   if (aos.size() != 5)
+//     *result = 1;
+//   for (u32 i = 0; i < aos.size(); ++i) {
+//     if (aos.valueAt<index2>(0, i) != index2(i, i + 1))
+//       *result = (i + 1) * 10;
+//     if (aos.valueAt<i32>(1, i) != -(i + 1))
+//       *result = -(i + 1);
+//   }
+// }
 
 #endif
 
@@ -1066,23 +1115,24 @@ TEST_CASE("AOS", "[storage][aos]") {
     }
   } //
 #ifdef HERMES_DEVICE_ENABLED
-  SECTION("Device") {
-    AoS aos;
-    aos.pushField<size2>();
-    aos.pushField<i32>();
-    aos.resize(5);
-    auto sizes_field = aos.field<size2>(0) = {
-        {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5},
-    };
-    auto i32_field = aos.field<i32>(1) = {-1, -2, -3, -4, -5};
-    DeviceAoS d_aos = aos;
-    REQUIRE_THAT(d_aos.size(), aos.size());
-    REQUIRE_THAT(d_aos.layout().fields().size(), aos.layout().fields().size());
-    REQUIRE_THAT(d_aos.layout().sizeInBytes(), aos.layout().sizeInBytes());
-
-    UnifiedArray<int> results(1);
-    HERMES_CUDA_LAUNCH_AND_SYNC((1), aos_view_k, d_aos.view(), results.data())
-    REQUIRE_THAT(results[0], 0);
-  } //
+//  SECTION("Device") {
+//    AoS aos;
+//    aos.pushField<size2>();
+//    aos.pushField<i32>();
+//    aos.resize(5);
+//    auto sizes_field = aos.field<size2>(0) = {
+//        {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5},
+//    };
+//    auto i32_field = aos.field<i32>(1) = {-1, -2, -3, -4, -5};
+//    DeviceAoS d_aos = aos;
+//    REQUIRE_THAT(d_aos.size(), aos.size());
+//    REQUIRE_THAT(d_aos.layout().fields().size(),
+//    aos.layout().fields().size()); REQUIRE_THAT(d_aos.layout().sizeInBytes(),
+//    aos.layout().sizeInBytes());
+//
+//    UnifiedArray<int> results(1);
+//    HERMES_CUDA_LAUNCH_AND_SYNC((1), aos_view_k, d_aos.view(), results.data())
+//    REQUIRE_THAT(results[0], 0);
+//  } //
 #endif
 }

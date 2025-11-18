@@ -60,22 +60,21 @@ template <typename T> struct Index2 {
     class iterator {
     public:
       /// Default constructor
-      HERMES_DEVICE_CALLABLE iterator() {}
+      HERMES_CPU_GPU iterator() {}
       /// Constructor
       /// \param lower
       /// \param upper
-      HERMES_DEVICE_CALLABLE iterator(Index2<T> lower, Index2<T> upper)
+      HERMES_CPU_GPU iterator(Index2<T> lower, Index2<T> upper)
           : index_(lower), lower_(lower), upper_(upper) {}
       /// Construct a new iterator object
       /// \param lower  -  lower bound
       /// \param upper  -  upper bound
       /// \param start  -  starting coordinate
-      HERMES_DEVICE_CALLABLE iterator(Index2<T> lower, Index2<T> upper,
-                                      Index2<T> start)
+      HERMES_CPU_GPU iterator(Index2<T> lower, Index2<T> upper, Index2<T> start)
           : index_(start), lower_(lower), upper_(upper) {}
 
       /// \return iterator&
-      HERMES_DEVICE_CALLABLE iterator &operator++() {
+      HERMES_CPU_GPU iterator &operator++() {
         index_.i++;
         if (index_.i >= upper_.i) {
           index_.i = lower_.i;
@@ -86,27 +85,25 @@ template <typename T> struct Index2 {
         return *this;
       }
       /// \return const Index2<T>& current index coordinate
-      HERMES_DEVICE_CALLABLE const Index2<T> &operator*() const {
-        return index_;
-      }
+      HERMES_CPU_GPU const Index2<T> &operator*() const { return index_; }
       /// Computes a flat index based on size
       ///
       /// \f(j * (upper - lower)_i + i\f)
       /// \return
-      HERMES_NODISCARD HERMES_DEVICE_CALLABLE size_t flatIndex() const {
+      HERMES_NODISCARD HERMES_CPU_GPU size_t flatIndex() const {
         auto size = upper_ - lower_;
         return index_.j * size.i + index_.i;
       }
       /// are equal? operator
       ///\param other  -
       ///\return bool true if current indices are equal
-      HERMES_DEVICE_CALLABLE bool operator==(const iterator &rhs) const {
+      HERMES_CPU_GPU bool operator==(const iterator &rhs) const {
         return index_ == rhs.index_;
       }
       /// are different? operator
       ///\param rhs  -
       ///\return bool true if current indices are different
-      HERMES_DEVICE_CALLABLE bool operator!=(const iterator &rhs) const {
+      HERMES_CPU_GPU bool operator!=(const iterator &rhs) const {
         return index_ != rhs.index_;
       }
 
@@ -117,7 +114,7 @@ template <typename T> struct Index2 {
     /// \param a
     /// \param b
     /// \return
-    HERMES_DEVICE_CALLABLE friend Index2<T>::Range
+    HERMES_CPU_GPU friend Index2<T>::Range
     intersect(const Index2<T>::Range &a, const Index2<T>::Range &b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
       return Index2<T>::Range(
@@ -130,51 +127,51 @@ template <typename T> struct Index2 {
 #endif
     }
 
-    HERMES_DEVICE_CALLABLE Range() {}
+    HERMES_CPU_GPU Range() {}
     /// Constructs an index range ``[0, {upper_i,upper_j})``
     ///\param upper_i  -  upper bound i
     ///\param upper_j  -  upper bound j
-    HERMES_DEVICE_CALLABLE Range(T upper_i, T upper_j)
+    HERMES_CPU_GPU Range(T upper_i, T upper_j)
         : lower_(Index2<T>()), upper_(Index2<T>(upper_i, upper_j)) {}
     /// Constructs an index range ``[lower, upper)``
     ///\param lower  -  lower bound
     ///\param upper **[in | default = Index2<T>()]** upper bound
-    HERMES_DEVICE_CALLABLE Range(Index2<T> lower, Index2<T> upper)
+    HERMES_CPU_GPU Range(Index2<T> lower, Index2<T> upper)
         : lower_(lower), upper_(upper) {}
     /// Constructs an index range ``[0, upper)``
     /// \param upper  -  upper bound
-    HERMES_DEVICE_CALLABLE explicit Range(size2 upper)
+    HERMES_CPU_GPU explicit Range(size2 upper)
         : lower_(Index2<T>()), upper_(Index2<T>(upper.width, upper.height)) {}
     /// \param ij
     /// \return
-    HERMES_DEVICE_CALLABLE bool contains(const Index2<T> &ij) const {
+    HERMES_CPU_GPU bool contains(const Index2<T> &ij) const {
       return ij >= lower_ && ij < upper_;
     }
 
     /// \param r
     /// \return
-    HERMES_DEVICE_CALLABLE bool operator==(const Index2<T>::Range &r) const {
+    HERMES_CPU_GPU bool operator==(const Index2<T>::Range &r) const {
       return lower_ == r.lower_ && upper_ == r.upper_;
     }
 
     /// \return
-    HERMES_DEVICE_CALLABLE iterator begin() const {
+    HERMES_CPU_GPU iterator begin() const {
       return iterator(lower_, upper_, lower_);
     }
     /// \return
-    HERMES_DEVICE_CALLABLE iterator end() const {
+    HERMES_CPU_GPU iterator end() const {
       return iterator(lower_, upper_, upper_);
     }
     /// \return
-    HERMES_NODISCARD HERMES_DEVICE_CALLABLE const Index2<T> &lower() const {
+    HERMES_NODISCARD HERMES_CPU_GPU const Index2<T> &lower() const {
       return lower_;
     }
     /// \return
-    HERMES_NODISCARD HERMES_DEVICE_CALLABLE const Index2<T> &upper() const {
+    HERMES_NODISCARD HERMES_CPU_GPU const Index2<T> &upper() const {
       return upper_;
     }
     /// \return
-    HERMES_DEVICE_CALLABLE T area() const {
+    HERMES_CPU_GPU T area() const {
       auto d = upper_ - lower_;
       return d.i * d.j;
     }
@@ -185,12 +182,12 @@ template <typename T> struct Index2 {
 
 #define ARITHMETIC_OP(OP)                                                      \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE friend Index2<T> operator OP(const Size2<U> &b,       \
-                                                      const Index2<T> &a) {    \
+  HERMES_CPU_GPU friend Index2<T> operator OP(const Size2<U> &b,               \
+                                              const Index2<T> &a) {            \
     return Index2<T>(b.width OP a.i, b.height OP a.j);                         \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE friend Index2<T> operator OP(const Index2<T> &b,      \
-                                                      const T & a) {           \
+  HERMES_CPU_GPU friend Index2<T> operator OP(const Index2<T> &b,              \
+                                              const T &a) {                    \
     return Index2<T>(b.i OP a, b.j OP a);                                      \
   }
   ARITHMETIC_OP(+)
@@ -198,7 +195,7 @@ template <typename T> struct Index2 {
   ARITHMETIC_OP(*)
   ARITHMETIC_OP(/)
 #undef ARITHMETIC_OP
-  HERMES_DEVICE_CALLABLE Index2<T> operator-() const { return {-i, -j}; }
+  HERMES_CPU_GPU Index2<T> operator-() const { return {-i, -j}; }
 
   /// Computes the Manhattan distance between two indices
   ///
@@ -208,8 +205,7 @@ template <typename T> struct Index2 {
   /// \param a  -
   /// \param b  -
   /// \return T
-  HERMES_DEVICE_CALLABLE friend T distance(const Index2<T> &a,
-                                           const Index2<T> &b) {
+  HERMES_CPU_GPU friend T distance(const Index2<T> &a, const Index2<T> &b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     HERMES_NOT_IMPLEMENTED
 #else
@@ -218,8 +214,8 @@ template <typename T> struct Index2 {
   }
 
 #define MATH_OP(NAME, OP)                                                      \
-  HERMES_DEVICE_CALLABLE friend Index2<T> NAME(const Index2<T> &a,             \
-                                               const Index2<T> &b) {           \
+  HERMES_CPU_GPU friend Index2<T> NAME(const Index2<T> &a,                     \
+                                       const Index2<T> &b) {                   \
     return Index2<T>(OP(a.i, b.i), OP(a.j, b.j));                              \
   }
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
@@ -232,50 +228,50 @@ template <typename T> struct Index2 {
 #undef MATH_OP
 
   /// Default constructor
-  HERMES_DEVICE_CALLABLE Index2() : i{0}, j{0} {};
+  HERMES_CPU_GPU Index2() : i{0}, j{0} {};
   /// Constructor
   /// \param v  -  value assigned to both ``i`` and ``j``
-  HERMES_DEVICE_CALLABLE explicit Index2(T v) : i(v), j(v) {}
+  HERMES_CPU_GPU explicit Index2(T v) : i(v), j(v) {}
   /// Constructor
   /// \param i  -  coordinate value for ``i``
   /// \param j  -  coordinate value for ``j``
-  HERMES_DEVICE_CALLABLE Index2(T i, T j) : i(i), j(j) {}
+  HERMES_CPU_GPU Index2(T i, T j) : i(i), j(j) {}
   /// Constructor from a Size2 object
   /// - ``i`` receives ``size.with`` and ``j`` receives ``size.height``
   /// \tparam S size type
   /// \param size  -
   template <typename S>
-  HERMES_DEVICE_CALLABLE explicit Index2(const Size2<S> &size)
+  HERMES_CPU_GPU explicit Index2(const Size2<S> &size)
       : i(size.width), j(size.height) {}
 
   /// \param d coordinate index
   /// \pre d must be in [0,1]
   /// \warning the value of d is not checked
   /// \return
-  HERMES_DEVICE_CALLABLE T operator[](int d) const { return (&i)[d]; }
+  HERMES_CPU_GPU T operator[](int d) const { return (&i)[d]; }
   /// \param d coordinate index
   /// \pre d must be in [0,1]
   /// \warning the value of d is not checked
   /// \return
-  HERMES_DEVICE_CALLABLE T &operator[](int d) { return (&i)[d]; }
+  HERMES_CPU_GPU T &operator[](int d) { return (&i)[d]; }
 
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_DEVICE_CALLABLE Index2<T> &operator OP##=(const Index2<T> &b) {       \
+  HERMES_CPU_GPU Index2<T> &operator OP## = (const Index2<T> &b) {             \
     i OP## = b.i;                                                              \
     j OP## = b.j;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Index2<T> operator OP(const Index2<T> &b) const {     \
+  HERMES_CPU_GPU Index2<T> operator OP(const Index2<T> &b) const {             \
     return {i OP b.i, j OP b.j};                                               \
   }                                                                            \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE Index2<T> &operator OP##=(const Size2<U> &b) {        \
+  HERMES_CPU_GPU Index2<T> &operator OP## = (const Size2<U> &b) {              \
     i OP## = static_cast<T>(b.width);                                          \
     j OP## = static_cast<T>(b.height);                                         \
     return *this;                                                              \
   }                                                                            \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE Index2<T> operator OP(const Size2<U> &b) const {      \
+  HERMES_CPU_GPU Index2<T> operator OP(const Size2<U> &b) const {              \
     return {i OP static_cast<T>(b.width), j OP static_cast<T>(b.height)};      \
   }
   ARITHMETIC_OP(+)
@@ -285,11 +281,11 @@ template <typename T> struct Index2 {
 #undef ARITHMETIC_OP
 
 #define RELATIONAL_OP(OP, CO)                                                  \
-  HERMES_DEVICE_CALLABLE bool operator OP(const Index2<T> &b) const {          \
+  HERMES_CPU_GPU bool operator OP(const Index2<T> &b) const {                  \
     return i OP b.i CO j OP b.j;                                               \
   }                                                                            \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE bool operator OP(const Size2<U> &b) const {           \
+  HERMES_CPU_GPU bool operator OP(const Size2<U> &b) const {                   \
     return i OP static_cast<T>(b.width) CO j OP static_cast<T>(b.height);      \
   }
   RELATIONAL_OP(==, &&)
@@ -304,36 +300,34 @@ template <typename T> struct Index2 {
   /// \param _i  -  value incremented to ``i``
   /// \param _j  -  value incremented to ``j``
   /// \return Index2<T> resulting index coordinates
-  HERMES_DEVICE_CALLABLE Index2<T> plus(T _i, T _j) const {
+  HERMES_CPU_GPU Index2<T> plus(T _i, T _j) const {
     return Index2<T>(i + _i, j + _j);
   }
   /// Generates a copy with ``i`` decremented by ``d``
   /// \param d **[in | default = 1]** decrement value
   /// \return Index2<T> resulting index coordinates (``i-d``, ``j``)
-  HERMES_DEVICE_CALLABLE Index2<T> left(T d = T(1)) const {
+  HERMES_CPU_GPU Index2<T> left(T d = T(1)) const {
     return Index2<T>(i - d, j);
   }
   /// Generates a copy with ``i`` incremented by ``d``
   /// \param d **[in | default = 1]** increment value
   /// \return Index2<T> resulting index coordinates (``i+d``, ``j``)
-  HERMES_DEVICE_CALLABLE Index2<T> right(T d = T(1)) const {
+  HERMES_CPU_GPU Index2<T> right(T d = T(1)) const {
     return Index2<T>(i + d, j);
   }
   /// Generates a copy with ``j`` decremented by ``d``
   /// \param d **[in | default = 1]** decrement value
   /// \return Index2<T> resulting index coordinates (``i``, ``j-d``)
-  HERMES_DEVICE_CALLABLE Index2<T> down(T d = T(1)) const {
+  HERMES_CPU_GPU Index2<T> down(T d = T(1)) const {
     return Index2<T>(i, j - d);
   }
   /// Generates a copy with ``j`` incremented by ``d``
   /// \param d **[in | default = 1]** increment value
   /// \return Index2<T> resulting index coordinates (``i``, ``j+d``)
-  HERMES_DEVICE_CALLABLE Index2<T> up(T d = T(1)) const {
-    return Index2<T>(i, j + d);
-  }
+  HERMES_CPU_GPU Index2<T> up(T d = T(1)) const { return Index2<T>(i, j + d); }
   /// Clamps to the inclusive range ``[0, size]``
   /// \param s  -  upper bound
-  HERMES_DEVICE_CALLABLE void clampTo(const size2 &s) {
+  HERMES_CPU_GPU void clampTo(const size2 &s) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     HERMES_UNUSED_VARIABLE(s);
 #else
@@ -374,34 +368,30 @@ template <typename T> struct Index3 {
   public:
     class iterator {
     public:
-      HERMES_DEVICE_CALLABLE iterator() {}
+      HERMES_CPU_GPU iterator() {}
       /// Construct a new iterator object
       ///\param lower  -  lower bound
       ///\param upper  -  upper bound
       ///\param start  -  starting coordinate
-      HERMES_DEVICE_CALLABLE iterator(Index3<T> lower, Index3<T> upper,
-                                      Index3<T> start)
+      HERMES_CPU_GPU iterator(Index3<T> lower, Index3<T> upper, Index3<T> start)
           : index_(start), lower_(lower), upper_(upper) {}
       /// \param upper
-      HERMES_DEVICE_CALLABLE explicit iterator(Index3<T> upper)
-          : upper_(upper) {}
+      HERMES_CPU_GPU explicit iterator(Index3<T> upper) : upper_(upper) {}
 
       /// \return const Index3<T>& current index coordinate
-      HERMES_DEVICE_CALLABLE const Index3<T> &operator*() const {
-        return index_;
-      }
+      HERMES_CPU_GPU const Index3<T> &operator*() const { return index_; }
       /// Computes a flat index based on size
       ///
       /// \f(k * (d_i * d_j) + j * d_i + i\f)
       ///
       /// where \f(d = upper - lower\f)
       /// \return
-      HERMES_NODISCARD HERMES_DEVICE_CALLABLE size_t flatIndex() const {
+      HERMES_NODISCARD HERMES_CPU_GPU size_t flatIndex() const {
         auto size = upper_ - lower_;
         return index_.k * (size.i * size.j) + index_.j * size.i + index_.i;
       }
       ///\return iterator&
-      HERMES_DEVICE_CALLABLE iterator &operator++() {
+      HERMES_CPU_GPU iterator &operator++() {
         index_.i++;
         if (index_.i >= upper_.i) {
           index_.i = lower_.i;
@@ -419,13 +409,13 @@ template <typename T> struct Index3 {
       /// are equal? operator
       ///\param other  -
       ///\return bool true if current indices are equal
-      HERMES_DEVICE_CALLABLE bool operator==(const iterator &other) const {
+      HERMES_CPU_GPU bool operator==(const iterator &other) const {
         return index_ == other.index_;
       }
       /// are different? operator
       ///\param other  -
       ///\return bool true if current indices are different
-      HERMES_DEVICE_CALLABLE bool operator!=(const iterator &other) const {
+      HERMES_CPU_GPU bool operator!=(const iterator &other) const {
         return index_ != other.index_;
       }
 
@@ -436,7 +426,7 @@ template <typename T> struct Index3 {
     /// \param a
     /// \param b
     /// \return
-    HERMES_DEVICE_CALLABLE friend Index3<T>::Range
+    HERMES_CPU_GPU friend Index3<T>::Range
     intersect(const Index3<T>::Range &a, const Index3<T>::Range &b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
       return {
@@ -456,18 +446,18 @@ template <typename T> struct Index3 {
     ///\param upper_i - upper bound i
     ///\param upper_j - upper bound j
     ///\param upper_k - upper bound k
-    HERMES_DEVICE_CALLABLE Range(T upper_i, T upper_j, T upper_k)
+    HERMES_CPU_GPU Range(T upper_i, T upper_j, T upper_k)
         : lower_(Index3<T>()), upper_(Index3<T>(upper_i, upper_j, upper_k)) {}
     /// Construct a new Index3Range object
     ///\param upper - upper bound
-    HERMES_DEVICE_CALLABLE explicit Range(Index3<T> upper) : upper_(upper) {}
+    HERMES_CPU_GPU explicit Range(Index3<T> upper) : upper_(upper) {}
     /// \param upper
-    HERMES_DEVICE_CALLABLE explicit Range(size3 upper)
+    HERMES_CPU_GPU explicit Range(size3 upper)
         : lower_(Index3<T>()),
           upper_(Index3<T>(upper.width, upper.height, upper.depth)) {}
     /// \param lower
     /// \param upper
-    HERMES_DEVICE_CALLABLE Range(Index3<T> lower, Index3<T> upper)
+    HERMES_CPU_GPU Range(Index3<T> lower, Index3<T> upper)
         : lower_(lower), upper_(upper) {}
     /// Computes a flat index based on size
     ///
@@ -476,21 +466,21 @@ template <typename T> struct Index3 {
     /// where \f(d = upper - lower\f)
     /// \param ijk
     /// \return
-    HERMES_DEVICE_CALLABLE size_t flatIndex(const Index3<T> &ijk) const {
+    HERMES_CPU_GPU size_t flatIndex(const Index3<T> &ijk) const {
       auto size = upper_ - lower_;
       return ijk.k * (size.i * size.j) + ijk.j * size.i + ijk.i;
     }
     ///\return iterator<T>
-    HERMES_DEVICE_CALLABLE iterator begin() const {
+    HERMES_CPU_GPU iterator begin() const {
       return iterator(lower_, upper_, lower_);
     }
     ///\return iterator<T>
-    HERMES_DEVICE_CALLABLE iterator end() const {
+    HERMES_CPU_GPU iterator end() const {
       return iterator(lower_, upper_, upper_);
     }
     /// \f(|upper - lower|_i\f)
     /// \return
-    HERMES_NODISCARD HERMES_DEVICE_CALLABLE size3 size() const {
+    HERMES_NODISCARD HERMES_CPU_GPU size3 size() const {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
       return size3(std::abs(upper_[0] - lower_[0]),
                    std::abs(upper_[1] - lower_[1]),
@@ -508,8 +498,8 @@ template <typename T> struct Index3 {
 
 #define ARITHMETIC_OP(OP)                                                      \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE friend Index3<T> operator OP(const Size3<U> &b,       \
-                                                      const Index3<T> &a) {    \
+  HERMES_CPU_GPU friend Index3<T> operator OP(const Size3<U> &b,               \
+                                              const Index3<T> &a) {            \
     return Index3<T>(b.width OP a.i, b.height OP a.j, b.depth OP a.k);         \
   }
   ARITHMETIC_OP(+)
@@ -518,42 +508,42 @@ template <typename T> struct Index3 {
   ARITHMETIC_OP(/)
 #undef ARITHMETIC_OP
 
-  HERMES_DEVICE_CALLABLE Index3() : i(0), j(0), k(0) {}
-  HERMES_DEVICE_CALLABLE explicit Index3(T v) : i(v), j(v), k(v) {}
+  HERMES_CPU_GPU Index3() : i(0), j(0), k(0) {}
+  HERMES_CPU_GPU explicit Index3(T v) : i(v), j(v), k(v) {}
   /// Construct a new Index2 object
   ///\param i  -  i coordinate value
   ///\param j  -  j coordinate value
   ///\param k  -  k coordinate value
-  HERMES_DEVICE_CALLABLE Index3(T i, T j, T k) : i(i), j(j), k(k) {}
+  HERMES_CPU_GPU Index3(T i, T j, T k) : i(i), j(j), k(k) {}
 
   /// \param _i
   /// \pre _i must be in [0, 2]
   /// \warning the value of _i is not checked
-  HERMES_DEVICE_CALLABLE T operator[](int _i) const { return (&i)[_i]; }
+  HERMES_CPU_GPU T operator[](int _i) const { return (&i)[_i]; }
   /// \param _i
   /// \pre _i must be in [0, 2]
   /// \warning the value of _i is not checked
-  HERMES_DEVICE_CALLABLE T &operator[](int _i) { return (&i)[_i]; }
+  HERMES_CPU_GPU T &operator[](int _i) { return (&i)[_i]; }
 
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_DEVICE_CALLABLE Index3<T> &operator OP##=(const Index3<T> &b) {       \
+  HERMES_CPU_GPU Index3<T> &operator OP## = (const Index3<T> &b) {             \
     i OP## = b.i;                                                              \
     j OP## = b.j;                                                              \
     k OP## = b.k;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_DEVICE_CALLABLE Index3<T> operator OP(const Index3<T> &b) const {     \
+  HERMES_CPU_GPU Index3<T> operator OP(const Index3<T> &b) const {             \
     return {i OP b.i, j OP b.j, k OP b.k};                                     \
   }                                                                            \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE Index3<T> &operator OP##=(const Size3<U> &b) {        \
+  HERMES_CPU_GPU Index3<T> &operator OP## = (const Size3<U> &b) {              \
     i OP## = b.width;                                                          \
     j OP## = b.height;                                                         \
     k OP## = b.depth;                                                          \
     return *this;                                                              \
   }                                                                            \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE Index3<T> operator OP(const Size3<U> &b) const {      \
+  HERMES_CPU_GPU Index3<T> operator OP(const Size3<U> &b) const {              \
     return {i OP static_cast<T>(b.width), j OP static_cast<T>(b.height),       \
             k OP static_cast<T>(b.depth)};                                     \
   }
@@ -564,11 +554,11 @@ template <typename T> struct Index3 {
 #undef ARITHMETIC_OP
 
 #define RELATIONAL_OP(OP, CO)                                                  \
-  HERMES_DEVICE_CALLABLE bool operator OP(const Index3<T> &b) const {          \
+  HERMES_CPU_GPU bool operator OP(const Index3<T> &b) const {                  \
     return i OP b.i CO j OP b.j CO k OP b.k;                                   \
   }                                                                            \
   template <typename U>                                                        \
-  HERMES_DEVICE_CALLABLE bool operator OP(const Size3<U> &b) const {           \
+  HERMES_CPU_GPU bool operator OP(const Size3<U> &b) const {                   \
     return i OP static_cast<T>(b.width) CO j OP static_cast<T>(b.height)       \
         CO k OP static_cast<T>(b.depth);                                       \
   }

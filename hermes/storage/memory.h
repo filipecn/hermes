@@ -36,10 +36,10 @@ namespace hermes::mem {
 /// Object returned by memory allocators and other memory-related classes
 /// Each class puts a meaning into its value.
 struct AddressIndex {
-  HERMES_DEVICE_CALLABLE AddressIndex(h_size id = 0) : id(id) {}
+  HERMES_CPU_GPU AddressIndex(h_size id = 0) : id(id) {}
   /// handle identifier, a value of zero identifies an invalid address
   h_size id{0};
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE inline bool isValid() const {
+  HERMES_NODISCARD HERMES_CPU_GPU inline bool isValid() const {
     return id != 0;
   }
 };
@@ -60,28 +60,24 @@ struct alignment {
   /// \param align alignment size in number of bytes
   /// \return the actual amount of bytes necessary to store number_of_bytes
   /// under the alignment
-  HERMES_DEVICE_CALLABLE static h_size alignTo(h_size number_of_bytes,
-                                               h_size align);
+  HERMES_CPU_GPU static h_size alignTo(h_size number_of_bytes, h_size align);
 
   /// \param address
   /// \param align
   /// \return
-  HERMES_DEVICE_CALLABLE static h_size leftAlignShift(uintptr_t address,
-                                                      h_size align);
+  HERMES_CPU_GPU static h_size leftAlignShift(uintptr_t address, h_size align);
 
   /// \param address
   /// \param align
   /// \return
-  HERMES_DEVICE_CALLABLE static h_size rightAlignShift(uintptr_t address,
-                                                       h_size align);
+  HERMES_CPU_GPU static h_size rightAlignShift(uintptr_t address, h_size align);
 
   /// Shifts **address** upwards if necessary to ensure it is aligned to
   /// **align** number of bytes.
   /// \param address **[in]** memory address
   /// \param align **[in]** number of bytes
   /// \return aligned address
-  HERMES_DEVICE_CALLABLE static uintptr_t alignAddress(uintptr_t address,
-                                                       h_size align);
+  HERMES_CPU_GPU static uintptr_t alignAddress(uintptr_t address, h_size align);
 
   /// Shifts pointer **ptr** upwards if necessary to ensure it is aligned to
   /// **align** number of bytes.
@@ -90,7 +86,7 @@ struct alignment {
   /// \param align **[in]** number of bytes
   /// \return aligned pointer
   template <typename T>
-  HERMES_DEVICE_CALLABLE static T *alignPointer(T *ptr, h_size align) {
+  HERMES_CPU_GPU static T *alignPointer(T *ptr, h_size align) {
     const auto addr = reinterpret_cast<uintptr_t>(ptr);
     const uintptr_t addr_aligned = alignAddress(addr, align);
     return reinterpret_cast<T *>(addr_aligned);
@@ -130,64 +126,62 @@ struct writes {
 
   // linear memory
 
-  HERMES_NODISCARD static HeError copyDevice2Device(void *dst, const void *src,
+  HERMES_NODISCARD static HeError copyDevice2Device(void *dst, void *src,
                                                     h_size byte_count);
 
-  HERMES_NODISCARD static HeError copyDevice2Host(void *dst, const void *src,
+  HERMES_NODISCARD static HeError copyDevice2Host(void *dst, void *src,
                                                   h_size byte_count);
 
-  HERMES_NODISCARD static HeError copyHost2Device(void *dst, const void *src,
+  HERMES_NODISCARD static HeError copyHost2Device(void *dst, void *src,
                                                   h_size byte_count);
 
-  HERMES_NODISCARD static HeError copyHost2Host(void *dst, const void *src,
+  HERMES_NODISCARD static HeError copyHost2Host(void *dst, void *src,
                                                 h_size byte_count);
 
   HERMES_NODISCARD static HeError copy(MemoryLocation dst_location, void *dst,
-                                       MemoryLocation src_location,
-                                       const void *src, h_size byte_count);
+                                       MemoryLocation src_location, void *src,
+                                       h_size byte_count);
 
   // 2d memory
 
   HERMES_NODISCARD static HeError copyHost2Device(void *dst, h_size dst_pitch,
-                                                  const void *src,
-                                                  h_size src_pitch,
+                                                  void *src, h_size src_pitch,
                                                   const size2 &src_size);
 
   HERMES_NODISCARD static HeError copyDevice2Host(void *dst, h_size dst_pitch,
-                                                  const void *src,
-                                                  h_size src_pitch,
+                                                  void *src, h_size src_pitch,
                                                   const size2 &src_size);
 
   HERMES_NODISCARD static HeError copyDevice2Device(void *dst, h_size dst_pitch,
-                                                    const void *src,
-                                                    h_size src_pitch,
+                                                    void *src, h_size src_pitch,
                                                     const size2 &src_size);
 
   HERMES_NODISCARD static HeError copy(MemoryLocation dst_location, void *dst,
                                        h_size dst_pitch,
-                                       MemoryLocation src_location,
-                                       const void *src, h_size src_pitch,
-                                       const size2 &src_size);
+                                       MemoryLocation src_location, void *src,
+                                       h_size src_pitch, const size2 &src_size);
 
   // 3d memory
 
-  HERMES_NODISCARD static HeError
-  copyHost2Device(void *dst, h_size dst_pitch, const size3 &dst_size,
-                  const void *src, h_size src_pitch, const size3 &src_size);
+  HERMES_NODISCARD static HeError copyHost2Device(void *dst, h_size dst_pitch,
+                                                  const size3 &dst_size,
+                                                  void *src, h_size src_pitch,
+                                                  const size3 &src_size);
 
-  HERMES_NODISCARD static HeError
-  copyDevice2Host(void *dst, h_size dst_pitch, const size3 &dst_size,
-                  const void *src, h_size src_pitch, const size3 &src_size);
+  HERMES_NODISCARD static HeError copyDevice2Host(void *dst, h_size dst_pitch,
+                                                  const size3 &dst_size,
+                                                  void *src, h_size src_pitch,
+                                                  const size3 &src_size);
 
-  HERMES_NODISCARD static HeError
-  copyDevice2Device(void *dst, h_size dst_pitch, const size3 &dst_size,
-                    const void *src, h_size src_pitch, const size3 &src_size);
+  HERMES_NODISCARD static HeError copyDevice2Device(void *dst, h_size dst_pitch,
+                                                    const size3 &dst_size,
+                                                    void *src, h_size src_pitch,
+                                                    const size3 &src_size);
 
   HERMES_NODISCARD static HeError copy(MemoryLocation dst_location, void *dst,
                                        h_size dst_pitch, const size3 &dst_size,
-                                       MemoryLocation src_location,
-                                       const void *src, h_size src_pitch,
-                                       const size3 &src_size);
+                                       MemoryLocation src_location, void *src,
+                                       h_size src_pitch, const size3 &src_size);
 };
 
 } // namespace hermes::mem

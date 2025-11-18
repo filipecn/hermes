@@ -44,71 +44,76 @@ public:
 
   //                                                              constructors
 
-  HERMES_CONSTEXPR Flags() HERMES_NOEXCEPT : mask_(0) {}
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags() HERMES_NOEXCEPT : mask_(0) {}
 
-  HERMES_CONSTEXPR Flags(BitType bit) HERMES_NOEXCEPT
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags(BitType bit) HERMES_NOEXCEPT
       : mask_(static_cast<MaskType>(bit)) {}
 
-  HERMES_CONSTEXPR
-  Flags(const Flags<BitType> &rhs) HERMES_NOEXCEPT = default;
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags(const Flags<BitType> &rhs)
+      HERMES_NOEXCEPT {
+    *this = rhs;
+  };
 
-  HERMES_CONSTEXPR explicit Flags(MaskType flags) HERMES_NOEXCEPT
+  HERMES_CPU_GPU HERMES_CONSTEXPR explicit Flags(MaskType flags) HERMES_NOEXCEPT
       : mask_(flags) {}
 
   //                                                          logical operator
 
-  HERMES_CONSTEXPR bool operator!() const HERMES_NOEXCEPT { return !mask_; }
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool operator!() const HERMES_NOEXCEPT {
+    return !mask_;
+  }
 
   //                                                      relational operators
 
-  HERMES_CONSTEXPR bool
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool
   operator<(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return mask_ < rhs.mask_;
   }
 
-  HERMES_CONSTEXPR bool
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool
   operator<=(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return mask_ <= rhs.mask_;
   }
 
-  HERMES_CONSTEXPR bool
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool
   operator>(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return mask_ > rhs.mask_;
   }
 
-  HERMES_CONSTEXPR bool
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool
   operator>=(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return mask_ >= rhs.mask_;
   }
 
-  HERMES_CONSTEXPR bool
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool
   operator==(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return mask_ == rhs.mask_;
   }
 
-  HERMES_CONSTEXPR bool
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool
   operator!=(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return mask_ != rhs.mask_;
   }
 
   //                                                         bitwise operators
 
-  HERMES_CONSTEXPR Flags<BitType>
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags<BitType>
   operator&(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return Flags<BitType>(mask_ & rhs.mask_);
   }
 
-  HERMES_CONSTEXPR Flags<BitType>
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags<BitType>
   operator|(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return Flags<BitType>(mask_ | rhs.mask_);
   }
 
-  HERMES_CONSTEXPR Flags<BitType>
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags<BitType>
   operator^(const Flags<BitType> &rhs) const HERMES_NOEXCEPT {
     return Flags<BitType>(mask_ ^ rhs.mask_);
   }
 
-  HERMES_CONSTEXPR Flags<BitType> operator~() const HERMES_NOEXCEPT {
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags<BitType>
+  operator~() const HERMES_NOEXCEPT {
     return Flags<BitType>(mask_ ^ FlagTraits<BitType>::all_flags.mask_);
   }
 
@@ -117,19 +122,19 @@ public:
   Flags<BitType> &
   operator=(const Flags<BitType> &rhs) HERMES_NOEXCEPT = default;
 
-  HERMES_CONSTEXPR Flags<BitType> &
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags<BitType> &
   operator|=(const Flags<BitType> &rhs) HERMES_NOEXCEPT {
     mask_ |= rhs.mask_;
     return *this;
   }
 
-  HERMES_CONSTEXPR Flags<BitType> &
+  HERMES_CPU_GPU HERMES_CONSTEXPR Flags<BitType> &
   operator&=(const Flags<BitType> &rhs) HERMES_NOEXCEPT {
     mask_ &= rhs.mask_;
     return *this;
   }
 
-  HERMES_CONSTEXPR Flags<BitType> &
+  HERMES_CPU_GPU HERMES_CPU_GPU HERMES_CONSTEXPR Flags<BitType> &
   operator^=(const Flags<BitType> &rhs) HERMES_NOEXCEPT {
     mask_ ^= rhs.mask_;
     return *this;
@@ -137,15 +142,18 @@ public:
 
   //                                                            cast operators
 
-  explicit HERMES_CONSTEXPR operator bool() const HERMES_NOEXCEPT {
+  explicit HERMES_CPU_GPU HERMES_CONSTEXPR
+  operator bool() const HERMES_NOEXCEPT {
     return !!mask_;
   }
 
-  explicit HERMES_CONSTEXPR operator MaskType() const HERMES_NOEXCEPT {
+  explicit HERMES_CPU_GPU HERMES_CONSTEXPR
+  operator MaskType() const HERMES_NOEXCEPT {
     return mask_;
   }
 
-  HERMES_CONSTEXPR bool contain(BitType bit) const HERMES_NOEXCEPT;
+  HERMES_CPU_GPU HERMES_CONSTEXPR bool
+  contain(BitType bit) const HERMES_NOEXCEPT;
 
 private:
   MaskType mask_;
@@ -156,19 +164,19 @@ private:
 // bitwise operators
 
 template <typename BitType>
-HERMES_CONSTEXPR hermes::Flags<BitType>
+HERMES_CPU_GPU HERMES_CONSTEXPR hermes::Flags<BitType>
 operator&(BitType bit, const hermes::Flags<BitType> &flags) HERMES_NOEXCEPT {
   return flags.operator&(bit);
 }
 
 template <typename BitType>
-HERMES_CONSTEXPR hermes::Flags<BitType>
+HERMES_CPU_GPU HERMES_CONSTEXPR hermes::Flags<BitType>
 operator|(BitType bit, const hermes::Flags<BitType> &flags) HERMES_NOEXCEPT {
   return flags.operator|(bit);
 }
 
 template <typename BitType>
-HERMES_CONSTEXPR hermes::Flags<BitType>
+HERMES_CPU_GPU HERMES_CONSTEXPR hermes::Flags<BitType>
 operator^(BitType bit, const hermes::Flags<BitType> &flags) HERMES_NOEXCEPT {
   return flags.operator^(bit);
 }
@@ -178,7 +186,7 @@ operator^(BitType bit, const hermes::Flags<BitType> &flags) HERMES_NOEXCEPT {
 template <typename BitType,
           typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
                                   bool>::type = true>
-inline HERMES_CONSTEXPR hermes::Flags<BitType>
+inline HERMES_CPU_GPU HERMES_CONSTEXPR hermes::Flags<BitType>
 operator&(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
   return hermes::Flags<BitType>(lhs) & rhs;
 }
@@ -186,7 +194,7 @@ operator&(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
 template <typename BitType,
           typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
                                   bool>::type = true>
-inline HERMES_CONSTEXPR hermes::Flags<BitType>
+inline HERMES_CPU_GPU HERMES_CONSTEXPR hermes::Flags<BitType>
 operator|(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
   return hermes::Flags<BitType>(lhs) | rhs;
 }
@@ -194,7 +202,7 @@ operator|(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
 template <typename BitType,
           typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
                                   bool>::type = true>
-inline HERMES_CONSTEXPR hermes::Flags<BitType>
+inline HERMES_CPU_GPU HERMES_CONSTEXPR hermes::Flags<BitType>
 operator^(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
   return hermes::Flags<BitType>(lhs) ^ rhs;
 }
@@ -202,13 +210,13 @@ operator^(BitType lhs, BitType rhs) HERMES_NOEXCEPT {
 template <typename BitType,
           typename std::enable_if<hermes::FlagTraits<BitType>::is_bitmask,
                                   bool>::type = true>
-inline HERMES_CONSTEXPR hermes::Flags<BitType>
+inline HERMES_CPU_GPU HERMES_CONSTEXPR hermes::Flags<BitType>
 operator~(BitType bit) HERMES_NOEXCEPT {
   return ~(Flags<BitType>(bit));
 }
 
 template <typename BitType>
-HERMES_CONSTEXPR bool
+HERMES_CPU_GPU HERMES_CONSTEXPR bool
 hermes::Flags<BitType>::contain(BitType bit) const HERMES_NOEXCEPT {
   return (*this & bit) == bit;
 }

@@ -1,5 +1,3 @@
-#include "hermes/io/logger.h"
-#include "hermes/numeric/matrix.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
@@ -8,6 +6,7 @@
 #include <hermes/geometry/quaternion.h>
 #include <hermes/geometry/transform.h>
 #include <hermes/geometry/vector.h>
+#include <hermes/system/gpu.h>
 
 using namespace hermes;
 using namespace hermes::geo;

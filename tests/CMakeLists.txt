@@ -5,7 +5,7 @@ add_executable(hermes_tests
   geometry_tests.cpp
   numeric_tests.cpp
   storage_tests.cpp
-  system_tests.cpp
+  system_tests.cu
 )
 
 target_link_options(hermes_tests INTERFACE --coverage)
@@ -16,13 +16,25 @@ target_include_directories(hermes_tests PUBLIC
   ${CATCH2_INCLUDES} 
   ${HERMES_INCLUDE_DIR}
 )
-set_target_properties(hermes_tests PROPERTIES LINKER_LANGUAGE CXX)
+
+setup_target(hermes_tests)
+
+if (HERMES_ENABLE_CUDA)
+  set_source_files_properties(
+    geometry_tests.cpp
+    storage_tests.cpp
+    PROPERTIES LANGUAGE CUDA)
+endif(HERMES_ENABLE_CUDA)
+  
+target_link_libraries(hermes_tests PRIVATE 
+  hermes
+  Catch2::Catch2WithMain
+)
 
 if (UNIX)
 
   target_link_libraries(hermes_tests 
-    Catch2::Catch2WithMain
-    hermes
+    PRIVATE
     gcov
   )
 
@@ -35,9 +47,5 @@ if (UNIX)
     COMMAND lcov --remove cov.info '*/tests/*' --output-file cov.info
     COMMAND genhtml cov.info --output-directory out
   )
-
-else (UNIX)
-
-    target_link_libraries(hermes_tests hermes)
 
 endif (UNIX)

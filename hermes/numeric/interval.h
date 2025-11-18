@@ -48,47 +48,47 @@ public:
   /// \param c center
   /// \param r radius
   /// \return
-  HERMES_DEVICE_CALLABLE static Interval withRadius(real_t c, real_t r) {
+  HERMES_CPU_GPU static Interval withRadius(real_t c, real_t r) {
     if (r == 0)
       return {c, c};
     return {numbers::subRoundDown(c, r), numbers::addRoundUp(c, r)};
   }
 
   /// Default constructor
-  HERMES_DEVICE_CALLABLE Interval() : low(0), high(0) {}
+  HERMES_CPU_GPU Interval() : low(0), high(0) {}
   /// Constructs from center value
   /// \param v
-  HERMES_DEVICE_CALLABLE Interval(T v) : low(v), high(v) {}
+  HERMES_CPU_GPU Interval(T v) : low(v), high(v) {}
   /// Construct from interval values
   /// \param l
   /// \param h
-  HERMES_DEVICE_CALLABLE Interval(T l, T h) : low(l), high(h) {}
+  HERMES_CPU_GPU Interval(T l, T h) : low(l), high(h) {}
 
   /// Gets interval center value
   /// \return
-  HERMES_DEVICE_CALLABLE explicit operator T() const { return center(); }
+  HERMES_CPU_GPU explicit operator T() const { return center(); }
   /// Negates interval
   /// \return
-  HERMES_DEVICE_CALLABLE Interval operator-() const { return {-high, -low}; }
+  HERMES_CPU_GPU Interval operator-() const { return {-high, -low}; }
 
   /// Uses interval arithmetic addition
   /// \param i
   /// \return
-  HERMES_DEVICE_CALLABLE Interval operator+(const Interval &i) const {
+  HERMES_CPU_GPU Interval operator+(const Interval &i) const {
     return Interval(numbers::addRoundDown(low, i.low),
                     numbers::addRoundUp(high, i.high));
   }
   /// Uses interval arithmetic subtraction
   /// \param i
   /// \return
-  HERMES_DEVICE_CALLABLE Interval operator-(const Interval &i) const {
+  HERMES_CPU_GPU Interval operator-(const Interval &i) const {
     return Interval(numbers::subRoundDown(low, i.low),
                     numbers::subRoundUp(high, i.high));
   }
   /// Uses interval arithmetic multiplication
   /// \param i
   /// \return
-  HERMES_DEVICE_CALLABLE Interval operator*(const Interval &i) const {
+  HERMES_CPU_GPU Interval operator*(const Interval &i) const {
     T lp[4] = {numbers::mulRoundDown(low, i.low),
                numbers::mulRoundDown(high, i.low),
                numbers::mulRoundDown(low, i.high),
@@ -102,7 +102,7 @@ public:
   /// Uses interval arithmetic division
   /// \param i
   /// \return
-  HERMES_DEVICE_CALLABLE Interval operator/(const Interval &i) const {
+  HERMES_CPU_GPU Interval operator/(const Interval &i) const {
     Interval r = i;
     if (r.low < 0 && r.high > 0)
       return {numeric::limits::lowest<T>(), numeric::limits::greatest<T>()};
@@ -117,7 +117,7 @@ public:
             numbers::cmp::max({hq[0], hq[1], hq[2], hq[3]})};
   }
   //                                                                                                          boolean
-  HERMES_DEVICE_CALLABLE bool operator==(const Interval<T> &b) const {
+  HERMES_CPU_GPU bool operator==(const Interval<T> &b) const {
     return numbers::cmp::is_equal(low, b.low) &&
            numbers::cmp::is_equal(high, b.high);
   }
@@ -125,30 +125,26 @@ public:
   /// Checks if this interval contains v
   /// \param v
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool contains(T v) const {
+  HERMES_NODISCARD HERMES_CPU_GPU bool contains(T v) const {
     return v >= low && v <= high;
   }
   /// Gets interval center value
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T center() const {
-    return (low + high) / 2;
-  }
+  HERMES_NODISCARD HERMES_CPU_GPU T center() const { return (low + high) / 2; }
   /// Gets interval radius
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T radius() const {
-    return (high - low) / 2;
-  }
+  HERMES_NODISCARD HERMES_CPU_GPU T radius() const { return (high - low) / 2; }
   /// Gets interval diameter
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE T width() const { return high - low; }
+  HERMES_NODISCARD HERMES_CPU_GPU T width() const { return high - low; }
   /// Checks if interval contains a single value
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool isExact() const {
+  HERMES_NODISCARD HERMES_CPU_GPU bool isExact() const {
     return high - low == 0;
   }
   /// Computes arithmetic interval square
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Interval sqr() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Interval sqr() const {
     real_t alow = std::abs(low), ahigh = std::abs(high);
     if (alow > ahigh)
       std::swap(alow, ahigh);
@@ -158,7 +154,7 @@ public:
                     numbers::mulRoundUp(ahigh, ahigh));
   }
   /// Computes arithmetic interval square root
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE Interval sqrt() const {
+  HERMES_NODISCARD HERMES_CPU_GPU Interval sqrt() const {
     return {numbers::sqrtRoundDown(low), numbers::sqrtRoundUp(high)};
   }
 
@@ -168,11 +164,11 @@ public:
 
 #define ARITHMETIC_OP(OP)                                                      \
   template <typename T>                                                        \
-  HERMES_DEVICE_CALLABLE Interval<T> operator OP(T f, const Interval<T> &i) {  \
+  HERMES_CPU_GPU Interval<T> operator OP(T f, const Interval<T> &i) {          \
     return Interval<T>(f) OP i;                                                \
   }                                                                            \
   template <typename T>                                                        \
-  HERMES_DEVICE_CALLABLE Interval<T> operator OP(const Interval<T> &i, T f) {  \
+  HERMES_CPU_GPU Interval<T> operator OP(const Interval<T> &i, T f) {          \
     return i OP Interval<T>(f);                                                \
   }
 ARITHMETIC_OP(+)

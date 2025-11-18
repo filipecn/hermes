@@ -3,9 +3,9 @@
 Hermes defines some macros to help you distinguish device code from
 host code.
 ```cpp
-#define HERMES_HOST_FUNCTION __host__
-#define HERMES_DEVICE_CALLABLE __device__ __host__
-#define HERMES_DEVICE_FUNCTION __device__
+#define HERMES_CPU __host__
+#define HERMES_CPU_GPU __device__ __host__
+#define HERMES_GPU __device__
 // you can check if there is CUDA support with:
 #define HERMES_DEVICE_ENABLED
 // Wraps a block of code that gets compiled only when using CUDA

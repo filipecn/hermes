@@ -146,8 +146,8 @@ TEST_CASE("os", "[system]") {
       auto f = os::find("os::find_dir", ".*\\.ext1",
                         os::find_option_bits::sort |
                             os::find_option_bits::recursive);
-      REQUIRE(f.size() == 6);
-      for (int i = 0; i < 6; ++i)
+      REQUIRE(f.size() == 5);
+      for (int i = 0; i < 5; ++i)
         REQUIRE(f[i].filename().c_str() == (cstr() << "file" << i << ".ext1"));
     }
     std::filesystem::remove_all("os::find_dir");

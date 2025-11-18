@@ -47,31 +47,31 @@ template <typename T> class Quaternion {
 public:
   /// \brief Creates an identity quaternion (0,0,0,1)
   /// \return
-  HERMES_DEVICE_CALLABLE static Quaternion<T> I() { return {{}, 1}; }
+  HERMES_CPU_GPU static Quaternion<T> I() { return {{}, 1}; }
 
-  HERMES_DEVICE_CALLABLE Quaternion() {}
-  HERMES_DEVICE_CALLABLE Quaternion(T x, T y, T z, T w) : v(x, y, z), r(w) {}
+  HERMES_CPU_GPU Quaternion() {}
+  HERMES_CPU_GPU Quaternion(T x, T y, T z, T w) : v(x, y, z), r(w) {}
   /// \brief Construct from part values
   /// \param v vector part
   /// \param r scalar part
-  HERMES_DEVICE_CALLABLE Quaternion(const hermes::geo::Vector3<T> &v, T r = 0)
+  HERMES_CPU_GPU Quaternion(const hermes::geo::Vector3<T> &v, T r = 0)
       : v(v), r(r) {}
   ///
-  HERMES_DEVICE_CALLABLE ~Quaternion() {}
+  HERMES_CPU_GPU ~Quaternion() {}
   /// \brief Get i-th component
   /// \warning `i` is not checked
   /// \param i component index in [0, 1]
   /// \return
-  HERMES_DEVICE_CALLABLE const T &operator[](int i) const { return (&v[0])[i]; }
+  HERMES_CPU_GPU const T &operator[](int i) const { return (&v[0])[i]; }
   /// \brief Get i-th component reference
   /// \warning `i` is not checked
   /// \param i component index in [0, 1]
   /// \return
-  HERMES_DEVICE_CALLABLE T &operator[](int i) { return (&v[0])[i]; }
+  HERMES_CPU_GPU T &operator[](int i) { return (&v[0])[i]; }
 
   /// \brief
   /// \return
-  HERMES_DEVICE_CALLABLE Transform matrix() const {
+  HERMES_CPU_GPU Transform matrix() const {
     Transform m;
     float Nv = v.x * v.x + v.y * v.y + v.z * v.z + r * r;
     float s = (Nv > 0.f) ? (2.f / Nv) : 0.f;
@@ -94,22 +94,22 @@ public:
   }
   /// \brief Computes inverse of this quaternion
   /// \return
-  HERMES_DEVICE_CALLABLE Quaternion inverse() const {
+  HERMES_CPU_GPU Quaternion inverse() const {
     T d = 1 / (r * r + v.length2());
     return {-v * d, r * d};
   }
   /// \brief Computes conjugate of this quaternion
   /// \return
-  HERMES_DEVICE_CALLABLE Quaternion conjugate() const { return {-v, r}; }
+  HERMES_CPU_GPU Quaternion conjugate() const { return {-v, r}; }
   /// \brief Computes the squared norm
   /// \return
-  HERMES_DEVICE_CALLABLE T length2() const { return v.length2() + r * r; }
+  HERMES_CPU_GPU T length2() const { return v.length2() + r * r; }
   /// \brief Computes the norm
   /// \return
-  HERMES_DEVICE_CALLABLE T length() const { return sqrtf(v.length2() + r * r); }
+  HERMES_CPU_GPU T length() const { return sqrtf(v.length2() + r * r); }
   /// \brief Computes normalized copy
   /// \return
-  HERMES_DEVICE_CALLABLE Quaternion normalized() const {
+  HERMES_CPU_GPU Quaternion normalized() const {
     auto d = v.length2() + r * r;
     HERMES_CHECK(d != 0.0);
     return *this / d;
@@ -125,8 +125,7 @@ public:
 /// \param s
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator/(const Quaternion<T> &q,
-                                                      T s) {
+HERMES_CPU_GPU inline Quaternion<T> operator/(const Quaternion<T> &q, T s) {
   return {q.v / s, q.r / s};
 }
 /// \brief Scalar multiplication
@@ -135,8 +134,7 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator/(const Quaternion<T> &q,
 /// \param s
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q,
-                                                      T s) {
+HERMES_CPU_GPU inline Quaternion<T> operator*(const Quaternion<T> &q, T s) {
   return {q.v * s, q.r * s};
 }
 /// \brief Scalar multiplication
@@ -145,8 +143,7 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q,
 /// \param q
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(T s,
-                                                      const Quaternion<T> &q) {
+HERMES_CPU_GPU inline Quaternion<T> operator*(T s, const Quaternion<T> &q) {
   return {q.v * s, q.r * s};
 }
 /// \brief Adds two quaternions
@@ -156,8 +153,8 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(T s,
 /// \param p
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator+(const Quaternion<T> &q,
-                                                      const Quaternion<T> &p) {
+HERMES_CPU_GPU inline Quaternion<T> operator+(const Quaternion<T> &q,
+                                              const Quaternion<T> &p) {
   return {q.v + p.v, q.r + p.r};
 }
 /// \brief Subtracts p from q
@@ -167,8 +164,8 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator+(const Quaternion<T> &q,
 /// \param p
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator-(const Quaternion<T> &q,
-                                                      const Quaternion<T> &p) {
+HERMES_CPU_GPU inline Quaternion<T> operator-(const Quaternion<T> &q,
+                                              const Quaternion<T> &p) {
   return {q.v - p.v, q.r - p.r};
 }
 /// \brief Multiplies quaternions
@@ -177,8 +174,8 @@ HERMES_DEVICE_CALLABLE inline Quaternion<T> operator-(const Quaternion<T> &q,
 /// \param p
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline Quaternion<T> operator*(const Quaternion<T> &q,
-                                                      const Quaternion<T> &p) {
+HERMES_CPU_GPU inline Quaternion<T> operator*(const Quaternion<T> &q,
+                                              const Quaternion<T> &p) {
   return {q.r * p.v + p.r * q.v + cross(p.v, q.v), q.r * p.r - dot(q, p)};
 }
 

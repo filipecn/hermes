@@ -26,8 +26,6 @@
 
 #pragma once
 
-#include "hermes/core/debug.h"
-#include "hermes/core/types.h"
 #include <hermes/storage/memory.h>
 
 namespace hermes::mem {
@@ -53,6 +51,7 @@ public:
     MemoryLocation location_{MemoryLocation::HOST};
     size3 size_;
     h_size pitch_{0};
+    u32 dimensions_{1};
   };
 
   Block() noexcept = default;
@@ -82,16 +81,16 @@ public:
   /// \param offset offset into memory block
   /// \param data_location
   HERMES_NODISCARD HeError
-  copy(const void *data, h_size size_in_bytes, h_size offset,
+  copy(void *data, h_size size_in_bytes, h_size offset,
        MemoryLocation data_location = MemoryLocation::HOST);
   /// \tparam T
   /// \param data
   /// \param offset offset into memory block
   template <typename T>
   HERMES_NODISCARD HeError
-  copy(const T *data, h_size offset = 0,
+  copy(T *data, h_size offset = 0,
        MemoryLocation data_location = MemoryLocation::HOST) {
-    return copy(reinterpret_cast<const void *>(data), sizeof(T), offset,
+    return copy(reinterpret_cast<void *>(data), sizeof(T), offset,
                 data_location);
   }
 

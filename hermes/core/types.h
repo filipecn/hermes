@@ -122,9 +122,9 @@ using h_size = std::size_t; //!< size type
 #define HERMES_HOST_FUNCTION __host__
 /// \brief Specifies that the function can be called from both host and device
 /// sides
-#define HERMES_DEVICE_CALLABLE __device__ __host__
+#define HERMES_CPU_GPU __device__ __host__
 /// \brief Specifies that the function can only be called from device side
-#define HERMES_DEVICE_FUNCTION __device__
+#define HERMES_GPU __device__
 /// \brief Specifies that hermes is compiled with CUDA support
 #define HERMES_DEVICE_ENABLED __CUDA_ARCH__
 /// \brief Defines a CUDA kernel function
@@ -136,9 +136,9 @@ using h_size = std::size_t; //!< size type
 
 #else
 
-#define HERMES_HOST_FUNCTION
-#define HERMES_DEVICE_CALLABLE
-#define HERMES_DEVICE_FUNCTION
+#define HERMES_CPU
+#define HERMES_CPU_GPU
+#define HERMES_GPU
 #define HERMES_CUDA_CODE(CODE)
 
 #endif
@@ -173,7 +173,7 @@ public:
   /// \brief Translates DataType from identifier number
   /// \param index
   /// \return
-  HERMES_DEVICE_CALLABLE static DataType typeFrom(u8 index) {
+  HERMES_CPU_GPU static constexpr DataType typeFrom(u8 index) {
 #define MATCH_TYPE(Type)                                                       \
   if ((u8)DataType::Type == index)                                             \
     return DataType::Type;
@@ -195,7 +195,7 @@ public:
   /// \brief Translates template type T to DataType
   /// \tparam T
   /// \return
-  template <typename T> HERMES_DEVICE_CALLABLE static DataType typeFrom() {
+  template <typename T> static constexpr DataType typeFrom() {
 #define MATCH_TYPE(Type, R)                                                    \
   if (std::is_same_v<T, Type>)                                                 \
     return DataType::R;
@@ -217,7 +217,7 @@ public:
   /// \brief Computes number of bytes from DataType
   /// \param type
   /// \return
-  static u32 typeSize(DataType type) {
+  static constexpr u32 typeSize(DataType type) {
 #define TYPE_SIZE(Size, Type)                                                  \
   if (DataType::Type == type)                                                  \
     return Size;

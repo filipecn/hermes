@@ -130,7 +130,7 @@ public:
         (*this)[i] = data[i];
       return *this;
     }
-    HERMES_DEVICE_CALLABLE FieldView &operator=(const T *data) {
+    HERMES_CPU_GPU FieldView &operator=(const T *data) {
       for (size_t i = 0; i < size_; ++i)
         (*this)[i] = data[i];
       return *this;
@@ -138,14 +138,13 @@ public:
 
     /// \param i
     /// \return
-    HERMES_DEVICE_CALLABLE T &operator[](size_t i) {
+    HERMES_CPU_GPU T &operator[](size_t i) {
       return *reinterpret_cast<T *>(data_ + i * stride_ + offset_);
     }
-    HERMES_DEVICE_CALLABLE size_t size() const { return size_; }
+    HERMES_CPU_GPU size_t size() const { return size_; }
 
   private:
-    HERMES_DEVICE_CALLABLE FieldView(h_byte *data, u64 stride, u64 offset,
-                                     size_t size)
+    HERMES_CPU_GPU FieldView(h_byte *data, u64 stride, u64 offset, size_t size)
         : data_{data}, stride_{stride}, offset_{offset}, size_{size} {}
 
     h_byte *data_{nullptr};
@@ -160,14 +159,14 @@ public:
   /// \tparam T field data type
   template <typename T> class ConstFieldView {
   public:
-    HERMES_DEVICE_CALLABLE const T &operator[](size_t i) const {
+    HERMES_CPU_GPU const T &operator[](size_t i) const {
       return *reinterpret_cast<const T *>(data_ + i * stride_ + offset_);
     }
-    HERMES_DEVICE_CALLABLE size_t size() const { return size_; }
+    HERMES_CPU_GPU size_t size() const { return size_; }
 
   private:
-    HERMES_DEVICE_CALLABLE ConstFieldView(const h_byte *data, u64 stride,
-                                          u64 offset, size_t size)
+    HERMES_CPU_GPU ConstFieldView(const h_byte *data, u64 stride, u64 offset,
+                                  size_t size)
         : data_{data}, stride_{stride}, offset_{offset}, size_{size} {}
 
     const h_byte *data_{nullptr};
@@ -180,16 +179,14 @@ public:
 
   class View {
   public:
-    HERMES_DEVICE_CALLABLE void setDataPtr(h_byte *data) { data_ = data; }
-    HERMES_DEVICE_CALLABLE size_t size() const { return size_; }
+    void setDataPtr(h_byte *data) { data_ = data; }
+    size_t size() const { return size_; }
     //                                                                                                           access
-    template <typename T>
-    HERMES_DEVICE_CALLABLE const T &valueAt(u64 field_id, u64 i) const {
+    template <typename T> const T &valueAt(u64 field_id, u64 i) const {
       return *reinterpret_cast<const T *>(data_ + i * layout.size_in_bytes_ +
                                           layout.fields_[field_id].offset);
     }
-    template <typename T>
-    HERMES_DEVICE_CALLABLE T &valueAt(u64 field_id, u64 i) {
+    template <typename T> T &valueAt(u64 field_id, u64 i) {
       return *reinterpret_cast<T *>(data_ + i * layout.size_in_bytes_ +
                                     layout.fields_[field_id].offset);
     }
@@ -208,11 +205,10 @@ public:
 
   class ConstView {
   public:
-    HERMES_DEVICE_CALLABLE void setDataPtr(h_byte *data) { data_ = data; }
-    HERMES_DEVICE_CALLABLE size_t size() const { return size_; }
+    void setDataPtr(h_byte *data) { data_ = data; }
+    size_t size() const { return size_; }
     //                                                                                                           access
-    template <typename T>
-    HERMES_DEVICE_CALLABLE const T &valueAt(u64 field_id, u64 i) const {
+    template <typename T> const T &valueAt(u64 field_id, u64 i) const {
       return *reinterpret_cast<const T *>(data_ + i * layout.size_in_bytes_ +
                                           layout.fields_[field_id].offset);
     }

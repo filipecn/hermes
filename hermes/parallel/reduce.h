@@ -40,68 +40,60 @@ namespace hermes {
 /// Set of pre-built predicates to use with reduction operations
 struct ReducePredicates {
   /// \tparam T reduction input data type
-  template<typename T> struct min {
-    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return a; }
-    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
-      return fminf(a, b);
-    }
-    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fminf(a, b); }
+  template <typename T> struct min {
+    HERMES_CPU_GPU T operator()(const T &a) { return a; }
+    HERMES_CPU_GPU T operator()(const T &a, const T &b) { return fminf(a, b); }
+    HERMES_CPU_GPU T reduce(const T &a, const T &b) { return fminf(a, b); }
     T base_value = ponos::Constants::greatest<T>();
   };
   /// \tparam T reduction input data type
-  template<typename T> struct min_abs {
-    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return fabsf(a); }
-    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
+  template <typename T> struct min_abs {
+    HERMES_CPU_GPU T operator()(const T &a) { return fabsf(a); }
+    HERMES_CPU_GPU T operator()(const T &a, const T &b) {
       return fminf(fabsf(a), fabsf(b));
     }
-    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fminf(a, b); }
+    HERMES_CPU_GPU T reduce(const T &a, const T &b) { return fminf(a, b); }
     T base_value = ponos::Constants::greatest<T>();
   };
   /// \tparam T reduction input data type
-  template<typename T> struct max {
-    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return a; }
-    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
-      return fmaxf(a, b);
-    }
-    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fmaxf(a, b); }
+  template <typename T> struct max {
+    HERMES_CPU_GPU T operator()(const T &a) { return a; }
+    HERMES_CPU_GPU T operator()(const T &a, const T &b) { return fmaxf(a, b); }
+    HERMES_CPU_GPU T reduce(const T &a, const T &b) { return fmaxf(a, b); }
     T base_value = ponos::Constants::lowest<T>();
   };
   /// \tparam T reduction input data type
-  template<typename T> struct max_abs {
-    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return fabsf(a); }
-    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) {
+  template <typename T> struct max_abs {
+    HERMES_CPU_GPU T operator()(const T &a) { return fabsf(a); }
+    HERMES_CPU_GPU T operator()(const T &a, const T &b) {
       return fmaxf(fabsf(a), fabsf(b));
     }
-    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return fmaxf(a, b); }
+    HERMES_CPU_GPU T reduce(const T &a, const T &b) { return fmaxf(a, b); }
     T base_value = ponos::Constants::lowest<T>();
   };
   /// \tparam T reduction input data type
-  template<typename T> struct sum {
-    HERMES_DEVICE_CALLABLE T operator()(const T &a) { return a; }
-    HERMES_DEVICE_CALLABLE T operator()(const T &a, const T &b) { return a + b; }
-    HERMES_DEVICE_CALLABLE T reduce(const T &a, const T &b) { return a + b; }
+  template <typename T> struct sum {
+    HERMES_CPU_GPU T operator()(const T &a) { return a; }
+    HERMES_CPU_GPU T operator()(const T &a, const T &b) { return a + b; }
+    HERMES_CPU_GPU T reduce(const T &a, const T &b) { return a + b; }
     T base_value = 0;
   };
   /// \tparam T reduction input data type
-  template<typename T> struct is_equal_to_value {
-    HERMES_DEVICE_CALLABLE is_equal_to_value(T value) : value(value) {}
-    HERMES_DEVICE_CALLABLE bool operator()(const T &a) {
+  template <typename T> struct is_equal_to_value {
+    HERMES_CPU_GPU is_equal_to_value(T value) : value(value) {}
+    HERMES_CPU_GPU bool operator()(const T &a) {
       return Check::is_equal(a, value);
     }
-    HERMES_DEVICE_CALLABLE bool reduce(const bool &a, const bool &b) {
-      return a && b;
-    }
+    HERMES_CPU_GPU bool reduce(const bool &a, const bool &b) { return a && b; }
     T value{};
     bool base_value = true;
   };
   /// \tparam T reduction input data type
-  template<typename T> struct is_equal {
-    HERMES_DEVICE_CALLABLE bool operator()(const T &a, const T &b) {
+  template <typename T> struct is_equal {
+    HERMES_CPU_GPU bool operator()(const T &a, const T &b) {
       return Check::is_equal(a, b);
     }
-    HERMES_DEVICE_CALLABLE bool reduce(const bool &a, const bool &b) {
-      return a && b;
-    }
+    HERMES_CPU_GPU bool reduce(const bool &a, const bool &b) { return a && b; }
     T value{};
     bool base_value = true;
   };
@@ -115,14 +107,14 @@ struct ReducePredicates {
 ///\tparam T array data type
 /// \tparam R reduction result data type
 ///\tparam F lambda function type following the signature: (index2, T&)
-template<typename T, typename R, typename F> struct hermes_reduce_predicate {
-  HERMES_DEVICE_CALLABLE explicit hermes_reduce_predicate(const F &op)
+template <typename T, typename R, typename F> struct hermes_reduce_predicate {
+  HERMES_CPU_GPU explicit hermes_reduce_predicate(const F &op)
       : predicate(op) {}
-  HERMES_DEVICE_CALLABLE R operator()(const T &a) { return predicate(a); }
-  HERMES_DEVICE_CALLABLE R reduce(const R &a, const R &b) {
+  HERMES_CPU_GPU R operator()(const T &a) { return predicate(a); }
+  HERMES_CPU_GPU R reduce(const R &a, const R &b) {
     return predicate.reduce(a, b);
   }
-  HERMES_DEVICE_CALLABLE R baseValue() const { return predicate.base_value; }
+  HERMES_CPU_GPU R baseValue() const { return predicate.base_value; }
   F predicate;
 };
 /// Auxiliary class that encapsulates a c++ lambda function into device code for
@@ -130,16 +122,16 @@ template<typename T, typename R, typename F> struct hermes_reduce_predicate {
 ///\tparam T array data type
 /// \tparam R reduction result data type
 ///\tparam F lambda function type following the signature: (index2, T&)
-template<typename T, typename R, typename F> struct hermes_reduce2_predicate {
-  HERMES_DEVICE_CALLABLE explicit hermes_reduce2_predicate(const F &op)
+template <typename T, typename R, typename F> struct hermes_reduce2_predicate {
+  HERMES_CPU_GPU explicit hermes_reduce2_predicate(const F &op)
       : predicate(op) {}
-  HERMES_DEVICE_CALLABLE R operator()(const T &a, const T &b) {
+  HERMES_CPU_GPU R operator()(const T &a, const T &b) {
     return predicate(a, b);
   }
-  HERMES_DEVICE_CALLABLE R reduce(const R &a, const R &b) {
+  HERMES_CPU_GPU R reduce(const R &a, const R &b) {
     return predicate.reduce(a, b);
   }
-  HERMES_DEVICE_CALLABLE R baseValue() const { return predicate.base_value; }
+  HERMES_CPU_GPU R baseValue() const { return predicate.base_value; }
   F predicate;
 };
 
@@ -204,9 +196,9 @@ R reduce(const Array1<T> &data, ReducePredicate reduce_predicate) {
 ************************     1-dimension double      *************************
 ******************************************************************************/
 
-template<typename T, typename R, typename F>
-HERMES_CUDA_KERNEL(reduce)(Array1CAccessor <T> data_a, Array1CAccessor <T> data_b,
-                           Array1Accessor <R> c,
+template <typename T, typename R, typename F>
+HERMES_CUDA_KERNEL(reduce)(Array1CAccessor<T> data_a, Array1CAccessor<T> data_b,
+                           Array1Accessor<R> c,
                            hermes_reduce2_predicate<T, R, F> predicate) {
   __shared__ R cache[256];
 
@@ -234,7 +226,7 @@ HERMES_CUDA_KERNEL(reduce)(Array1CAccessor <T> data_a, Array1CAccessor <T> data_
     c[blockIdx.x] = cache[0];
 }
 
-template<typename T, typename R, typename ReducePredicate>
+template <typename T, typename R, typename ReducePredicate>
 R reduce(const Array1<T> &a, const Array1<T> &b,
          ReducePredicate reduce_predicate) {
   size_t block_size = (a.size() + 256 - 1) / 256;
@@ -243,7 +235,7 @@ R reduce(const Array1<T> &a, const Array1<T> &b,
   hermes_reduce2_predicate<T, R, ReducePredicate> hrp(reduce_predicate);
   Array1<R> d_c(block_size);
   HERMES_CUDA_LAUNCH(block_size, 256, 0, 0, reduce_k<T, R, ReducePredicate>,
-//  __reduce<T, R, ReducePredicate><<<block_size, 256>>>(
+                     //  __reduce<T, R, ReducePredicate><<<block_size, 256>>>(
                      a.constAccessor(), b.constAccessor(), d_c.accessor(), hrp);
   CHECK_CUDA(cudaDeviceSynchronize());
   auto h_c = d_c.hostData();

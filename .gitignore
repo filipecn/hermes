@@ -1,3 +1,6 @@
+.ccls-cache
+neovim.json
+compile_commands.json
 .gradle
 .idea
 cmake-*

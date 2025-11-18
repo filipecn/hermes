@@ -27,7 +27,6 @@
 
 #pragma once
 
-#include "hermes/core/debug.h"
 #include <hermes/geometry/point.h>
 #include <hermes/numeric/matrix.h>
 
@@ -97,7 +96,7 @@ class bbox2;
 /// \brief Computes inverse of a given transform
 /// \param t
 /// \return
-HERMES_DEVICE_CALLABLE Transform inverse(const Transform &t);
+HERMES_CPU_GPU Transform inverse(const Transform &t);
 /// \brief Computes inverse of a given transform
 /// \param t
 /// \return
@@ -112,15 +111,15 @@ public:
   /// \brief Creates scale transform
   /// \param s
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform2 scale(const vec2 &s);
+  HERMES_CPU_GPU static Transform2 scale(const vec2 &s);
   /// \brief Creates rotation transform
   /// \param angle
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform2 rotate(real_t angle);
+  HERMES_CPU_GPU static Transform2 rotate(real_t angle);
   /// \brief Creates translation transform
   /// \param v
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform2 translate(const vec2 &v);
+  HERMES_CPU_GPU static Transform2 translate(const vec2 &v);
 
   /// \brief Gets inverse transform from t
   /// \param t
@@ -128,18 +127,18 @@ public:
   friend Transform2 inverse(const Transform2 &t) { return inverse(t.m); }
 
   /// \brief Default constructor
-  HERMES_DEVICE_CALLABLE Transform2();
+  HERMES_CPU_GPU Transform2();
   /// \brief Constructs from matrix
   /// \param mat
-  HERMES_DEVICE_CALLABLE Transform2(const math::mat3 &mat);
+  HERMES_CPU_GPU Transform2(const math::mat3 &mat);
   /// \brief Constructs from bounding box
   /// \param bbox
-  HERMES_DEVICE_CALLABLE Transform2(const bbox2 &bbox);
+  HERMES_CPU_GPU Transform2(const bbox2 &bbox);
 
   /// \brief Applies this transform to geometric point
   /// \param p
   /// \param r
-  HERMES_DEVICE_CALLABLE void operator()(const point2 &p, point2 *r) const {
+  HERMES_CPU_GPU void operator()(const point2 &p, point2 *r) const {
     real_t x = p.x, y = p.y;
     r->x = m[0][0] * x + m[0][1] * y + m[0][2];
     r->y = m[1][0] * x + m[1][1] * y + m[1][2];
@@ -150,7 +149,7 @@ public:
   /// \brief Applies this transform to geometric vector
   /// \param v
   /// \param r
-  HERMES_DEVICE_CALLABLE void operator()(const vec2 &v, vec2 *r) const {
+  HERMES_CPU_GPU void operator()(const vec2 &v, vec2 *r) const {
     real_t x = v.x, y = v.y;
     r->x = m[0][0] * x + m[0][1] * y;
     r->y = m[1][0] * x + m[1][1] * y;
@@ -158,14 +157,14 @@ public:
   /// \brief Applies this transform to geometric vector
   /// \param v
   /// \return
-  HERMES_DEVICE_CALLABLE vec2 operator()(const vec2 &v) const {
+  HERMES_CPU_GPU vec2 operator()(const vec2 &v) const {
     real_t x = v.x, y = v.y;
     return vec2(m[0][0] * x + m[0][1] * y, m[1][0] * x + m[1][1] * y);
   }
   /// \brief Applies this transform to geometric point
   /// \param p
   /// \return
-  HERMES_DEVICE_CALLABLE point2 operator()(const point2 &p) const {
+  HERMES_CPU_GPU point2 operator()(const point2 &p) const {
     real_t x = p.x, y = p.y;
     real_t xp = m[0][0] * x + m[0][1] * y + m[0][2];
     real_t yp = m[1][0] * x + m[1][1] * y + m[1][2];
@@ -177,7 +176,7 @@ public:
   /// \brief Applies this transform to geometric box
   /// \param b
   /// \return
-  // HERMES_DEVICE_CALLABLE bbox2 operator()(const bbox2 &b) const {
+  // HERMES_CPU_GPU bbox2 operator()(const bbox2 &b) const {
   //   const Transform2 &M = *this;
   //   bbox2 ret;
   //   ret = make_union(ret, M(point2(b.lower.x, b.lower.y)));
@@ -189,7 +188,7 @@ public:
   /// \brief Applies this transform to geometric ray
   /// \param r
   /// \return
-  // HERMES_DEVICE_CALLABLE Ray2 operator()(const Ray2 &r) {
+  // HERMES_CPU_GPU Ray2 operator()(const Ray2 &r) {
   //   Ray2 ret = r;
   //   (*this)(ret.o, &ret.o);
   //   (*this)(ret.d, &ret.d);
@@ -199,40 +198,34 @@ public:
   /// \brief Applies this transform to another transform
   /// \param t
   /// \return
-  HERMES_DEVICE_CALLABLE Transform2 operator*(const Transform2 &t) const {
+  HERMES_CPU_GPU Transform2 operator*(const Transform2 &t) const {
     return m * t.m;
   }
 
   /// \brief Sets this transform back to identity
-  HERMES_DEVICE_CALLABLE void reset();
+  HERMES_CPU_GPU void reset();
   /// \brief Extracts translation vector
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE vec2 getTranslate() const {
+  HERMES_NODISCARD HERMES_CPU_GPU vec2 getTranslate() const {
     return vec2(m[0][2], m[1][2]);
   }
   /// \brief Extracts scale vector
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE vec2 getScale() const {
-    return {0, 0};
-  }
+  HERMES_NODISCARD HERMES_CPU_GPU vec2 getScale() const { return {0, 0}; }
   /// \brief Extracts rotation matrix
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE math::mat3 getMatrix() const {
-    return m;
-  }
+  HERMES_NODISCARD HERMES_CPU_GPU math::mat3 getMatrix() const { return m; }
 
   /// \brief Gets transform matrix row
   /// \param row_index
   /// \return
-  HERMES_DEVICE_CALLABLE const real_t *operator[](u32 row_index) const {
+  HERMES_CPU_GPU const real_t *operator[](u32 row_index) const {
     return m[row_index];
   }
   /// \brief Gets transform matrix row
   /// \param row_index
   /// \return
-  HERMES_DEVICE_CALLABLE real_t *operator[](u32 row_index) {
-    return m[row_index];
-  }
+  HERMES_CPU_GPU real_t *operator[](u32 row_index) { return m[row_index]; }
 
 private:
   math::mat3 m;
@@ -273,7 +266,7 @@ public:
   /// \param target camera target.
   /// \param up camera orientation.
   /// \param options right/left handed versions.
-  HERMES_DEVICE_CALLABLE static Transform
+  HERMES_CPU_GPU static Transform
   lookAt(const point3 &eye, const point3 &target = {0, 0, 0},
          const vec3 &up = {0, 1, 0},
          transform_options options = transform_option_bits::left_handed);
@@ -306,7 +299,7 @@ public:
   /// \param far
   /// \param options
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform
+  HERMES_CPU_GPU static Transform
   ortho(real_t left, real_t right, real_t bottom, real_t top, real_t near,
         real_t far,
         transform_options options = transform_option_bits::left_handed);
@@ -330,7 +323,7 @@ public:
   /// \param far
   /// \param options
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform
+  HERMES_CPU_GPU static Transform
   perspective(real_t fovy_in_degrees, real_t aspect_ratio, real_t near,
               real_t far,
               transform_options options = transform_option_bits::left_handed);
@@ -339,57 +332,56 @@ public:
   /// \param y
   /// \param z
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform scale(real_t x, real_t y, real_t z);
+  HERMES_CPU_GPU static Transform scale(real_t x, real_t y, real_t z);
   /// \brief Creates a translation transform
   /// \param d
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform translate(const vec3 &d);
+  HERMES_CPU_GPU static Transform translate(const vec3 &d);
   /// \brief Creates a x-axis rotation transform
   /// \param angle_in_radians
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform rotateX(real_t angle_in_radians);
+  HERMES_CPU_GPU static Transform rotateX(real_t angle_in_radians);
   /// \brief Creates a y-axis rotation transform
   /// \param angle_in_radians
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform rotateY(real_t angle_in_radians);
+  HERMES_CPU_GPU static Transform rotateY(real_t angle_in_radians);
   /// \brief Creates a z-axis rotation transform
   /// \param angle_in_radians
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform rotateZ(real_t angle_in_radians);
+  HERMES_CPU_GPU static Transform rotateZ(real_t angle_in_radians);
   /// \brief Creates a arbitrary-axis rotation transform
   /// \param angle_in_radians
   /// \param axis
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform rotate(real_t angle_in_radians,
-                                                 const vec3 &axis);
+  HERMES_CPU_GPU static Transform rotate(real_t angle_in_radians,
+                                         const vec3 &axis);
   /// \brief Creates a transform that aligns vector a to vector b
   /// \param a source vector
   /// \param b destination vector
   /// \return
-  HERMES_DEVICE_CALLABLE static Transform alignVectors(const vec3 &a,
-                                                       const vec3 &b);
+  HERMES_CPU_GPU static Transform alignVectors(const vec3 &a, const vec3 &b);
 
   /// \brief Computes inverse of a given transform
   /// \param t
   /// \return
-  HERMES_DEVICE_CALLABLE friend Transform inverse(const Transform &t);
+  HERMES_CPU_GPU friend Transform inverse(const Transform &t);
 
   /// \brief Default constructor
-  HERMES_DEVICE_CALLABLE Transform();
+  HERMES_CPU_GPU Transform() { m.setIdentity(); }
   /// \brief Constructs from matrix
   /// \param mat
-  HERMES_DEVICE_CALLABLE Transform(const math::mat4 &mat);
+  HERMES_CPU_GPU Transform(const math::mat4 &mat);
   /// \brief Constructs from array matrix
   /// \param mat
-  HERMES_DEVICE_CALLABLE explicit Transform(const real_t mat[4][4]);
+  HERMES_CPU_GPU explicit Transform(const real_t mat[4][4]);
   /// \brief Constructs from geometric box
   /// \param bbox
-  // HERMES_DEVICE_CALLABLE Transform(const bbox3 &bbox);
+  // HERMES_CPU_GPU Transform(const bbox3 &bbox);
 
   /// \brief Applies this transform to geometric box
   /// \param b
   /// \return
-  // HERMES_DEVICE_CALLABLE bbox3 operator()(const bbox3 &b) const {
+  // HERMES_CPU_GPU bbox3 operator()(const bbox3 &b) const {
   //   const Transform &M = *this;
   //   bbox3 ret(M(point3(b.lower.x, b.lower.y, b.lower.z)));
   //   ret = make_union(ret, M(point3(b.upper.x, b.lower.y, b.lower.z)));
@@ -404,7 +396,7 @@ public:
   /// \brief Applies this transform to geometric point
   /// \param p
   /// \return
-  HERMES_DEVICE_CALLABLE point3 operator()(const point2 &p) const {
+  HERMES_CPU_GPU point3 operator()(const point2 &p) const {
     real_t x = p.x, y = p.y, z = 0.f;
     real_t xp = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
     real_t yp = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
@@ -417,7 +409,7 @@ public:
   /// \brief Applies this transform to geometric point
   /// \param p
   /// \return
-  HERMES_DEVICE_CALLABLE point3 operator()(const point3 &p) const {
+  HERMES_CPU_GPU point3 operator()(const point3 &p) const {
     real_t x = p.x, y = p.y, z = p.z;
     real_t xp = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
     real_t yp = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
@@ -430,7 +422,7 @@ public:
   /// \brief Applies this transform to geometric point
   /// \param p
   /// \param r
-  HERMES_DEVICE_CALLABLE void operator()(const point3 &p, point3 *r) const {
+  HERMES_CPU_GPU void operator()(const point3 &p, point3 *r) const {
     real_t x = p.x, y = p.y, z = p.z;
     r->x = m[0][0] * x + m[0][1] * y + m[0][2] * z + m[0][3];
     r->y = m[1][0] * x + m[1][1] * y + m[1][2] * z + m[1][3];
@@ -442,7 +434,7 @@ public:
   /// \brief Applies this transform to geometric point
   /// \param v
   /// \return
-  HERMES_DEVICE_CALLABLE vec3 operator()(const vec3 &v) const {
+  HERMES_CPU_GPU vec3 operator()(const vec3 &v) const {
     real_t x = v.x, y = v.y, z = v.z;
     return vec3(m[0][0] * x + m[0][1] * y + m[0][2] * z,
                 m[1][0] * x + m[1][1] * y + m[1][2] * z,
@@ -451,7 +443,7 @@ public:
   /// \brief Applies this transform to geometric normal
   /// \param n
   /// \return
-  // HERMES_DEVICE_CALLABLE normal3 operator()(const normal3 &n) const {
+  // HERMES_CPU_GPU normal3 operator()(const normal3 &n) const {
   //   real_t x = n.x, y = n.y, z = n.z;
   //   auto m_inv = inverse(*this);
   //   return normal3(m_inv[0][0] * x + m_inv[1][0] * y + m_inv[2][0] * z,
@@ -461,7 +453,7 @@ public:
   /// \brief Applies this transform to geometric ray
   /// \param r
   /// \return
-  // HERMES_DEVICE_CALLABLE Ray3 operator()(const Ray3 &r) {
+  // HERMES_CPU_GPU Ray3 operator()(const Ray3 &r) {
   //   Ray3 ret = r;
   //   (*this)(ret.o, &ret.o);
   //   ret.d = (*this)(ret.d);
@@ -470,7 +462,7 @@ public:
   /// \brief Applies this transform to geometric ray
   /// \param r
   /// \param ret
-  // HERMES_DEVICE_CALLABLE void operator()(const Ray3 &r, Ray3 *ret) const {
+  // HERMES_CPU_GPU void operator()(const Ray3 &r, Ray3 *ret) const {
   //   (*this)(r.o, &ret->o);
   //   ret->d = (*this)(ret->d);
   // }
@@ -478,7 +470,7 @@ public:
   /// \brief Copy assign from 2d transform
   /// \param t
   /// \return
-  HERMES_DEVICE_CALLABLE Transform &operator=(const Transform2 &t) {
+  HERMES_CPU_GPU Transform &operator=(const Transform2 &t) {
     m.setIdentity();
     math::mat3 m3 = t.getMatrix();
     m[0][0] = m3[0][0];
@@ -493,44 +485,38 @@ public:
   /// \brief Applies this transform to t
   /// \param t
   /// \return
-  HERMES_DEVICE_CALLABLE Transform operator*(const Transform &t) const {
+  HERMES_CPU_GPU Transform operator*(const Transform &t) const {
     math::mat4 m1 = m * t.m;
     return {m1};
   }
   /// \brief Applies this transform to geometric vector
   /// \param p
   /// \return
-  HERMES_DEVICE_CALLABLE point3 operator*(const point3 &p) const {
-    return (*this)(p);
-  }
+  HERMES_CPU_GPU point3 operator*(const point3 &p) const { return (*this)(p); }
   //                                                                                                          boolean
-  HERMES_DEVICE_CALLABLE bool operator==(const Transform &t) const {
-    return t.m == m;
-  }
-  HERMES_DEVICE_CALLABLE bool operator!=(const Transform &t) const {
-    return t.m != m;
-  }
+  HERMES_CPU_GPU bool operator==(const Transform &t) const { return t.m == m; }
+  HERMES_CPU_GPU bool operator!=(const Transform &t) const { return t.m != m; }
 
   /// \brief Sets this transform back to identity
-  HERMES_DEVICE_CALLABLE void reset();
+  HERMES_CPU_GPU void reset();
   /// \brief Checks if this transform swaps coordinate system handedness
   /// \return true if this transformation changes the coordinate system
   /// handedness
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE bool swapsHandedness() const;
+  HERMES_NODISCARD HERMES_CPU_GPU bool swapsHandedness() const;
   /// \brief Gets translation vector
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE vec3 getTranslate() const {
+  HERMES_NODISCARD HERMES_CPU_GPU vec3 getTranslate() const {
     return vec3(m[0][3], m[1][3], m[2][3]);
   }
   /// \brief Checks if this transform is identity
   /// \return
-  HERMES_DEVICE_CALLABLE bool isIdentity() { return m.isIdentity(); }
+  HERMES_CPU_GPU bool isIdentity() { return m.isIdentity(); }
   /// \brief Applies transform to point (array)
   /// \param p
   /// \param r
   /// \param d
-  HERMES_DEVICE_CALLABLE void applyToPoint(const real_t *p, real_t *r,
-                                           size_t d = 3) const {
+  HERMES_CPU_GPU void applyToPoint(const real_t *p, real_t *r,
+                                   size_t d = 3) const {
     real_t x = p[0], y = p[1], z = 0.f;
     if (d == 3)
       z = p[2];
@@ -550,35 +536,31 @@ public:
 
   /// \brief Gets raw matrix pointer
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE const real_t *c_matrix() const {
+  HERMES_NODISCARD HERMES_CPU_GPU const real_t *c_matrix() const {
     return &m[0][0];
   }
   /// \brief Gets transformation matrix
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE const math::mat4 &matrix() const {
-    return m;
-  }
+  HERMES_NODISCARD HERMES_CPU_GPU const math::mat4 &matrix() const { return m; }
   /// \brief Gets upper left matrix
   /// \return
-  HERMES_NODISCARD HERMES_DEVICE_CALLABLE math::mat3 upperLeftMatrix() const {
+  HERMES_NODISCARD HERMES_CPU_GPU math::mat3 upperLeftMatrix() const {
     return math::mat3(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2],
                       m[2][0], m[2][1], m[2][2]);
   }
   /// \brief Gets transformation matrix row
   /// \param row_index
   /// \return
-  HERMES_DEVICE_CALLABLE const real_t *operator[](u32 row_index) const {
+  HERMES_CPU_GPU const real_t *operator[](u32 row_index) const {
     return m[row_index];
   }
   /// \brief Gets transformation matrix row
   /// \param row_index
   /// \return
-  HERMES_DEVICE_CALLABLE real_t *operator[](u32 row_index) {
-    return m[row_index];
-  }
+  HERMES_CPU_GPU real_t *operator[](u32 row_index) { return m[row_index]; }
 
   /// \brief Check for nans
   /// \return
-  HERMES_DEVICE_CALLABLE HERMES_NODISCARD bool hasNaNs() const {
+  HERMES_CPU_GPU HERMES_NODISCARD bool hasNaNs() const {
     for (int i = 0; i < 4; ++i)
       for (int j = 0; j < 4; ++j)
         if (numbers::is_nan(m[i][j]))

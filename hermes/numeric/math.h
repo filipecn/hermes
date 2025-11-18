@@ -42,8 +42,7 @@ namespace cmp {
 /// \param a
 /// \param b
 /// \return
-template <typename T>
-HERMES_DEVICE_CALLABLE constexpr T min(const T &a, const T &b) {
+template <typename T> HERMES_CPU_GPU constexpr T min(const T &a, const T &b) {
   if (a < b)
     return a;
   return b;
@@ -53,8 +52,7 @@ HERMES_DEVICE_CALLABLE constexpr T min(const T &a, const T &b) {
 /// \param a
 /// \param b
 /// \return
-template <typename T>
-HERMES_DEVICE_CALLABLE constexpr T max(const T &a, const T &b) {
+template <typename T> HERMES_CPU_GPU constexpr T max(const T &a, const T &b) {
   if (a > b)
     return a;
   return b;
@@ -64,7 +62,7 @@ HERMES_DEVICE_CALLABLE constexpr T max(const T &a, const T &b) {
 /// \param l
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline constexpr T min(std::initializer_list<T> l) {
+HERMES_CPU_GPU inline constexpr T min(std::initializer_list<T> l) {
   T m = *l.begin();
   for (auto n : l)
     if (m > n)
@@ -76,7 +74,7 @@ HERMES_DEVICE_CALLABLE inline constexpr T min(std::initializer_list<T> l) {
 /// \param l
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline constexpr T max(std::initializer_list<T> l) {
+HERMES_CPU_GPU inline constexpr T max(std::initializer_list<T> l) {
   T m = *l.begin();
   for (auto n : l)
     if (m < n)
@@ -88,7 +86,7 @@ HERMES_DEVICE_CALLABLE inline constexpr T max(std::initializer_list<T> l) {
 /// \param a **[in]**
 /// \return constexpr bool
 template <typename T>
-HERMES_DEVICE_CALLABLE constexpr bool is_zero(T a, real_t e = 1e-8) {
+HERMES_CPU_GPU constexpr bool is_zero(T a, real_t e = 1e-8) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   return fabs(a) < e;
 #else
@@ -101,7 +99,7 @@ HERMES_DEVICE_CALLABLE constexpr bool is_zero(T a, real_t e = 1e-8) {
 /// \param b **[in]**
 /// \return constexpr bool
 template <typename T>
-HERMES_DEVICE_CALLABLE constexpr bool is_equal(T a, T b, f64 e = 1e-6) {
+HERMES_CPU_GPU constexpr bool is_equal(T a, T b, f64 e = 1e-6) {
   return fabs(a - b) < e;
 }
 /// Checks if a number is in a open interval
@@ -130,13 +128,13 @@ template <typename T> constexpr bool is_between_closed(T x, T a, T b) {
 /// \param u **[in]** high
 /// \return clamp **b** to be in **[l, h]**
 template <typename T>
-HERMES_DEVICE_CALLABLE T clamp(const T &n, const T &l, const T &u) {
+HERMES_CPU_GPU T clamp(const T &n, const T &l, const T &u) {
   return fmaxf(l, fminf(n, u));
 }
 /// Checks if integer is power of 2
 /// \param v **[in]** value
 /// \return **true** if **v** is power of 2
-HERMES_DEVICE_CALLABLE constexpr inline bool isPowerOf2(int v) {
+HERMES_CPU_GPU constexpr inline bool isPowerOf2(int v) {
   return (v & (v - 1)) == 0;
 }
 /// Checks if number representation is `nan`
@@ -144,7 +142,7 @@ HERMES_DEVICE_CALLABLE constexpr inline bool isPowerOf2(int v) {
 /// \param v
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE inline
+HERMES_CPU_GPU inline
     typename std::enable_if_t<std::is_floating_point<T>::value, bool>
     is_nan(T v) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
@@ -157,7 +155,7 @@ HERMES_DEVICE_CALLABLE inline
 /// \tparam T
 /// \param n
 /// \return
-template <typename T> HERMES_DEVICE_CALLABLE u8 countHexDigits(T n) {
+template <typename T> HERMES_CPU_GPU u8 countHexDigits(T n) {
   u8 count = 0;
   while (n) {
     count++;
@@ -168,7 +166,7 @@ template <typename T> HERMES_DEVICE_CALLABLE u8 countHexDigits(T n) {
 /// Separate bits by 1 bit-space
 /// \param n
 /// \return
-HERMES_DEVICE_CALLABLE inline u32 separateBitsBy1(u32 n) {
+HERMES_CPU_GPU inline u32 separateBitsBy1(u32 n) {
   n = (n ^ (n << 8)) & 0x00ff00ff;
   n = (n ^ (n << 4)) & 0x0f0f0f0f;
   n = (n ^ (n << 2)) & 0x33333333;
@@ -178,7 +176,7 @@ HERMES_DEVICE_CALLABLE inline u32 separateBitsBy1(u32 n) {
 /// Separate bits by 2 bit-spaces
 /// \param n
 /// \return
-HERMES_DEVICE_CALLABLE inline u32 separateBitsBy2(u32 n) {
+HERMES_CPU_GPU inline u32 separateBitsBy2(u32 n) {
   n = (n ^ (n << 16)) & 0xff0000ff;
   n = (n ^ (n << 8)) & 0x0300f00f;
   n = (n ^ (n << 4)) & 0x030c30c3;
@@ -190,7 +188,7 @@ HERMES_DEVICE_CALLABLE inline u32 separateBitsBy2(u32 n) {
 /// \param y
 /// \param z
 /// \return
-HERMES_DEVICE_CALLABLE inline u32 interleaveBits(u32 x, u32 y, u32 z) {
+HERMES_CPU_GPU inline u32 interleaveBits(u32 x, u32 y, u32 z) {
   return (separateBitsBy2(z) << 2) + (separateBitsBy2(y) << 1) +
          separateBitsBy2(x);
 }
@@ -198,13 +196,13 @@ HERMES_DEVICE_CALLABLE inline u32 interleaveBits(u32 x, u32 y, u32 z) {
 /// \param x
 /// \param y
 /// \return
-HERMES_DEVICE_CALLABLE inline u32 interleaveBits(u32 x, u32 y) {
+HERMES_CPU_GPU inline u32 interleaveBits(u32 x, u32 y) {
   return (separateBitsBy1(y) << 1) + separateBitsBy1(x);
 }
 /// Interprets a floating-point value into a integer type
 /// \param f f32 value
 /// \return  a 32 bit unsigned integer containing the bits of **f**
-HERMES_DEVICE_CALLABLE inline uint32_t float2bits(f32 f) {
+HERMES_CPU_GPU inline uint32_t float2bits(f32 f) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   return __float_as_uint(f);
 #else
@@ -216,7 +214,7 @@ HERMES_DEVICE_CALLABLE inline uint32_t float2bits(f32 f) {
 /// Interprets a f64-point value into a integer type
 /// \param d f64 value
 /// \return  a 64 bit unsigned integer containing the bits of **f**
-HERMES_DEVICE_CALLABLE inline uint64_t float2bits(f64 d) {
+HERMES_CPU_GPU inline uint64_t float2bits(f64 d) {
   uint64_t ui(0);
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   memcpy(&ui, &d, sizeof(f64));
@@ -228,7 +226,7 @@ HERMES_DEVICE_CALLABLE inline uint64_t float2bits(f64 d) {
 /// Fills a f32 variable data
 /// \param ui bits
 /// \return a f32 built from bits of **ui**
-HERMES_DEVICE_CALLABLE inline f32 bitsToFloat(uint32_t ui) {
+HERMES_CPU_GPU inline f32 bitsToFloat(uint32_t ui) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   return __uint_as_float(ui);
 #else
@@ -240,7 +238,7 @@ HERMES_DEVICE_CALLABLE inline f32 bitsToFloat(uint32_t ui) {
 /// Fills a f64 variable data
 /// \param ui bits
 /// \return a f64 built from bits of **ui**
-HERMES_DEVICE_CALLABLE inline f64 bits2double(uint64_t ui) {
+HERMES_CPU_GPU inline f64 bits2double(uint64_t ui) {
   f64 d(0.f);
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   memcpy(&d, &ui, sizeof(uint64_t));
@@ -252,25 +250,25 @@ HERMES_DEVICE_CALLABLE inline f64 bits2double(uint64_t ui) {
 /// Extracts exponent from floating-point number
 /// \param v
 /// \return
-HERMES_DEVICE_CALLABLE inline int floatExponent(f32 v) {
+HERMES_CPU_GPU inline int floatExponent(f32 v) {
   return (float2bits(v) >> 23) - 127;
 }
 /// Extracts significand bits
 /// \param v
 /// \return
-HERMES_DEVICE_CALLABLE inline int floatSignificand(f32 v) {
+HERMES_CPU_GPU inline int floatSignificand(f32 v) {
   return float2bits(v) & ((1 << 23) - 1);
 }
 /// Extracts sign bit
 /// \param v
 /// \return
-HERMES_DEVICE_CALLABLE inline uint32_t floatSignBit(f32 v) {
+HERMES_CPU_GPU inline uint32_t floatSignBit(f32 v) {
   return float2bits(v) & 0x80000000;
 }
 /// Computes the next greater representable floating-point value
 /// \param v floating point value
 /// \return the next greater floating point value
-HERMES_DEVICE_CALLABLE inline f32 nextFloatUp(f32 v) {
+HERMES_CPU_GPU inline f32 nextFloatUp(f32 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   if (isinf(v) && v > 0.)
 #else
@@ -289,7 +287,7 @@ HERMES_DEVICE_CALLABLE inline f32 nextFloatUp(f32 v) {
 /// Computes the next smaller representable floating-point value
 /// \param v floating point value
 /// \return the next smaller floating point value
-HERMES_DEVICE_CALLABLE inline f32 nextFloatDown(f32 v) {
+HERMES_CPU_GPU inline f32 nextFloatDown(f32 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   if (isinf(v) && v > 0.)
 #else
@@ -308,7 +306,7 @@ HERMES_DEVICE_CALLABLE inline f32 nextFloatDown(f32 v) {
 /// Computes the next greater representable floating-point value
 /// \param v floating point value
 /// \return the next greater floating point value
-HERMES_DEVICE_CALLABLE inline f64 nextDoubleUp(f64 v) {
+HERMES_CPU_GPU inline f64 nextDoubleUp(f64 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   if (isinf(v) && v > 0.)
 #else
@@ -327,7 +325,7 @@ HERMES_DEVICE_CALLABLE inline f64 nextDoubleUp(f64 v) {
 /// Computes the next smaller representable floating-point value
 /// \param v floating point value
 /// \return the next smaller floating point value
-HERMES_DEVICE_CALLABLE inline f64 nextDoubleDown(f64 v) {
+HERMES_CPU_GPU inline f64 nextDoubleDown(f64 v) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   if (isinf(v) && v > 0.)
 #else
@@ -346,7 +344,7 @@ HERMES_DEVICE_CALLABLE inline f64 nextDoubleDown(f64 v) {
 /// Extract decimal fraction from x
 /// \param x
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t fract(real_t x) {
+HERMES_CPU_GPU inline real_t fract(real_t x) {
   if (x >= 0.)
     return x - floor(x);
   else
@@ -356,7 +354,7 @@ HERMES_DEVICE_CALLABLE inline real_t fract(real_t x) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t mulRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t mulRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dmul_rd(a, b);
@@ -371,7 +369,7 @@ HERMES_DEVICE_CALLABLE inline real_t mulRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t mulRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t mulRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dmul_ru(a, b);
@@ -386,7 +384,7 @@ HERMES_DEVICE_CALLABLE inline real_t mulRoundUp(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t divRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t divRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __ddiv_rd(a, b);
@@ -401,7 +399,7 @@ HERMES_DEVICE_CALLABLE inline real_t divRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t divRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t divRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __ddiv_ru(a, b);
@@ -416,7 +414,7 @@ HERMES_DEVICE_CALLABLE inline real_t divRoundUp(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t addRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t addRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dadd_rd(a, b);
@@ -431,7 +429,7 @@ HERMES_DEVICE_CALLABLE inline real_t addRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t addRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t addRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dadd_ru(a, b);
@@ -446,7 +444,7 @@ HERMES_DEVICE_CALLABLE inline real_t addRoundUp(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t subRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t subRoundDown(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dsub_rd(a, b);
@@ -461,7 +459,7 @@ HERMES_DEVICE_CALLABLE inline real_t subRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t subRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline real_t subRoundUp(real_t a, real_t b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dsub_ru(a, b);
@@ -475,7 +473,7 @@ HERMES_DEVICE_CALLABLE inline real_t subRoundUp(real_t a, real_t b) {
 /// Computes square root rounded down to the next smaller float value
 /// \param a
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t sqrtRoundDown(real_t a) {
+HERMES_CPU_GPU inline real_t sqrtRoundDown(real_t a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dsqrt_rd(a);
@@ -489,7 +487,7 @@ HERMES_DEVICE_CALLABLE inline real_t sqrtRoundDown(real_t a) {
 /// Computes square root rounded up to the next float value
 /// \param a
 /// \return
-HERMES_DEVICE_CALLABLE inline real_t sqrtRoundUp(real_t a) {
+HERMES_CPU_GPU inline real_t sqrtRoundUp(real_t a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dsqrt_ru(a);
@@ -503,24 +501,22 @@ HERMES_DEVICE_CALLABLE inline real_t sqrtRoundUp(real_t a) {
 /// rounds up
 /// \param f **[in]**
 /// \return ceil of **f**
-HERMES_DEVICE_CALLABLE inline int ceil2Int(float f) {
+HERMES_CPU_GPU inline int ceil2Int(float f) {
   return static_cast<int>(f + 0.5f);
 }
 /// rounds down
 /// \param f **[in]**
 /// \return floor of **f**
-HERMES_DEVICE_CALLABLE inline int floor2Int(float f) {
-  return static_cast<int>(f);
-}
+HERMES_CPU_GPU inline int floor2Int(float f) { return static_cast<int>(f); }
 /// rounds to closest integer
 /// \param f **[in]**
 /// \return next integer greater or equal to **f**
-HERMES_DEVICE_CALLABLE inline int round2Int(float f) { return f + .5f; }
+HERMES_CPU_GPU inline int round2Int(float f) { return f + .5f; }
 /// Computes number of digits
 /// \param t
 /// \param base
 /// \return
-HERMES_DEVICE_CALLABLE inline u8 countDigits(u64 t, u8 base = 10) {
+HERMES_CPU_GPU inline u8 countDigits(u64 t, u8 base = 10) {
   u8 count{0};
   while (t) {
     count++;
@@ -548,76 +544,68 @@ struct constants {
 struct limits {
   /// Gets minimum representable 32 bit signed integer
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr int lowest_int() {
-    return -2147483647;
-  }
+  HERMES_CPU_GPU static constexpr int lowest_int() { return -2147483647; }
   /// Gets maximum representable 32 bit signed integer
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr int greatest_int() {
-    return 2147483647;
-  }
+  HERMES_CPU_GPU static constexpr int greatest_int() { return 2147483647; }
 
   /// Gets lowest representable 64 bit floating point
   /// \tparam T
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr f64 lowest_f64() {
+  HERMES_CPU_GPU static constexpr f64 lowest_f64() {
     return -0x1.fffffffffffffp+1023;
   }
   /// Gets lowest representable 64 bit floating point
   /// \tparam T
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr f32 lowest_f32() {
-    return -0x1.fffffep+127;
-  }
+  HERMES_CPU_GPU static constexpr f32 lowest_f32() { return -0x1.fffffep+127; }
   /// Gets lowest representable floating point
   /// \tparam T
   /// \return
-  template <typename T> HERMES_DEVICE_CALLABLE static constexpr T lowest() {
+  template <typename T> HERMES_CPU_GPU static constexpr T lowest() {
     return T(lowest_f32());
   }
   /// Gets greatest representable 32 bit floating point
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr f64 greatest_f32() {
-    return 0x1.fffffep+127;
-  }
+  HERMES_CPU_GPU static constexpr f64 greatest_f32() { return 0x1.fffffep+127; }
   /// Gets greatest representable 64 bit floating point
   /// \return
-  HERMES_DEVICE_CALLABLE static constexpr f64 greatest_f64() {
+  HERMES_CPU_GPU static constexpr f64 greatest_f64() {
     return 0x1.fffffffffffffp+1023;
   }
   /// Gets greatest representable floating point
   /// \tparam T
   /// \return
-  template <typename T> HERMES_DEVICE_CALLABLE static constexpr T greatest() {
+  template <typename T> HERMES_CPU_GPU static constexpr T greatest() {
     return T(greatest_f32());
   }
 };
 
 /// Gets lowest representable 64 bit floating point
 /// \return
-template <> HERMES_DEVICE_CALLABLE inline constexpr f64 limits::lowest() {
+template <> HERMES_CPU_GPU inline constexpr f64 limits::lowest() {
   return limits::lowest_f64();
 }
 /// Gets lowest representable 32 bit floating point
 /// \return
-template <> HERMES_DEVICE_CALLABLE inline constexpr f32 limits::lowest() {
+template <> HERMES_CPU_GPU inline constexpr f32 limits::lowest() {
   return limits::lowest_f32();
 }
 /// Gets greatest 32 bit floating point number
 /// \return
-template <> HERMES_DEVICE_CALLABLE inline constexpr f32 limits::greatest() {
+template <> HERMES_CPU_GPU inline constexpr f32 limits::greatest() {
   return greatest_f32();
 }
 /// Gets greatest 64 bit floating point number
 /// \return
-template <> HERMES_DEVICE_CALLABLE inline constexpr f64 limits::greatest() {
+template <> HERMES_CPU_GPU inline constexpr f64 limits::greatest() {
   return greatest_f64();
 }
 
 /// Computes conservative bounds in error
 /// \param n
 /// \return
-HERMES_DEVICE_CALLABLE static constexpr real_t gamma(i32 n) {
+HERMES_CPU_GPU static constexpr real_t gamma(i32 n) {
   return (n * constants::machine_epsilon) /
          (1 - n * constants::machine_epsilon);
 }
@@ -627,8 +615,7 @@ HERMES_DEVICE_CALLABLE static constexpr real_t gamma(i32 n) {
 /// \param b
 /// \param c
 /// \return
-template <typename T>
-HERMES_DEVICE_CALLABLE static inline T FMA(T a, T b, T c) {
+template <typename T> HERMES_CPU_GPU static inline T FMA(T a, T b, T c) {
   return a * b + c;
 }
 /// Computes difference of products
@@ -642,8 +629,7 @@ HERMES_DEVICE_CALLABLE static inline T FMA(T a, T b, T c) {
 /// \param d
 /// \return
 template <typename Ta, typename Tb, typename Tc, typename Td>
-HERMES_DEVICE_CALLABLE static inline auto differenceOfProducts(Ta a, Tb b, Tc c,
-                                                               Td d) {
+HERMES_CPU_GPU static inline auto differenceOfProducts(Ta a, Tb b, Tc c, Td d) {
   auto cd = c * d;
   auto difference_of_products = FMA(a, b, -cd);
   auto error = FMA(-c, d, cd);
@@ -656,7 +642,7 @@ HERMES_DEVICE_CALLABLE static inline auto differenceOfProducts(Ta a, Tb b, Tc c,
 /// \param c
 /// \return
 template <typename T, typename C>
-HERMES_DEVICE_CALLABLE static inline constexpr T evaluatePolynomial(T t, C c) {
+HERMES_CPU_GPU static inline constexpr T evaluatePolynomial(T t, C c) {
   HERMES_UNUSED_VARIABLE(t)
   return c;
 }
@@ -669,8 +655,8 @@ HERMES_DEVICE_CALLABLE static inline constexpr T evaluatePolynomial(T t, C c) {
 /// \param cs
 /// \return
 template <typename T, typename C, typename... Args>
-HERMES_DEVICE_CALLABLE static inline constexpr T
-evaluatePolynomial(T t, C c, Args... cs) {
+HERMES_CPU_GPU static inline constexpr T evaluatePolynomial(T t, C c,
+                                                            Args... cs) {
   return FMA(t, evaluatePolynomial(t, cs...), c);
 }
 /// Bisect range based on predicate
@@ -679,8 +665,8 @@ evaluatePolynomial(T t, C c, Args... cs) {
 /// \param pred
 /// \return
 template <typename Predicate>
-HERMES_DEVICE_CALLABLE static inline size_t
-findInterval(size_t sz, const Predicate &pred) {
+HERMES_CPU_GPU static inline size_t findInterval(size_t sz,
+                                                 const Predicate &pred) {
   using ssize_t = std::make_signed_t<size_t>;
   ssize_t size = (ssize_t)sz - 2, first = 1;
   while (size > 0) {
@@ -700,8 +686,8 @@ findInterval(size_t sz, const Predicate &pred) {
 /// \param x1
 /// \return
 template <typename T>
-HERMES_DEVICE_CALLABLE bool soveLinearSystem(const T A[2][2], const T B[2],
-                                             T *x0, T *x1) {
+HERMES_CPU_GPU bool soveLinearSystem(const T A[2][2], const T B[2], T *x0,
+                                     T *x1) {
   T det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
   if (abs(det) < 1e-10f)
     return false;
@@ -745,28 +731,28 @@ struct constants {
 /// \tparam T
 /// \param a
 /// \return
-template <typename T> HERMES_DEVICE_CALLABLE static constexpr T sqr(T a) {
+template <typename T> HERMES_CPU_GPU static constexpr T sqr(T a) {
   return a * a;
 }
 /// Computes square
 /// \tparam T
 /// \param a
 /// \return
-template <typename T> HERMES_DEVICE_CALLABLE static constexpr T cube(T a) {
+template <typename T> HERMES_CPU_GPU static constexpr T cube(T a) {
   return a * a * a;
 }
 /// Computes sign
 /// \tparam T
 /// \param a
 /// \return
-template <typename T> HERMES_DEVICE_CALLABLE static int sign(T a) {
+template <typename T> HERMES_CPU_GPU static int sign(T a) {
   return a >= 0 ? 1 : -1;
 }
 /// Computes square root
 /// \tparam T
 /// \param a
 /// \return
-template <typename T> HERMES_DEVICE_CALLABLE static constexpr T sqrt(T a) {
+template <typename T> HERMES_CPU_GPU static constexpr T sqrt(T a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
   return sqrtf(a);
 #else
@@ -776,7 +762,7 @@ template <typename T> HERMES_DEVICE_CALLABLE static constexpr T sqrt(T a) {
 /// Computes base 2 log
 /// \param x **[in]** value
 /// \return base-2 logarithm of **x**
-HERMES_DEVICE_CALLABLE static inline f32 log2(f32 x) {
+HERMES_CPU_GPU static inline f32 log2(f32 x) {
 #ifndef HERMES_DEVICE_ENABLED
   static f32 invLog2 = 1.f / logf(2.f);
 #else
@@ -787,7 +773,7 @@ HERMES_DEVICE_CALLABLE static inline f32 log2(f32 x) {
 /// Computes square root with clamped input
 /// \param x
 /// \return
-HERMES_DEVICE_CALLABLE [[maybe_unused]] static f32 safe_sqrt(f32 x) {
+HERMES_CPU_GPU [[maybe_unused]] static f32 safe_sqrt(f32 x) {
   HERMES_CHECK(x >= -1e-3f)
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
   return sqrtf(fmaxf(0.f, x));
@@ -799,17 +785,16 @@ HERMES_DEVICE_CALLABLE [[maybe_unused]] static f32 safe_sqrt(f32 x) {
 /// \tparam n
 /// \param b
 /// \return
-template <int n>
-HERMES_DEVICE_CALLABLE static inline constexpr real_t pow(real_t b) {
+template <int n> HERMES_CPU_GPU static inline constexpr real_t pow(real_t b) {
   if constexpr (n < 0)
     return 1 / pow<-n>(b);
   float n2 = pow<n / 2>(b);
-  return n2 * n2 * pow < n & 1 > (b);
+  return n2 * n2 * pow<n & 1>(b);
 }
 /// Computes fast exponential
 /// \param x
 /// \return
-HERMES_DEVICE_CALLABLE static inline real_t fastExp(real_t x) {
+HERMES_CPU_GPU static inline real_t fastExp(real_t x) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
   return __expf(x);
 #else
@@ -839,46 +824,46 @@ HERMES_DEVICE_CALLABLE static inline real_t fastExp(real_t x) {
 /// Computes v to the power of 1
 /// \param v
 /// \return
-template <> HERMES_DEVICE_CALLABLE inline constexpr float pow<1>(float v) {
+template <> HERMES_CPU_GPU inline constexpr float pow<1>(float v) {
   HERMES_UNUSED_VARIABLE(v);
   return v;
 }
 /// Computes v to the power of 0
 /// \param v
 /// \return
-template <> HERMES_DEVICE_CALLABLE inline constexpr float pow<0>(float v) {
+template <> HERMES_CPU_GPU inline constexpr float pow<0>(float v) {
   HERMES_UNUSED_VARIABLE(v);
   return 1;
 }
 /// Converts radians to degrees
 /// \param a
 /// \return
-HERMES_DEVICE_CALLABLE static constexpr real_t radians2degrees(real_t a) {
+HERMES_CPU_GPU static constexpr real_t radians2degrees(real_t a) {
   return a * 180.f / constants::pi;
 }
 /// Converts degrees to radians
 /// \param a
 /// \return
-HERMES_DEVICE_CALLABLE static constexpr real_t degrees2radians(real_t a) {
+HERMES_CPU_GPU static constexpr real_t degrees2radians(real_t a) {
   return a * constants::pi / 180.f;
 }
 /// Computes acos with clamped input
 /// \param x
 /// \return
-HERMES_DEVICE_CALLABLE static inline f32 safe_acos(f32 x) {
+HERMES_CPU_GPU static inline f32 safe_acos(f32 x) {
   return std::acos(numbers::clamp<f32>(x, -1, 1));
 }
 /// Computes asin with clamped input
 /// \param x
 /// \return
-HERMES_DEVICE_CALLABLE static inline f32 safe_asin(f32 x) {
+HERMES_CPU_GPU static inline f32 safe_asin(f32 x) {
   return std::asin(numbers::clamp<f32>(x, -1, 1));
 }
 /// Computes modulus
 /// \param a **[in]**
 /// \param b **[in]**
 /// \return the remainder of a / b
-HERMES_DEVICE_CALLABLE static inline int mod(int a, int b) {
+HERMES_CPU_GPU static inline int mod(int a, int b) {
   int n = a / b;
   a -= n * b;
   if (a < 0)
