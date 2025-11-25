@@ -56,6 +56,12 @@ struct sizes {
 // *****************************************************************************
 struct alignment {
 
+  /// \param size size value
+  /// \param alignment
+  /// \return the actual amount of bytes necessary to store number_of_bytes
+  /// under the alignment
+  HERMES_CPU_GPU static h_size alignedSize(h_size size, h_size alignment);
+
   /// \param number_of_bytes
   /// \param align alignment size in number of bytes
   /// \return the actual amount of bytes necessary to store number_of_bytes

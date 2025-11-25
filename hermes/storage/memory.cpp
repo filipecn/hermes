@@ -33,7 +33,11 @@ namespace hermes::mem {
 
 u32 sizes::cache_l1_size = 64;
 
-std::size_t alignment::alignTo(std::size_t number_of_bytes, std::size_t align) {
+h_size alignment::alignedSize(h_size size, h_size alignment) {
+  return (size + alignment - 1) & ~(alignment - 1);
+}
+
+h_size alignment::alignTo(std::size_t number_of_bytes, std::size_t align) {
   return number_of_bytes > 0 ? (1u + (number_of_bytes - 1u) / align) * align
                              : 0;
 }
