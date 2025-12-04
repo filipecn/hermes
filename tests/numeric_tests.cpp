@@ -1,10 +1,8 @@
-#include "hermes/core/debug.h"
-#include "hermes/io/logger.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include <hermes/math/math.h>
 #include <hermes/numeric/interval.h>
-#include <hermes/numeric/math.h>
 #include <hermes/numeric/matrix.h>
 
 using namespace hermes;

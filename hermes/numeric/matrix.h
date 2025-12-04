@@ -28,7 +28,7 @@
 #pragma once
 
 #include <hermes/core/types.h>
-#include <hermes/numeric/math.h>
+#include <hermes/math/math.h>
 
 #include <cstring>
 

@@ -24,8 +24,10 @@ set(HERMES_HEADERS
   io/logger.h
   io/memory_dumper.h
 
+  math/math.h
+  math/space_filling.h
+
   numeric/interval.h
-  numeric/math.h
   numeric/matrix.h
 
   storage/aos.h
@@ -53,6 +55,7 @@ set(HERMES_CUDA_SOURCES
   geometry/queries.cpp
   geometry/transform.cpp
 
+  math/space_filling.cpp
 
   storage/aos.cpp
   storage/block.cpp

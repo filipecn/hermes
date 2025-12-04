@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <hermes/numeric/math.h>
+#include <hermes/math/math.h>
 
 namespace hermes {
 

@@ -3,6 +3,7 @@ add_executable(hermes_tests
   core_tests.cpp
   io_tests.cpp
   geometry_tests.cpp
+  math_tests.cpp
   numeric_tests.cpp
   storage_tests.cpp
   system_tests.cu
@@ -49,3 +50,10 @@ if (UNIX)
   )
 
 endif (UNIX)
+
+
+list(APPEND CMAKE_MODULE_PATH ${CATCH2_EXTRAS})
+enable_testing()
+include(CTest) 
+include(Catch)
+catch_discover_tests(hermes_tests)

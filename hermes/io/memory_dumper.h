@@ -30,7 +30,7 @@
 #include <hermes/base/str.h>
 #include <hermes/core/debug.h>
 #include <hermes/io/console_colors.h>
-#include <hermes/numeric/math.h>
+#include <hermes/math/math.h>
 
 #include <cstdlib> // system
 #include <iomanip>
