@@ -299,10 +299,10 @@ template <typename... Ts> std::string fmtDebug(const char *fmt, Ts &&...args) {
 #define HERMES_CHECK_EQUAL(A, B, ...)                                          \
   if (A == B) {                                                                \
   } else {                                                                     \
-    hermes::Logger::message(                                                   \
-        hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
+    hermes::io::Logger::message(                                               \
+        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn, \
         "[CHECK_EQUAL FAIL {} == {}] {}",                                      \
-        hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#A),      \
+        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#A),  \
         (#B), A, B, HERMES_CSTR_FORMAT(__VA_ARGS__));                          \
   }
 
@@ -311,11 +311,11 @@ template <typename... Ts> std::string fmtDebug(const char *fmt, Ts &&...args) {
 #define HERMES_CHECK(expr, ...)                                                \
   if (expr) {                                                                  \
   } else {                                                                     \
-    hermes::Logger::message(                                                   \
-        hermes::logging_option_bits::none, hermes::Logger::Level::warn,        \
+    hermes::io::Logger::message(                                               \
+        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn, \
         "[CHECK_EXP FAIL {}] {}",                                              \
-        hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#expr),   \
-        HERMES_CSTR_FORMAT(__VA_ARGS__));                                      \
+        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__},        \
+        (#expr), HERMES_CSTR_FORMAT(__VA_ARGS__));                             \
   }
 
 #else
@@ -336,10 +336,10 @@ template <typename... Ts> std::string fmtDebug(const char *fmt, Ts &&...args) {
 #define HERMES_ASSERT(expr, ...)                                               \
   if (expr) {                                                                  \
   } else {                                                                     \
-    hermes::Logger::message(                                                   \
-        hermes::logging_option_bits::none, hermes::Logger::Level::error,       \
-        "[ASSERT FAIL {}] {}",                                                 \
-        hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #expr,     \
+    hermes::io::Logger::message(                                               \
+        hermes::io::logger_option_bits::none,                                  \
+        hermes::io::Logger::Level::error, "[ASSERT FAIL {}] {}",               \
+        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #expr, \
         HERMES_CSTR_FORMAT(__VA_ARGS__));                                      \
     debugBreak();                                                              \
   }

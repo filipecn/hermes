@@ -31,14 +31,13 @@
 #include <hermes/base/str.h>
 #include <hermes/io/console_colors.h>
 
-#include <cstdarg>
 #include <cstring>
 
-namespace hermes {
+namespace hermes::io {
 
 /// \brief Options for logging output.
 /// \note You can use bitwise operators to combine these options.
-enum class logging_option_bits : u32 {
+enum class logger_option_bits : u32 {
   none = 0x00,                 //!< default behavior
   location = 1 << 0,           //!< logs code location
   time = 1 << 1,               //!< logs message time point
@@ -48,16 +47,24 @@ enum class logging_option_bits : u32 {
   callback_only = 1 << 5       //!< redirect output to callback only
 };
 
-using logging_options = Flags<logging_option_bits>;
+using logger_options = hermes::Flags<hermes::io::logger_option_bits>;
 
-template <> struct FlagTraits<logging_option_bits> {
+} // namespace hermes::io
+
+namespace hermes {
+
+template <> struct FlagTraits<io::logger_option_bits> {
   static HERMES_CONST_OR_CONSTEXPR bool is_bitmask = true;
-  static HERMES_CONST_OR_CONSTEXPR logging_options all_flags =
-      logging_option_bits::location | logging_option_bits::time |
-      logging_option_bits::abbreviate | logging_option_bits::use_colors |
-      logging_option_bits::full_path_location |
-      logging_option_bits::callback_only;
+  static HERMES_CONST_OR_CONSTEXPR io::logger_options all_flags =
+      io::logger_option_bits::location | io::logger_option_bits::time |
+      io::logger_option_bits::abbreviate | io::logger_option_bits::use_colors |
+      io::logger_option_bits::full_path_location |
+      io::logger_option_bits::callback_only;
 };
+
+} // namespace hermes
+
+namespace hermes::io {
 
 // *****************************************************************************
 //                                                                      LOGGER
@@ -91,7 +98,7 @@ public:
   /// \param location
   /// \param args
   template <typename... Ts>
-  HERMES_CPU_GPU static inline void message(logging_options message_options,
+  HERMES_CPU_GPU static inline void message(logger_options message_options,
                                             Level level, const char *fmt,
                                             Location location, Ts &&...args) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
@@ -103,7 +110,7 @@ public:
       return;
     // merge options_
     message_options = options_ | message_options;
-    bool use_colors = message_options.contain(logging_option_bits::use_colors);
+    bool use_colors = message_options.contain(logger_option_bits::use_colors);
     cstr s;
     // message
     if (use_colors)
@@ -112,8 +119,10 @@ public:
     s += std::vformat(fmt, std::make_format_args(args...));
     if (use_colors)
       s += colors::console::reset;
-    if (log_callback)
-      log_callback(s, message_options);
+    if (log_callback_)
+      log_callback_(s, level, message_options);
+    if (callbacks_[static_cast<int>(level)])
+      callbacks_[static_cast<int>(level)](s);
 
     // insert a label in every line break
     auto label_txt = label(message_options, level, location);
@@ -127,45 +136,54 @@ public:
           final += '\n';
       }
     }
-    if (message_options.contain(logging_option_bits::callback_only))
+    if (message_options.contain(logger_option_bits::callback_only))
       return;
     *os_ << final;
 #endif
   }
   /// \brief Enables logging options
   /// \param options_to_add
-  static void addOptions(logging_options options_to_add);
+  static void addOptions(logger_options options_to_add);
   /// \brief Disables logging options
   /// \param options_to_remove
-  static void removeOptions(logging_options options_to_remove);
+  static void removeOptions(logger_options options_to_remove);
   /// \brief
   /// \param s ostream pointer
   static void setStream(std::ostream *s);
   /// \brief Sets minimal log level
   /// \param level filter level
   static void setLevel(Level level);
+  /// Sets a callback function that is called for every log level
+  /// \param callback
+  static void setLogCallback(
+      const std::function<void(const cstr &, Level, logger_options)> &callback);
+  /// Sets a callback function that is called for the given log level calls
+  /// \parma level
+  /// \param callback
+  static void setLogCallback(Level level,
+                             const std::function<void(const cstr &)> &callback);
 
 private:
-  static cstr label(const logging_options &message_options, Level level,
+  static cstr label(const logger_options &message_options, Level level,
                     const Location &location);
-  static cstr abbreviate(logging_options message_options, const char *str);
-  static cstr processPath(logging_options options,
+  static cstr abbreviate(logger_options message_options, const char *str);
+  static cstr processPath(logger_options options,
                           const std::filesystem::path &path);
 
   static Level filter_level_; //!< filter all messages at least at filter level
   static std::ostream *os_;   //!< output stream
-  static logging_options options_;
+  static logger_options options_;
   static u8 message_colors_[static_cast<u8>(Level::COUNT)];
   static u8 label_colors_[static_cast<u8>(Level::COUNT)];
   static u32 abbreviation_size_; //!< size after abbreviation (in characters)
 
-  static std::function<void(const cstr &, logging_options)>
-      log_callback; //!< redirection callback
+  static std::function<void(const cstr &, Level, logger_options)>
+      log_callback_; //!< redirection callback
   static std::function<void(const cstr &)>
-      callbacks[static_cast<u8>(Level::COUNT)];
+      callbacks_[static_cast<u8>(Level::COUNT)];
 };
 
-} // namespace hermes
+} // namespace hermes::io
 
 #ifndef INFO_ENABLED
 #define INFO_ENABLED
@@ -176,9 +194,9 @@ private:
 #ifndef HERMES_PING
 /// \brief Logs into info stream code location
 #define HERMES_PING                                                            \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::debug, "",     \
-      hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__});
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::debug,  \
+      "", hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__});
 #endif
 
 #ifndef HERMES_DEBUG
@@ -191,10 +209,11 @@ private:
 /// value in the string)
 /// \param ... format values
 #define HERMES_DEBUG(FMT, ...)                                                 \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::debug, FMT,    \
-      hermes::Logger::Location{__FILE__, __LINE__,                             \
-                               __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::debug,  \
+      FMT,                                                                     \
+      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
+                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into warning log stream
 /// \code{cpp}
@@ -206,10 +225,11 @@ private:
 /// \param ... format values
 #ifndef HERMES_TRACE
 #define HERMES_TRACE(FMT, ...)                                                 \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::trace, FMT,    \
-      hermes::Logger::Location{__FILE__, __LINE__,                             \
-                               __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::trace,  \
+      FMT,                                                                     \
+      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
+                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into warning log stream
 /// \code{cpp}
@@ -221,10 +241,11 @@ private:
 /// \param ... format values
 #ifndef HERMES_INFO
 #define HERMES_INFO(FMT, ...)                                                  \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::info, FMT,     \
-      hermes::Logger::Location{__FILE__, __LINE__,                             \
-                               __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
+      FMT,                                                                     \
+      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
+                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into warning log stream
 /// \code{cpp}
@@ -236,10 +257,11 @@ private:
 /// \param ... format values
 #ifndef HERMES_WARN
 #define HERMES_WARN(FMT, ...)                                                  \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::warn, FMT,     \
-      hermes::Logger::Location{__FILE__, __LINE__,                             \
-                               __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn,   \
+      FMT,                                                                     \
+      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
+                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into error log stream
 /// \code{cpp}
@@ -251,10 +273,11 @@ private:
 /// \param ... format values
 #ifndef HERMES_ERROR
 #define HERMES_ERROR(FMT, ...)                                                 \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::error, FMT,    \
-      hermes::Logger::Location{__FILE__, __LINE__,                             \
-                               __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::error,  \
+      FMT,                                                                     \
+      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
+                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into critical log stream
 /// \code{cpp}
@@ -266,10 +289,11 @@ private:
 /// \param ... format values
 #ifndef HERMES_CRITICAL
 #define HERMES_CRITICAL(FMT, ...)                                              \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::critical, FMT, \
-      hermes::Logger::Location{__FILE__, __LINE__,                             \
-                               __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none,                                    \
+      hermes::io::Logger::Level::critical, FMT,                                \
+      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
+                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
 #endif
 
 #ifndef HERMES_LOG_VARIABLE
@@ -277,10 +301,11 @@ private:
 /// \pre All variables must support `std::stringstream` << operator
 /// \param A variable or literal
 #define HERMES_LOG_VARIABLE(A)                                                 \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::info,          \
-      "{} = {}", hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__},   \
-      #A, hermes::to_string(A))
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
+      "{} = {}",                                                               \
+      hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #A,      \
+      hermes::to_string(A))
 #endif
 
 #ifndef HERMES_LOG_ARRAY
@@ -333,9 +358,9 @@ static inline std::string hermes_log_variables(Args &&...args) {
 /// \pre All variables must support `std::stringstream` << operator
 /// \param ... variables
 #define HERMES_LOG_VARIABLES(...)                                              \
-  hermes::Logger::message(                                                     \
-      hermes::logging_option_bits::none, hermes::Logger::Level::info, "{}",    \
-      hermes::Logger::Location{__FILE__, __LINE__, __FUNCTION__},              \
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
+      "{}", hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__},    \
       hermes_log_variables(__VA_ARGS__))
 #endif
 

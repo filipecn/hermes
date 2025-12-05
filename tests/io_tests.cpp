@@ -16,11 +16,11 @@ TEST_CASE("Log", "[io]") {
   HERMES_WARN("warning");
   HERMES_ERROR("error");
   HERMES_CRITICAL("critical");
-  Logger::addOptions(logging_option_bits::abbreviate);
+  io::Logger::addOptions(io::logger_option_bits::abbreviate);
   int a = 0;
   int b = 3;
   int c = 4;
-  Logger::removeOptions(logging_option_bits::location);
+  io::Logger::removeOptions(io::logger_option_bits::location);
   HERMES_LOG_VARIABLE(a);
   HERMES_LOG_VARIABLES(a, b, c);
   //  C logs
@@ -28,8 +28,8 @@ TEST_CASE("Log", "[io]") {
   HERMES_C_LOG("c logging");
   HERMES_C_ERROR("c logging error %d", 1);
   HERMES_C_ERROR("c logging error");
-  Logger::addOptions(logging_option_bits::location);
-  Logger::removeOptions(logging_option_bits::abbreviate);
+  io::Logger::addOptions(io::logger_option_bits::location);
+  io::Logger::removeOptions(io::logger_option_bits::abbreviate);
 
   auto callLog = []() {
     HERMES_DEBUG("this is a debug");
@@ -43,15 +43,15 @@ TEST_CASE("Log", "[io]") {
   callLog();
 
   std::stringstream ss;
-  Logger::setStream(&ss);
-  Logger::setLevel(Logger::Level::warn);
+  io::Logger::setStream(&ss);
+  io::Logger::setLevel(io::Logger::Level::warn);
 
   callLog();
 
   REQUIRE(ss.str().size());
-  Logger::setStream(&std::cout);
+  io::Logger::setStream(&std::cout);
 
-  Logger::setLevel(Logger::Level::debug);
+  io::Logger::setLevel(io::Logger::Level::debug);
 }
 
 TEST_CASE("Console Colors", "[io]") {
