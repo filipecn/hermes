@@ -169,7 +169,7 @@ public:
 /// \tparam T coordinates type
 template <typename T> class BoundingBox3 {
 public:
-  HERMES_CPU_GPU static BoundingBox3 unitBox(bool centroid_center = false) {
+  HERMES_CPU_GPU static BoundingBox3 Unit(bool centroid_center = false) {
     if (centroid_center)
       return {Point3<T>(-0.5), Point3<T>(0.5)};
     return {Point3<T>(), Point3<T>(1, 1, 1)};

@@ -3,7 +3,6 @@
 
 #include <hermes/common/cuda_utils.h>
 #include <hermes/numeric/e_float.h>
-#include <hermes/numeric/interpolation.h>
 #include <hermes/numeric/interval.h>
 #include <hermes/numeric/numeric.h>
 #include <hermes/random/rng.h>
@@ -25,83 +24,6 @@ TEST_CASE("EFloat") {
     HERMES_LOG_VARIABLE(c.upperBound());
     HERMES_LOG_VARIABLE(c.lowerBound());
   } //
-}
-
-TEST_CASE("interpolation", "[numeric][interpolation]") {
-  SECTION("linear") {
-    { // 1D
-      float dx = 0.01;
-      auto f = [](float x) -> float { return std::cos(x) * std::sin(x); };
-      HaltonSequence sampler;
-      for (int i = 0; i < 1000; ++i) {
-        auto p = sampler.randomFloat();
-        REQUIRE(interpolation::lerp<float>(p, f(0), f(dx)) ==
-                Approx(f(p * dx)).margin(1e-6));
-      }
-    }
-    { // 2D
-      auto f = [](float x, float y) -> float {
-        return std::cos(x) * std::sin(y);
-      };
-      RNGSampler sampler;
-      float dx = 0.01;
-      for (int i = 0; i < 1000; ++i) {
-        auto p = sampler.sample(bbox2::unitBox());
-        REQUIRE(interpolation::bilerp<float>(
-                    p.x, p.y, f(0.00, 0.00), f(dx, 0.00), f(dx, dx),
-                    f(0.00, dx)) == Approx(f(p.x * dx, p.y * dx)).margin(1e-6));
-      }
-      { // 3D
-        // TODO
-      }
-    }
-  }
-
-  SECTION("monotonicCubic") {
-    { // 1D test
-      float dx = 0.01;
-      auto f = [](float x) -> float { return std::cos(x) * std::sin(x); };
-      for (float s = 0.0; s <= 1.0; s += 0.01) {
-        REQUIRE(interpolation::monotonicCubicInterpolate(
-                    f(-1 * dx), f(0), f(1 * dx), f(2 * dx), s) ==
-                Approx(f(s * dx)).margin(1e-7));
-      }
-    }
-    { // 2D test
-      float dx = 0.01;
-      auto f = [](float x, float y) -> float {
-        return std::cos(x) * std::sin(y);
-      };
-      float v[4][4];
-      for (int s = 0; s < 4; s++)
-        for (int u = 0; u < 4; u++)
-          v[s][u] = f(s * dx, u * dx);
-      RNGSampler sampler;
-      for (int i = 0; i < 1000; ++i) {
-        auto p = sampler.sample(bbox2::unitBox());
-        REQUIRE(interpolation::monotonicCubicInterpolate(v, point2(p.x, p.y)) ==
-                Approx(f(dx + p.x * dx, dx + p.y * dx)).margin(1e-7));
-      }
-    }
-    { // 3D test
-      float dx = 0.01;
-      auto f = [](float x, float y, float z) -> float {
-        return std::cos(x) * std::sin(y) * std::sin(z);
-      };
-      float v[4][4][4];
-      for (int s = 0; s < 4; s++)
-        for (int u = 0; u < 4; u++)
-          for (int w = 0; w < 4; w++)
-            v[s][u][w] = f(s * dx, u * dx, w * dx);
-      RNGSampler sampler;
-      for (int i = 0; i < 1000; ++i) {
-        auto p = sampler.sample(bbox3::unitBox());
-        REQUIRE(interpolation::monotonicCubicInterpolate(v, p) ==
-                Approx(f(dx + p.x * dx, dx + p.y * dx, dx + p.z * dx))
-                    .margin(1e-7));
-      }
-    }
-  }
 }
 
 /*

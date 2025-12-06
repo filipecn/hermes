@@ -27,8 +27,11 @@ set(HERMES_HEADERS
   math/math.h
   math/space_filling.h
 
+  numeric/interpolation.h
   numeric/interval.h
   numeric/matrix.h
+
+  random/rng.h
 
   storage/aos.h
   storage/block.h
