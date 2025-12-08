@@ -164,6 +164,8 @@ TEST_CASE("cstr", "[base]") {
     std::vector<int> ints = {1, 2, 3};
     ss = cstr::join(ints, " ");
     REQUIRE(ss == "1 2 3");
+    ss = cstr::join(ints, " ", 2);
+    REQUIRE(ss == "1 ... 3");
   } //
   SECTION("split with delimiter") {
     std::string a = "1 2, 3,4, 5";

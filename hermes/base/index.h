@@ -583,8 +583,7 @@ HERMES_PUSH_DEBUG_LINE("Index[{}, {}]", object.i, object.j);
 HERMES_TO_STRING_DEBUG_METHOD_END
 
 HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Index3<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("Size[{}, {}, {}]", object.i, object.j,
-                               object.j);
+HERMES_PUSH_DEBUG_LINE("Size[{}, {}, {}]", object.i, object.j, object.j);
 HERMES_TO_STRING_DEBUG_METHOD_END
 
 using range2 = Index2<i32>::Range;    //!< i32

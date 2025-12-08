@@ -347,17 +347,30 @@ public:
   /// \brief Concatenate strings together separated by a separator
   /// \param v array of strings
   /// \param separator **[in | ""]**
+  /// \param limit max number of rendered elements (abbreviates middle to "...")
   /// \return final string
   static StringType join(const std::vector<StringType> &v,
-                         const StringType &separator = {}) {
+                         const StringType &separator = {}, h_size limit = 0) {
     StringType r;
-    bool first = true;
-    for (const auto &ss : v) {
-      if (!first)
-        r += separator;
-      first = false;
-      r += ss;
+
+    auto f = [&](h_size start, h_size end) {
+      bool first = true;
+      for (h_size i = start; i < end; ++i) {
+        if (!first)
+          r += separator;
+        first = false;
+        r += v[i];
+      }
+    };
+
+    if (limit == 0 || limit >= v.size())
+      f(0, v.size());
+    else {
+      f(0, limit / 2);
+      r += "...";
+      f(v.size() - (limit / 2), v.size());
     }
+
     return r;
   }
   /// \brief Concatenate elements together separates by a separator
@@ -366,17 +379,27 @@ public:
   /// \tparam T element type
   /// \param v
   /// \param separator
+  /// \param limit max number of rendered elements (abbreviates middle to "...")
   /// \return
   template <typename T>
   static StringType join(const std::vector<T> &v,
-                         const StringType &separator = {}) {
-    bool first = true;
+                         const StringType &separator = {}, h_size limit = 0) {
     StringStreamType r;
-    for (const auto &s : v) {
-      if (!first)
-        r << separator;
-      first = false;
-      r << s;
+    auto f = [&](h_size start, h_size end) {
+      bool first = true;
+      for (h_size i = start; i < end; ++i) {
+        if (!first)
+          r << separator;
+        first = false;
+        r << v[i];
+      }
+    };
+    if (limit == 0 || limit >= v.size())
+      f(0, v.size());
+    else {
+      f(0, limit / 2);
+      r << " ... ";
+      f(v.size() - (limit / 2), v.size());
     }
     return r.str();
   }
