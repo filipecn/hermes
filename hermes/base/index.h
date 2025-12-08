@@ -579,11 +579,11 @@ template <typename T> struct Index3 {
 };
 
 HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Index2<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Index[{}, {}]", object.i, object.j);
+HERMES_PUSH_DEBUG_LINE("Index[{}, {}]", object.i, object.j);
 HERMES_TO_STRING_DEBUG_METHOD_END
 
 HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Index3<T>, typename T)
-HERMES_PUSH_DEBUG_CUSTOM_FIELD("Size[{}, {}, {}]", object.i, object.j,
+HERMES_PUSH_DEBUG_LINE("Size[{}, {}, {}]", object.i, object.j,
                                object.j);
 HERMES_TO_STRING_DEBUG_METHOD_END
 
