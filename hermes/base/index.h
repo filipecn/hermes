@@ -175,6 +175,14 @@ template <typename T> struct Index2 {
       auto d = upper_ - lower_;
       return d.i * d.j;
     }
+    /// Computes a flat index based on size
+    ///
+    /// \f(j * (upper - lower)_i + i\f)
+    /// \return
+    HERMES_NODISCARD HERMES_CPU_GPU size_t
+    flatIndex(const Index2<T> &ij) const {
+      return ij.j * (upper_.i - lower_.i) + ij.i;
+    }
 
   private:
     Index2<T> lower_, upper_;

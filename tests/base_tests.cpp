@@ -325,6 +325,7 @@ TEST_CASE("index", "[base]") {
       REQUIRE(cur % 10 == index.i);
       REQUIRE(cur / 10 == index.j);
       REQUIRE(range.contains(index));
+      REQUIRE(cur == static_cast<int>(range.flatIndex(index)));
       cur++;
     }
     REQUIRE(cur == 10 * 10);

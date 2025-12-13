@@ -433,7 +433,7 @@ public:
   /// \brief Print bits in big-endian order
   /// \param n
   /// \return
-  static StringType printBits(u32 n) {
+  static StringType bits(u32 n) {
     StringType r;
     for (int i = 31; i >= 0; i--)
       if ((1 << i) & n)
@@ -449,8 +449,8 @@ public:
   /// \param strip_leading_zeros
   /// \return
   template <typename T>
-  static StringType binaryToHex(T input_n, bool uppercase = true,
-                                bool strip_leading_zeros = false) {
+  static StringType binary2Hex(T input_n, bool uppercase = true,
+                               bool strip_leading_zeros = false) {
     static const char digits[] = "0123456789abcdef";
     static const char DIGITS[] = "0123456789ABCDEF";
     unsigned long long n = 0;
@@ -478,7 +478,7 @@ public:
     StringType s;
     // TODO: assuming little endianess
     for (i8 i = 7; i >= 0; --i) {
-      auto h = binaryToHex((ptr >> (i * 8)) & 0xff, true);
+      auto h = binary2Hex((ptr >> (i * 8)) & 0xff, true);
       s += h.substr(h.size() - 2);
     }
 #ifdef _WIN32
@@ -490,7 +490,7 @@ public:
   /// \brief Binary representation of byte
   /// \param b
   /// \return
-  static StringType byteToBinary(h_byte b) {
+  static StringType byte2Binary(h_byte b) {
     StringType s;
     for (int i = 7; i >= 0; i--)
 #ifdef _WIN32

@@ -295,7 +295,7 @@ public:
     if (include_header) {
       cstr s = std::string(address_column_size, ' ');
       for (u32 i = 0; i < bytes_per_row; ++i) {
-        auto bs = cstr::binaryToHex(i, true, true);
+        auto bs = cstr::binary2Hex(i, true, true);
         if (i % 8 == 0)
           s.append(" ");
         s.append(std::setw(column_size), !bs.empty() ? bs : "0", " ");
@@ -355,16 +355,16 @@ public:
         cstr s;
         if (!hide_zeros || byte) {
           if (options.contain(memory_dumper_option_bits::hexadecimal))
-            s.append(cstr::binaryToHex(byte), " ");
+            s.append(cstr::binary2Hex(byte), " ");
           else if (options.contain(memory_dumper_option_bits::decimal))
             s.append(std::setfill('0'), std::setw(column_size),
                      static_cast<u32>(byte), ' ');
           else if (options.contain(memory_dumper_option_bits::binary))
-            s.append(cstr::byteToBinary((h_byte)byte), " ");
+            s.append(cstr::byte2Binary((h_byte)byte), " ");
           else if (options.contain(memory_dumper_option_bits::hexii))
             s.append(std::string(column_size, ' '), " ");
           else
-            s.append(cstr::binaryToHex(byte), " ");
+            s.append(cstr::binary2Hex(byte), " ");
         } else
           s.append(std::string(column_size, ' '), " ");
 
