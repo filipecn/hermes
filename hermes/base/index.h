@@ -94,6 +94,10 @@ template <typename T> struct Index2 {
         auto size = upper_ - lower_;
         return index_.j * size.i + index_.i;
       }
+      HERMES_NODISCARD HERMES_CPU_GPU bool isBoundary() const {
+        return index_.i <= 0 || index_.i >= upper_.i - 1 || index_.j <= 0 ||
+               index_.j >= upper_.j - 1;
+      }
       /// are equal? operator
       ///\param other  -
       ///\return bool true if current indices are equal
@@ -182,6 +186,10 @@ template <typename T> struct Index2 {
     HERMES_NODISCARD HERMES_CPU_GPU size_t
     flatIndex(const Index2<T> &ij) const {
       return ij.j * (upper_.i - lower_.i) + ij.i;
+    }
+    HERMES_NODISCARD HERMES_CPU_GPU bool isBoundary(const Index2<T> &ij) const {
+      return ij.i <= 0 || ij.i >= upper_.i - 1 || ij.j <= 0 ||
+             ij.j >= upper_.j - 1;
     }
 
   private:

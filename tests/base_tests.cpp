@@ -328,6 +328,16 @@ TEST_CASE("index", "[base]") {
       REQUIRE(cur == static_cast<int>(range.flatIndex(index)));
       cur++;
     }
+    for (int i = 0; i < 10; ++i) {
+      REQUIRE(range.isBoundary(index2(0, i)));
+      REQUIRE(range.isBoundary(index2(i, 0)));
+      REQUIRE(range.isBoundary(index2(9, i)));
+      REQUIRE(range.isBoundary(index2(i, 9)));
+    }
+    for (int i = 1; i < 9; ++i)
+      for (int j = 1; j < 9; ++j) {
+        REQUIRE(!range.isBoundary(index2(i, j)));
+      }
     REQUIRE(cur == 10 * 10);
     SECTION("intersection") {
       range2 a({0, 0}, {10, 10});
