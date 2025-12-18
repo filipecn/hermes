@@ -175,9 +175,13 @@ template <typename T> struct Index2 {
       return upper_;
     }
     /// \return
-    HERMES_CPU_GPU T area() const {
+    HERMES_CPU_GPU u32 area() const {
       auto d = upper_ - lower_;
       return d.i * d.j;
+    }
+    HERMES_CPU_GPU size2 size() const {
+      return {static_cast<u32>(upper_.i - lower_.i),
+              static_cast<u32>(upper_.j - lower_.j)};
     }
     /// Computes a flat index based on size
     ///

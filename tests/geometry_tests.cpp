@@ -142,7 +142,7 @@ TEST_CASE("BBox", "[geometry][bounds]") {
 
 TEST_CASE("BSphere ", "[geometry][bounds]") {
   SECTION("union") {
-    auto u = bounds::bsphere3::Unit();
+    auto u = bounds::bsphere3::unit();
     auto a = bounds::bsphere3().setCenter({0.5, 0, 0}).setRadius(1.0);
     bounds::bsphere3 c = make_union(a, u);
     HERMES_LOG_VARIABLE(a);

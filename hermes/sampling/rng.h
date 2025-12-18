@@ -56,7 +56,7 @@
 #include <hermes/numeric/interpolation.h>
 #include <hermes/numeric/numeric.h>
 
-namespace hermes::random {
+namespace hermes::sampling {
 
 // *****************************************************************************
 //                                                                        RNG
@@ -205,4 +205,4 @@ private:
   std::shared_ptr<RNG> rngZ_;
 };
 
-} // namespace hermes::random
+} // namespace hermes::sampling

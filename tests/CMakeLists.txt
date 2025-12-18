@@ -7,6 +7,7 @@ add_executable(hermes_tests
   numeric_tests.cpp
   storage_tests.cpp
   system_tests.cu
+  sampling_tests.cpp
 )
 
 target_link_options(hermes_tests INTERFACE --coverage)

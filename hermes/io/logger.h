@@ -315,7 +315,7 @@ private:
 #define HERMES_LOG_ARRAY(A)                                                    \
   HERMES_LOG("values of \"{}\":", #A);                                         \
   for (const auto &hermes_log_array_element : A)                               \
-  HERMES_LOG("  {}", hermes_log_array_element)
+  HERMES_LOG("  {}", hermes::to_string(hermes_log_array_element))
 #endif
 /// \brief Auxiliary support to log multiple variables
 /// \tparam T

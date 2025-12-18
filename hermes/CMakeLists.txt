@@ -31,7 +31,8 @@ set(HERMES_HEADERS
   numeric/interval.h
   numeric/matrix.h
 
-  random/rng.h
+  sampling/rng.h
+  sampling/sampling.h
 
   storage/aos.h
   storage/block.h
@@ -59,6 +60,8 @@ set(HERMES_CUDA_SOURCES
   geometry/transform.cpp
 
   math/space_filling.cpp
+
+  sampling/sampling.cpp
 
   storage/aos.cpp
   storage/block.cpp

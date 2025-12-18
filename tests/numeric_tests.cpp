@@ -5,7 +5,7 @@
 #include <hermes/numeric/interpolation.h>
 #include <hermes/numeric/interval.h>
 #include <hermes/numeric/matrix.h>
-#include <hermes/random/rng.h>
+#include <hermes/sampling/rng.h>
 
 using namespace hermes;
 
@@ -33,7 +33,7 @@ TEST_CASE("Numbers") {
     REQUIRE(1 == math::fastExp(0));
 
     real_t maxErr = 0;
-    random::RNG rng(6502);
+    sampling::RNG rng(6502);
     for (int i = 0; i < 100; ++i) {
       real_t v = numeric::lerp(rng.randomFloat(), -20.f, 20.f);
       real_t f = math::fastExp(v);
@@ -141,7 +141,7 @@ TEST_CASE("interpolation", "[numeric][interpolation]") {
     { // 1D
       f32 dx = 0.01;
       auto f = [](f32 x) -> f32 { return std::cos(x) * std::sin(x); };
-      random::HaltonSequence sampler;
+      sampling::HaltonSequence sampler;
       for (int i = 0; i < 1000; ++i) {
         auto p = sampler.randomFloat();
         REQUIRE_THAT(numeric::lerp<f32>(p, f(0), f(dx)),
@@ -150,10 +150,10 @@ TEST_CASE("interpolation", "[numeric][interpolation]") {
     }
     { // 2D
       auto f = [](f32 x, f32 y) -> f32 { return std::cos(x) * std::sin(y); };
-      random::RNGSampler sampler;
+      sampling::RNGSampler sampler;
       f32 dx = 0.01;
       for (int i = 0; i < 1000; ++i) {
-        auto p = sampler.sample(geo::bounds::bbox2::Unit());
+        auto p = sampler.sample(geo::bounds::bbox2::unit());
         REQUIRE_THAT(numeric::bilerp<f32>(p.x, p.y, f(0.00, 0.00), f(dx, 0.00),
                                           f(dx, dx), f(0.00, dx)),
                      Catch::Matchers::WithinRel(f(p.x * dx, p.y * dx), 1e-3f));
@@ -181,9 +181,9 @@ TEST_CASE("interpolation", "[numeric][interpolation]") {
       for (int s = 0; s < 4; s++)
         for (int u = 0; u < 4; u++)
           v[s][u] = f(s * dx, u * dx);
-      random::RNGSampler sampler;
+      sampling::RNGSampler sampler;
       for (int i = 0; i < 1000; ++i) {
-        auto p = sampler.sample(geo::bounds::bbox2::Unit());
+        auto p = sampler.sample(geo::bounds::bbox2::unit());
         REQUIRE_THAT(
             numeric::monotonicCubicInterpolate(v, geo::point2(p.x, p.y)),
             Catch::Matchers::WithinRel(f(dx + p.x * dx, dx + p.y * dx), 1e-3f));
@@ -199,9 +199,9 @@ TEST_CASE("interpolation", "[numeric][interpolation]") {
         for (int u = 0; u < 4; u++)
           for (int w = 0; w < 4; w++)
             v[s][u][w] = f(s * dx, u * dx, w * dx);
-      random::RNGSampler sampler;
+      sampling::RNGSampler sampler;
       for (int i = 0; i < 1000; ++i) {
-        auto p = sampler.sample(geo::bounds::bbox3::Unit());
+        auto p = sampler.sample(geo::bounds::bbox3::unit());
         REQUIRE_THAT(
             numeric::monotonicCubicInterpolate(v, p),
             Catch::Matchers::WithinRel(

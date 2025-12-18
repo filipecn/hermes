@@ -41,7 +41,7 @@ namespace hermes::geo::bounds {
 /// \tparam T coordinates type
 template <typename T> class BoundingBox1 {
 public:
-  HERMES_CPU_GPU static BoundingBox1 Unit() { return BoundingBox1<T>(0, 1); }
+  HERMES_CPU_GPU static BoundingBox1 unit() { return BoundingBox1<T>(0, 1); }
 
   HERMES_CPU_GPU BoundingBox1() {
     lower = numeric::limits::greatest<T>();
@@ -71,8 +71,16 @@ public:
 /// \tparam T coordinates type
 template <typename T> class BoundingBox2 {
 public:
-  HERMES_CPU_GPU static BoundingBox2<T> Unit() {
+  HERMES_CPU_GPU static BoundingBox2<T> unit() {
     return {Point2<T>(), Point2<T>(1, 1)};
+  }
+  template <typename U>
+  HERMES_CPU_GPU static BoundingBox2<T> from(const Index2<U>::Range &range,
+                                             const vec2 &scale = {1, 1}) {
+    BoundingBox2<T> b = {range.lower(), {range.upper() - Index2<U>(1, 1)}};
+    b.lower *= scale;
+    b.upper *= scale;
+    return b;
   }
 
   HERMES_CPU_GPU BoundingBox2() {
@@ -90,9 +98,6 @@ public:
     upper = Point2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
 #endif
   }
-  template <typename U>
-  HERMES_CPU_GPU BoundingBox2(const Index2<U>::Range &range)
-      : lower{range.lower()}, upper{range.upper() - Index2<U>(1, 1)} {}
 
   template <typename U>
   HERMES_CPU_GPU BoundingBox2 &operator=(const Index2<U>::Range &range) {
@@ -169,7 +174,7 @@ public:
 /// \tparam T coordinates type
 template <typename T> class BoundingBox3 {
 public:
-  HERMES_CPU_GPU static BoundingBox3 Unit(bool centroid_center = false) {
+  HERMES_CPU_GPU static BoundingBox3 unit(bool centroid_center = false) {
     if (centroid_center)
       return {Point3<T>(-0.5), Point3<T>(0.5)};
     return {Point3<T>(), Point3<T>(1, 1, 1)};
@@ -345,7 +350,7 @@ public:
 /// \tparam T coordinates type.
 template <typename T> struct BoundingSphere3 {
 
-  HERMES_CPU_GPU static BoundingSphere3 Unit() {
+  HERMES_CPU_GPU static BoundingSphere3 unit() {
     return BoundingSphere3().setCenter({0.f, 0.f, 0.f}).setRadius(1.f);
   }
 
