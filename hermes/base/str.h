@@ -404,6 +404,39 @@ public:
     return r.str();
   }
 
+  /// \brief Concatenate elements together separates by a separator
+  /// \note Element type must be able to perform << operator with
+  /// `StringStreamType`
+  /// \tparam T element type
+  /// \param v
+  /// \param separator
+  /// \param limit max number of rendered elements (abbreviates middle to "...")
+  /// \return
+  template <typename T>
+  static StringType
+  join(const std::vector<T> &v,
+       const std::function<std::string(const T &)> &to_string_func,
+       const StringType &separator = {}, h_size limit = 0) {
+    StringStreamType r;
+    auto f = [&](h_size start, h_size end) {
+      bool first = true;
+      for (h_size i = start; i < end; ++i) {
+        if (!first)
+          r << separator;
+        first = false;
+        r << to_string_func(v[i]);
+      }
+    };
+    if (limit == 0 || limit >= v.size())
+      f(0, v.size());
+    else {
+      f(0, limit / 2);
+      r << " ... ";
+      f(v.size() - (limit / 2), v.size());
+    }
+    return r.str();
+  }
+
   //                                                                separation
 
   /// \brief Splits a string into tokens separated by delimiters
