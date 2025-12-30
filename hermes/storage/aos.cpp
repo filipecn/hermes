@@ -54,6 +54,9 @@ auto fs = [&](const mem::AoS::Layout::Field &field,
   if (field.type == DataTypes::typeFrom<T>()) {                                \
     auto array =                                                               \
         std::span{reinterpret_cast<const T *>(data), field.component_count};   \
+    if (field.component_count > 1) {                                           \
+      return cstr::format("({})", cstr::join(array, ", ").c_str());            \
+    }                                                                          \
     return cstr::join(array, ", ").c_str();                                    \
   }
   MATCH_TYPE(i8)
@@ -63,11 +66,7 @@ auto fs = [&](const mem::AoS::Layout::Field &field,
   MATCH_TYPE(u8)
   MATCH_TYPE(u16)
   MATCH_TYPE(u32)
-  MATCH_TYPE(u64)
-  MATCH_TYPE(f32)
-  MATCH_TYPE(f64)
-  MATCH_TYPE(h_size)
-  return "";
+  MATCH_TYPE(u64) MATCH_TYPE(f32) MATCH_TYPE(f64) MATCH_TYPE(h_size) return "";
 };
 auto fields = object.layout().fields();
 h_size abrev_size = fields.size() == 1 ? 10 : 5;
@@ -81,8 +80,7 @@ for (h_size i = 0; i < object.size(); ++i) {
   if (i < abrev_start || i > abrev_end) {
     if (fields.size() == 1) {
       auto ptr = object.getPtr(0, i);
-      HERMES_TO_STRING_METHOD_LINE("  {} ", i, fields[0].name,
-                                   fs(fields[0], ptr));
+      HERMES_TO_STRING_METHOD_LINE("  {} ", fs(fields[0], ptr));
     } else {
       for (h_size f = 0; f < fields.size(); ++f) {
         const auto &field = fields[f];
