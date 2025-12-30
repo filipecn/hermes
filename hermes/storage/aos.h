@@ -123,8 +123,34 @@ public:
 
   /// Provides access to a single field
   /// \tparam T field data type
+  template <typename T> class ConstFieldView {
+  public:
+    HERMES_CPU_GPU const T &operator[](size_t i) const {
+      return *reinterpret_cast<const T *>(data_ + i * stride_ + offset_);
+    }
+    HERMES_CPU_GPU size_t size() const { return size_; }
+
+  private:
+    HERMES_CPU_GPU ConstFieldView(const h_byte *data, u64 stride, u64 offset,
+                                  size_t size)
+        : data_{data}, stride_{stride}, offset_{offset}, size_{size} {}
+
+    const h_byte *data_{nullptr};
+    u64 stride_{0};
+    u64 offset_{0};
+    size_t size_{0};
+
+    friend class AoS;
+  };
+
+  /// Provides access to a single field
+  /// \tparam T field data type
   template <typename T> class FieldView {
   public:
+    operator ConstFieldView<T>() const {
+      return ConstFieldView<T>(data_, stride_, offset_, size_);
+    }
+
     FieldView &operator=(const std::vector<T> &data) {
       for (u64 i = 0; i < data.size(); ++i)
         (*this)[i] = data[i];
@@ -155,33 +181,11 @@ public:
     friend class AoS;
   };
 
-  /// Provides access to a single field
-  /// \tparam T field data type
-  template <typename T> class ConstFieldView {
-  public:
-    HERMES_CPU_GPU const T &operator[](size_t i) const {
-      return *reinterpret_cast<const T *>(data_ + i * stride_ + offset_);
-    }
-    HERMES_CPU_GPU size_t size() const { return size_; }
-
-  private:
-    HERMES_CPU_GPU ConstFieldView(const h_byte *data, u64 stride, u64 offset,
-                                  size_t size)
-        : data_{data}, stride_{stride}, offset_{offset}, size_{size} {}
-
-    const h_byte *data_{nullptr};
-    u64 stride_{0};
-    u64 offset_{0};
-    size_t size_{0};
-
-    friend class AoS;
-  };
-
   class View {
   public:
     void setDataPtr(h_byte *data) { data_ = data; }
     size_t size() const { return size_; }
-    //                                                                                                           access
+    //                                                                  access
     template <typename T> const T &valueAt(u64 field_id, u64 i) const {
       return *reinterpret_cast<const T *>(data_ + i * layout.size_in_bytes_ +
                                           layout.fields_[field_id].offset);
@@ -207,7 +211,7 @@ public:
   public:
     void setDataPtr(h_byte *data) { data_ = data; }
     size_t size() const { return size_; }
-    //                                                                                                           access
+    //                                                                  access
     template <typename T> const T &valueAt(u64 field_id, u64 i) const {
       return *reinterpret_cast<const T *>(data_ + i * layout.size_in_bytes_ +
                                           layout.fields_[field_id].offset);
@@ -283,7 +287,7 @@ public:
   template <typename T> ConstFieldView<T> field(u64 field_id) const {
     if (field_id >= layout_.fields().size()) {
       HERMES_ERROR("Field with id {} not found.", field_id);
-      return ConstAoSFieldView<T>(nullptr, 0, 0, 0);
+      return ConstFieldView<T>(nullptr, 0, 0, 0);
     }
     return ConstFieldView<T>(data_.bytes(), layout_.size_in_bytes_,
                              layout_.fields_[field_id].offset, size_);

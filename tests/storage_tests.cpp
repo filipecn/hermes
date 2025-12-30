@@ -943,7 +943,8 @@ TEST_CASE("AOS", "[storage][aos]") {
     for (i32 i = 0; i < 4; ++i) {
       REQUIRE(aos.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
-      REQUIRE_THAT(aos.valueAt<f32>(1, i), Catch::Matchers::WithinRel(1.f * i));
+      REQUIRE_THAT(aos.valueAt<f32>(1, i),
+                   Catch::Matchers::WithinAbs(1.f * i, 1e-8));
       REQUIRE(aos.valueAt<int>(2, i) == i + 1);
     }
     HERMES_LOG_VARIABLE(aos);
@@ -1009,14 +1010,15 @@ TEST_CASE("AOS", "[storage][aos]") {
     for (i32 i = 0; i < 4; ++i) {
       REQUIRE(aos.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
-      REQUIRE_THAT(aos.valueAt<f32>(1, i), Catch::Matchers::WithinRel(1.f * i));
+      REQUIRE_THAT(aos.valueAt<f32>(1, i),
+                   Catch::Matchers::WithinAbs(1.f * i, 1e-8));
       REQUIRE(aos.valueAt<int>(2, i) == i + 1);
       REQUIRE(vec3_field[i] == geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE(f32_field[i] == 1.f * i);
       REQUIRE(int_field[i] == i + 1);
     }
     REQUIRE(aos.back<geo::vec3>(0) == geo::vec3(1.f + 3, 2.f + 3, 3.f + 3));
-    REQUIRE_THAT(aos.back<f32>(1), Catch::Matchers::WithinRel(1.f * 3));
+    REQUIRE_THAT(aos.back<f32>(1), Catch::Matchers::WithinAbs(1.f * 3, 1e-8));
     REQUIRE(aos.back<int>(2) == 3 + 1);
   } //
   SECTION("Accessors") {
@@ -1034,7 +1036,8 @@ TEST_CASE("AOS", "[storage][aos]") {
     for (i32 i = 0; i < 4; ++i) {
       REQUIRE(acc.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
-      REQUIRE_THAT(acc.valueAt<f32>(1, i), Catch::Matchers::WithinRel(1.f * i));
+      REQUIRE_THAT(acc.valueAt<f32>(1, i),
+                   Catch::Matchers::WithinAbs(1.f * i, 1e-8));
       REQUIRE(acc.valueAt<int>(2, i) == i + 1);
     }
     const auto &caos = aos;
@@ -1043,7 +1046,7 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(cacc.valueAt<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(cacc.valueAt<f32>(1, i),
-                   Catch::Matchers::WithinRel(1.f * i));
+                   Catch::Matchers::WithinAbs(1.f * i, 1e-8));
       REQUIRE(cacc.valueAt<int>(2, i) == i + 1);
     }
     AoS aos2;
@@ -1066,9 +1069,14 @@ TEST_CASE("AOS", "[storage][aos]") {
         {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5},
     };
     auto i32_field = aos.field<i32>(1) = {-1, -2, -3, -4, -5};
+    const auto &caos = aos;
+    auto i32_cfield = caos.field<i32>(1);
+    auto i32_cast_cfield = static_cast<AoS::ConstFieldView<i32>>(i32_field);
     for (i32 i = 0; i < 5; ++i) {
       REQUIRE(sizes_field[i] == size2(i, i + 1));
       REQUIRE(i32_field[i] == -(i + 1));
+      REQUIRE(i32_cfield[i] == -(i + 1));
+      REQUIRE(i32_cast_cfield[i] == -(i + 1));
     }
 
   } //
@@ -1097,14 +1105,17 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.stride() == aos2.stride());
     auto acc2 = aos2.view();
     for (u32 i = 0; i < 4; ++i) {
-      REQUIRE_THAT(acc2.valueAt<geo::vec3>(0, i).x,
-                   Catch::Matchers::WithinRel(acc.valueAt<geo::vec3>(0, i).x));
-      REQUIRE_THAT(acc2.valueAt<geo::vec3>(0, i).y,
-                   Catch::Matchers::WithinRel(acc.valueAt<geo::vec3>(0, i).y));
-      REQUIRE_THAT(acc2.valueAt<geo::vec3>(0, i).z,
-                   Catch::Matchers::WithinRel(acc.valueAt<geo::vec3>(0, i).z));
+      REQUIRE_THAT(
+          acc2.valueAt<geo::vec3>(0, i).x,
+          Catch::Matchers::WithinAbs(acc.valueAt<geo::vec3>(0, i).x, 1e-8));
+      REQUIRE_THAT(
+          acc2.valueAt<geo::vec3>(0, i).y,
+          Catch::Matchers::WithinAbs(acc.valueAt<geo::vec3>(0, i).y, 1e-8));
+      REQUIRE_THAT(
+          acc2.valueAt<geo::vec3>(0, i).z,
+          Catch::Matchers::WithinAbs(acc.valueAt<geo::vec3>(0, i).z, 1e-8));
       REQUIRE_THAT(acc2.valueAt<f32>(1, i),
-                   Catch::Matchers::WithinRel(acc.valueAt<f32>(1, i)));
+                   Catch::Matchers::WithinAbs(acc.valueAt<f32>(1, i), 1e-8));
       REQUIRE(acc2.valueAt<int>(2, i) == acc.valueAt<int>(2, i));
     }
     auto fields = aos.layout().fields();
