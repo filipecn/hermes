@@ -130,7 +130,7 @@ public:
     }
     HERMES_CPU_GPU size_t size() const { return size_; }
 
-  private:
+  protected:
     HERMES_CPU_GPU ConstFieldView(const h_byte *data, u64 stride, u64 offset,
                                   size_t size)
         : data_{data}, stride_{stride}, offset_{offset}, size_{size} {}
@@ -172,7 +172,7 @@ public:
     }
     HERMES_CPU_GPU size_t size() const { return size_; }
 
-  private:
+  protected:
     HERMES_CPU_GPU FieldView(h_byte *data, u64 stride, u64 offset, size_t size)
         : data_{data}, stride_{stride}, offset_{offset}, size_{size} {}
 
