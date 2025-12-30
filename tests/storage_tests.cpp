@@ -819,9 +819,9 @@ TEST_CASE("Array2", "[storage][array]") {
 //   if (aos.size() != 5)
 //     *result = 1;
 //   for (u32 i = 0; i < aos.size(); ++i) {
-//     if (aos.valueAt<index2>(0, i) != index2(i, i + 1))
+//     if (aos.get<index2>(0, i) != index2(i, i + 1))
 //       *result = (i + 1) * 10;
-//     if (aos.valueAt<i32>(1, i) != -(i + 1))
+//     if (aos.get<i32>(1, i) != -(i + 1))
 //       *result = -(i + 1);
 //   }
 // }
@@ -877,7 +877,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(sd.offsetOf("f32") == sizeof(geo::vec3));
     REQUIRE(sd.offsetOf("int") == sizeof(geo::vec3) + sizeof(f32));
     HERMES_LOG_VARIABLE(sd);
-    { // valueAt
+    { // get
       AoS aos;
       aos.pushField<size2>("size2");
       aos.pushField<i32>("i32");
@@ -889,26 +889,25 @@ TEST_CASE("AOS", "[storage][aos]") {
       };
       std::vector<SD> data(5);
       for (i32 i = 0; i < 5; ++i) {
-        data[i].s = aos.valueAt<size2>(0, i) = {i * 3u, i * 7u};
-        data[i].i = aos.valueAt<i32>(1, i) = i;
+        data[i].s = aos.get<size2>(0, i) = {i * 3u, i * 7u};
+        data[i].i = aos.get<i32>(1, i) = i;
       }
       for (i32 i = 0; i < 5; ++i) {
-        REQUIRE(aos.layout().valueAt<size2>(
-                    reinterpret_cast<const void *>(*aos.data()), 0, i) ==
-                size2(i * 3u, i * 7u));
-        REQUIRE(aos.layout().valueAt<i32>(
+        REQUIRE(
+            aos.layout().get<size2>(reinterpret_cast<const void *>(*aos.data()),
+                                    0, i) == size2(i * 3u, i * 7u));
+        REQUIRE(aos.layout().get<i32>(
                     reinterpret_cast<const void *>(*aos.data()), 1, i) == i);
         // change data
-        aos.layout().valueAt<size2>(reinterpret_cast<void *>(data.data()), 0,
-                                    i) = {i * 5u, i * 13u};
-        aos.layout().valueAt<i32>(reinterpret_cast<void *>(data.data()), 1, i) =
-            -i;
+        aos.layout().get<size2>(reinterpret_cast<void *>(data.data()), 0,
+                                i) = {i * 5u, i * 13u};
+        aos.layout().get<i32>(reinterpret_cast<void *>(data.data()), 1, i) = -i;
       }
       for (i32 i = 0; i < 5; ++i) {
-        REQUIRE(aos.layout().valueAt<size2>(
-                    reinterpret_cast<const void *>(data.data()), 0, i) ==
-                size2(i * 5u, i * 13u));
-        REQUIRE(aos.layout().valueAt<i32>(
+        REQUIRE(
+            aos.layout().get<size2>(reinterpret_cast<const void *>(data.data()),
+                                    0, i) == size2(i * 5u, i * 13u));
+        REQUIRE(aos.layout().get<i32>(
                     reinterpret_cast<const void *>(data.data()), 1, i) == -i);
       }
     }
@@ -951,16 +950,15 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.layout().offsetOf("int") == sizeof(geo::vec3) + sizeof(f32));
     REQUIRE(aos.dataSize() == aos.stride() * 4);
     for (i32 i = 0; i < 4; ++i) {
-      aos.valueAt<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
-      aos.valueAt<f32>(1, i) = 1.f * i;
-      aos.valueAt<int>(2, i) = i + 1;
+      aos.get<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
+      aos.get<f32>(1, i) = 1.f * i;
+      aos.get<int>(2, i) = i + 1;
     }
     for (i32 i = 0; i < 4; ++i) {
-      REQUIRE(aos.valueAt<geo::vec3>(0, i) ==
-              geo::vec3(1.f + i, 2.f + i, 3.f + i));
-      REQUIRE_THAT(aos.valueAt<f32>(1, i),
+      REQUIRE(aos.get<geo::vec3>(0, i) == geo::vec3(1.f + i, 2.f + i, 3.f + i));
+      REQUIRE_THAT(aos.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));
-      REQUIRE(aos.valueAt<int>(2, i) == i + 1);
+      REQUIRE(aos.get<int>(2, i) == i + 1);
     }
     HERMES_LOG_VARIABLE(aos);
   } //
@@ -996,15 +994,15 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos.pushField<hermes::geo::vec2>();
     REQUIRE(aos.resize(5) == HeError::NO_ERROR);
     for (u32 i = 0; i < aos.size(); ++i) {
-      aos.valueAt<int>(0, i) = i;
-      aos.valueAt<hermes::geo::vec2>(1, i) = {i * 0.1f, -i * 1.f};
+      aos.get<int>(0, i) = i;
+      aos.get<hermes::geo::vec2>(1, i) = {i * 0.1f, -i * 1.f};
     }
     aos.pushField<int>();
     REQUIRE(aos.dataSize() ==
             5 * (sizeof(int) + sizeof(hermes::geo::vec2) + sizeof(int)));
     for (u32 i = 0; i < aos.size(); ++i) {
-      REQUIRE(aos.valueAt<int>(0, i) == (i32)i);
-      REQUIRE(aos.valueAt<hermes::geo::vec2>(1, i) ==
+      REQUIRE(aos.get<int>(0, i) == (i32)i);
+      REQUIRE(aos.get<hermes::geo::vec2>(1, i) ==
               hermes::geo::vec2(i * 0.1f, -i * 1.f));
     }
   } //
@@ -1023,11 +1021,10 @@ TEST_CASE("AOS", "[storage][aos]") {
       int_field[i] = i + 1;
     }
     for (i32 i = 0; i < 4; ++i) {
-      REQUIRE(aos.valueAt<geo::vec3>(0, i) ==
-              geo::vec3(1.f + i, 2.f + i, 3.f + i));
-      REQUIRE_THAT(aos.valueAt<f32>(1, i),
+      REQUIRE(aos.get<geo::vec3>(0, i) == geo::vec3(1.f + i, 2.f + i, 3.f + i));
+      REQUIRE_THAT(aos.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));
-      REQUIRE(aos.valueAt<int>(2, i) == i + 1);
+      REQUIRE(aos.get<int>(2, i) == i + 1);
       REQUIRE(vec3_field[i] == geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE(f32_field[i] == 1.f * i);
       REQUIRE(int_field[i] == i + 1);
@@ -1044,25 +1041,24 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.resize(4) == HeError::NO_ERROR);
     auto acc = aos.view();
     for (i32 i = 0; i < 4; ++i) {
-      acc.valueAt<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
-      acc.valueAt<f32>(1, i) = 1.f * i;
-      acc.valueAt<int>(2, i) = i + 1;
+      acc.get<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
+      acc.get<f32>(1, i) = 1.f * i;
+      acc.get<int>(2, i) = i + 1;
     }
     for (i32 i = 0; i < 4; ++i) {
-      REQUIRE(acc.valueAt<geo::vec3>(0, i) ==
-              geo::vec3(1.f + i, 2.f + i, 3.f + i));
-      REQUIRE_THAT(acc.valueAt<f32>(1, i),
+      REQUIRE(acc.get<geo::vec3>(0, i) == geo::vec3(1.f + i, 2.f + i, 3.f + i));
+      REQUIRE_THAT(acc.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));
-      REQUIRE(acc.valueAt<int>(2, i) == i + 1);
+      REQUIRE(acc.get<int>(2, i) == i + 1);
     }
     const auto &caos = aos;
     auto cacc = caos.view();
     for (i32 i = 0; i < 4; ++i) {
-      REQUIRE(cacc.valueAt<geo::vec3>(0, i) ==
+      REQUIRE(cacc.get<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
-      REQUIRE_THAT(cacc.valueAt<f32>(1, i),
+      REQUIRE_THAT(cacc.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));
-      REQUIRE(cacc.valueAt<int>(2, i) == i + 1);
+      REQUIRE(cacc.get<int>(2, i) == i + 1);
     }
     AoS aos2;
     aos2.pushField<geo::vec3>("geo::vec3");
@@ -1070,9 +1066,9 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos2.pushField<int>("int");
     REQUIRE(aos2.resize(4) == HeError::NO_ERROR);
     for (u32 i = 0; i < 4; ++i) {
-      aos2.valueAt<geo::vec3>(0, i) = {-1.f + i, -2.f + i, -3.f + i};
-      aos2.valueAt<f32>(1, i) = -1.f * i;
-      aos2.valueAt<int>(2, i) = i - 1;
+      aos2.get<geo::vec3>(0, i) = {-1.f + i, -2.f + i, -3.f + i};
+      aos2.get<f32>(1, i) = -1.f * i;
+      aos2.get<int>(2, i) = i - 1;
     }
   } //
   SECTION("Field Accessors") {
@@ -1123,9 +1119,9 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.resize(4) == HeError::NO_ERROR);
     auto acc = aos.view();
     for (u32 i = 0; i < 4; ++i) {
-      acc.valueAt<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
-      acc.valueAt<f32>(1, i) = 1.f * i;
-      acc.valueAt<int>(2, i) = i + 1;
+      acc.get<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
+      acc.get<f32>(1, i) = 1.f * i;
+      acc.get<int>(2, i) = i + 1;
     }
     std::ofstream file_out("aos_data", std::ios::binary);
     // file_out << aos;
@@ -1140,17 +1136,17 @@ TEST_CASE("AOS", "[storage][aos]") {
     auto acc2 = aos2.view();
     for (u32 i = 0; i < 4; ++i) {
       REQUIRE_THAT(
-          acc2.valueAt<geo::vec3>(0, i).x,
-          Catch::Matchers::WithinAbs(acc.valueAt<geo::vec3>(0, i).x, 1e-8));
+          acc2.get<geo::vec3>(0, i).x,
+          Catch::Matchers::WithinAbs(acc.get<geo::vec3>(0, i).x, 1e-8));
       REQUIRE_THAT(
-          acc2.valueAt<geo::vec3>(0, i).y,
-          Catch::Matchers::WithinAbs(acc.valueAt<geo::vec3>(0, i).y, 1e-8));
+          acc2.get<geo::vec3>(0, i).y,
+          Catch::Matchers::WithinAbs(acc.get<geo::vec3>(0, i).y, 1e-8));
       REQUIRE_THAT(
-          acc2.valueAt<geo::vec3>(0, i).z,
-          Catch::Matchers::WithinAbs(acc.valueAt<geo::vec3>(0, i).z, 1e-8));
-      REQUIRE_THAT(acc2.valueAt<f32>(1, i),
-                   Catch::Matchers::WithinAbs(acc.valueAt<f32>(1, i), 1e-8));
-      REQUIRE(acc2.valueAt<int>(2, i) == acc.valueAt<int>(2, i));
+          acc2.get<geo::vec3>(0, i).z,
+          Catch::Matchers::WithinAbs(acc.get<geo::vec3>(0, i).z, 1e-8));
+      REQUIRE_THAT(acc2.get<f32>(1, i),
+                   Catch::Matchers::WithinAbs(acc.get<f32>(1, i), 1e-8));
+      REQUIRE(acc2.get<int>(2, i) == acc.get<int>(2, i));
     }
     auto fields = aos.layout().fields();
     for (auto f : fields) {

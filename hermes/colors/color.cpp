@@ -41,13 +41,13 @@ RGB_Color RGBA_Color::rgb() const { return {r, g, b}; }
 } // namespace hermes::colors
 
 namespace hermes {
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(colors::RGB_Color)
-HERMES_PUSH_DEBUG_LINE("C[{}, {}, {}]", object.r, object.g, object.b)
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_BEGIN(colors::RGB_Color)
+HERMES_TO_STRING_METHOD_LINE("C[{}, {}, {}]", object.r, object.g, object.b)
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(colors::RGBA_Color)
-HERMES_PUSH_DEBUG_LINE("C[{}, {}, {}, {}]", object.r, object.g, object.b,
-                       object.a)
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_BEGIN(colors::RGBA_Color)
+HERMES_TO_STRING_METHOD_LINE("C[{}, {}, {}, {}]", object.r, object.g, object.b,
+                             object.a)
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes

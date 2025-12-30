@@ -524,27 +524,27 @@ typedef BoundingSphere3<real_t> bsphere3;
 
 namespace hermes {
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox1<T>,
-                                              typename T)
-HERMES_PUSH_DEBUG_LINE("BBox[{}, {}]", object.lower, object.upper);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox1<T>,
+                                        typename T)
+HERMES_TO_STRING_METHOD_LINE("BBox[{}, {}]", object.lower, object.upper);
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox2<T>,
-                                              typename T)
-HERMES_PUSH_DEBUG_LINE("BBox[{}, {}]", hermes::to_string(object.lower),
-                       hermes::to_string(object.upper));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox2<T>,
+                                        typename T)
+HERMES_TO_STRING_METHOD_LINE("BBox[{}, {}]", hermes::to_string(object.lower),
+                             hermes::to_string(object.upper));
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox3<T>,
-                                              typename T)
-HERMES_PUSH_DEBUG_LINE("BBox[{}, {}]", hermes::to_string(object.lower),
-                       hermes::to_string(object.upper));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingBox3<T>,
+                                        typename T)
+HERMES_TO_STRING_METHOD_LINE("BBox[{}, {}]", hermes::to_string(object.lower),
+                             hermes::to_string(object.upper));
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingSphere3<T>,
-                                              typename T)
-HERMES_PUSH_DEBUG_LINE("BSphere[{}, {}]", hermes::to_string(object.center),
-                       object.radius);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::bounds::BoundingSphere3<T>,
+                                        typename T)
+HERMES_TO_STRING_METHOD_LINE("BSphere[{}, {}]",
+                             hermes::to_string(object.center), object.radius);
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes

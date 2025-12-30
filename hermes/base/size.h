@@ -154,14 +154,14 @@ template <typename T> struct Size3 {
   T depth{0};  //!< 2-th dimension size
 };
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Size2<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("Size[{}, {}]", object.width, object.height);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Size2<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("Size[{}, {}]", object.width, object.height);
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Size3<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("Size[{}, {}, {}]", object.width, object.height,
-                       object.depth);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Size3<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("Size[{}, {}, {}]", object.width, object.height,
+                             object.depth);
+HERMES_TO_STRING_METHOD_END
 
 using size2 = Size2<u32>;    //!< u32
 using size2_8 = Size2<u8>;   //!< u8

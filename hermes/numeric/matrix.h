@@ -605,7 +605,7 @@ HERMES_CPU_GPU bool is_equal(const MatrixNxM<T, N, M> &a,
 
 namespace hermes {
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(
     math::MatrixNxM<T HERMES_COMMA N HERMES_COMMA M>, typename T, u32 N, u32 M)
 for (u32 row = 0; row < N; ++row) {
   hermes::Str<char> s;
@@ -613,9 +613,9 @@ for (u32 row = 0; row < N; ++row) {
     s += object[row][col];
     s += " ";
   }
-  HERMES_PUSH_DEBUG_LINE("| {}|\n", s.str());
+  HERMES_TO_STRING_METHOD_LINE("| {}|\n", s.str());
 }
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_END
 
 HERMES_TYPE_LAYOUT_METHODS(math::mat4, f32, 16)
 HERMES_TYPE_LAYOUT_METHODS(math::mat3, f32, 9)

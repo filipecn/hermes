@@ -30,12 +30,12 @@
 
 namespace hermes {
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::transform_option_bits)
+HERMES_TO_STRING_METHOD_BEGIN(geo::transform_option_bits)
 #define BIT_NAME(B)                                                            \
   else if (geo::transform_option_bits::B == object)                            \
-      HERMES_PUSH_DEBUG_LINE("{}", #B)
+      HERMES_TO_STRING_METHOD_LINE("{}", #B)
 if (geo::transform_option_bits::x_right == object)
-  HERMES_PUSH_DEBUG_LINE("x_right")
+  HERMES_TO_STRING_METHOD_LINE("x_right")
 BIT_NAME(y_right)
 BIT_NAME(z_right)
 BIT_NAME(left_handed)
@@ -54,9 +54,9 @@ BIT_NAME(transpose)
 BIT_NAME(flip_x)
 BIT_NAME(flip_y)
 BIT_NAME(flip_z)
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::transform_options)
+HERMES_TO_STRING_METHOD_BEGIN(geo::transform_options)
 std::vector<std::string> values;
 #define CHECK_BIT(B)                                                           \
   if (geo::transform_option_bits::B & object)                                  \
@@ -80,22 +80,22 @@ CHECK_BIT(transpose)
 CHECK_BIT(flip_x)
 CHECK_BIT(flip_y)
 CHECK_BIT(flip_z)
-HERMES_PUSH_DEBUG_LINE("{}", hermes::cstr::join(values, " | "))
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_LINE("{}", hermes::cstr::join(values, " | "))
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Transform)
+HERMES_TO_STRING_METHOD_BEGIN(geo::Transform)
 for (int row = 0; row < 4; ++row) {
-  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}, {}]\n", object[row][0], object[row][1],
-                         object[row][2], object[row][3]);
+  HERMES_TO_STRING_METHOD_LINE("[{}, {}, {}, {}]\n", object[row][0],
+                               object[row][1], object[row][2], object[row][3]);
 }
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Transform2)
+HERMES_TO_STRING_METHOD_BEGIN(geo::Transform2)
 for (int row = 0; row < 3; ++row) {
-  HERMES_PUSH_DEBUG_LINE("[{}, {}, {}]", object[row][0], object[row][1],
-                         object[row][2]);
+  HERMES_TO_STRING_METHOD_LINE("[{}, {}, {}]", object[row][0], object[row][1],
+                               object[row][2]);
 }
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes
 

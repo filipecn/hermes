@@ -187,9 +187,9 @@ using quatd = Quaternion<f64>;
 
 namespace hermes {
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Quaternion<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("Quat[({}, {}, {}), {}]", object.v[0], object.v[1],
-                       object.v[2], object.r);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Quaternion<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("Quat[({}, {}, {}), {}]", object.v[0], object.v[1],
+                             object.v[2], object.r);
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes

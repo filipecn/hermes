@@ -598,13 +598,13 @@ template <typename T> struct Index3 {
   T k{0};
 };
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Index2<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("Index[{}, {}]", object.i, object.j);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Index2<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("Index[{}, {}]", object.i, object.j);
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Index3<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("Size[{}, {}, {}]", object.i, object.j, object.j);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Index3<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("Size[{}, {}, {}]", object.i, object.j, object.j);
+HERMES_TO_STRING_METHOD_END
 
 using range2 = Index2<i32>::Range;    //!< i32
 using range2_64 = Index2<i64>::Range; //!< i64

@@ -177,8 +177,8 @@ ARITHMETIC_OP(*)
 ARITHMETIC_OP(/)
 #undef ARITHMETIC_OP
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(Interval<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("I[{}, {}]", object.low, object.high);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Interval<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("I[{}, {}]", object.low, object.high);
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes

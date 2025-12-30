@@ -30,6 +30,7 @@
 #include <hermes/storage/block.h>
 
 #include <string>
+#include <typeinfo>
 
 namespace hermes::mem {
 
@@ -81,7 +82,7 @@ public:
     /// \param field_id
     /// \param i
     /// \return
-    template <typename T> T &valueAt(void *data, u64 field_id, u64 i) const {
+    template <typename T> T &get(void *data, u64 field_id, u64 i) const {
       return *reinterpret_cast<T *>(reinterpret_cast<h_byte *>(data) +
                                     i * size_in_bytes_ +
                                     fields_[field_id].offset);
@@ -93,7 +94,7 @@ public:
     /// \param i
     /// \return
     template <typename T>
-    const T &valueAt(const void *data, u64 field_id, u64 i) const {
+    const T &get(const void *data, u64 field_id, u64 i) const {
       return *reinterpret_cast<const T *>(
           reinterpret_cast<const h_byte *>(data) + i * size_in_bytes_ +
           fields_[field_id].offset);
@@ -111,6 +112,7 @@ public:
     u64 sizeOf(const std::string &field_name) const;
     u64 sizeOf(u64 field_id) const;
     inline u64 sizeInBytes() const { return size_in_bytes_; }
+    const std::type_info &typeInfo(u64 field_id) const;
 
   private:
     u64 size_in_bytes_{0};
@@ -188,14 +190,21 @@ public:
   public:
     void setDataPtr(h_byte *data) { data_ = data; }
     size_t size() const { return size_; }
-    //                                                                  access
-    template <typename T> const T &valueAt(u64 field_id, u64 i) const {
+    template <typename T> const T &get(u64 field_id, u64 i) const {
       return *reinterpret_cast<const T *>(data_ + i * layout.size_in_bytes_ +
                                           layout.fields_[field_id].offset);
     }
-    template <typename T> T &valueAt(u64 field_id, u64 i) {
+    template <typename T> T &get(u64 field_id, u64 i) {
       return *reinterpret_cast<T *>(data_ + i * layout.size_in_bytes_ +
                                     layout.fields_[field_id].offset);
+    }
+    void *getPtr(u64 field_id, u64 i) {
+      return reinterpret_cast<void *>(data_ + i * layout.size_in_bytes_ +
+                                      layout.fields_[field_id].offset);
+    }
+    const void *getPtr(u64 field_id, u64 i) const {
+      return reinterpret_cast<const void *>(data_ + i * layout.size_in_bytes_ +
+                                            layout.fields_[field_id].offset);
     }
 
     const Layout &layout;
@@ -214,10 +223,13 @@ public:
   public:
     void setDataPtr(h_byte *data) { data_ = data; }
     size_t size() const { return size_; }
-    //                                                                  access
-    template <typename T> const T &valueAt(u64 field_id, u64 i) const {
+    template <typename T> const T &get(u64 field_id, u64 i) const {
       return *reinterpret_cast<const T *>(data_ + i * layout.size_in_bytes_ +
                                           layout.fields_[field_id].offset);
+    }
+    const void *getPtr(u64 field_id, u64 i) const {
+      return reinterpret_cast<const void *>(data_ + i * layout.size_in_bytes_ +
+                                            layout.fields_[field_id].offset);
     }
 
     const Layout &layout;
@@ -336,14 +348,23 @@ public:
     return new_field_id;
   }
   /// \return
-  template <typename T> T &valueAt(u64 field_id, u64 i) {
+  template <typename T> T &get(u64 field_id, u64 i) {
     return *reinterpret_cast<T *>(data_.bytes() + i * layout_.size_in_bytes_ +
                                   layout_.fields_[field_id].offset);
   }
-  template <typename T> const T &valueAt(u64 field_id, u64 i) const {
+  template <typename T> const T &get(u64 field_id, u64 i) const {
     return *reinterpret_cast<const T *>(data_.bytes() +
                                         i * layout_.size_in_bytes_ +
                                         layout_.fields_[field_id].offset);
+  }
+  void *getPtr(u64 field_id, u64 i) {
+    return reinterpret_cast<void *>(data_.bytes() + i * layout_.size_in_bytes_ +
+                                    layout_.fields_[field_id].offset);
+  }
+  const void *getPtr(u64 field_id, u64 i) const {
+    return reinterpret_cast<const void *>(data_.bytes() +
+                                          i * layout_.size_in_bytes_ +
+                                          layout_.fields_[field_id].offset);
   }
   template <typename T> const T &back(u64 field_id) const {
     return *reinterpret_cast<const T *>(data_.bytes() +

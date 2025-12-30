@@ -702,22 +702,23 @@ HERMES_TYPE_LAYOUT_METHODS(geo::vec4, real_t, 4)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec2i, Interval<real_t>, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec3i, Interval<real_t>, 3)
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Vector2<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("V[{}, {}]", hermes::to_string(object.x),
-                       hermes::to_string(object.y));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Vector2<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("V[{}, {}]", hermes::to_string(object.x),
+                             hermes::to_string(object.y));
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Vector3<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("V[{}, {}, {}]", hermes::to_string(object.x),
-                       hermes::to_string(object.y),
-                       hermes::to_string(object.z));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Vector3<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("V[{}, {}, {}]", hermes::to_string(object.x),
+                             hermes::to_string(object.y),
+                             hermes::to_string(object.z));
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Vector4<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("V[{}, {}, {}, {}]", hermes::to_string(object.x),
-                       hermes::to_string(object.y), hermes::to_string(object.z),
-                       hermes::to_string(object.w));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Vector4<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("V[{}, {}, {}, {}]", hermes::to_string(object.x),
+                             hermes::to_string(object.y),
+                             hermes::to_string(object.z),
+                             hermes::to_string(object.w));
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes
 

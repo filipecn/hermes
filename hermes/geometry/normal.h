@@ -249,15 +249,15 @@ HERMES_TYPE_LAYOUT_METHODS(geo::normal2d, f64, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::normal3, f32, 3)
 HERMES_TYPE_LAYOUT_METHODS(geo::normal3d, f64, 3)
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Normal2<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("N[{}, {}]", hermes::to_string(object.x),
-                       hermes::to_string(object.y));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Normal2<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("N[{}, {}]", hermes::to_string(object.x),
+                             hermes::to_string(object.y));
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_TEMPLATED_METHOD_BEGIN(geo::Normal3<T>, typename T)
-HERMES_PUSH_DEBUG_LINE("N[{}, {}, {}]", hermes::to_string(object.x),
-                       hermes::to_string(object.y),
-                       hermes::to_string(object.z));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Normal3<T>, typename T)
+HERMES_TO_STRING_METHOD_LINE("N[{}, {}, {}]", hermes::to_string(object.x),
+                             hermes::to_string(object.y),
+                             hermes::to_string(object.z));
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes

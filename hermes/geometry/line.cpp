@@ -31,15 +31,15 @@
 
 namespace hermes {
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Line2)
-HERMES_PUSH_DEBUG_LINE("Line[p={} d={}]", hermes::to_string(object.a),
-                       hermes::to_string(object.d));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_BEGIN(geo::Line2)
+HERMES_TO_STRING_METHOD_LINE("Line[p={} d={}]", hermes::to_string(object.a),
+                             hermes::to_string(object.d));
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Line)
-HERMES_PUSH_DEBUG_LINE("Line[p={} d={}]", hermes::to_string(object.a),
-                       hermes::to_string(object.d));
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_BEGIN(geo::Line)
+HERMES_TO_STRING_METHOD_LINE("Line[p={} d={}]", hermes::to_string(object.a),
+                             hermes::to_string(object.d));
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes
 

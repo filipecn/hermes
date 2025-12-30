@@ -30,10 +30,10 @@
 
 namespace hermes {
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(geo::Plane)
-HERMES_PUSH_DEBUG_LINE("Plane[n={} o={}]", hermes::to_string(object.normal),
-                       object.offset);
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_BEGIN(geo::Plane)
+HERMES_TO_STRING_METHOD_LINE("Plane[n={} o={}]",
+                             hermes::to_string(object.normal), object.offset);
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes
 

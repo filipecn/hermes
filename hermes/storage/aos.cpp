@@ -24,31 +24,67 @@
 /// \author FilipeCN (filipedecn@gmail.com)
 /// \date   2020-12-10
 
-#include "hermes/core/result.h"
-#include "hermes/io/logger.h"
 #include <hermes/storage/aos.h>
 
 #include <hermes/core/debug.h>
 
 namespace hermes {
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(mem::AoS::Layout)
-HERMES_PUSH_DEBUG_LINE("Struct (size in bytes: {})\n", object.sizeInBytes())
-HERMES_PUSH_DEBUG_LINE("fields: ")
-HERMES_PUSH_DEBUG_ARRAY_FIELD_BEGIN(fields_, f)
-HERMES_PUSH_DEBUG_LINE("field #{} ({})\n", i, f.name);
-HERMES_PUSH_DEBUG_LINE("\tbase data type: {}[{}]\n", hermes::to_string(f.type),
-                       f.component_count)
-HERMES_PUSH_DEBUG_LINE("\tbase data size in bytes: {}\n", f.size)
-HERMES_PUSH_DEBUG_LINE("\toffset in bytes: {}\n", f.offset)
-HERMES_PUSH_DEBUG_ARRAY_FIELD_END
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_BEGIN(mem::AoS::Layout)
+HERMES_TO_STRING_METHOD_LINE("Struct (size in bytes: {})\n",
+                             object.sizeInBytes())
+HERMES_TO_STRING_METHOD_LINE("fields: ")
+HERMES_TO_STRING_METHOD_ARRAY_FIELD_BEGIN(fields_, f)
+HERMES_TO_STRING_METHOD_LINE("field #{} ({})\n", i, f.name);
+HERMES_TO_STRING_METHOD_LINE("\tbase data type: {}[{}]\n",
+                             hermes::to_string(f.type), f.component_count)
+HERMES_TO_STRING_METHOD_LINE("\tbase data size in bytes: {}\n", f.size)
+HERMES_TO_STRING_METHOD_LINE("\toffset in bytes: {}\n", f.offset)
+HERMES_TO_STRING_METHOD_ARRAY_FIELD_END
+HERMES_TO_STRING_METHOD_END
 
-HERMES_TO_STRING_DEBUG_METHOD_BEGIN(mem::AoS)
-HERMES_PUSH_DEBUG_FIELD(size_)
-HERMES_PUSH_DEBUG_HERMES_FIELD(layout_)
-HERMES_PUSH_DEBUG_HERMES_FIELD(data_)
-HERMES_TO_STRING_DEBUG_METHOD_END
+HERMES_TO_STRING_METHOD_BEGIN(mem::AoS)
+HERMES_TO_STRING_METHOD_FIELD(size_)
+HERMES_TO_STRING_METHOD_HERMES_FIELD(layout_)
+HERMES_TO_STRING_METHOD_HERMES_FIELD(data_)
+HERMES_TO_STRING_METHOD_LINE("data values:\n");
+auto fs = [&](const mem::AoS::Layout::Field &field,
+              const void *data) -> std::string {
+#define MATCH_TYPE(T)                                                          \
+  if (field.type == DataTypes::typeFrom<T>()) {                                \
+    auto array =                                                               \
+        std::span{reinterpret_cast<const T *>(data), field.component_count};   \
+    return cstr::join(array, ", ").c_str();                                    \
+  }
+  MATCH_TYPE(i8)
+  MATCH_TYPE(i16)
+  MATCH_TYPE(i32)
+  MATCH_TYPE(i64)
+  MATCH_TYPE(u8)
+  MATCH_TYPE(u16)
+  MATCH_TYPE(u32)
+  MATCH_TYPE(u64)
+  MATCH_TYPE(f32)
+  MATCH_TYPE(f64)
+  MATCH_TYPE(h_size)
+  return "";
+};
+auto fields = object.layout().fields();
+for (h_size i = 0; i < object.size(); ++i) {
+  if (fields.size() == 1) {
+    auto ptr = object.getPtr(0, i);
+    HERMES_TO_STRING_METHOD_LINE("  AoS[{}][{}] = {}\n", i, fields[0].name,
+                                 fs(fields[0], ptr));
+  } else {
+    for (h_size f = 0; f < fields.size(); ++f) {
+      const auto &field = fields[f];
+      auto ptr = object.getPtr(f, i);
+      HERMES_TO_STRING_METHOD_LINE("  AoS[{}][{}] = {}\n", i, field.name,
+                                   fs(fields[f], ptr));
+    }
+  }
+}
+HERMES_TO_STRING_METHOD_END
 
 } // namespace hermes
 
