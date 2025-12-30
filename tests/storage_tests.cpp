@@ -939,8 +939,8 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(fields[2].offset == sizeof(geo::vec3) + sizeof(f32));
     REQUIRE(fields[2].component_count == 1);
     REQUIRE(fields[2].type == DataType::I32);
-    REQUIRE(aos.resize(4) == HeError::NO_ERROR);
-    REQUIRE(aos.size() == 4);
+    REQUIRE(aos.resize(40) == HeError::NO_ERROR);
+    REQUIRE(aos.size() == 40);
     REQUIRE(aos.stride() == sizeof(geo::vec3) + sizeof(f32) + sizeof(int));
     REQUIRE(aos.layout().sizeOf("geo::vec3") == sizeof(geo::vec3));
     REQUIRE(aos.layout().sizeOf("f32") == sizeof(f32));
@@ -948,13 +948,13 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.layout().offsetOf("geo::vec3") == 0);
     REQUIRE(aos.layout().offsetOf("f32") == sizeof(geo::vec3));
     REQUIRE(aos.layout().offsetOf("int") == sizeof(geo::vec3) + sizeof(f32));
-    REQUIRE(aos.dataSize() == aos.stride() * 4);
-    for (i32 i = 0; i < 4; ++i) {
+    REQUIRE(aos.dataSize() == aos.stride() * 40);
+    for (i32 i = 0; i < 40; ++i) {
       aos.get<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       aos.get<f32>(1, i) = 1.f * i;
       aos.get<int>(2, i) = i + 1;
     }
-    for (i32 i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 40; ++i) {
       REQUIRE(aos.get<geo::vec3>(0, i) == geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(aos.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));

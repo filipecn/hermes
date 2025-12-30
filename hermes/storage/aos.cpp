@@ -70,17 +70,32 @@ auto fs = [&](const mem::AoS::Layout::Field &field,
   return "";
 };
 auto fields = object.layout().fields();
+h_size abrev_size = fields.size() == 1 ? 10 : 5;
+h_size abrev_start = object.size();
+h_size abrev_end = 0;
+if (object.size() > abrev_size) {
+  abrev_start = abrev_size / 2;
+  abrev_end = object.size() - abrev_size / 2;
+}
 for (h_size i = 0; i < object.size(); ++i) {
-  if (fields.size() == 1) {
-    auto ptr = object.getPtr(0, i);
-    HERMES_TO_STRING_METHOD_LINE("  AoS[{}][{}] = {}\n", i, fields[0].name,
-                                 fs(fields[0], ptr));
-  } else {
-    for (h_size f = 0; f < fields.size(); ++f) {
-      const auto &field = fields[f];
-      auto ptr = object.getPtr(f, i);
-      HERMES_TO_STRING_METHOD_LINE("  AoS[{}][{}] = {}\n", i, field.name,
-                                   fs(fields[f], ptr));
+  if (i < abrev_start || i > abrev_end) {
+    if (fields.size() == 1) {
+      auto ptr = object.getPtr(0, i);
+      HERMES_TO_STRING_METHOD_LINE("  {} ", i, fields[0].name,
+                                   fs(fields[0], ptr));
+    } else {
+      for (h_size f = 0; f < fields.size(); ++f) {
+        const auto &field = fields[f];
+        auto ptr = object.getPtr(f, i);
+        HERMES_TO_STRING_METHOD_LINE("  AoS[{}][{}] = {}\n", i, field.name,
+                                     fs(fields[f], ptr));
+      }
+    }
+  } else if (i == abrev_start) {
+    if (fields.size() > 1) {
+      HERMES_TO_STRING_METHOD_LINE(" ... \n");
+    } else {
+      HERMES_TO_STRING_METHOD_LINE(" ... ");
     }
   }
 }
