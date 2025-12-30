@@ -167,6 +167,9 @@ public:
     HERMES_CPU_GPU T &operator[](size_t i) {
       return *reinterpret_cast<T *>(data_ + i * stride_ + offset_);
     }
+    HERMES_CPU_GPU const T &operator[](size_t i) const {
+      return *reinterpret_cast<T *>(data_ + i * stride_ + offset_);
+    }
     HERMES_CPU_GPU size_t size() const { return size_; }
 
   private:
