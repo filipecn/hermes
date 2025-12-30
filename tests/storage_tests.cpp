@@ -828,6 +828,21 @@ TEST_CASE("Array2", "[storage][array]") {
 
 #endif
 
+class CustomAoS : public AoS {};
+
+template <typename T> class CustomAoSFieldView : public AoS::FieldView<T> {
+public:
+  CustomAoSFieldView(AoS::FieldView<T> f) : AoS::FieldView<T>(f) {}
+  int new_field;
+};
+
+template <typename T>
+class CustomAoSConstFieldView : public AoS::ConstFieldView<T> {
+public:
+  CustomAoSConstFieldView(AoS::FieldView<T> f) : AoS::ConstFieldView<T>(f) {}
+  int new_field;
+};
+
 TEST_CASE("AOS", "[storage][aos]") {
   SECTION("Struct Descriptor") {
     AoS::Layout sd;
@@ -1078,8 +1093,27 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(i32_cfield[i] == -(i + 1));
       REQUIRE(i32_cast_cfield[i] == -(i + 1));
     }
-
+    auto f = [](const AoS::ConstFieldView<i32> &cv) {
+      for (i32 i = 0; i < 5; ++i) {
+        REQUIRE(cv[i] == -(i + 1));
+      }
+    };
+    f(i32_field);
   } //
+  SECTION("Custom AoS") {
+    CustomAoS aos;
+    aos.pushField<i32>("i32");
+    REQUIRE(aos.resize(5) == HeError::NO_ERROR);
+    auto acc = aos.field<i32>(0);
+    for (int i = 0; i < 5; ++i)
+      acc[i] = i;
+    auto f = [](CustomAoSFieldView<i32> aos) { HERMES_UNUSED_VARIABLE(aos); };
+    auto cf = [](CustomAoSConstFieldView<i32> aos) {
+      HERMES_UNUSED_VARIABLE(aos);
+    };
+    f(acc);
+    cf(acc);
+  }
   return;
   SECTION("File") {
     AoS aos;

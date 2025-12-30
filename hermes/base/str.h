@@ -381,9 +381,9 @@ public:
   /// \param separator
   /// \param limit max number of rendered elements (abbreviates middle to "...")
   /// \return
-  template <typename T>
-  static StringType join(const std::vector<T> &v,
-                         const StringType &separator = {}, h_size limit = 0) {
+  template <typename IndexedType>
+  static StringType join(const IndexedType &v, const StringType &separator = {},
+                         h_size limit = 0) {
     StringStreamType r;
     auto f = [&](h_size start, h_size end) {
       bool first = true;
@@ -412,9 +412,9 @@ public:
   /// \param separator
   /// \param limit max number of rendered elements (abbreviates middle to "...")
   /// \return
-  template <typename T>
+  template <typename IndexedType, typename T>
   static StringType
-  join(const std::vector<T> &v,
+  join(const IndexedType &v,
        const std::function<std::string(const T &)> &to_string_func,
        const StringType &separator = {}, h_size limit = 0) {
     StringStreamType r;
