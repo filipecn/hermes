@@ -167,6 +167,12 @@ TEST_CASE("cstr", "[base]") {
     ss = cstr::join(ints, " ", 2);
     REQUIRE(ss == "1 ... 3");
   } //
+  SECTION("zip") {
+    std::vector<h_size> ints = {1, 2, 3};
+    std::vector<f32> floats = {0.1f, 0.2f, 0.3f};
+    auto z = cstr::zip(ints, floats, " ", " ", 2);
+    HERMES_ERROR("{}", z);
+  }
   SECTION("split with delimiter") {
     std::string a = "1 2, 3,4, 5";
     auto s = cstr::split(a, ",");

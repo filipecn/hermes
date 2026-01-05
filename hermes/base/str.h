@@ -437,6 +437,38 @@ public:
     return r.str();
   }
 
+  /// \brief Combine elements together and separates the pairs by a separator
+  /// \note Element type must be able to perform << operator with
+  /// `StringStreamType`
+  /// \tparam T element type
+  /// \param v
+  /// \param separator
+  /// \param limit max number of rendered elements (abbreviates middle to "...")
+  /// \return
+  template <typename IndexedTypeA, typename IndexedTypeB>
+  static StringType zip(const IndexedTypeA &a, const IndexedTypeB &b,
+                        const StringType &inner_sep = {},
+                        const StringType &sep = {}, h_size limit = 0) {
+    StringStreamType r;
+    auto f = [&](h_size start, h_size end) {
+      bool first = true;
+      for (h_size i = start; i < end; ++i) {
+        if (!first)
+          r << sep;
+        first = false;
+        r << a[i] << inner_sep << b[i];
+      }
+    };
+    if (limit == 0 || limit >= a.size())
+      f(0, a.size());
+    else {
+      f(0, limit / 2);
+      r << " ... ";
+      f(a.size() - (limit / 2), a.size());
+    }
+    return r.str();
+  }
+
   //                                                                separation
 
   /// \brief Splits a string into tokens separated by delimiters
