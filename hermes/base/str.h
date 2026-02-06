@@ -167,7 +167,7 @@ public:
   ///         abbreviated portion of s.
   /// \return abbreviated string
   static StringType abbreviate(const StringType &s, size_t width,
-#ifdef _WIN32
+#ifdef HERMES_WINDOWS
                                const CharType fmt[4] = L"s.s")
 #else
                                const CharType fmt[4] = "s.s")
@@ -307,7 +307,7 @@ public:
   /// \param patterns
   /// \return
   static StringType strip(const StringType &s,
-#ifdef _WIN32
+#ifdef HERMES_WINDOWS
                           const StringType &patterns = L" \t\n")
 #else
                           const StringType &patterns = " \t\n")
@@ -546,11 +546,12 @@ public:
       auto h = binary2Hex((ptr >> (i * 8)) & 0xff, true);
       s += h.substr(h.size() - 2);
     }
-#ifdef _WIN32
-    return L"0x" + s.substr(s.size() - digit_count, digit_count);
-#else
-    return "0x" + s.substr(s.size() - digit_count, digit_count);
+#ifdef HERMES_WINDOWS
+    if constexpr (std::is_same_v<CharType, wchar_t>)
+      return L"0x" + s.substr(s.size() - digit_count, digit_count);
+    else
 #endif
+      return "0x" + s.substr(s.size() - digit_count, digit_count);
   }
   /// \brief Binary representation of byte
   /// \param b
@@ -558,11 +559,12 @@ public:
   static StringType byte2Binary(h_byte b) {
     StringType s;
     for (int i = 7; i >= 0; i--)
-#ifdef _WIN32
-      s += std::to_wstring((b >> i) & 1);
-#else
-      s += std::to_string((int)((b >> i) & (h_byte)1));
+#ifdef HERMES_WINDOWS
+      if constexpr (std::is_same_v<CharType, wchar_t>)
+        s += std::to_wstring((static_cast<u32>(b) >> static_cast<u32>(i)) & 1);
+      else
 #endif
+        s += std::to_string((int)((b >> i) & (h_byte)1));
     return s;
   }
   /// \brief Checks if string represents an integer
@@ -644,7 +646,7 @@ public:
   /// \param str
   /// \return
   inline friend Str operator+(const StringType &s, const Str &str) {
-#ifdef _WIN32
+#ifdef HERMES_WINDOWS
     std::wstringstream ss;
 #else
     StringStreamType ss;
@@ -669,7 +671,7 @@ public:
   /// \return
   template <typename T>
   inline bool friend operator==(const T &t, const Str &s) {
-#ifdef _WIN32
+#ifdef HERMES_WINDOWS
     std::wstringstream ss;
 #else
     StringStreamType ss;
@@ -741,10 +743,16 @@ public:
   /// \param args
   template <class... Args> void appendLine(const Args &...args) {
     std::basic_stringstream<CharType> s;
+#ifdef HERMES_WINDOWS
+#else
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-value"
+#endif
     (s << ... << args);
+#ifdef HERMES_WINDOWS
+#else
 #pragma GCC diagnostic pop
+#endif
     s << '\n';
     s_ += s.str();
   }

@@ -28,6 +28,8 @@
 
 #include <hermes/core/debug.h>
 
+#include <span>
+
 namespace hermes {
 
 HERMES_TO_STRING_METHOD_BEGIN(mem::AoS::Layout)

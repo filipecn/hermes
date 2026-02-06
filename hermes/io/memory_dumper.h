@@ -245,8 +245,7 @@ public:
     s.appendLine("  Left Alignment");
     s.appendLine("    Type Alignment:\t", alignment);
     s.appendLine("    Shift:\t", down_shift);
-    s.appendLine("    Address:\t", cstr::addressOf(reinterpret_cast<uintptr_t>(
-                                       aligned_base_address)));
+    s.appendLine("    Address:\t", cstr::addressOf(aligned_base_address));
     s.appendLine("    Total Block Size:\t", size_in_bytes, " bytes");
     return s.str();
   }

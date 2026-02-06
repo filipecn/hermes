@@ -99,20 +99,20 @@ constexpr char background_white[7] = "\33[107m";
 /// \param color_number
 /// \return
 inline std::string color(u8 color_number) {
-  return std::string("\e[38;5;") + std::to_string(color_number) + "m";
+  return std::string("\33[38;5;") + std::to_string(color_number) + "m";
 }
 /// \brief Get 88/256 background color code
 /// \param color_number
 /// \return
 inline std::string background_color(u8 color_number) {
-  return std::string("\e[48;5;") + std::to_string(color_number) + "m";
+  return std::string("\33[48;5;") + std::to_string(color_number) + "m";
 }
 /// \brief Combine two color codes
 /// \param a
 /// \param b
 /// \return
 inline std::string combine(const std::string &a, const std::string &b) {
-  return "\e[" + a.substr(2, a.size() - 3) + ";" + b.substr(2, b.size() - 3) +
+  return "\33[" + a.substr(2, a.size() - 3) + ";" + b.substr(2, b.size() - 3) +
          "m";
 }
 

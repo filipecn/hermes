@@ -37,6 +37,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 if (CMAKE_COMPILER_IS_GNUCXX)
   set(DEBUG_FLAGS "-g -pg -Wall -Wextra -O0 -fprofile-arcs -ftest-coverage --coverage -fPIC")
   set(RELEASE_FLAGS "-O3 -fPIC")
+elseif(MSVC)
+  if(MSVC_VERSION GREATER_EQUAL 1914)
+    set(DEBUG_FLAGS "/Zc:__cplusplus /Zc:preprocessor")
+    set(RELEASE_FLAGS "/Zc:__cplusplus /Zc:preprocessor")
+  endif()
 endif (CMAKE_COMPILER_IS_GNUCXX)
 
 # ##############################################################################

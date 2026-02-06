@@ -75,9 +75,9 @@ std::vector<std::string> basename(const std::vector<std::string> &paths,
   return base_names;
 }
 
-#ifdef WIN32
+#ifdef HERMES_WINDOWS
 // TODO handle errors
-int readFile(const char *filename, char **text) {
+int readFileW(const char *filename, char **text) {
   std::ifstream file(filename);
   std::string str;
   std::string contents;
@@ -92,10 +92,7 @@ int readFile(const char *filename, char **text) {
   (*text)[contents.size()] = '\0';
   return contents.size();
 }
-#endif
-
-#ifndef WIN32
-
+#else
 u64 readFile(const char *filename, char **text) {
   u64 count_;
 
@@ -306,11 +303,19 @@ bool mkdir(const std::filesystem::path &path) {
 std::filesystem::path cd(const std::filesystem::path &path,
                          const std::filesystem::path &step) {
   auto separator = "/";
+  #ifdef HERMES_WINDOWS
+  auto current_path = cstr::split(path.string().c_str(), separator);
+  #else
   auto current_path = cstr::split(path.c_str(), separator);
+  #endif
   std::stack<std::string> stack;
   for (const auto &s : current_path)
     stack.push(s);
+  #ifdef HERMES_WINDOWS
+  auto subpaths = cstr::split(step.string().c_str(), separator);
+  #else
   auto subpaths = cstr::split(step, separator);
+  #endif
   for (const auto &p : subpaths) {
     if (p == ".")
       continue;
@@ -358,7 +363,8 @@ std::string normalizePath(const std::string &path, bool with_backslash) {
 
 std::vector<std::filesystem::path> find(const std::filesystem::path &path,
                                         const std::string &pattern,
-                                        find_options options) {
+                                        find_options options)
+{
   std::vector<std::filesystem::path> found;
   ls_options lso = ls_option_bits::files;
   if ((options & find_option_bits::recursive) == find_option_bits::recursive)
@@ -367,7 +373,11 @@ std::vector<std::filesystem::path> find(const std::filesystem::path &path,
     lso = lso | ls_option_bits::sort;
   const auto &l = ls(path, lso);
   for (const auto &p : l)
+#ifdef HERMES_WINDOWS
+    if (cstr::regex::contains(p.string().c_str(), pattern))
+#else
     if (cstr::regex::contains(p.c_str(), pattern))
+#endif
       found.emplace_back(p);
   return found;
 }

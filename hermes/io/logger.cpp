@@ -129,8 +129,13 @@ cstr Logger::abbreviate(logger_options message_options, const char *str) {
 cstr Logger::processPath(logger_options options,
                          const std::filesystem::path &path) {
   if (!options.contain(logger_option_bits::full_path_location))
+#ifdef HERMES_WINDOWS
+    return path.stem().string().c_str();
+  return path.string().c_str();
+#else
     return path.stem().c_str();
   return path.c_str();
+#endif
 }
 
 } // namespace hermes::io
