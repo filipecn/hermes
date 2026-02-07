@@ -38,13 +38,17 @@
 
 #if (_MSC_VER >= 1930) || WIN32
 #define HERMES_WINDOWS
+#else
+#define HERMES_LINUX
 #endif
 
 // *****************************************************************************
 //                                                                    CONCEPTS
 // *****************************************************************************
+#ifdef HERMES_LINUX
 template <typename T>
 concept HeFloatingPointType = std::floating_point<T>;
+#endif
 
 // *****************************************************************************
 //                                                              INTEGRAL TYPES

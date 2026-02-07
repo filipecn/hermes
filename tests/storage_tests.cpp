@@ -12,7 +12,8 @@ using namespace hermes;
 using namespace hermes::mem;
 
 #ifdef HERMES_DEVICE_ENABLED
-HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, size2 bounds) {
+HERMES_CUDA_KERNEL(writeMatrixIndex)(u32 *data, size2 bounds)
+{
   HERMES_CUDA_THREAD_INDEX_IJ_LT(bounds);
   u32 matrix_index = ij.j * bounds.width + ij.i;
   data[matrix_index] = matrix_index;
@@ -78,54 +79,62 @@ TEST_CASE("object") {
 }
 
 */
-TEST_CASE("Block", "[storage]") {
-  auto writeHostMemory = [](Block &hm) {
+TEST_CASE("Block", "[storage]")
+{
+  auto writeHostMemory = [](Block &hm)
+  {
     u8 *ptr = reinterpret_cast<u8 *>(hm.data());
     for (u8 i = 0; i < static_cast<u8>(hm.sizeInBytes()); ++i)
       ptr[i] = i;
   };
-  auto checkHostMemory = [](Block &hm) -> bool {
+  auto checkHostMemory = [](Block &hm) -> bool
+  {
     u8 *ptr = reinterpret_cast<u8 *>(hm.data());
     for (u8 i = 0; i < static_cast<u8>(hm.sizeInBytes()); ++i)
       if (ptr[i] != i)
         return false;
     return true;
   };
-  auto checkDeviceMemory = [&](Block &dm) -> bool {
+  auto checkDeviceMemory = [&](Block &dm) -> bool
+  {
     Block hm = dm;
     return checkHostMemory(hm);
   };
 
   HERMES_UNUSED_VARIABLE(checkDeviceMemory);
 
-  SECTION("copy") {
-    SECTION("host host") {
+  SECTION("copy")
+  {
+    SECTION("host host")
+    {
       {
         auto src = Block::Config().setSize(100).create().value();
         writeHostMemory(src);
         auto dst = Block::Config().setSize(100).create().value();
-        REQUIRE(dst.copy(src) == HeError::NO_ERROR);
+        REQUIRE(dst.copy(src) == HeError::None);
         checkHostMemory(dst);
       }
       {
-        struct CopyTest {
+        struct CopyTest
+        {
           int a;
           int b;
         };
 
         Block hm;
-        REQUIRE(hm.resize(sizeof(CopyTest)) == HeError::NO_ERROR);
+        REQUIRE(hm.resize(sizeof(CopyTest)) == HeError::None);
         CopyTest ct;
         ct.a = 3;
         ct.b = 6;
-        REQUIRE(hm.copy(&ct) == HeError::NO_ERROR);
+        REQUIRE(hm.copy(&ct) == HeError::None);
         CopyTest *d = reinterpret_cast<CopyTest *>(hm.data());
         REQUIRE(d->a == ct.a);
         REQUIRE(d->b == ct.b);
       }
     }
 #ifdef HERMES_DEVICE_ENABLED
-    SECTION("host device") {
+    SECTION("host device")
+    {
       Block src, dst;
       HERMES_ASSIGN_OR(src, Block::Config().setSize(100).create(),
                        REQUIRE(false));
@@ -136,13 +145,15 @@ TEST_CASE("Block", "[storage]") {
                            .setLocation(MemoryLocation::DEVICE)
                            .create(),
                        REQUIRE(false));
-      REQUIRE(dst.copy(src) == HeError::NO_ERROR);
+      REQUIRE(dst.copy(src) == HeError::None);
       REQUIRE(checkDeviceMemory(dst) == true);
     }
 #endif
   } //
-  SECTION("assignment") {
-    SECTION("host") {
+  SECTION("assignment")
+  {
+    SECTION("host")
+    {
       auto base = Block::Config().setSize(100).create().value();
       writeHostMemory(base);
       Block cpy = base;
@@ -157,30 +168,33 @@ TEST_CASE("Block", "[storage]") {
       REQUIRE(checkHostMemory(mv));
     } //
   } //
-  SECTION("resize") {
-    SECTION("host") {
+  SECTION("resize")
+  {
+    SECTION("host")
+    {
       Block hm;
       REQUIRE(hm.sizeInBytes() == 0);
-      REQUIRE(hm.resize(100) == HeError::NO_ERROR);
+      REQUIRE(hm.resize(100) == HeError::None);
       writeHostMemory(hm);
       REQUIRE(hm.sizeInBytes() == 100);
       REQUIRE(checkHostMemory(hm));
-      REQUIRE(hm.resize({64, 2}, 0) == HeError::NO_ERROR);
+      REQUIRE(hm.resize({64, 2}, 0) == HeError::None);
       writeHostMemory(hm);
       REQUIRE(hm.sizeInBytes() == 128);
       REQUIRE(checkHostMemory(hm));
-      REQUIRE(hm.resize({32, 4, 2}, 0) == HeError::NO_ERROR);
+      REQUIRE(hm.resize({32, 4, 2}, 0) == HeError::None);
       writeHostMemory(hm);
       REQUIRE(hm.sizeInBytes() == 256);
       REQUIRE(checkHostMemory(hm));
     } //
 #ifdef HERMES_DEVICE_ENABLED
-    SECTION("device") {
+    SECTION("device")
+    {
       auto dm_r = Block::Config().setLocation(MemoryLocation::DEVICE).create();
       REQUIRE((bool)dm_r);
       auto dm = dm_r.value();
       REQUIRE(dm.sizeInBytes() == 0);
-      REQUIRE(dm.resize(256) == HeError::NO_ERROR);
+      REQUIRE(dm.resize(256) == HeError::None);
       auto hm = Block::Config().setSize(256).create().value();
       writeHostMemory(hm);
       dm = hm;
@@ -190,14 +204,17 @@ TEST_CASE("Block", "[storage]") {
     } //
 #endif
   } //
-  SECTION("linear block") {
-    SECTION("host") {
+  SECTION("linear block")
+  {
+    SECTION("host")
+    {
       auto hm = Block::Config().setSize(256).create().value();
       REQUIRE(hm.sizeInBytes() == 256);
       writeHostMemory(hm);
       REQUIRE(checkHostMemory(hm));
     } //
-    SECTION("device") {
+    SECTION("device")
+    {
 #ifdef HERMES_DEVICE_ENABLED
       auto src = Block::Config().setSize(100).create().value();
       writeHostMemory(src);
@@ -207,21 +224,25 @@ TEST_CASE("Block", "[storage]") {
                        .create();
       REQUIRE((bool)dst_r);
       auto dst = dst_r.value();
-      REQUIRE(dst.copy(src) == HeError::NO_ERROR);
+      REQUIRE(dst.copy(src) == HeError::None);
       REQUIRE(dst.sizeInBytes() == 100);
 #endif
     } //
   } //
-  SECTION("2d block") {
-    SECTION("host") {
+  SECTION("2d block")
+  {
+    SECTION("host")
+    {
       auto hm = Block::Config().setSize({32, 8}).create().value();
       REQUIRE(hm.sizeInBytes() == 256);
       writeHostMemory(hm);
       REQUIRE(checkHostMemory(hm));
     } //
   } //
-  SECTION("3d block") {
-    SECTION("host") {
+  SECTION("3d block")
+  {
+    SECTION("host")
+    {
       auto hm = Block::Config().setSize({32, 4, 2}).create().value();
       REQUIRE(hm.sizeInBytes() == 256);
       writeHostMemory(hm);
@@ -229,7 +250,8 @@ TEST_CASE("Block", "[storage]") {
     } //
   } //
 #ifdef HERMES_DEVICE_ENABLED
-  SECTION("unified") {
+  SECTION("unified")
+  {
     auto um_r = Block::Config()
                     .setLocation(MemoryLocation::UNIFIED)
                     .setSize(64 * 128 * 4)
@@ -240,7 +262,8 @@ TEST_CASE("Block", "[storage]") {
     size2 bounds(64, 128);
     HERMES_CUDA_LAUNCH_AND_SYNC((bounds), writeMatrixIndex_k, data, bounds)
     for (u32 j = 0; j < 128; ++j)
-      for (u32 i = 0; i < 64; ++i) {
+      for (u32 i = 0; i < 64; ++i)
+      {
         u32 ind = j * 64 + i;
         REQUIRE(data[ind] == ind);
       }
@@ -248,14 +271,17 @@ TEST_CASE("Block", "[storage]") {
 #endif
 }
 
-TEST_CASE("mem", "[memory]") {
+TEST_CASE("mem", "[memory]")
+{
   REQUIRE(sizes::cache_l1_size == 64);
-  SECTION("alignTo") {
+  SECTION("alignTo")
+  {
     REQUIRE(alignment::alignTo(1, sizeof(u8)) == sizeof(u8));
     REQUIRE(alignment::alignTo(1, sizeof(u16)) == sizeof(u16));
     REQUIRE(alignment::alignTo(1, sizeof(u32)) == sizeof(u32));
     REQUIRE(alignment::alignTo(1, sizeof(u64)) == sizeof(u64));
-    struct S {
+    struct S
+    {
       f32 a;
       u8 b;
       u16 c;
@@ -264,14 +290,16 @@ TEST_CASE("mem", "[memory]") {
     REQUIRE(alignment::alignTo(15, sizeof(S)) == 16);
     REQUIRE(alignment::alignTo(17, sizeof(S)) == 24);
   } //
-  SECTION("left and right alignments") {
+  SECTION("left and right alignments")
+  {
     REQUIRE(alignment::leftAlignShift(100, 64) == 100 - 64);
     REQUIRE(alignment::rightAlignShift(100, 64) == 128 - 100);
 
     REQUIRE(alignment::leftAlignShift(100, 1) == 0);
     REQUIRE(alignment::rightAlignShift(100, 1) == 0);
   } //
-  SECTION("allocAligned") {
+  SECTION("allocAligned")
+  {
     auto *ptr = allocation::allocAligned(10, 1);
     allocation::freeAligned(ptr);
   } //
@@ -828,23 +856,30 @@ TEST_CASE("Array2", "[storage][array]") {
 
 #endif
 
-class CustomAoS : public AoS {};
+class CustomAoS : public AoS
+{
+};
 
-template <typename T> class CustomAoSFieldView : public AoS::FieldView<T> {
+template <typename T>
+class CustomAoSFieldView : public AoS::FieldView<T>
+{
 public:
   CustomAoSFieldView(AoS::FieldView<T> f) : AoS::FieldView<T>(f) {}
   int new_field;
 };
 
 template <typename T>
-class CustomAoSConstFieldView : public AoS::ConstFieldView<T> {
+class CustomAoSConstFieldView : public AoS::ConstFieldView<T>
+{
 public:
   CustomAoSConstFieldView(AoS::FieldView<T> f) : AoS::ConstFieldView<T>(f) {}
   int new_field;
 };
 
-TEST_CASE("AOS", "[storage][aos]") {
-  SECTION("Struct Descriptor") {
+TEST_CASE("AOS", "[storage][aos]")
+{
+  SECTION("Struct Descriptor")
+  {
     AoS::Layout sd;
     REQUIRE(sd.pushField<geo::vec3>("geo::vec3") == 0);
     REQUIRE(sd.pushField<f32>("f32") == 1);
@@ -881,18 +916,21 @@ TEST_CASE("AOS", "[storage][aos]") {
       AoS aos;
       aos.pushField<size2>("size2");
       aos.pushField<i32>("i32");
-      REQUIRE(aos.resize(5) == HeError::NO_ERROR);
+      REQUIRE(aos.resize(5) == HeError::None);
 
-      struct SD {
+      struct SD
+      {
         size2 s;
         i32 i{};
       };
       std::vector<SD> data(5);
-      for (i32 i = 0; i < 5; ++i) {
+      for (i32 i = 0; i < 5; ++i)
+      {
         data[i].s = aos.get<size2>(0, i) = {i * 3u, i * 7u};
         data[i].i = aos.get<i32>(1, i) = i;
       }
-      for (i32 i = 0; i < 5; ++i) {
+      for (i32 i = 0; i < 5; ++i)
+      {
         REQUIRE(
             aos.layout().get<size2>(reinterpret_cast<const void *>(*aos.data()),
                                     0, i) == size2(i * 3u, i * 7u));
@@ -903,7 +941,8 @@ TEST_CASE("AOS", "[storage][aos]") {
                                 i) = {i * 5u, i * 13u};
         aos.layout().get<i32>(reinterpret_cast<void *>(data.data()), 1, i) = -i;
       }
-      for (i32 i = 0; i < 5; ++i) {
+      for (i32 i = 0; i < 5; ++i)
+      {
         REQUIRE(
             aos.layout().get<size2>(reinterpret_cast<const void *>(data.data()),
                                     0, i) == size2(i * 5u, i * 13u));
@@ -912,7 +951,8 @@ TEST_CASE("AOS", "[storage][aos]") {
       }
     }
   } //
-  SECTION("Sanity Checks") {
+  SECTION("Sanity Checks")
+  {
     AoS aos;
     REQUIRE(aos.pushField<geo::vec3>("geo::vec3") == 0);
     REQUIRE(aos.pushField<f32>("f32") == 1);
@@ -939,7 +979,7 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(fields[2].offset == sizeof(geo::vec3) + sizeof(f32));
     REQUIRE(fields[2].component_count == 1);
     REQUIRE(fields[2].type == DataType::I32);
-    REQUIRE(aos.resize(40) == HeError::NO_ERROR);
+    REQUIRE(aos.resize(40) == HeError::None);
     REQUIRE(aos.size() == 40);
     REQUIRE(aos.stride() == sizeof(geo::vec3) + sizeof(f32) + sizeof(int));
     REQUIRE(aos.layout().sizeOf("geo::vec3") == sizeof(geo::vec3));
@@ -949,12 +989,14 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.layout().offsetOf("f32") == sizeof(geo::vec3));
     REQUIRE(aos.layout().offsetOf("int") == sizeof(geo::vec3) + sizeof(f32));
     REQUIRE(aos.dataSize() == aos.stride() * 40);
-    for (i32 i = 0; i < 40; ++i) {
+    for (i32 i = 0; i < 40; ++i)
+    {
       aos.get<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       aos.get<f32>(1, i) = 1.f * i;
       aos.get<int>(2, i) = i + 1;
     }
-    for (i32 i = 0; i < 40; ++i) {
+    for (i32 i = 0; i < 40; ++i)
+    {
       REQUIRE(aos.get<geo::vec3>(0, i) == geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(aos.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));
@@ -962,14 +1004,15 @@ TEST_CASE("AOS", "[storage][aos]") {
     }
     HERMES_LOG_VARIABLE(aos);
   } //
-  SECTION("change description") {
+  SECTION("change description")
+  {
     AoS::Layout desc;
     REQUIRE(desc.pushField<geo::vec3>("geo::vec3") == 0);
     REQUIRE(desc.pushField<f32>("f32") == 1);
     REQUIRE(desc.pushField<int>("int") == 2);
     // check fields
     AoS aos;
-    REQUIRE(aos.setLayout(desc) == HeError::NO_ERROR);
+    REQUIRE(aos.setLayout(desc) == HeError::None);
     auto fields = aos.layout().fields();
     REQUIRE(fields.size() == 3);
     REQUIRE(fields[0].name == "geo::vec3");
@@ -988,39 +1031,45 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(fields[2].component_count == 1);
     REQUIRE(fields[2].type == DataType::I32);
   } //
-  SECTION("push new fields") {
+  SECTION("push new fields")
+  {
     AoS aos;
     aos.pushField<int>();
     aos.pushField<hermes::geo::vec2>();
-    REQUIRE(aos.resize(5) == HeError::NO_ERROR);
-    for (u32 i = 0; i < aos.size(); ++i) {
+    REQUIRE(aos.resize(5) == HeError::None);
+    for (u32 i = 0; i < aos.size(); ++i)
+    {
       aos.get<int>(0, i) = i;
       aos.get<hermes::geo::vec2>(1, i) = {i * 0.1f, -i * 1.f};
     }
     aos.pushField<int>();
     REQUIRE(aos.dataSize() ==
             5 * (sizeof(int) + sizeof(hermes::geo::vec2) + sizeof(int)));
-    for (u32 i = 0; i < aos.size(); ++i) {
+    for (u32 i = 0; i < aos.size(); ++i)
+    {
       REQUIRE(aos.get<int>(0, i) == (i32)i);
       REQUIRE(aos.get<hermes::geo::vec2>(1, i) ==
               hermes::geo::vec2(i * 0.1f, -i * 1.f));
     }
   } //
-  SECTION("Access") {
+  SECTION("Access")
+  {
     AoS aos;
     aos.pushField<geo::vec3>("geo::vec3");
     aos.pushField<f32>("f32");
     aos.pushField<int>("int");
-    REQUIRE(aos.resize(4) == HeError::NO_ERROR);
+    REQUIRE(aos.resize(4) == HeError::None);
     auto vec3_field = aos.field<geo::vec3>("geo::vec3");
     auto f32_field = aos.field<f32>("f32");
     auto int_field = aos.field<int>("int");
-    for (u32 i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < 4; ++i)
+    {
       vec3_field[i] = {1.f + i, 2.f + i, 3.f + i};
       f32_field[i] = 1.f * i;
       int_field[i] = i + 1;
     }
-    for (i32 i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i)
+    {
       REQUIRE(aos.get<geo::vec3>(0, i) == geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(aos.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));
@@ -1033,19 +1082,22 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE_THAT(aos.back<f32>(1), Catch::Matchers::WithinAbs(1.f * 3, 1e-8));
     REQUIRE(aos.back<int>(2) == 3 + 1);
   } //
-  SECTION("Accessors") {
+  SECTION("Accessors")
+  {
     AoS aos;
     aos.pushField<geo::vec3>("geo::vec3");
     aos.pushField<f32>("f32");
     aos.pushField<int>("int");
-    REQUIRE(aos.resize(4) == HeError::NO_ERROR);
+    REQUIRE(aos.resize(4) == HeError::None);
     auto acc = aos.view();
-    for (i32 i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i)
+    {
       acc.get<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       acc.get<f32>(1, i) = 1.f * i;
       acc.get<int>(2, i) = i + 1;
     }
-    for (i32 i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i)
+    {
       REQUIRE(acc.get<geo::vec3>(0, i) == geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(acc.get<f32>(1, i),
                    Catch::Matchers::WithinAbs(1.f * i, 1e-8));
@@ -1053,7 +1105,8 @@ TEST_CASE("AOS", "[storage][aos]") {
     }
     const auto &caos = aos;
     auto cacc = caos.view();
-    for (i32 i = 0; i < 4; ++i) {
+    for (i32 i = 0; i < 4; ++i)
+    {
       REQUIRE(cacc.get<geo::vec3>(0, i) ==
               geo::vec3(1.f + i, 2.f + i, 3.f + i));
       REQUIRE_THAT(cacc.get<f32>(1, i),
@@ -1064,61 +1117,75 @@ TEST_CASE("AOS", "[storage][aos]") {
     aos2.pushField<geo::vec3>("geo::vec3");
     aos2.pushField<f32>("f32");
     aos2.pushField<int>("int");
-    REQUIRE(aos2.resize(4) == HeError::NO_ERROR);
-    for (u32 i = 0; i < 4; ++i) {
+    REQUIRE(aos2.resize(4) == HeError::None);
+    for (u32 i = 0; i < 4; ++i)
+    {
       aos2.get<geo::vec3>(0, i) = {-1.f + i, -2.f + i, -3.f + i};
       aos2.get<f32>(1, i) = -1.f * i;
       aos2.get<int>(2, i) = i - 1;
     }
   } //
-  SECTION("Field Accessors") {
+  SECTION("Field Accessors")
+  {
     AoS aos;
     aos.pushField<size2>("sizes");
     aos.pushField<i32>("i32");
-    REQUIRE(aos.resize(5) == HeError::NO_ERROR);
+    REQUIRE(aos.resize(5) == HeError::None);
     auto sizes_field = aos.field<size2>(0) = {
-        {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5},
+        {0, 1},
+        {1, 2},
+        {2, 3},
+        {3, 4},
+        {4, 5},
     };
     auto i32_field = aos.field<i32>(1) = {-1, -2, -3, -4, -5};
     const auto &caos = aos;
     auto i32_cfield = caos.field<i32>(1);
     auto i32_cast_cfield = static_cast<AoS::ConstFieldView<i32>>(i32_field);
-    for (i32 i = 0; i < 5; ++i) {
+    for (i32 i = 0; i < 5; ++i)
+    {
       REQUIRE(sizes_field[i] == size2(i, i + 1));
       REQUIRE(i32_field[i] == -(i + 1));
       REQUIRE(i32_cfield[i] == -(i + 1));
       REQUIRE(i32_cast_cfield[i] == -(i + 1));
     }
-    auto f = [](const AoS::ConstFieldView<i32> &cv) {
-      for (i32 i = 0; i < 5; ++i) {
+    auto f = [](const AoS::ConstFieldView<i32> &cv)
+    {
+      for (i32 i = 0; i < 5; ++i)
+      {
         REQUIRE(cv[i] == -(i + 1));
       }
     };
     f(i32_field);
   } //
-  SECTION("Custom AoS") {
+  SECTION("Custom AoS")
+  {
     CustomAoS aos;
     aos.pushField<i32>("i32");
-    REQUIRE(aos.resize(5) == HeError::NO_ERROR);
+    REQUIRE(aos.resize(5) == HeError::None);
     auto acc = aos.field<i32>(0);
     for (int i = 0; i < 5; ++i)
       acc[i] = i;
-    auto f = [](CustomAoSFieldView<i32> aos) { HERMES_UNUSED_VARIABLE(aos); };
-    auto cf = [](CustomAoSConstFieldView<i32> aos) {
+    auto f = [](CustomAoSFieldView<i32> aos)
+    { HERMES_UNUSED_VARIABLE(aos); };
+    auto cf = [](CustomAoSConstFieldView<i32> aos)
+    {
       HERMES_UNUSED_VARIABLE(aos);
     };
     f(acc);
     cf(acc);
   }
   return;
-  SECTION("File") {
+  SECTION("File")
+  {
     AoS aos;
     aos.pushField<geo::vec3>("geo::vec3");
     aos.pushField<f32>("f32");
     aos.pushField<int>("int");
-    REQUIRE(aos.resize(4) == HeError::NO_ERROR);
+    REQUIRE(aos.resize(4) == HeError::None);
     auto acc = aos.view();
-    for (u32 i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < 4; ++i)
+    {
       acc.get<geo::vec3>(0, i) = {1.f + i, 2.f + i, 3.f + i};
       acc.get<f32>(1, i) = 1.f * i;
       acc.get<int>(2, i) = i + 1;
@@ -1134,7 +1201,8 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(aos.dataSize() == aos2.dataSize());
     REQUIRE(aos.stride() == aos2.stride());
     auto acc2 = aos2.view();
-    for (u32 i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < 4; ++i)
+    {
       REQUIRE_THAT(
           acc2.get<geo::vec3>(0, i).x,
           Catch::Matchers::WithinAbs(acc.get<geo::vec3>(0, i).x, 1e-8));
@@ -1149,7 +1217,8 @@ TEST_CASE("AOS", "[storage][aos]") {
       REQUIRE(acc2.get<int>(2, i) == acc.get<int>(2, i));
     }
     auto fields = aos.layout().fields();
-    for (auto f : fields) {
+    for (auto f : fields)
+    {
       REQUIRE(aos.layout().contains(f.name));
       REQUIRE(aos2.layout().contains(f.name));
       REQUIRE(aos.layout().fieldId(f.name) == aos2.layout().fieldId(f.name));

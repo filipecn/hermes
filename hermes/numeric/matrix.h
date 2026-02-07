@@ -32,593 +32,645 @@
 
 #include <cstring>
 
-namespace hermes::math {
+namespace hermes::math
+{
 
-/// \brief Inverts a 4x4 matrix
-/// \note function extracted from MESA implementation of the GLU library
-/// \tparam T
-/// \param m
-/// \param invOut
-/// \return
-template <typename T>
-HERMES_CPU_GPU bool gluInvertMatrix(const T m[16], T invOut[16]) {
-  T inv[16], det;
-  int i;
+  /// \brief Inverts a 4x4 matrix
+  /// \note function extracted from MESA implementation of the GLU library
+  /// \tparam T
+  /// \param m
+  /// \param invOut
+  /// \return
+  template <typename T>
+  HERMES_CPU_GPU bool gluInvertMatrix(const T m[16], T invOut[16])
+  {
+    T inv[16], det;
+    int i;
 
-  inv[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] +
-           m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
+    inv[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] +
+             m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
 
-  inv[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] -
-           m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
+    inv[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] -
+             m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
 
-  inv[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] +
-           m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
+    inv[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] +
+             m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
 
-  inv[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] -
-            m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
+    inv[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] -
+              m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
 
-  inv[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] -
-           m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
+    inv[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] -
+             m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
 
-  inv[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] +
-           m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
+    inv[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] +
+             m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
 
-  inv[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] -
-           m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
+    inv[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] -
+             m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
 
-  inv[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] +
-            m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
+    inv[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] +
+              m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
 
-  inv[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] +
-           m[5] * m[3] * m[14] + m[13] * m[2] * m[7] - m[13] * m[3] * m[6];
+    inv[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] +
+             m[5] * m[3] * m[14] + m[13] * m[2] * m[7] - m[13] * m[3] * m[6];
 
-  inv[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] -
-           m[4] * m[3] * m[14] - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
+    inv[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] -
+             m[4] * m[3] * m[14] - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
 
-  inv[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] +
-            m[4] * m[3] * m[13] + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
+    inv[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] +
+              m[4] * m[3] * m[13] + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
 
-  inv[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] -
-            m[4] * m[2] * m[13] - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
+    inv[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] -
+              m[4] * m[2] * m[13] - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
 
-  inv[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] -
-           m[5] * m[3] * m[10] - m[9] * m[2] * m[7] + m[9] * m[3] * m[6];
+    inv[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] -
+             m[5] * m[3] * m[10] - m[9] * m[2] * m[7] + m[9] * m[3] * m[6];
 
-  inv[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] +
-           m[4] * m[3] * m[10] + m[8] * m[2] * m[7] - m[8] * m[3] * m[6];
+    inv[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] +
+             m[4] * m[3] * m[10] + m[8] * m[2] * m[7] - m[8] * m[3] * m[6];
 
-  inv[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] -
-            m[4] * m[3] * m[9] - m[8] * m[1] * m[7] + m[8] * m[3] * m[5];
+    inv[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] -
+              m[4] * m[3] * m[9] - m[8] * m[1] * m[7] + m[8] * m[3] * m[5];
 
-  inv[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] +
-            m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
+    inv[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] +
+              m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
 
-  det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
+    det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
 
-  if (det == 0)
-    return false;
+    if (det == 0)
+      return false;
 
-  det = 1.0f / det;
+    det = 1.0f / det;
 
-  for (i = 0; i < 16; i++)
-    invOut[i] = inv[i] * det;
+    for (i = 0; i < 16; i++)
+      invOut[i] = inv[i] * det;
 
-  return true;
-}
-
-// *****************************************************************************
-//                                                                  MatrixNxM
-// *****************************************************************************
-
-/// \brief NxM Matrix representation (N rows, M columns).
-template <typename T, u32 N, u32 M> class MatrixNxM {
-  static_assert(N >= 1 && M >= 1, "MatrixNxM can't have null size.");
-
-public:
-  // static
-
-  /// Setup identity matrix.
-  HERMES_CPU_GPU static inline MatrixNxM I() {
-    return MatrixNxM().setIdentity();
+    return true;
   }
 
-  HERMES_CPU_GPU static inline MatrixNxM One() {
-    MatrixNxM<T, N, M> m;
-    for (u32 i = 0; i < N; ++i)
-      for (u32 j = 0; j < M; ++j)
-        m[i][j] = 1;
-    return m;
-  }
+  // *****************************************************************************
+  //                                                                  MatrixNxM
+  // *****************************************************************************
 
-  HERMES_CPU_GPU static inline MatrixNxM Zero() { return {}; }
+  /// \brief NxM Matrix representation (N rows, M columns).
+  template <typename T, u32 N, u32 M>
+  class MatrixNxM
+  {
+    static_assert(N >= 1 && M >= 1, "MatrixNxM can't have null size.");
 
-  HERMES_CPU_GPU static inline MatrixNxM Diag(const MatrixNxM<T, N, 1> &d) {
-    static_assert(N == M, "Can't create non-squared matrices from diagonal.");
-    MatrixNxM<T, N, M> m;
-    for (u32 i = 0; i < N; ++i)
-      m[i][i] = d[i][0];
-    return m;
-  }
+  public:
+    // static
 
-  // constructors
+    /// Setup identity matrix.
+    HERMES_CPU_GPU static inline MatrixNxM I()
+    {
+      return MatrixNxM().setIdentity();
+    }
 
-  HERMES_CPU_GPU explicit MatrixNxM() { std::memset(m_, 0, sizeof(m_)); }
-  /// \param values list of values
-  /// \param isColumnMajor [optional | default = false] values configuration
-  HERMES_CPU_GPU MatrixNxM(std::initializer_list<T> values,
-                           bool columnMajor = false) {
-    size_t l = 0, c = 0;
-    for (auto v : values) {
-      m_[l][c] = v;
-      if (columnMajor) {
-        l++;
-        if (l >= N)
-          l = 0, c++;
-      } else {
-        c++;
-        if (c >= M)
-          c = 0, l++;
+    HERMES_CPU_GPU static inline MatrixNxM One()
+    {
+      MatrixNxM<T, N, M> m;
+      for (u32 i = 0; i < N; ++i)
+        for (u32 j = 0; j < M; ++j)
+          m[i][j] = 1;
+      return m;
+    }
+
+    HERMES_CPU_GPU static inline MatrixNxM Zero() { return {}; }
+
+    HERMES_CPU_GPU static inline MatrixNxM Diag(const MatrixNxM<T, N, 1> &d)
+    {
+      static_assert(N == M, "Can't create non-squared matrices from diagonal.");
+      MatrixNxM<T, N, M> m;
+      for (u32 i = 0; i < N; ++i)
+        m[i][i] = d[i][0];
+      return m;
+    }
+
+    // constructors
+
+    HERMES_CPU_GPU explicit MatrixNxM() { std::memset(m_, 0, sizeof(m_)); }
+    /// \param values list of values
+    /// \param isColumnMajor [optional | default = false] values configuration
+    HERMES_CPU_GPU MatrixNxM(std::initializer_list<T> values,
+                             bool columnMajor = false)
+    {
+      size_t l = 0, c = 0;
+      for (auto v : values)
+      {
+        m_[l][c] = v;
+        if (columnMajor)
+        {
+          l++;
+          if (l >= N)
+            l = 0, c++;
+        }
+        else
+        {
+          c++;
+          if (c >= M)
+            c = 0, l++;
+        }
       }
     }
-  }
-  /// \param mat list of values
-  /// \param isColumnMajor [optional | default = false] values configuration
-  HERMES_CPU_GPU explicit MatrixNxM(const T mat[N * M],
-                                    bool columnMajor = false) {
-    size_t k = 0;
-    if (columnMajor)
-      for (u32 c = 0; c < M; c++)
+    /// \param mat list of values
+    /// \param isColumnMajor [optional | default = false] values configuration
+    HERMES_CPU_GPU explicit MatrixNxM(const T mat[N * M],
+                                      bool columnMajor = false)
+    {
+      size_t k = 0;
+      if (columnMajor)
+        for (u32 c = 0; c < M; c++)
+          for (auto &l : m_)
+            l[c] = mat[k++];
+      else
         for (auto &l : m_)
-          l[c] = mat[k++];
-    else
-      for (auto &l : m_)
-        for (u32 c = 0; c < N; c++)
-          l[c] = mat[k++];
-  }
-  /// \param mat matrix entries in [ROW][COLUMN] form
-  HERMES_CPU_GPU explicit MatrixNxM(T mat[N][M]) {
-    for (u32 i = 0; i < N; i++)
-      for (u32 j = 0; j < M; j++)
-        m_[i][j] = mat[i][j];
-  }
-  /// \param m00 value of entry at row 0 column 0
-  /// \param m01 value of entry at row 0 column 1
-  /// \param m02 value of entry at row 0 column 2
-  /// \param m03 value of entry at row 0 column 3
-  /// \param m10 value of entry at row 1 column 0
-  /// \param m11 value of entry at row 1 column 1
-  /// \param m12 value of entry at row 1 column 2
-  /// \param m13 value of entry at row 1 column 3
-  /// \param m20 value of entry at row 2 column 0
-  /// \param m21 value of entry at row 2 column 1
-  /// \param m22 value of entry at row 2 column 2
-  /// \param m23 value of entry at row 2 column 3
-  /// \param m30 value of entry at row 3 column 0
-  /// \param m31 value of entry at row 3 column 1
-  /// \param m32 value of entry at row 3 column 2
-  /// \param m33 value of entry at row 3 column 3
-  HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m02, T m03, T m10, T m11, T m12,
-                           T m13, T m20, T m21, T m22, T m23, T m30, T m31,
-                           T m32, T m33) {
-    static_assert(N == 4 && M == 4, "This constructor works only for M4x4");
-    m_[0][0] = m00;
-    m_[0][1] = m01;
-    m_[0][2] = m02;
-    m_[0][3] = m03;
-    m_[1][0] = m10;
-    m_[1][1] = m11;
-    m_[1][2] = m12;
-    m_[1][3] = m13;
-    m_[2][0] = m20;
-    m_[2][1] = m21;
-    m_[2][2] = m22;
-    m_[2][3] = m23;
-    m_[3][0] = m30;
-    m_[3][1] = m31;
-    m_[3][2] = m32;
-    m_[3][3] = m33;
-  }
-  HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m02, T m10, T m11, T m12, T m20,
-                           T m21, T m22) {
-    static_assert(N == 3 && M == 3, "This constructor works only for M3x3");
-    m_[0][0] = m00;
-    m_[0][1] = m01;
-    m_[0][2] = m02;
-    m_[1][0] = m10;
-    m_[1][1] = m11;
-    m_[1][2] = m12;
-    m_[2][0] = m20;
-    m_[2][1] = m21;
-    m_[2][2] = m22;
-  }
-  HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m10, T m11) {
-    static_assert(N == 2 && M == 2, "This constructor works only for M2x2");
-    m_[0][0] = m00;
-    m_[0][1] = m01;
-    m_[1][0] = m10;
-    m_[1][1] = m11;
-  }
+          for (u32 c = 0; c < N; c++)
+            l[c] = mat[k++];
+    }
+    /// \param mat matrix entries in [ROW][COLUMN] form
+    HERMES_CPU_GPU explicit MatrixNxM(T mat[N][M])
+    {
+      for (u32 i = 0; i < N; i++)
+        for (u32 j = 0; j < M; j++)
+          m_[i][j] = mat[i][j];
+    }
+    /// \param m00 value of entry at row 0 column 0
+    /// \param m01 value of entry at row 0 column 1
+    /// \param m02 value of entry at row 0 column 2
+    /// \param m03 value of entry at row 0 column 3
+    /// \param m10 value of entry at row 1 column 0
+    /// \param m11 value of entry at row 1 column 1
+    /// \param m12 value of entry at row 1 column 2
+    /// \param m13 value of entry at row 1 column 3
+    /// \param m20 value of entry at row 2 column 0
+    /// \param m21 value of entry at row 2 column 1
+    /// \param m22 value of entry at row 2 column 2
+    /// \param m23 value of entry at row 2 column 3
+    /// \param m30 value of entry at row 3 column 0
+    /// \param m31 value of entry at row 3 column 1
+    /// \param m32 value of entry at row 3 column 2
+    /// \param m33 value of entry at row 3 column 3
+    HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m02, T m03, T m10, T m11, T m12,
+                             T m13, T m20, T m21, T m22, T m23, T m30, T m31,
+                             T m32, T m33)
+    {
+      static_assert(N == 4 && M == 4, "This constructor works only for M4x4");
+      m_[0][0] = m00;
+      m_[0][1] = m01;
+      m_[0][2] = m02;
+      m_[0][3] = m03;
+      m_[1][0] = m10;
+      m_[1][1] = m11;
+      m_[1][2] = m12;
+      m_[1][3] = m13;
+      m_[2][0] = m20;
+      m_[2][1] = m21;
+      m_[2][2] = m22;
+      m_[2][3] = m23;
+      m_[3][0] = m30;
+      m_[3][1] = m31;
+      m_[3][2] = m32;
+      m_[3][3] = m33;
+    }
+    HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m02, T m10, T m11, T m12, T m20,
+                             T m21, T m22)
+    {
+      static_assert(N == 3 && M == 3, "This constructor works only for M3x3");
+      m_[0][0] = m00;
+      m_[0][1] = m01;
+      m_[0][2] = m02;
+      m_[1][0] = m10;
+      m_[1][1] = m11;
+      m_[1][2] = m12;
+      m_[2][0] = m20;
+      m_[2][1] = m21;
+      m_[2][2] = m22;
+    }
+    HERMES_CPU_GPU MatrixNxM(T m00, T m01, T m10, T m11)
+    {
+      static_assert(N == 2 && M == 2, "This constructor works only for M2x2");
+      m_[0][0] = m00;
+      m_[0][1] = m01;
+      m_[1][0] = m10;
+      m_[1][1] = m11;
+    }
 
-  // operators
+    // operators
 
-  template <u32 O>
-  HERMES_CPU_GPU MatrixNxM<T, N, M>
-  operator*(const MatrixNxM<T, M, O> &B) const {
-    MatrixNxM<T, N, O> r;
-    for (u32 i = 0; i < N; ++i)
-      for (u32 j = 0; j < O; ++j) {
-        r[i][j] = 0;
-        for (u32 k = 0; k < M; ++k)
-          r[i][j] += m_[i][k] * B[k][j];
-      }
-    return r;
+    template <u32 O>
+    HERMES_CPU_GPU MatrixNxM<T, N, M>
+    operator*(const MatrixNxM<T, M, O> &B) const
+    {
+      MatrixNxM<T, N, O> r;
+      for (u32 i = 0; i < N; ++i)
+        for (u32 j = 0; j < O; ++j)
+        {
+          r[i][j] = 0;
+          for (u32 k = 0; k < M; ++k)
+            r[i][j] += m_[i][k] * B[k][j];
+        }
+      return r;
+    }
+    HERMES_CPU_GPU MatrixNxM<T, N, 1>
+    operator*(const MatrixNxM<T, N, 1> &v) const
+    {
+      MatrixNxM<T, N, 1> r;
+      for (u32 i = 0; i < 4; i++)
+        for (u32 j = 0; j < 4; j++)
+          r[i][0] += m_[i][j] * v[j][0];
+      return r;
+    }
+#define ARITHMETIC_OP(OP)                                                    \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> &operator OP## =                         \
+      (const MatrixNxM<T, N, M> &B)                                          \
+  {                                                                          \
+    for (u32 i = 0; i < N; ++i)                                              \
+      for (u32 j = 0; j < M; ++j)                                            \
+        m_[i][j] OP## = B[i][j];                                             \
+    return *this;                                                            \
+  }                                                                          \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> operator OP(const MatrixNxM<T, N, M> &B) \
+      const                                                                  \
+  {                                                                          \
+    MatrixNxM<T, N, M> r;                                                    \
+    for (u32 i = 0; i < N; ++i)                                              \
+      for (u32 j = 0; j < M; ++j)                                            \
+        r[i][j] = m_[i][j] OP B[i][j];                                       \
+    return r;                                                                \
   }
-  HERMES_CPU_GPU MatrixNxM<T, N, 1>
-  operator*(const MatrixNxM<T, N, 1> &v) const {
-    MatrixNxM<T, N, 1> r;
-    for (u32 i = 0; i < 4; i++)
-      for (u32 j = 0; j < 4; j++)
-        r[i][0] += m_[i][j] * v[j][0];
-    return r;
-  }
-#define ARITHMETIC_OP(OP)                                                      \
-  HERMES_CPU_GPU MatrixNxM<T, N, M> &operator OP## =                           \
-      (const MatrixNxM<T, N, M> &B) {                                          \
-    for (u32 i = 0; i < N; ++i)                                                \
-      for (u32 j = 0; j < M; ++j)                                              \
-        m_[i][j] OP## = B[i][j];                                               \
-    return *this;                                                              \
-  }                                                                            \
-  HERMES_CPU_GPU MatrixNxM<T, N, M> operator OP(const MatrixNxM<T, N, M> &B)   \
-      const {                                                                  \
-    MatrixNxM<T, N, M> r;                                                      \
-    for (u32 i = 0; i < N; ++i)                                                \
-      for (u32 j = 0; j < M; ++j)                                              \
-        r[i][j] = m_[i][j] OP B[i][j];                                         \
-    return r;                                                                  \
-  }
-  ARITHMETIC_OP(+)
-  ARITHMETIC_OP(-)
+    ARITHMETIC_OP(+)
+    ARITHMETIC_OP(-)
 #undef ARITHMETIC_OP
 
-#define SCALAR_OP(OP)                                                          \
-  HERMES_CPU_GPU MatrixNxM<T, N, M> &operator OP## = (const T &s) {            \
-    for (u32 i = 0; i < N; ++i)                                                \
-      for (u32 j = 0; j < M; ++j)                                              \
-        m_[i][j] OP## = s;                                                     \
-    return *this;                                                              \
-  }                                                                            \
-  HERMES_CPU_GPU MatrixNxM<T, N, M> operator OP(const T &s) const {            \
-    MatrixNxM<T, N, M> r;                                                      \
-    for (u32 i = 0; i < N; ++i)                                                \
-      for (u32 j = 0; j < M; ++j)                                              \
-        r[i][j] = m_[i][j] OP s;                                               \
-    return r;                                                                  \
+#define SCALAR_OP(OP)                                             \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> &operator OP## = (const T &s) \
+  {                                                               \
+    for (u32 i = 0; i < N; ++i)                                   \
+      for (u32 j = 0; j < M; ++j)                                 \
+        m_[i][j] OP## = s;                                        \
+    return *this;                                                 \
+  }                                                               \
+  HERMES_CPU_GPU MatrixNxM<T, N, M> operator OP(const T &s) const \
+  {                                                               \
+    MatrixNxM<T, N, M> r;                                         \
+    for (u32 i = 0; i < N; ++i)                                   \
+      for (u32 j = 0; j < M; ++j)                                 \
+        r[i][j] = m_[i][j] OP s;                                  \
+    return r;                                                     \
   }
-  SCALAR_OP(*)
-  SCALAR_OP(/)
+    SCALAR_OP(*)
+    SCALAR_OP(/)
 #undef SCALAR_OP
 
-  template <u32 O, u32 P>
-  HERMES_CPU_GPU bool operator==(const MatrixNxM<T, O, P> &B) const {
-    if (O != N || P != M)
-      return false;
-    for (u32 i = 0; i < N; i++)
-      for (u32 j = 0; j < M; j++)
-        if (!numbers::cmp::is_equal(m_[i][j], B[i][j]))
-          return false;
-    return true;
-  }
-  template <u32 O, u32 P>
-  HERMES_CPU_GPU bool operator!=(const MatrixNxM<T, O, P> &B) const {
-    return !((*this) == B);
-  }
-
-  HERMES_CPU_GPU MatrixNxM<T, N, M> &setIdentity() {
-    static_assert(N == M, "Can't set identity for non-square matrices.");
-#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-    for (auto &i : m_)
-      for (u32 j = 0; j < M; j++)
-        i[j] = 0.f;
-#else
-    std::memset(m_, 0, sizeof(m_));
-#endif
-    for (u32 i = 0; i < M; i++)
-      m_[i][i] = 1.f;
-    return *this;
-  }
-  /// \param[out] a Receives matrix elements in row major.
-  HERMES_CPU_GPU void row_major(T *a) const {
-    int k = 0;
-    for (auto &i : m_)
-      for (u32 j = 0; j < M; j++)
-        a[k++] = i[j];
-  }
-  /// \param[out] a Receives matrix elements in column major.
-  HERMES_CPU_GPU void column_major(T *a) const {
-    int k = 0;
-    for (u32 i = 0; i < N; i++)
-      for (auto &j : m_)
-        a[k++] = j[i];
-  }
-  HERMES_NODISCARD HERMES_CPU_GPU bool isIdentity() const {
-    static_assert(N == M, "Can't check identity for non-square matrices.");
-    for (u32 i = 0; i < N; i++)
-      for (u32 j = 0; j < M; j++)
-        if ((i != j && !numbers::cmp::is_equal(m_[i][j], 0.f)) ||
-            (i == j && !numbers::cmp::is_equal(m_[i][j], 1.f)))
-          return false;
-    return true;
-  }
-
-  HERMES_CPU_GPU T determinant() const {
-    return m_[0][0] * m_[1][1] - m_[0][1] * m_[1][0];
-    return m_[0][0] * m_[1][1] * m_[2][2] + m_[0][1] * m_[1][2] * m_[2][0] +
-           m_[0][2] * m_[1][0] * m_[2][1] - m_[2][0] * m_[1][1] * m_[0][2] -
-           m_[2][1] * m_[1][2] * m_[0][0] - m_[2][2] * m_[1][0] * m_[0][1];
-  }
-
-  HERMES_CPU_GPU MatrixNxM<T, N, 1> diagonal() const {
-    static_assert(N == M, "Can't create non-squared matrices from diagonal.");
-    MatrixNxM<T, N, 1> d;
-    for (u32 i = 0; i < N; ++i)
-      d[i][0] = m_[i][i];
-    return d;
-  }
-
-  HERMES_CPU_GPU T *operator[](u32 row_index) { return m_[row_index]; }
-  HERMES_CPU_GPU const T *operator[](u32 row_index) const {
-    return m_[row_index];
-  }
-
-private:
-  T m_[N][M];
-};
-
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 4, 4> rowReduce(const MatrixNxM<T, 4, 4> &p,
-                                            const MatrixNxM<T, 4, 4> &q) {
-  MatrixNxM<T, 4, 4> l = p, r = q;
-  // TODO implement with gauss jordan elimination
-  HERMES_NOT_IMPLEMENTED;
-  return r;
-}
-template <typename T, u32 N, u32 M>
-HERMES_CPU_GPU MatrixNxM<T, N, M> transpose(const MatrixNxM<T, M, N> &m) {
-  MatrixNxM<T, M, N> t;
-  for (u32 r = 0; r < N; ++r)
-    for (u32 c = 0; c < M; ++c)
-      t[c][r] = m[r][c];
-  return t;
-}
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 4, 4> transpose(const MatrixNxM<T, 4, 4> &m) {
-  return MatrixNxM<T, 4, 4>(
-      m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], m[2][1], m[3][1],
-      m[0][2], m[1][2], m[2][2], m[3][2], m[0][3], m[1][3], m[2][3], m[3][3]);
-}
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 4, 4> inverse(const MatrixNxM<T, 4, 4> &m) {
-  MatrixNxM<T, 4, 4> r;
-  T mm[16], inv[16];
-  m.row_major(mm);
-  if (gluInvertMatrix(mm, inv)) {
-    int k = 0;
-    for (u32 i = 0; i < 4; i++)
-      for (u32 j = 0; j < 4; j++)
-        r[i][j] = inv[k++];
-    return r;
-  }
-
-  T det = m[0][0] * m[1][1] * m[2][2] * m[3][3] +
-          m[1][2] * m[2][3] * m[3][1] * m[1][3] +
-          m[2][1] * m[3][2] * m[1][1] * m[2][3] +
-          m[3][2] * m[1][2] * m[2][1] * m[3][3] +
-          m[1][3] * m[2][2] * m[3][1] * m[0][1] +
-          m[0][1] * m[2][3] * m[3][2] * m[0][2] +
-          m[2][1] * m[3][3] * m[0][3] * m[2][2] +
-          m[3][1] * m[0][1] * m[2][2] * m[3][3] +
-          m[0][2] * m[2][3] * m[3][1] * m[0][3] +
-          m[2][1] * m[3][2] * m[0][2] * m[0][1] +
-          m[1][2] * m[3][3] * m[0][2] * m[1][3] +
-          m[3][1] * m[0][3] * m[1][1] * m[3][2] -
-          m[0][1] * m[1][3] * m[3][2] * m[0][2] -
-          m[1][1] * m[3][3] * m[0][3] * m[1][2] -
-          m[3][1] * m[0][3] * m[0][1] * m[1][3] -
-          m[2][2] * m[0][2] * m[1][1] * m[2][3] -
-          m[0][3] * m[1][2] * m[2][1] * m[0][1] -
-          m[1][2] * m[2][3] * m[0][2] * m[1][3] -
-          m[2][1] * m[0][3] * m[1][1] * m[2][2] -
-          m[1][0] * m[1][0] * m[2][3] * m[3][2] -
-          m[1][2] * m[2][0] * m[3][3] * m[1][3] -
-          m[2][2] * m[3][0] * m[1][0] * m[2][2] -
-          m[3][3] * m[1][2] * m[2][3] * m[3][0] -
-          m[1][3] * m[2][0] * m[3][2] * m[1][1];
-  if (fabs(det) < 1e-8)
-    return r;
-
-  r[0][0] = (m[1][1] * m[2][2] * m[3][3] + m[1][2] * m[2][3] * m[3][1] +
-             m[1][3] * m[2][1] * m[3][2] - m[1][1] * m[2][3] * m[3][2] -
-             m[1][2] * m[2][1] * m[3][3] - m[1][3] * m[2][2] * m[3][1]) /
-            det;
-  r[0][1] = (m[0][1] * m[2][3] * m[3][2] + m[0][2] * m[2][1] * m[3][3] +
-             m[0][3] * m[2][2] * m[3][1] - m[0][1] * m[2][2] * m[3][3] -
-             m[0][2] * m[2][3] * m[3][1] - m[0][3] * m[2][1] * m[3][2]) /
-            det;
-  r[0][2] = (m[0][1] * m[1][2] * m[3][3] + m[0][2] * m[1][3] * m[3][1] +
-             m[0][3] * m[1][1] * m[3][2] - m[0][1] * m[1][3] * m[3][2] -
-             m[0][2] * m[1][1] * m[3][3] - m[0][3] * m[1][2] * m[3][1]) /
-            det;
-  r[0][3] = (m[0][1] * m[1][3] * m[2][2] + m[0][2] * m[1][1] * m[2][3] +
-             m[0][3] * m[1][2] * m[2][1] - m[0][1] * m[1][2] * m[2][3] -
-             m[0][2] * m[1][3] * m[2][1] - m[0][3] * m[1][1] * m[2][2]) /
-            det;
-  r[1][0] = (m[1][0] * m[2][3] * m[3][2] + m[1][2] * m[2][0] * m[3][3] +
-             m[1][3] * m[2][2] * m[3][0] - m[1][0] * m[2][2] * m[3][3] -
-             m[1][2] * m[2][3] * m[3][0] - m[1][3] * m[2][0] * m[3][2]) /
-            det;
-  r[1][1] = (m[0][0] * m[2][2] * m[3][3] + m[0][2] * m[2][3] * m[3][0] +
-             m[0][3] * m[2][0] * m[3][2] - m[0][0] * m[2][3] * m[3][2] -
-             m[0][2] * m[2][0] * m[3][3] - m[0][3] * m[2][2] * m[3][0]) /
-            det;
-  r[1][2] = (m[0][0] * m[1][3] * m[3][2] + m[0][2] * m[1][0] * m[3][3] +
-             m[0][3] * m[1][2] * m[3][0] - m[0][0] * m[1][2] * m[3][3] -
-             m[0][2] * m[1][3] * m[3][0] - m[0][3] * m[1][0] * m[3][2]) /
-            det;
-  r[1][3] = (m[0][0] * m[1][2] * m[2][3] + m[0][2] * m[1][3] * m[2][0] +
-             m[0][3] * m[1][0] * m[2][2] - m[0][0] * m[1][3] * m[2][2] -
-             m[0][2] * m[1][0] * m[2][3] - m[0][3] * m[1][2] * m[2][0]) /
-            det;
-  r[2][0] = (m[1][0] * m[2][1] * m[3][3] + m[1][1] * m[2][3] * m[3][0] +
-             m[1][3] * m[2][0] * m[3][1] - m[1][0] * m[2][3] * m[3][1] -
-             m[1][1] * m[2][0] * m[3][3] - m[1][3] * m[2][1] * m[3][0]) /
-            det;
-  r[2][1] = (m[0][0] * m[2][3] * m[3][1] + m[0][1] * m[2][0] * m[3][3] +
-             m[0][3] * m[2][1] * m[3][0] - m[0][0] * m[2][1] * m[3][3] -
-             m[0][1] * m[2][3] * m[3][0] - m[0][3] * m[2][0] * m[3][1]) /
-            det;
-  r[2][2] = (m[0][0] * m[1][1] * m[3][3] + m[0][1] * m[1][3] * m[3][0] +
-             m[0][3] * m[1][0] * m[3][1] - m[0][0] * m[1][3] * m[3][1] -
-             m[0][1] * m[1][0] * m[3][3] - m[0][3] * m[1][1] * m[3][0]) /
-            det;
-  r[2][3] = (m[0][0] * m[1][3] * m[2][1] + m[0][1] * m[1][0] * m[2][3] +
-             m[0][3] * m[1][1] * m[2][0] - m[0][0] * m[1][1] * m[2][3] -
-             m[0][1] * m[1][3] * m[2][0] - m[0][3] * m[1][0] * m[2][1]) /
-            det;
-  r[3][0] = (m[1][0] * m[2][2] * m[3][1] + m[1][1] * m[2][0] * m[3][2] +
-             m[1][2] * m[2][1] * m[3][0] - m[1][0] * m[2][1] * m[3][2] -
-             m[1][1] * m[2][2] * m[3][0] - m[1][2] * m[2][0] * m[3][1]) /
-            det;
-  r[3][1] = (m[0][0] * m[2][1] * m[3][2] + m[0][1] * m[2][2] * m[3][0] +
-             m[0][2] * m[2][0] * m[3][1] - m[0][0] * m[2][2] * m[3][1] -
-             m[0][1] * m[2][0] * m[3][2] - m[0][2] * m[2][1] * m[3][0]) /
-            det;
-  r[3][2] = (m[0][0] * m[1][2] * m[3][1] + m[0][1] * m[1][0] * m[3][2] +
-             m[0][2] * m[1][1] * m[3][0] - m[0][0] * m[1][1] * m[3][2] -
-             m[0][1] * m[1][2] * m[3][0] - m[0][2] * m[1][0] * m[3][1]) /
-            det;
-  r[3][3] = (m[0][0] * m[1][1] * m[2][2] + m[0][1] * m[1][2] * m[2][0] +
-             m[0][2] * m[1][0] * m[2][1] - m[0][0] * m[1][2] * m[2][1] -
-             m[0][1] * m[1][0] * m[2][2] - m[0][2] * m[1][1] * m[2][0]) /
-            det;
-
-  return r;
-}
-
-template <typename T>
-HERMES_CPU_GPU void decompose(const MatrixNxM<T, 4, 4> &m,
-                              MatrixNxM<T, 4, 4> &r, MatrixNxM<T, 4, 4> &s) {
-  // extract rotation r from transformation matrix
-  T norm;
-  int count = 0;
-  r = m;
-  do {
-    // compute next matrix in series
-    MatrixNxM<T, 4, 4> Rnext;
-    MatrixNxM<T, 4, 4> Rit = inverse(transpose(r));
-    for (u32 i = 0; i < 4; i++)
-      for (u32 j = 0; j < 4; j++)
-        Rnext[i][j] = .5f * (r[i][j] + Rit[i][j]);
-    // compute norm difference between R and Rnext
-    norm = 0.f;
-    for (u32 i = 0; i < 3; i++) {
-      T n = fabsf(r[i][0] - Rnext[i][0]) + fabsf(r[i][1] - Rnext[i][1]) +
-            fabsf(r[i][2] - Rnext[i][2]);
-      norm = std::max(norm, n);
-    }
-  } while (++count < 100 && norm > .0001f);
-  // compute scale S using rotation and original matrix
-  s = inverse(r) * m;
-}
-template <typename T, u32 N, u32 M>
-HERMES_CPU_GPU MatrixNxM<T, N, M> operator*(T f, const MatrixNxM<T, N, M> &m) {
-  return m * f;
-}
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 2, 2> inverse(const MatrixNxM<T, 2, 2> &m) {
-  MatrixNxM<T, 2, 2> r;
-  T det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
-  if (det == 0.f)
-    return r;
-  T k = 1.f / det;
-  r[0][0] = m[1][1] * k;
-  r[0][1] = -m[0][1] * k;
-  r[1][0] = -m[1][0] * k;
-  r[1][1] = m[0][0] * k;
-  return r;
-}
-
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 2, 2> transpose(const MatrixNxM<T, 2, 2> &m) {
-  return MatrixNxM<T, 2, 2>(m[0][0], m[1][0], m[0][1], m[1][1]);
-}
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 3, 3> inverse(const MatrixNxM<T, 3, 3> &m) {
-  MatrixNxM<T, 3, 3> r;
-  T det = m[0][0] * m[1][1] * m[2][2] + m[1][0] * m[2][1] * m[0][2] +
-          m[2][0] * m[0][1] * m[1][2] - m[0][0] * m[2][1] * m[1][2] -
-          m[2][0] * m[1][1] * m[0][2] - m[1][0] * m[0][1] * m[2][2];
-  if (std::fabs(det) < 1e-8)
-    return r;
-  r[0][0] = (m[1][1] * m[2][2] - m[1][2] * m[2][1]) / det;
-  r[0][1] = (m[0][2] * m[2][1] - m[0][1] * m[2][2]) / det;
-  r[0][2] = (m[0][1] * m[1][2] - m[0][2] * m[1][1]) / det;
-  r[1][0] = (m[1][2] * m[2][0] - m[1][0] * m[2][2]) / det;
-  r[1][1] = (m[0][0] * m[2][2] - m[0][2] * m[2][0]) / det;
-  r[1][2] = (m[0][2] * m[1][0] - m[0][0] * m[1][2]) / det;
-  r[2][0] = (m[1][0] * m[2][1] - m[1][1] * m[2][0]) / det;
-  r[2][1] = (m[0][1] * m[2][0] - m[0][0] * m[2][1]) / det;
-  r[2][2] = (m[0][0] * m[1][1] - m[0][1] * m[1][0]) / det;
-  return r;
-}
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 3, 3> transpose(const MatrixNxM<T, 3, 3> &m) {
-  return MatrixNxM<T, 3, 3>(m[0][0], m[1][0], m[2][0], m[0][1], m[1][1],
-                            m[2][1], m[0][2], m[1][2], m[2][2]);
-}
-
-template <typename T>
-HERMES_CPU_GPU MatrixNxM<T, 3, 3> star(const MatrixNxM<T, 3, 1> a) {
-  return MatrixNxM<T, 3, 3>(0, -a[2][0], a[1][0], a[2][0], 0, -a[0][0],
-                            -a[1][0], a[0][0], 0);
-}
-
-using mat4 = MatrixNxM<real_t, 4, 4>;
-using mat3 = MatrixNxM<real_t, 3, 3>;
-using mat2 = MatrixNxM<real_t, 2, 2>;
-
-namespace cmp {
-
-template <typename T, u32 N, u32 M>
-HERMES_CPU_GPU bool is_equal(const MatrixNxM<T, N, M> &a,
-                             const MatrixNxM<T, N, M> &b, f64 e) {
-  for (u32 l = 0; l < N; ++l)
-    for (u32 c = 0; c < M; ++c)
-      if (!numbers::cmp::is_equal(a[l][c], b[l][c], e))
+    template <u32 O, u32 P>
+    HERMES_CPU_GPU bool operator==(const MatrixNxM<T, O, P> &B) const
+    {
+      if (O != N || P != M)
         return false;
-  return true;
-}
+      for (u32 i = 0; i < N; i++)
+        for (u32 j = 0; j < M; j++)
+          if (!numbers::cmp::is_equal(m_[i][j], B[i][j]))
+            return false;
+      return true;
+    }
+    template <u32 O, u32 P>
+    HERMES_CPU_GPU bool operator!=(const MatrixNxM<T, O, P> &B) const
+    {
+      return !((*this) == B);
+    }
 
-} // namespace cmp
+    HERMES_CPU_GPU MatrixNxM<T, N, M> &setIdentity()
+    {
+      static_assert(N == M, "Can't set identity for non-square matrices.");
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+      for (auto &i : m_)
+        for (u32 j = 0; j < M; j++)
+          i[j] = 0.f;
+#else
+      std::memset(m_, 0, sizeof(m_));
+#endif
+      for (u32 i = 0; i < M; i++)
+        m_[i][i] = 1.f;
+      return *this;
+    }
+    /// \param[out] a Receives matrix elements in row major.
+    HERMES_CPU_GPU void row_major(T *a) const
+    {
+      int k = 0;
+      for (auto &i : m_)
+        for (u32 j = 0; j < M; j++)
+          a[k++] = i[j];
+    }
+    /// \param[out] a Receives matrix elements in column major.
+    HERMES_CPU_GPU void column_major(T *a) const
+    {
+      int k = 0;
+      for (u32 i = 0; i < N; i++)
+        for (auto &j : m_)
+          a[k++] = j[i];
+    }
+    HERMES_NODISCARD HERMES_CPU_GPU bool isIdentity() const
+    {
+      static_assert(N == M, "Can't check identity for non-square matrices.");
+      for (u32 i = 0; i < N; i++)
+        for (u32 j = 0; j < M; j++)
+          if ((i != j && !numbers::cmp::is_equal(m_[i][j], 0.f)) ||
+              (i == j && !numbers::cmp::is_equal(m_[i][j], 1.f)))
+            return false;
+      return true;
+    }
+
+    HERMES_CPU_GPU T determinant() const
+    {
+      return m_[0][0] * m_[1][1] - m_[0][1] * m_[1][0];
+      return m_[0][0] * m_[1][1] * m_[2][2] + m_[0][1] * m_[1][2] * m_[2][0] +
+             m_[0][2] * m_[1][0] * m_[2][1] - m_[2][0] * m_[1][1] * m_[0][2] -
+             m_[2][1] * m_[1][2] * m_[0][0] - m_[2][2] * m_[1][0] * m_[0][1];
+    }
+
+    HERMES_CPU_GPU MatrixNxM<T, N, 1> diagonal() const
+    {
+      static_assert(N == M, "Can't create non-squared matrices from diagonal.");
+      MatrixNxM<T, N, 1> d;
+      for (u32 i = 0; i < N; ++i)
+        d[i][0] = m_[i][i];
+      return d;
+    }
+
+    HERMES_CPU_GPU T *operator[](u32 row_index) { return m_[row_index]; }
+    HERMES_CPU_GPU const T *operator[](u32 row_index) const
+    {
+      return m_[row_index];
+    }
+
+  private:
+    T m_[N][M];
+  };
+
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 4, 4> rowReduce(const MatrixNxM<T, 4, 4> &p,
+                                              const MatrixNxM<T, 4, 4> &q)
+  {
+    MatrixNxM<T, 4, 4> l = p, r = q;
+    // TODO implement with gauss jordan elimination
+    HERMES_NOT_IMPLEMENTED;
+    return r;
+  }
+  template <typename T, u32 N, u32 M>
+  HERMES_CPU_GPU MatrixNxM<T, N, M> transpose(const MatrixNxM<T, M, N> &m)
+  {
+    MatrixNxM<T, M, N> t;
+    for (u32 r = 0; r < N; ++r)
+      for (u32 c = 0; c < M; ++c)
+        t[c][r] = m[r][c];
+    return t;
+  }
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 4, 4> transpose(const MatrixNxM<T, 4, 4> &m)
+  {
+    return MatrixNxM<T, 4, 4>(
+        m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], m[2][1], m[3][1],
+        m[0][2], m[1][2], m[2][2], m[3][2], m[0][3], m[1][3], m[2][3], m[3][3]);
+  }
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 4, 4> inverse(const MatrixNxM<T, 4, 4> &m)
+  {
+    MatrixNxM<T, 4, 4> r;
+    T mm[16], inv[16];
+    m.row_major(mm);
+    if (gluInvertMatrix(mm, inv))
+    {
+      int k = 0;
+      for (u32 i = 0; i < 4; i++)
+        for (u32 j = 0; j < 4; j++)
+          r[i][j] = inv[k++];
+      return r;
+    }
+
+    T det = m[0][0] * m[1][1] * m[2][2] * m[3][3] +
+            m[1][2] * m[2][3] * m[3][1] * m[1][3] +
+            m[2][1] * m[3][2] * m[1][1] * m[2][3] +
+            m[3][2] * m[1][2] * m[2][1] * m[3][3] +
+            m[1][3] * m[2][2] * m[3][1] * m[0][1] +
+            m[0][1] * m[2][3] * m[3][2] * m[0][2] +
+            m[2][1] * m[3][3] * m[0][3] * m[2][2] +
+            m[3][1] * m[0][1] * m[2][2] * m[3][3] +
+            m[0][2] * m[2][3] * m[3][1] * m[0][3] +
+            m[2][1] * m[3][2] * m[0][2] * m[0][1] +
+            m[1][2] * m[3][3] * m[0][2] * m[1][3] +
+            m[3][1] * m[0][3] * m[1][1] * m[3][2] -
+            m[0][1] * m[1][3] * m[3][2] * m[0][2] -
+            m[1][1] * m[3][3] * m[0][3] * m[1][2] -
+            m[3][1] * m[0][3] * m[0][1] * m[1][3] -
+            m[2][2] * m[0][2] * m[1][1] * m[2][3] -
+            m[0][3] * m[1][2] * m[2][1] * m[0][1] -
+            m[1][2] * m[2][3] * m[0][2] * m[1][3] -
+            m[2][1] * m[0][3] * m[1][1] * m[2][2] -
+            m[1][0] * m[1][0] * m[2][3] * m[3][2] -
+            m[1][2] * m[2][0] * m[3][3] * m[1][3] -
+            m[2][2] * m[3][0] * m[1][0] * m[2][2] -
+            m[3][3] * m[1][2] * m[2][3] * m[3][0] -
+            m[1][3] * m[2][0] * m[3][2] * m[1][1];
+    if (fabs(det) < 1e-8)
+      return r;
+
+    r[0][0] = (m[1][1] * m[2][2] * m[3][3] + m[1][2] * m[2][3] * m[3][1] +
+               m[1][3] * m[2][1] * m[3][2] - m[1][1] * m[2][3] * m[3][2] -
+               m[1][2] * m[2][1] * m[3][3] - m[1][3] * m[2][2] * m[3][1]) /
+              det;
+    r[0][1] = (m[0][1] * m[2][3] * m[3][2] + m[0][2] * m[2][1] * m[3][3] +
+               m[0][3] * m[2][2] * m[3][1] - m[0][1] * m[2][2] * m[3][3] -
+               m[0][2] * m[2][3] * m[3][1] - m[0][3] * m[2][1] * m[3][2]) /
+              det;
+    r[0][2] = (m[0][1] * m[1][2] * m[3][3] + m[0][2] * m[1][3] * m[3][1] +
+               m[0][3] * m[1][1] * m[3][2] - m[0][1] * m[1][3] * m[3][2] -
+               m[0][2] * m[1][1] * m[3][3] - m[0][3] * m[1][2] * m[3][1]) /
+              det;
+    r[0][3] = (m[0][1] * m[1][3] * m[2][2] + m[0][2] * m[1][1] * m[2][3] +
+               m[0][3] * m[1][2] * m[2][1] - m[0][1] * m[1][2] * m[2][3] -
+               m[0][2] * m[1][3] * m[2][1] - m[0][3] * m[1][1] * m[2][2]) /
+              det;
+    r[1][0] = (m[1][0] * m[2][3] * m[3][2] + m[1][2] * m[2][0] * m[3][3] +
+               m[1][3] * m[2][2] * m[3][0] - m[1][0] * m[2][2] * m[3][3] -
+               m[1][2] * m[2][3] * m[3][0] - m[1][3] * m[2][0] * m[3][2]) /
+              det;
+    r[1][1] = (m[0][0] * m[2][2] * m[3][3] + m[0][2] * m[2][3] * m[3][0] +
+               m[0][3] * m[2][0] * m[3][2] - m[0][0] * m[2][3] * m[3][2] -
+               m[0][2] * m[2][0] * m[3][3] - m[0][3] * m[2][2] * m[3][0]) /
+              det;
+    r[1][2] = (m[0][0] * m[1][3] * m[3][2] + m[0][2] * m[1][0] * m[3][3] +
+               m[0][3] * m[1][2] * m[3][0] - m[0][0] * m[1][2] * m[3][3] -
+               m[0][2] * m[1][3] * m[3][0] - m[0][3] * m[1][0] * m[3][2]) /
+              det;
+    r[1][3] = (m[0][0] * m[1][2] * m[2][3] + m[0][2] * m[1][3] * m[2][0] +
+               m[0][3] * m[1][0] * m[2][2] - m[0][0] * m[1][3] * m[2][2] -
+               m[0][2] * m[1][0] * m[2][3] - m[0][3] * m[1][2] * m[2][0]) /
+              det;
+    r[2][0] = (m[1][0] * m[2][1] * m[3][3] + m[1][1] * m[2][3] * m[3][0] +
+               m[1][3] * m[2][0] * m[3][1] - m[1][0] * m[2][3] * m[3][1] -
+               m[1][1] * m[2][0] * m[3][3] - m[1][3] * m[2][1] * m[3][0]) /
+              det;
+    r[2][1] = (m[0][0] * m[2][3] * m[3][1] + m[0][1] * m[2][0] * m[3][3] +
+               m[0][3] * m[2][1] * m[3][0] - m[0][0] * m[2][1] * m[3][3] -
+               m[0][1] * m[2][3] * m[3][0] - m[0][3] * m[2][0] * m[3][1]) /
+              det;
+    r[2][2] = (m[0][0] * m[1][1] * m[3][3] + m[0][1] * m[1][3] * m[3][0] +
+               m[0][3] * m[1][0] * m[3][1] - m[0][0] * m[1][3] * m[3][1] -
+               m[0][1] * m[1][0] * m[3][3] - m[0][3] * m[1][1] * m[3][0]) /
+              det;
+    r[2][3] = (m[0][0] * m[1][3] * m[2][1] + m[0][1] * m[1][0] * m[2][3] +
+               m[0][3] * m[1][1] * m[2][0] - m[0][0] * m[1][1] * m[2][3] -
+               m[0][1] * m[1][3] * m[2][0] - m[0][3] * m[1][0] * m[2][1]) /
+              det;
+    r[3][0] = (m[1][0] * m[2][2] * m[3][1] + m[1][1] * m[2][0] * m[3][2] +
+               m[1][2] * m[2][1] * m[3][0] - m[1][0] * m[2][1] * m[3][2] -
+               m[1][1] * m[2][2] * m[3][0] - m[1][2] * m[2][0] * m[3][1]) /
+              det;
+    r[3][1] = (m[0][0] * m[2][1] * m[3][2] + m[0][1] * m[2][2] * m[3][0] +
+               m[0][2] * m[2][0] * m[3][1] - m[0][0] * m[2][2] * m[3][1] -
+               m[0][1] * m[2][0] * m[3][2] - m[0][2] * m[2][1] * m[3][0]) /
+              det;
+    r[3][2] = (m[0][0] * m[1][2] * m[3][1] + m[0][1] * m[1][0] * m[3][2] +
+               m[0][2] * m[1][1] * m[3][0] - m[0][0] * m[1][1] * m[3][2] -
+               m[0][1] * m[1][2] * m[3][0] - m[0][2] * m[1][0] * m[3][1]) /
+              det;
+    r[3][3] = (m[0][0] * m[1][1] * m[2][2] + m[0][1] * m[1][2] * m[2][0] +
+               m[0][2] * m[1][0] * m[2][1] - m[0][0] * m[1][2] * m[2][1] -
+               m[0][1] * m[1][0] * m[2][2] - m[0][2] * m[1][1] * m[2][0]) /
+              det;
+
+    return r;
+  }
+
+  template <typename T>
+  HERMES_CPU_GPU void decompose(const MatrixNxM<T, 4, 4> &m,
+                                MatrixNxM<T, 4, 4> &r, MatrixNxM<T, 4, 4> &s)
+  {
+    // extract rotation r from transformation matrix
+    T norm;
+    int count = 0;
+    r = m;
+    do
+    {
+      // compute next matrix in series
+      MatrixNxM<T, 4, 4> Rnext;
+      MatrixNxM<T, 4, 4> Rit = inverse(transpose(r));
+      for (u32 i = 0; i < 4; i++)
+        for (u32 j = 0; j < 4; j++)
+          Rnext[i][j] = .5f * (r[i][j] + Rit[i][j]);
+      // compute norm difference between R and Rnext
+      norm = 0.f;
+      for (u32 i = 0; i < 3; i++)
+      {
+        T n = fabsf(r[i][0] - Rnext[i][0]) + fabsf(r[i][1] - Rnext[i][1]) +
+              fabsf(r[i][2] - Rnext[i][2]);
+        norm = (std::max)(norm, n);
+      }
+    } while (++count < 100 && norm > .0001f);
+    // compute scale S using rotation and original matrix
+    s = inverse(r) * m;
+  }
+  template <typename T, u32 N, u32 M>
+  HERMES_CPU_GPU MatrixNxM<T, N, M> operator*(T f, const MatrixNxM<T, N, M> &m)
+  {
+    return m * f;
+  }
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 2, 2> inverse(const MatrixNxM<T, 2, 2> &m)
+  {
+    MatrixNxM<T, 2, 2> r;
+    T det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
+    if (det == 0.f)
+      return r;
+    T k = 1.f / det;
+    r[0][0] = m[1][1] * k;
+    r[0][1] = -m[0][1] * k;
+    r[1][0] = -m[1][0] * k;
+    r[1][1] = m[0][0] * k;
+    return r;
+  }
+
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 2, 2> transpose(const MatrixNxM<T, 2, 2> &m)
+  {
+    return MatrixNxM<T, 2, 2>(m[0][0], m[1][0], m[0][1], m[1][1]);
+  }
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 3, 3> inverse(const MatrixNxM<T, 3, 3> &m)
+  {
+    MatrixNxM<T, 3, 3> r;
+    T det = m[0][0] * m[1][1] * m[2][2] + m[1][0] * m[2][1] * m[0][2] +
+            m[2][0] * m[0][1] * m[1][2] - m[0][0] * m[2][1] * m[1][2] -
+            m[2][0] * m[1][1] * m[0][2] - m[1][0] * m[0][1] * m[2][2];
+    if (std::fabs(det) < 1e-8)
+      return r;
+    r[0][0] = (m[1][1] * m[2][2] - m[1][2] * m[2][1]) / det;
+    r[0][1] = (m[0][2] * m[2][1] - m[0][1] * m[2][2]) / det;
+    r[0][2] = (m[0][1] * m[1][2] - m[0][2] * m[1][1]) / det;
+    r[1][0] = (m[1][2] * m[2][0] - m[1][0] * m[2][2]) / det;
+    r[1][1] = (m[0][0] * m[2][2] - m[0][2] * m[2][0]) / det;
+    r[1][2] = (m[0][2] * m[1][0] - m[0][0] * m[1][2]) / det;
+    r[2][0] = (m[1][0] * m[2][1] - m[1][1] * m[2][0]) / det;
+    r[2][1] = (m[0][1] * m[2][0] - m[0][0] * m[2][1]) / det;
+    r[2][2] = (m[0][0] * m[1][1] - m[0][1] * m[1][0]) / det;
+    return r;
+  }
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 3, 3> transpose(const MatrixNxM<T, 3, 3> &m)
+  {
+    return MatrixNxM<T, 3, 3>(m[0][0], m[1][0], m[2][0], m[0][1], m[1][1],
+                              m[2][1], m[0][2], m[1][2], m[2][2]);
+  }
+
+  template <typename T>
+  HERMES_CPU_GPU MatrixNxM<T, 3, 3> star(const MatrixNxM<T, 3, 1> a)
+  {
+    return MatrixNxM<T, 3, 3>(0, -a[2][0], a[1][0], a[2][0], 0, -a[0][0],
+                              -a[1][0], a[0][0], 0);
+  }
+
+  using mat4 = MatrixNxM<real_t, 4, 4>;
+  using mat3 = MatrixNxM<real_t, 3, 3>;
+  using mat2 = MatrixNxM<real_t, 2, 2>;
+
+  namespace cmp
+  {
+
+    template <typename T, u32 N, u32 M>
+    HERMES_CPU_GPU bool is_equal(const MatrixNxM<T, N, M> &a,
+                                 const MatrixNxM<T, N, M> &b, f64 e)
+    {
+      for (u32 l = 0; l < N; ++l)
+        for (u32 c = 0; c < M; ++c)
+          if (!numbers::cmp::is_equal(a[l][c], b[l][c], e))
+            return false;
+      return true;
+    }
+
+  } // namespace cmp
 
 } // namespace hermes::math
 
-namespace hermes {
+namespace hermes
+{
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(
-    math::MatrixNxM<T HERMES_COMMA N HERMES_COMMA M>, typename T, u32 N, u32 M)
-for (u32 row = 0; row < N; ++row) {
-  hermes::Str<char> s;
-  for (u32 col = 0; col < M; ++col) {
-    s += object[row][col];
-    s += " ";
+  HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(
+      math::MatrixNxM<T HERMES_COMMA N HERMES_COMMA M>, typename T, u32 N, u32 M)
+  for (u32 row = 0; row < N; ++row)
+  {
+    hermes::Str<char> s;
+    for (u32 col = 0; col < M; ++col)
+    {
+      s += object[row][col];
+      s += " ";
+    }
+    HERMES_TO_STRING_METHOD_LINE("| {}|\n", s.str());
   }
-  HERMES_TO_STRING_METHOD_LINE("| {}|\n", s.str());
-}
-HERMES_TO_STRING_METHOD_END
+  HERMES_TO_STRING_METHOD_END
 
-HERMES_TYPE_LAYOUT_METHODS(math::mat4, f32, 16)
-HERMES_TYPE_LAYOUT_METHODS(math::mat3, f32, 9)
-HERMES_TYPE_LAYOUT_METHODS(math::mat2, f32, 4)
+  HERMES_TYPE_LAYOUT_METHODS(math::mat4, f32, 16)
+  HERMES_TYPE_LAYOUT_METHODS(math::mat3, f32, 9)
+  HERMES_TYPE_LAYOUT_METHODS(math::mat2, f32, 4)
 
 } // namespace hermes
