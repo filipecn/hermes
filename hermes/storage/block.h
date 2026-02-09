@@ -108,11 +108,26 @@ private:
   h_size pitch_{0};
   mutable void *data_{nullptr};
 
-  HERMES_TO_STRING_FRIEND(Block);
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
+  friend struct DebugTraits<mem::Block>;
+#endif
 };
 
 } // namespace hermes::mem
 
 namespace hermes {
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(mem::Block);
+
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
+template <> struct DebugTraits<mem::Block> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const mem::Block &data) {
+    return DebugMessage()
+        .addTitle("mem::Block")
+        .add("location", data.location_)
+        .add("size", data.size_)
+        .add("pitch", data.pitch_)
+        .addAddress("data", data.data_);
+  }
+};
+#endif
 } // namespace hermes

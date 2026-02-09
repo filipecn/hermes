@@ -80,7 +80,13 @@ namespace hermes {
 
 HERMES_TYPE_LAYOUT_METHODS(geo::Plane, real_t, 4)
 
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Plane)
+template <> struct DebugTraits<geo::Plane> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Plane &data) {
+    return DebugMessage("Plane[n={} o={}]", hermes::to_string(data.normal),
+                        data.offset);
+  }
+};
 
 } // namespace hermes
 

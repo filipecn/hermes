@@ -29,6 +29,7 @@
 #include <hermes/base/str.h>
 #include <hermes/storage/block.h>
 
+#include <span>
 #include <string>
 #include <typeinfo>
 
@@ -120,7 +121,7 @@ public:
     std::unordered_map<std::string, u64> field_id_map_;
 
     friend class AoS;
-    HERMES_TO_STRING_FRIEND(Layout)
+    friend struct DebugTraits<mem::AoS::Layout>;
   };
 
   /// Provides access to a single field
@@ -400,15 +401,99 @@ private:
   Layout layout_;
   Block data_;
 
-  HERMES_TO_STRING_FRIEND(AoS);
+  friend struct DebugTraits<mem::AoS>;
 };
 
 } // namespace hermes::mem
 
 namespace hermes {
 
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(mem::AoS::Layout);
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(mem::AoS);
+template <> struct DebugTraits<mem::AoS::Layout> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const mem::AoS::Layout &data) {
+    DebugMessage m;
+    m.addTitle("mem::AoS::Layout");
+    m.addFmt("Struct (size in bytes: {})\n", data.sizeInBytes());
+    m.addArray<mem::AoS::Layout::Field>(
+        "fields", data.fields_,
+        [](h_index i, const mem::AoS::Layout::Field &f) -> DebugMessage {
+          return DebugMessage("field #{} ({})\n", i, f.name)
+              .addFmt("base data type: {}[{}]\n", hermes::to_string(f.type),
+                      f.component_count)
+              .addFmt("base data size in bytes: {}\n", f.size)
+              .addFmt("offset in bytes: {}\n", f.offset);
+        });
+    return m;
+  }
+};
+
+template <> struct DebugTraits<mem::AoS> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const mem::AoS &data) {
+    DebugMessage m;
+    m.addTitle("mem::AoS");
+    m.add("size", data.size_);
+    m.add("layout", data.layout_);
+    m.add("data", data.data_);
+    m.add("data values:\n");
+
+    auto fs = [&](const mem::AoS::Layout::Field &field,
+                  const void *data) -> std::string {
+#define MATCH_TYPE(T)                                                          \
+  if (field.type == DataTypes::typeFrom<T>()) {                                \
+    auto array =                                                               \
+        std::span{reinterpret_cast<const T *>(data), field.component_count};   \
+    if (field.component_count > 1) {                                           \
+      return cstr::format("({})", cstr::join(array, ", ").c_str());            \
+    }                                                                          \
+    return cstr::join(array, ", ").c_str();                                    \
+  }
+      MATCH_TYPE(i8);
+      MATCH_TYPE(i16);
+      MATCH_TYPE(i32);
+      MATCH_TYPE(i64);
+      MATCH_TYPE(u8);
+      MATCH_TYPE(u16);
+      MATCH_TYPE(u32);
+      MATCH_TYPE(u64);
+      MATCH_TYPE(f32);
+      MATCH_TYPE(f64);
+      MATCH_TYPE(h_size);
+      return "";
+#undef MATCH_TYPE
+    };
+
+    auto fields = data.layout().fields();
+    h_size abrev_size = fields.size() == 1 ? 10 : 5;
+    h_size abrev_start = data.size();
+    h_size abrev_end = 0;
+    if (data.size() > abrev_size) {
+      abrev_start = abrev_size / 2;
+      abrev_end = data.size() - abrev_size / 2;
+    }
+    for (h_size i = 0; i < data.size(); ++i) {
+      if (i < abrev_start || i > abrev_end) {
+        if (fields.size() == 1) {
+          auto ptr = data.getPtr(0, i);
+          m.addFmt("  {} ", fs(fields[0], ptr));
+        } else {
+          for (h_size f = 0; f < fields.size(); ++f) {
+            const auto &field = fields[f];
+            auto ptr = data.getPtr(f, i);
+            m.addFmt("  AoS[{}][{}] = {}\n", i, field.name, fs(fields[f], ptr));
+          }
+        }
+      } else if (i == abrev_start) {
+        if (fields.size() > 1) {
+          m.add(" ... \n");
+        } else {
+          m.add(" ... ");
+        }
+      }
+    }
+    return m;
+  }
+};
 
 } // namespace hermes
 

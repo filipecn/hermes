@@ -187,9 +187,12 @@ using quatd = Quaternion<f64>;
 
 namespace hermes {
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Quaternion<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("Quat[({}, {}, {}), {}]", object.v[0], object.v[1],
-                             object.v[2], object.r);
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<geo::Quaternion<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Quaternion<T> &data) {
+    return DebugMessage("Q[({}, {}, {}), {}]", data.v[0], data.v[1], data.v[2],
+                        data.r);
+  }
+};
 
 } // namespace hermes

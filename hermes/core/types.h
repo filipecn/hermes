@@ -32,7 +32,7 @@
 #include <cstdint>
 #include <type_traits>
 
-#ifdef HERMES_INCLUDE_TO_STRING
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
 #include <string_view>
 #endif
 
@@ -87,21 +87,15 @@ using h_index = std::size_t; //!< index type
 // *****************************************************************************
 
 #ifndef HERMES_TYPE_LAYOUT_METHODS
-#define HERMES_TYPE_LAYOUT_METHODS(TYPE, BASE_TYPE, COMPONENT_COUNT) \
-  template <>                                                        \
-  inline constexpr h_size componentCountOf<TYPE>()                   \
-  {                                                                  \
-    return COMPONENT_COUNT;                                          \
-  }                                                                  \
-  template <>                                                        \
-  inline constexpr h_size baseTypeSizeOf<TYPE>()                     \
-  {                                                                  \
-    return sizeof(BASE_TYPE);                                        \
-  }                                                                  \
-  template <>                                                        \
-  inline constexpr DataType dataTypeOf<TYPE>()                       \
-  {                                                                  \
-    return DataTypes::typeFrom<BASE_TYPE>();                         \
+#define HERMES_TYPE_LAYOUT_METHODS(TYPE, BASE_TYPE, COMPONENT_COUNT)           \
+  template <> inline constexpr h_size componentCountOf<TYPE>() {               \
+    return COMPONENT_COUNT;                                                    \
+  }                                                                            \
+  template <> inline constexpr h_size baseTypeSizeOf<TYPE>() {                 \
+    return sizeof(BASE_TYPE);                                                  \
+  }                                                                            \
+  template <> inline constexpr DataType dataTypeOf<TYPE>() {                   \
+    return DataTypes::typeFrom<BASE_TYPE>();                                   \
   }
 #endif
 
@@ -158,175 +152,169 @@ using h_index = std::size_t; //!< index type
 
 #endif
 
-namespace hermes
-{
+namespace hermes {
 
-  // *****************************************************************************
-  //                                                                   DATA TYPE
-  // *****************************************************************************
+// *****************************************************************************
+//                                                                   DATA TYPE
+// *****************************************************************************
 
-  /// \brief Enum class for integral types
-  enum class DataType : u8
-  {
-    I8 = 0,      //!< i8 type identifier
-    I16 = 1,     //!< i16 type identifier
-    I32 = 2,     //!< i32 type identifier
-    I64 = 3,     //!< i64 type identifier
-    U8 = 4,      //!< u8 type identifier
-    U16 = 5,     //!< u16 type identifier
-    U32 = 6,     //!< u32 type identifier
-    U64 = 7,     //!< u64 type identifier
-    F16 = 8,     //!< f16 type identifier
-    F32 = 9,     //!< f32 type identifier
-    F64 = 10,    //!< f64 type identifier
-    H_BYTE = 11, //!< h_byte type identifier
-    H_SIZE = 12, //!< h_size type identifier
-    CUSTOM = 13  //!< unidentified type
-  };
+/// \brief Enum class for integral types
+enum class DataType : u8 {
+  I8 = 0,      //!< i8 type identifier
+  I16 = 1,     //!< i16 type identifier
+  I32 = 2,     //!< i32 type identifier
+  I64 = 3,     //!< i64 type identifier
+  U8 = 4,      //!< u8 type identifier
+  U16 = 5,     //!< u16 type identifier
+  U32 = 6,     //!< u32 type identifier
+  U64 = 7,     //!< u64 type identifier
+  F16 = 8,     //!< f16 type identifier
+  F32 = 9,     //!< f32 type identifier
+  F64 = 10,    //!< f64 type identifier
+  H_BYTE = 11, //!< h_byte type identifier
+  H_SIZE = 12, //!< h_size type identifier
+  CUSTOM = 13  //!< unidentified type
+};
 
-  /// \brief DataType set of auxiliary functions
-  class DataTypes
-  {
-  public:
-    /// \brief Translates DataType from identifier number
-    /// \param index
-    /// \return
-    HERMES_CPU_GPU static constexpr DataType typeFrom(u8 index)
-    {
-#define MATCH_TYPE(Type)           \
-  if ((u8)DataType::Type == index) \
+/// \brief DataType set of auxiliary functions
+class DataTypes {
+public:
+  /// \brief Translates DataType from identifier number
+  /// \param index
+  /// \return
+  HERMES_CPU_GPU static constexpr DataType typeFrom(u8 index) {
+#define MATCH_TYPE(Type)                                                       \
+  if ((u8)DataType::Type == index)                                             \
     return DataType::Type;
-      MATCH_TYPE(I8)
-      MATCH_TYPE(I16)
-      MATCH_TYPE(I32)
-      MATCH_TYPE(I64)
-      MATCH_TYPE(U8)
-      MATCH_TYPE(U16)
-      MATCH_TYPE(U32)
-      MATCH_TYPE(U64)
-      MATCH_TYPE(F32)
-      MATCH_TYPE(F64)
-      MATCH_TYPE(H_BYTE)
-      MATCH_TYPE(H_SIZE)
-      return DataType::CUSTOM;
+    MATCH_TYPE(I8)
+    MATCH_TYPE(I16)
+    MATCH_TYPE(I32)
+    MATCH_TYPE(I64)
+    MATCH_TYPE(U8)
+    MATCH_TYPE(U16)
+    MATCH_TYPE(U32)
+    MATCH_TYPE(U64)
+    MATCH_TYPE(F32)
+    MATCH_TYPE(F64)
+    MATCH_TYPE(H_BYTE)
+    MATCH_TYPE(H_SIZE)
+    return DataType::CUSTOM;
 #undef MATCH_TYPE
-    }
-    /// \brief Translates template type T to DataType
-    /// \tparam T
-    /// \return
-    template <typename T>
-    static constexpr DataType typeFrom()
-    {
-#define MATCH_TYPE(Type, R)    \
-  if (std::is_same_v<T, Type>) \
+  }
+  /// \brief Translates template type T to DataType
+  /// \tparam T
+  /// \return
+  template <typename T> static constexpr DataType typeFrom() {
+#define MATCH_TYPE(Type, R)                                                    \
+  if (std::is_same_v<T, Type>)                                                 \
     return DataType::R;
-      MATCH_TYPE(i8, I8)
-      MATCH_TYPE(i16, I16)
-      MATCH_TYPE(i32, I32)
-      MATCH_TYPE(i64, I64)
-      MATCH_TYPE(u8, U8)
-      MATCH_TYPE(u16, U16)
-      MATCH_TYPE(u32, U32)
-      MATCH_TYPE(u64, U64)
-      MATCH_TYPE(f32, F32)
-      MATCH_TYPE(f64, F64)
-      MATCH_TYPE(h_byte, H_BYTE)
-      MATCH_TYPE(h_size, H_SIZE)
-      return DataType::CUSTOM;
+    MATCH_TYPE(i8, I8)
+    MATCH_TYPE(i16, I16)
+    MATCH_TYPE(i32, I32)
+    MATCH_TYPE(i64, I64)
+    MATCH_TYPE(u8, U8)
+    MATCH_TYPE(u16, U16)
+    MATCH_TYPE(u32, U32)
+    MATCH_TYPE(u64, U64)
+    MATCH_TYPE(f32, F32)
+    MATCH_TYPE(f64, F64)
+    MATCH_TYPE(h_byte, H_BYTE)
+    MATCH_TYPE(h_size, H_SIZE)
+    return DataType::CUSTOM;
 #undef MATCH_TYPE
-    }
-    /// \brief Computes number of bytes from DataType
-    /// \param type
-    /// \return
-    static constexpr u32 typeSize(DataType type)
-    {
-#define TYPE_SIZE(Size, Type) \
-  if (DataType::Type == type) \
+  }
+  /// \brief Computes number of bytes from DataType
+  /// \param type
+  /// \return
+  static constexpr u32 typeSize(DataType type) {
+#define TYPE_SIZE(Size, Type)                                                  \
+  if (DataType::Type == type)                                                  \
     return Size;
-      TYPE_SIZE(sizeof(i8), I8)
-      TYPE_SIZE(sizeof(i16), I16)
-      TYPE_SIZE(sizeof(i32), I32)
-      TYPE_SIZE(sizeof(i64), I64)
-      TYPE_SIZE(sizeof(u8), U8)
-      TYPE_SIZE(sizeof(u16), U16)
-      TYPE_SIZE(sizeof(u32), U32)
-      TYPE_SIZE(sizeof(u64), U64)
-      TYPE_SIZE(sizeof(f32), F32)
-      TYPE_SIZE(sizeof(f64), F64)
-      TYPE_SIZE(sizeof(h_byte), H_BYTE)
-      TYPE_SIZE(sizeof(h_size), H_SIZE)
-      return 0;
+    TYPE_SIZE(sizeof(i8), I8)
+    TYPE_SIZE(sizeof(i16), I16)
+    TYPE_SIZE(sizeof(i32), I32)
+    TYPE_SIZE(sizeof(i64), I64)
+    TYPE_SIZE(sizeof(u8), U8)
+    TYPE_SIZE(sizeof(u16), U16)
+    TYPE_SIZE(sizeof(u32), U32)
+    TYPE_SIZE(sizeof(u64), U64)
+    TYPE_SIZE(sizeof(f32), F32)
+    TYPE_SIZE(sizeof(f64), F64)
+    TYPE_SIZE(sizeof(h_byte), H_BYTE)
+    TYPE_SIZE(sizeof(h_size), H_SIZE)
+    return 0;
 #undef TYPE_SIZE
-    }
-  };
-
-  template <typename TYPE>
-  inline constexpr h_size componentCountOf()
-  {
-    return 1;
   }
+};
 
-  template <typename TYPE>
-  inline constexpr h_size baseTypeSizeOf()
-  {
-    return sizeof(TYPE);
-  }
+template <typename TYPE> inline constexpr h_size componentCountOf() {
+  return 1;
+}
 
-  template <typename TYPE>
-  inline constexpr DataType dataTypeOf()
-  {
-    return DataTypes::typeFrom<TYPE>();
-  }
+template <typename TYPE> inline constexpr h_size baseTypeSizeOf() {
+  return sizeof(TYPE);
+}
 
-  // *****************************************************************************
-  //                                                             MEMORY LOCATION
-  // *****************************************************************************
+template <typename TYPE> inline constexpr DataType dataTypeOf() {
+  return DataTypes::typeFrom<TYPE>();
+}
 
-  /// \brief Specifies where memory is stored
-  enum class MemoryLocation
-  {
-    DEVICE, //!< GPU side
-    HOST,   //!< CPU side
-    UNIFIED //!< unified memory
-  };
+// *****************************************************************************
+//                                                             MEMORY LOCATION
+// *****************************************************************************
 
-#ifdef HERMES_INCLUDE_TO_STRING
-  inline std::string_view to_string(DataType type, u32 tab_size = 0)
-  {
-    ((void)tab_size);
-#define DATA_TYPE_NAME(Type)  \
-  if (DataType::Type == type) \
+/// \brief Specifies where memory is stored
+enum class MemoryLocation {
+  DEVICE, //!< GPU side
+  HOST,   //!< CPU side
+  UNIFIED //!< unified memory
+};
+
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
+inline std::string_view to_string(DataType type, u32 tab_size = 0) {
+  ((void)tab_size);
+#define DATA_TYPE_NAME(Type)                                                   \
+  if (DataType::Type == type)                                                  \
     return #Type;
-    DATA_TYPE_NAME(I8)
-    DATA_TYPE_NAME(I16)
-    DATA_TYPE_NAME(I32)
-    DATA_TYPE_NAME(I64)
-    DATA_TYPE_NAME(U8)
-    DATA_TYPE_NAME(U16)
-    DATA_TYPE_NAME(U32)
-    DATA_TYPE_NAME(U64)
-    DATA_TYPE_NAME(F16)
-    DATA_TYPE_NAME(F32)
-    DATA_TYPE_NAME(F64)
-    DATA_TYPE_NAME(H_BYTE)
-    DATA_TYPE_NAME(H_SIZE)
-    DATA_TYPE_NAME(CUSTOM)
-    return "CUSTOM";
+  DATA_TYPE_NAME(I8)
+  DATA_TYPE_NAME(I16)
+  DATA_TYPE_NAME(I32)
+  DATA_TYPE_NAME(I64)
+  DATA_TYPE_NAME(U8)
+  DATA_TYPE_NAME(U16)
+  DATA_TYPE_NAME(U32)
+  DATA_TYPE_NAME(U64)
+  DATA_TYPE_NAME(F16)
+  DATA_TYPE_NAME(F32)
+  DATA_TYPE_NAME(F64)
+  DATA_TYPE_NAME(H_BYTE)
+  DATA_TYPE_NAME(H_SIZE)
+  DATA_TYPE_NAME(CUSTOM)
+  return "CUSTOM";
 #undef DATA_TYPE_NAME
-  }
+}
 
-  inline std::string_view to_string(MemoryLocation location, u32 tab_size = 0)
-  {
-    ((void)tab_size);
-#define ENUM_NAME(E)                 \
-  if (MemoryLocation::E == location) \
+inline std::string_view to_string(MemoryLocation location, u32 tab_size = 0) {
+  ((void)tab_size);
+#define ENUM_NAME(E)                                                           \
+  if (MemoryLocation::E == location)                                           \
     return #E;
-    ENUM_NAME(DEVICE)
-    ENUM_NAME(HOST)
-    ENUM_NAME(UNIFIED)
-    return "CUSTOM";
+  ENUM_NAME(DEVICE)
+  ENUM_NAME(HOST)
+  ENUM_NAME(UNIFIED)
+  return "CUSTOM";
 #undef ENUM_NAME
-  }
+}
+
+inline std::ostream &operator<<(std::ostream &os, DataType type) {
+  os << to_string(type);
+  return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os, MemoryLocation location) {
+  os << to_string(location);
+  return os;
+}
 
 #endif
 

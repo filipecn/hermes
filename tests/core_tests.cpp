@@ -3,63 +3,55 @@
 
 #include <hermes/core/debug.h>
 #include <hermes/core/ref.h>
+#include <hermes/geometry/transform.h>
 
-#ifdef HERMES_INCLUDE_TO_STRING
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
 
-class ToStringTest {
-public:
-  class SubToStringTest {
-    int b{2};
-    HERMES_TO_STRING_FRIEND(ToStringTest::SubToStringTest)
-  };
-  ToStringTest() {
-    t2.reset(new SubToStringTest());
-    p2 = new int(4);
-    v = {1, 2, 3};
-  }
-  ~ToStringTest() { delete p2; }
+class DebugTraitsTestStructA {
+  int a = 2;
+  int b = 3;
+  std::vector<i32> list = {5, 4, 3, 2, 1};
+  std::unordered_map<i32, i32> map = {{1, 2}, {2, 3}, {3, 4}};
+  hermes::geo::Transform t;
 
-private:
-  int a{3};
-  SubToStringTest b;
-  std::shared_ptr<SubToStringTest> t;
-  std::shared_ptr<SubToStringTest> t2;
-  int *p{nullptr};
-  int *p2{nullptr};
-  std::vector<int> v;
-  HERMES_TO_STRING_FRIEND(ToStringTest)
+  friend class hermes::DebugTraits<DebugTraitsTestStructA>;
 };
 
-namespace hermes {
+class DebugTraitsTestStructB {
+  std::vector<i32> list = {1, 2, 3, 4};
+  std::unordered_map<i32, i32> map = {{1, 1}, {2, 2}};
+  DebugTraitsTestStructA s;
+  friend class hermes::DebugTraits<DebugTraitsTestStructB>;
+};
 
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(ToStringTest)
+template <> struct hermes::DebugTraits<DebugTraitsTestStructA> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static hermes::DebugMessage message(const DebugTraitsTestStructA &data) {
+    return hermes::DebugMessage()
+        .addTitle("DebugTraitsTestStructA")
+        .add("a", data.a)
+        .add("b", data.b)
+        .addArray("list", data.list)
+        .addMap("map", data.map)
+        .add("t", data.t);
+  }
+};
 
-HERMES_TO_STRING_METHOD_BEGIN(ToStringTest::SubToStringTest)
-HERMES_TO_STRING_METHOD_FIELD(b);
-HERMES_TO_STRING_METHOD_END
+template <> struct hermes::DebugTraits<DebugTraitsTestStructB> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static hermes::DebugMessage message(const DebugTraitsTestStructB &data) {
+    return hermes::DebugMessage()
+        .addTitle("DebugTraitsTestStructB")
+        .addArray("list", data.list)
+        .addMap("map", data.map)
+        .add("s", data.s);
+  }
+};
 
-HERMES_TO_STRING_METHOD_BEGIN(ToStringTest)
-HERMES_TO_STRING_METHOD_TITLE
-HERMES_TO_STRING_METHOD_FIELD(a);
-HERMES_TO_STRING_METHOD_LINE("this is a line")
-HERMES_TO_STRING_METHOD_LINE("this is a value {}", object.a)
-HERMES_TO_STRING_METHOD_HERMES_PTR_FIELD(t);
-HERMES_TO_STRING_METHOD_HERMES_PTR_FIELD(t2);
-HERMES_TO_STRING_METHOD_RAW_PTR_FIELD(p);
-HERMES_TO_STRING_METHOD_RAW_PTR_FIELD(p2);
-HERMES_TO_STRING_METHOD_CUSTOM_FIELD(a, "custom {}", object.a);
-HERMES_TO_STRING_METHOD_SEPARATOR_LINE
-HERMES_TO_STRING_METHOD_HERMES_FIELD(b);
-HERMES_TO_STRING_METHOD_ARRAY_FIELD_BEGIN(v, vv)
-HERMES_TO_STRING_METHOD_FIELD_VALUE(vv, vv);
-HERMES_TO_STRING_METHOD_ARRAY_FIELD_END
-HERMES_TO_STRING_METHOD_END
-
-} // namespace hermes
-
-TEST_CASE("to_string") {
-  ToStringTest test;
-  HERMES_INFO("{}", hermes::to_string(test));
+TEST_CASE("Debug Traits") {
+  DebugTraitsTestStructB t;
+  std::cout << "DUDE!!!! " << hermes::to_string(t) << std::endl;
+  std::cout << t << std::endl;
 }
 
 #endif

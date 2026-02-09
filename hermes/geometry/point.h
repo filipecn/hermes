@@ -400,16 +400,21 @@ HERMES_CPU_GPU const geo::Point3<T> &min(const geo::Point3<T> &a,
   return a < b ? a : b;
 }
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Point2<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("P[{}, {}]", hermes::to_string(object.x),
-                             hermes::to_string(object.y));
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<geo::Point2<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Point2<T> &data) {
+    return DebugMessage("P[{}, {}]", hermes::to_string(data.x),
+                        hermes::to_string(data.y));
+  }
+};
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Point3<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("P[{}, {}, {}]", hermes::to_string(object.x),
-                             hermes::to_string(object.y),
-                             hermes::to_string(object.z));
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<geo::Point3<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Point3<T> &data) {
+    return DebugMessage("P[{}, {}, {}]", hermes::to_string(data.x),
+                        hermes::to_string(data.y), hermes::to_string(data.z));
+  }
+};
 
 } // namespace hermes
 

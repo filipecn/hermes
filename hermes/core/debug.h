@@ -30,6 +30,7 @@
 #include <hermes/core/types.h>
 #include <hermes/io/logger.h>
 
+#include <algorithm> //  std::count
 #include <cmath>
 
 #ifndef HERMES_DEBUG
@@ -64,210 +65,196 @@
 //                                                                      UTILS
 // *****************************************************************************
 
-#ifdef HERMES_INCLUDE_TO_STRING
-
-#define HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD                                 \
-  template <typename T> std::string to_string(const T &t, u32 tab_size = 0)
-
-#define HERMES_DECLARE_TO_STRING_DEBUG_METHOD(A)                               \
-  template <> std::string to_string(const A &t, u32 tab_size);
-
-namespace hermes {
-HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD {
-  std::stringstream ss;
-  std::string tab(tab_size, ' ');
-  ss << tab << t;
-  return ss.str();
-}
-}
-
-#define HERMES_TO_STRING_FRIEND(A)                                             \
-  friend std::string hermes::to_string(const A &, u32);
-
-/// Auxiliary struct for implementing the to_string classes method.
-struct HERMES_DebugFields {
-  enum class Type { Inline, Custom, NextLine, Separator };
-  HERMES_DebugFields() = default;
-  std::string title;
-  std::vector<std::tuple<Type, std::string, std::string>> fields;
-  template <typename T>
-  void add(Type type, const std::string &name, const T &data) {
-    std::stringstream ss;
-    ss << data;
-    add(type, name, ss.str());
-  }
-  void add(Type type, const std::string &name, const std::string &value) {
-    fields.emplace_back(std::make_tuple(type, name, value));
-  }
-  std::string to_string(u32 tab_size = 0) {
-    std::string tab(tab_size, ' ');
-    std::stringstream ss;
-    if (!title.empty())
-      ss << "\n" << tab << "++++++ " << title << " +++++++\n";
-    for (const auto &field : fields) {
-      std::string field_name, value;
-      Type type;
-      std::tie(type, field_name, value) = field;
-      switch (type) {
-      case Type::Inline:
-        ss << tab << "  " << field_name << ": " << value << "\n";
-        break;
-      case Type::NextLine:
-        ss << tab << "  " << field_name << ":\n";
-        ss << tab << " " << value << "\n";
-        break;
-      case Type::Custom:
-        ss << tab << value;
-        break;
-      case Type::Separator:
-        ss << tab << "--------------------------\n";
-      }
-    }
-    return ss.str();
-  }
-};
-
 #ifndef HERMES_COMMA
 #define HERMES_COMMA ,
 #endif
 
-#ifndef HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN
-#define HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(OBJECT, ...)                   \
-  template <__VA_ARGS__>                                                       \
-  std::string to_string(const OBJECT &object, u32 tab_size = 0) {              \
-    HERMES_UNUSED_VARIABLE(object);                                            \
-    HERMES_UNUSED_VARIABLE(tab_size);                                          \
-    std::string _debug_method_title_ = #OBJECT;                                \
-    HERMES_DebugFields debug_fields;
+#ifndef HERMES_NAME_OF
+#define HERMES_NAME_OF(A) #A
 #endif
 
-#ifndef HERMES_TO_STRING_METHOD_BEGIN
-#define HERMES_TO_STRING_METHOD_BEGIN(OBJECT)                                  \
-  template <> std::string to_string(const OBJECT &object, u32 tab_size) {      \
-    HERMES_UNUSED_VARIABLE(object);                                            \
-    HERMES_UNUSED_VARIABLE(tab_size);                                          \
-    std::string _debug_method_title_ = #OBJECT;                                \
-    HERMES_DebugFields debug_fields;
+#ifndef HERMES_INCLUDE_DEBUG_TRAITS
+#define HERMES_INCLUDE_DEBUG_TRAITS
 #endif
 
-#ifndef HERMES_TO_STRING_METHOD_END
-#define HERMES_TO_STRING_METHOD_END                                            \
-  return debug_fields.to_string(tab_size);                                     \
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
+
+namespace hermes {
+
+template <typename T, typename = void>
+struct is_stream_writable : std::false_type {};
+
+template <typename T>
+struct is_stream_writable<T,
+                          std::void_t<decltype(std::declval<std::ostream &>()
+                                               << std::declval<const T &>())>>
+    : std::true_type {};
+
+/// @brief Trait for objects that can be converted to debug strings
+template <typename T> struct DebugTraits {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = false;
+};
+
+struct DebugMessage {
+  DebugMessage() = default;
+  DebugMessage(const DebugMessage &rhs) noexcept
+      : offset_{rhs.offset_}, tab_level_{rhs.tab_level_},
+        tab_size_{rhs.tab_size_} {
+    ss_ << rhs.ss_.str();
   }
-#endif
+  DebugMessage &setOffset(u32 offset) {
+    offset_ = offset;
+    return *this;
+  }
+  DebugMessage &pushTab() {
+    tab_level_++;
+    return *this;
+  }
+  DebugMessage &popTab() {
+    tab_level_ = tab_level_ > 0 ? tab_level_ - 1 : 0;
+    return *this;
+  }
+  template <typename... Ts>
+  DebugMessage &addRawFmt(const char *fmt, Ts &&...args) {
+    ss_ << std::vformat(fmt, std::make_format_args(args...));
+    return *this;
+  }
+  template <typename... Ts>
+  DebugMessage &addFmt(const char *fmt, Ts &&...args) {
+    std::stringstream ss;
+    ss << std::vformat(fmt, std::make_format_args(args...));
+    auto lines = Str<char>::split(ss.str(), "\n");
+    for (const auto &line : lines) {
+      ss_ << std::string(tab_level_ * tab_size_, ' ') << line << std::endl;
+    }
+    return *this;
+  }
+  DebugMessage &addSeparator(h_size size) {
+    addFmt("{}\n", std::string(size, '-'));
+    return *this;
+  }
+  template <typename... Ts>
+  DebugMessage &addTitle(const char *fmt, Ts &&...args) {
+    std::stringstream ss;
+    ss << std::vformat(fmt, std::make_format_args(args...));
+    addFmt("{}\n", ss.str());
+    addSeparator(ss.str().size());
+    pushTab();
+    return *this;
+  }
+  template <typename... Ts> DebugMessage(const char *fmt, Ts &&...args) {
+    ss_ << std::vformat(fmt, std::make_format_args(args...));
+  }
+  template <typename T>
+  DebugMessage &addAddress(const std::string &name, const T *p) {
+    addFmt("{} = {:p}\n", name, static_cast<const void *>(p));
+    return *this;
+  }
+  template <typename T>
+  DebugMessage &addArray(const std::string &name, const std::vector<T> &arr) {
+    for (h_index i = 0; i < arr.size(); ++i)
+      addFmt("{}[{}] = {}\n", name, i, arr[i]);
+    return *this;
+  }
+  template <typename T>
+  DebugMessage &
+  addArray(const std::string &name, const std::vector<T> &arr,
+           const std::function<DebugMessage(h_index, const T &)> &f) {
+    for (h_index i = 0; i < arr.size(); ++i) {
+      auto m = f(i, arr[i]);
+      if (m.isMultiline()) {
+        std::stringstream ss;
+        ss << std::format("{}[{}]:", name, i);
+        addFmt("{}\n{}\n", ss.str(), m.setOffset(ss.str().size()).str());
+      } else
+        addFmt("{}[{}] = {}\n", name, i, f(i, arr[i]).str());
+    }
+    return *this;
+  }
+  template <typename K, typename V>
+  DebugMessage &addMap(const std::string &name,
+                       const std::unordered_map<K, V> &map) {
+    for (const auto &item : map)
+      addFmt("{}[{}] = {}\n", name, item.first, item.second);
+    return *this;
+  }
+  bool isMultiline() const {
+    auto text = str();
+    return std::count(text.begin(), text.end(), '\n') > 1;
+  }
+  template <typename T>
+  typename std::enable_if<DebugTraits<T>::is_string_serializable,
+                          DebugMessage &>::type
+  add(const std::string &name, const T &t) {
+    auto m = DebugTraits<T>::message(t);
+    if (m.isMultiline()) {
+      addFmt("{}:\n", name);
+      pushTab();
+      addFmt("{}\n", m.str());
+      popTab();
+    } else
+      addFmt("{} = {}\n", name, m.str());
+    return *this;
+  }
+  template <typename T>
+  typename std::enable_if<!DebugTraits<T>::is_string_serializable &&
+                              is_stream_writable<T>::value,
+                          DebugMessage &>::type
+  add(const std::string &name, const T &t) {
+    std::stringstream ss;
+    ss << t;
+    addFmt("{} = {}\n", name, ss.str());
+    return *this;
+  }
+  DebugMessage &add(const std::string &txt) {
+    addFmt("{}\n", txt);
+    return *this;
+  }
+  std::string str() const {
+    auto lines = Str<char>::split(ss_.str(), "\n");
+    std::stringstream ss;
+    if (lines.size() == 1) {
+      ss << std::string(offset_, ' ') << lines.front();
+      return ss.str();
+    }
+    for (const auto &line : lines) {
+      ss << std::string(offset_, ' ') << line;
+      if (line.back() != '\n')
+        ss << std::endl;
+    }
+    return ss.str();
+  }
 
-#ifndef HERMES_TO_STRING_METHOD_TITLE
-#define HERMES_TO_STRING_METHOD_TITLE debug_fields.title = _debug_method_title_;
-#endif
+private:
+  u32 offset_{0};
+  u32 tab_level_{0};
+  u32 tab_size_{2};
+  std::stringstream ss_;
+};
 
-#ifndef HERMES_TO_STRING_METHOD_HERMES_FIELD
-#define HERMES_TO_STRING_METHOD_HERMES_FIELD(F)                                \
-  debug_fields.add(HERMES_DebugFields::Type::NextLine, #F,                     \
-                   hermes::to_string(object.F, tab_size + 2));
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_HERMES_PTR_FIELD
-#define HERMES_TO_STRING_METHOD_HERMES_PTR_FIELD(F)                            \
-  debug_fields.add(HERMES_DebugFields::Type::NextLine, #F,                     \
-                   object.F ? hermes::to_string(*object.F, tab_size + 2)       \
-                            : "nullptr");
-#endif
-
-template <typename... Ts> std::string fmtDebug(const char *fmt, Ts &&...args) {
-  return std::vformat(fmt, std::make_format_args(args...));
+template <typename T>
+typename std::enable_if<DebugTraits<T>::is_string_serializable,
+                        std::string>::type
+to_string(const T &t) {
+  return DebugTraits<T>::message(t).str();
 }
 
-#ifndef HERMES_TO_STRING_METHOD_CUSTOM_FIELD
-#define HERMES_TO_STRING_METHOD_CUSTOM_FIELD(F, FMT, ...)                      \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
-                   fmtDebug(FMT __VA_OPT__(, ) __VA_ARGS__));
-#endif
+template <typename T>
+typename std::enable_if<!DebugTraits<T>::is_string_serializable,
+                        std::string>::type
+to_string(const T &t) {
+  return DebugMessage("{}", t).str();
+}
 
-#ifndef HERMES_TO_STRING_METHOD_RAW_PTR_FIELD
-#define HERMES_TO_STRING_METHOD_RAW_PTR_FIELD(F)                               \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
-                   object.F ? hermes::Str<char>::addressOf(                    \
-                                  reinterpret_cast<std::uintptr_t>(object.F))  \
-                            : "nullptr");
-#endif
+} // namespace hermes
 
-#ifndef HERMES_TO_STRING_METHOD_FIELD
-#define HERMES_TO_STRING_METHOD_FIELD(F)                                       \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F, object.F);
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_ADDRESS_FIELD
-#define HERMES_TO_STRING_METHOD_ADDRESS_FIELD(F)                               \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
-                   hermes::cstr::format("0x{:x}", (uintptr_t)object.F));
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_FIELD_VALUE
-#define HERMES_TO_STRING_METHOD_FIELD_VALUE(F, V)                              \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F, V);
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_SEPARATOR_LINE
-#define HERMES_TO_STRING_METHOD_SEPARATOR_LINE                                 \
-  debug_fields.add(HERMES_DebugFields::Type::Separator, "", "");
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_LINE
-#define HERMES_TO_STRING_METHOD_LINE(FMT, ...)                                 \
-  debug_fields.add(HERMES_DebugFields::Type::Custom, "",                       \
-                   fmtDebug(FMT __VA_OPT__(, ) __VA_ARGS__));
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_ARRAY_FIELD_BEGIN
-#define HERMES_TO_STRING_METHOD_ARRAY_FIELD_BEGIN(F, I)                        \
-  tab_size += 2;                                                               \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
-                   "[" + std::to_string(object.F.size()) + "]");               \
-  for (u32 i = 0; i < object.F.size(); ++i) {                                  \
-    const auto &I = object.F[i];                                               \
-    debug_fields.add(HERMES_DebugFields::Type::Inline, #I, i);
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_ARRAY_FIELD_END
-#define HERMES_TO_STRING_METHOD_ARRAY_FIELD_END                                \
-  }                                                                            \
-  tab_size -= 2;
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_MAP_FIELD_BEGIN
-#define HERMES_TO_STRING_METHOD_MAP_FIELD_BEGIN(F, K, V)                       \
-  tab_size += 2;                                                               \
-  debug_fields.add(HERMES_DebugFields::Type::Inline, #F,                       \
-                   std::to_string(object.F.size()));                           \
-  for (const auto &item : object.F) {                                          \
-    const auto &K = item.first;                                                \
-    const auto &V = item.second;                                               \
-    debug_fields.add(HERMES_DebugFields::Type::Inline, #K, K);
-#endif
-
-#ifndef HERMES_TO_STRING_METHOD_MAP_FIELD_END
-#define HERMES_TO_STRING_METHOD_MAP_FIELD_END                                  \
-  }                                                                            \
-  tab_size -= 2;
-#endif
-
-#else
-#define HERMES_TEMPLATE_TO_STRING_DEBUG_METHOD
-#define HERMES_DECLARE_TO_STRING_DEBUG_METHOD
-#define HERMES_TO_STRING_METHOD_FRIEND
-#define HERMES_TO_STRING_METHOD_METHOD
-#define HERMES_TO_STRING_METHOD_DEBUG_METHOD_BEGIN
-#define HERMES_TO_STRING_METHOD_FIELD
-#define HERMES_TO_STRING_METHOD_FIELD_VALUE
-#define HERMES_TO_STRING_METHOD_HERMES_PTR_FIELD
-#define HERMES_TO_STRING_METHOD_HERMES_PTR_FIELD
-#define HERMES_TO_STRING_METHOD_RAW_PTR_FIELD
-#define HERMES_TO_STRING_METHOD_RAW_PTR_FIELD
-#define HERMES_TO_STRING_METHOD_CUSTOM_FIELD
-#define HERMES_TO_STRING_METHOD_SEPARATOR_LINE
-#define HERMES_TO_STRING_METHOD_LINE
-#define HERMES_TO_STRING_METHOD_HERMES_FIELD
-#define HERMES_TO_STRING_METHOD_DEBUG_METHOD_END
+template <typename T>
+typename std::enable_if<hermes::DebugTraits<T>::is_string_serializable,
+                        std::ostream &>::type
+operator<<(std::ostream &os, const T &t) {
+  os << hermes::to_string(t);
+  return os;
+}
 
 #endif
 

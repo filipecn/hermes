@@ -28,15 +28,6 @@
 
 #include <hermes/geometry/plane.h>
 
-namespace hermes {
-
-HERMES_TO_STRING_METHOD_BEGIN(geo::Plane)
-HERMES_TO_STRING_METHOD_LINE("Plane[n={} o={}]",
-                             hermes::to_string(object.normal), object.offset);
-HERMES_TO_STRING_METHOD_END
-
-} // namespace hermes
-
 namespace hermes::geo {
 
 Plane::Plane() { offset = 0; }

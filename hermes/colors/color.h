@@ -86,8 +86,6 @@ struct RGB_Color {
   f32 r{0.f}; //!< red component in [0,1] interval
   f32 g{0.f}; //!< green component in [0,1] interval
   f32 b{0.f}; //!< blue component in [0,1] interval
-
-  HERMES_TO_STRING_FRIEND(RGB_Color)
 };
 
 // *****************************************************************************
@@ -151,8 +149,6 @@ struct RGBA_Color : public RGB_Color {
   HERMES_NODISCARD RGB_Color rgb() const;
 
   f32 a{1.f}; //!< opacity component in [0,1] interval
-
-  HERMES_TO_STRING_FRIEND(RGBA_Color)
 };
 
 /// \brief Linearly interpolates between two colors
@@ -170,7 +166,18 @@ struct RGBA_Color : public RGB_Color {
 
 namespace hermes {
 
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(colors::RGBA_Color);
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(colors::RGB_Color);
+template <> struct DebugTraits<colors::RGBA_Color> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const colors::RGBA_Color &data) {
+    return DebugMessage("C[{}, {}, {}, {}]", data.r, data.g, data.b, data.a);
+  }
+};
+
+template <> struct DebugTraits<colors::RGB_Color> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const colors::RGB_Color &data) {
+    return DebugMessage("C[{}, {}, {}]", data.r, data.g, data.b);
+  }
+};
 
 } // namespace hermes

@@ -29,20 +29,6 @@
 
 #include <hermes/geometry/line.h>
 
-namespace hermes {
-
-HERMES_TO_STRING_METHOD_BEGIN(geo::Line2)
-HERMES_TO_STRING_METHOD_LINE("Line[p={} d={}]", hermes::to_string(object.a),
-                             hermes::to_string(object.d));
-HERMES_TO_STRING_METHOD_END
-
-HERMES_TO_STRING_METHOD_BEGIN(geo::Line)
-HERMES_TO_STRING_METHOD_LINE("Line[p={} d={}]", hermes::to_string(object.a),
-                             hermes::to_string(object.d));
-HERMES_TO_STRING_METHOD_END
-
-} // namespace hermes
-
 namespace hermes::geo {
 
 Line2::Line2(const point2 &_a, const vec2 &_d) {

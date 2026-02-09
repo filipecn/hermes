@@ -249,15 +249,20 @@ HERMES_TYPE_LAYOUT_METHODS(geo::normal2d, f64, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::normal3, f32, 3)
 HERMES_TYPE_LAYOUT_METHODS(geo::normal3d, f64, 3)
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Normal2<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("N[{}, {}]", hermes::to_string(object.x),
-                             hermes::to_string(object.y));
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<geo::Normal2<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Normal2<T> &data) {
+    return DebugMessage("N[{}, {}]", hermes::to_string(data.x),
+                        hermes::to_string(data.y));
+  }
+};
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(geo::Normal3<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("N[{}, {}, {}]", hermes::to_string(object.x),
-                             hermes::to_string(object.y),
-                             hermes::to_string(object.z));
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<geo::Normal3<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Normal3<T> &data) {
+    return DebugMessage("N[{}, {}, {}]", hermes::to_string(data.x),
+                        hermes::to_string(data.y), hermes::to_string(data.z));
+  }
+};
 
 } // namespace hermes

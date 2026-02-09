@@ -29,8 +29,6 @@
 
 #pragma once
 
-#include "hermes/core/debug.h"
-#include "hermes/core/types.h"
 #include <hermes/geometry/point.h>
 #include <hermes/geometry/vector.h>
 
@@ -95,7 +93,20 @@ namespace hermes {
 HERMES_TYPE_LAYOUT_METHODS(geo::Line2, real_t, 4)
 HERMES_TYPE_LAYOUT_METHODS(geo::Line, real_t, 6)
 
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Line2)
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Line)
+template <> struct DebugTraits<geo::Line2> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Line2 &data) {
+    return DebugMessage("Line[p={} d={}]", hermes::to_string(data.a),
+                        hermes::to_string(data.d));
+  }
+};
+
+template <> struct DebugTraits<geo::Line> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Line &data) {
+    return DebugMessage("Line[p={} d={}]", hermes::to_string(data.a),
+                        hermes::to_string(data.d));
+  }
+};
 
 } // namespace hermes

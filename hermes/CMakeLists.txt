@@ -83,9 +83,9 @@ target_include_directories(
   $<INSTALL_INTERFACE:include/hermes>
 )
 
-if(HERMES_INCLUDE_TO_STRING)
-  target_compile_definitions(hermes PUBLIC HERMES_INCLUDE_TO_STRING)
-endif(HERMES_INCLUDE_TO_STRING)
+if(HERMES_INCLUDE_DEBUG_TRAITS)
+  target_compile_definitions(hermes PUBLIC HERMES_INCLUDE_DEBUG_TRAITS)
+endif(HERMES_INCLUDE_DEBUG_TRAITS)
 
 setup_target(hermes)
 

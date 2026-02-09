@@ -154,14 +154,20 @@ template <typename T> struct Size3 {
   T depth{0};  //!< 2-th dimension size
 };
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Size2<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("Size[{}, {}]", object.width, object.height);
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<Size2<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const Size2<T> &data) {
+    return DebugMessage("Size[{}, {}]", data.width, data.height);
+  }
+};
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Size3<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("Size[{}, {}, {}]", object.width, object.height,
-                             object.depth);
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<Size3<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const Size3<T> &data) {
+    return DebugMessage("Size[{}, {}, {}]", data.width, data.height,
+                        data.depth);
+  }
+};
 
 using size2 = Size2<u32>;    //!< u32
 using size2_8 = Size2<u8>;   //!< u8

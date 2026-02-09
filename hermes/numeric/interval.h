@@ -177,8 +177,11 @@ ARITHMETIC_OP(*)
 ARITHMETIC_OP(/)
 #undef ARITHMETIC_OP
 
-HERMES_TO_STRING_TEMPLATED_METHOD_BEGIN(Interval<T>, typename T)
-HERMES_TO_STRING_METHOD_LINE("I[{}, {}]", object.low, object.high);
-HERMES_TO_STRING_METHOD_END
+template <typename T> struct DebugTraits<Interval<T>> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const Interval<T> &data) {
+    return DebugMessage("I[{}, {}]", data.low, data.high);
+  }
+};
 
 } // namespace hermes

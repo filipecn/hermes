@@ -82,9 +82,6 @@ template <> struct FlagTraits<geo::transform_option_bits> {
       geo::transform_option_bits::flip_z;
 };
 
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::transform_option_bits)
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::transform_options)
-
 } // namespace hermes
 
 namespace hermes::geo {
@@ -229,8 +226,6 @@ public:
 
 private:
   math::mat3 m;
-
-  HERMES_TO_STRING_FRIEND(Transform2)
 };
 
 // *****************************************************************************
@@ -570,8 +565,6 @@ public:
 
 protected:
   math::mat4 m; //!< transformation matrix
-
-  HERMES_TO_STRING_FRIEND(Transform)
 };
 
 } // namespace hermes::geo
@@ -581,7 +574,89 @@ namespace hermes {
 HERMES_TYPE_LAYOUT_METHODS(geo::Transform2, f32, 9)
 HERMES_TYPE_LAYOUT_METHODS(geo::Transform, f32, 16)
 
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Transform2)
-HERMES_DECLARE_TO_STRING_DEBUG_METHOD(geo::Transform)
+template <> struct DebugTraits<geo::transform_option_bits> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::transform_option_bits &data) {
+    DebugMessage m;
+#define BIT_NAME(B) else if (geo::transform_option_bits::B == data) m.addFmt(#B)
+    if (geo::transform_option_bits::x_right == data)
+      m.addFmt("x_right");
+    BIT_NAME(y_right);
+    BIT_NAME(z_right);
+    BIT_NAME(left_handed);
+    BIT_NAME(x_left);
+    BIT_NAME(y_left);
+    BIT_NAME(z_left);
+    BIT_NAME(right_handed);
+    BIT_NAME(x_up);
+    BIT_NAME(y_up);
+    BIT_NAME(z_up);
+    BIT_NAME(zero_to_one);
+    BIT_NAME(x_down);
+    BIT_NAME(y_down);
+    BIT_NAME(z_down);
+    BIT_NAME(transpose);
+    BIT_NAME(flip_x);
+    BIT_NAME(flip_y);
+    BIT_NAME(flip_z);
+    return m;
+#undef BIT_NAME
+  }
+};
+
+template <> struct DebugTraits<geo::transform_options> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::transform_options &data) {
+    DebugMessage m;
+    std::vector<std::string> values;
+#define CHECK_BIT(B)                                                           \
+  if (geo::transform_option_bits::B & data)                                    \
+  values.push_back(#B)
+    CHECK_BIT(x_right);
+    CHECK_BIT(y_right);
+    CHECK_BIT(z_right);
+    CHECK_BIT(left_handed);
+    CHECK_BIT(x_left);
+    CHECK_BIT(y_left);
+    CHECK_BIT(z_left);
+    CHECK_BIT(right_handed);
+    CHECK_BIT(x_up);
+    CHECK_BIT(y_up);
+    CHECK_BIT(z_up);
+    CHECK_BIT(zero_to_one);
+    CHECK_BIT(x_down);
+    CHECK_BIT(y_down);
+    CHECK_BIT(z_down);
+    CHECK_BIT(transpose);
+    CHECK_BIT(flip_x);
+    CHECK_BIT(flip_y);
+    CHECK_BIT(flip_z);
+    return DebugMessage("{}", hermes::cstr::join(values, " | "));
+#undef CHECK_BIT
+  }
+};
+
+template <> struct DebugTraits<geo::Transform2> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Transform2 &data) {
+    DebugMessage m;
+    for (int row = 0; row < 3; ++row) {
+      m.addFmt("[{}, {}, {}]\n", data[row][0], data[row][1], data[row][2]);
+    }
+    return m;
+  }
+};
+
+template <> struct DebugTraits<geo::Transform> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const geo::Transform &data) {
+    DebugMessage m;
+    for (int row = 0; row < 4; ++row) {
+      m.addFmt("[{}, {}, {}, {}]\n", data[row][0], data[row][1], data[row][2],
+               data[row][3]);
+    }
+    return m;
+  }
+};
 
 } // namespace hermes

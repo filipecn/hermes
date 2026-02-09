@@ -5,7 +5,7 @@
       "name": "base-preset",
       "hidden": true,
       "cacheVariables": {
-        "HERMES_INCLUDE_TO_STRING": "ON",
+        "HERMES_INCLUDE_DEBUG_TRAITS": "ON",
         "HERMES_BUILD_TESTS": "ON"
       }
     },
