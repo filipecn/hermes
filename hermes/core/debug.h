@@ -151,7 +151,24 @@ struct DebugMessage {
     return *this;
   }
   template <typename T>
-  DebugMessage &addArray(const std::string &name, const std::vector<T> &arr) {
+  typename std::enable_if<DebugTraits<T>::is_string_serializable,
+                          DebugMessage &>::type
+  addArray(const std::string &name, const std::vector<T> &arr) {
+    for (h_index i = 0; i < arr.size(); ++i) {
+      auto m = DebugTraits<T>::message(arr[i]);
+      if (m.isMultiline()) {
+        std::stringstream ss;
+        ss << std::format("{}[{}]:", name, i);
+        addFmt("{}\n{}\n", ss.str(), m.setOffset(ss.str().size()).str());
+      } else
+        addFmt("{}[{}] = {}\n", name, i, m.str());
+    }
+    return *this;
+  }
+  template <typename T>
+  typename std::enable_if<!DebugTraits<T>::is_string_serializable,
+                          DebugMessage &>::type
+  addArray(const std::string &name, const std::vector<T> &arr) {
     for (h_index i = 0; i < arr.size(); ++i)
       addFmt("{}[{}] = {}\n", name, i, arr[i]);
     return *this;

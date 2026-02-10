@@ -408,21 +408,26 @@ private:
 
 namespace hermes {
 
+template <> struct DebugTraits<mem::AoS::Layout::Field> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static DebugMessage message(const mem::AoS::Layout::Field &data) {
+    return DebugMessage()
+        .addTitle("mem::AoS::Layout::Field")
+        .add("name", data.name)
+        .addFmt("base data type: {}[{}]\n", hermes::to_string(data.type),
+                data.component_count)
+        .addFmt("base data size in bytes", data.size)
+        .addFmt("offset in bytes", data.offset);
+  }
+};
+
 template <> struct DebugTraits<mem::AoS::Layout> {
   static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
   static DebugMessage message(const mem::AoS::Layout &data) {
     DebugMessage m;
     m.addTitle("mem::AoS::Layout");
     m.addFmt("Struct (size in bytes: {})\n", data.sizeInBytes());
-    m.addArray<mem::AoS::Layout::Field>(
-        "fields", data.fields_,
-        [](h_index i, const mem::AoS::Layout::Field &f) -> DebugMessage {
-          return DebugMessage("field #{} ({})\n", i, f.name)
-              .addFmt("base data type: {}[{}]\n", hermes::to_string(f.type),
-                      f.component_count)
-              .addFmt("base data size in bytes: {}\n", f.size)
-              .addFmt("offset in bytes: {}\n", f.offset);
-        });
+    m.addArray("fields", data.fields_);
     return m;
   }
 };
