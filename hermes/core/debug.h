@@ -189,8 +189,18 @@ struct DebugMessage {
     return *this;
   }
   template <typename K, typename V>
-  DebugMessage &addMap(const std::string &name,
-                       const std::unordered_map<K, V> &map) {
+  typename std::enable_if<DebugTraits<V>::is_string_serializable,
+                          DebugMessage &>::type
+  addMap(const std::string &name, const std::unordered_map<K, V> &map) {
+    for (const auto &item : map)
+      addFmt("{}[{}] = {}\n", name, item.first,
+             DebugTraits<V>::message(item.second));
+    return *this;
+  }
+  template <typename K, typename V>
+  typename std::enable_if<!DebugTraits<V>::is_string_serializable,
+                          DebugMessage &>::type
+  addMap(const std::string &name, const std::unordered_map<K, V> &map) {
     for (const auto &item : map)
       addFmt("{}[{}] = {}\n", name, item.first, item.second);
     return *this;
