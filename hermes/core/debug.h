@@ -73,10 +73,6 @@
 #define HERMES_NAME_OF(A) #A
 #endif
 
-#ifndef HERMES_INCLUDE_DEBUG_TRAITS
-#define HERMES_INCLUDE_DEBUG_TRAITS
-#endif
-
 #ifdef HERMES_INCLUDE_DEBUG_TRAITS
 
 namespace hermes {
@@ -102,7 +98,7 @@ struct DebugMessage {
         tab_size_{rhs.tab_size_} {
     ss_ << rhs.ss_.str();
   }
-  DebugMessage &setOffset(u32 offset) {
+  DebugMessage &setOffset(h_size offset) {
     offset_ = offset;
     return *this;
   }
@@ -253,7 +249,7 @@ struct DebugMessage {
   }
 
 private:
-  u32 offset_{0};
+  h_size offset_{0};
   u32 tab_level_{0};
   u32 tab_size_{2};
   std::stringstream ss_;
