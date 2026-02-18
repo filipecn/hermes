@@ -76,6 +76,35 @@ u64 AoS::Layout::sizeOf(const std::string &field_name) const {
   return sizeOf(it->second);
 }
 
+bool operator==(const AoS::Layout &lhs, const AoS::Layout &rhs) {
+  if (lhs.size_in_bytes_ != rhs.size_in_bytes_)
+    return false;
+  if (lhs.fields_.size() != rhs.fields_.size())
+    return false;
+  if (lhs.field_id_map_.size() != rhs.field_id_map_.size())
+    return false;
+  for (h_index i = 0; i < lhs.fields_.size(); ++i) {
+    if (lhs.fields_[i].name != rhs.fields_[i].name ||
+        lhs.fields_[i].size != rhs.fields_[i].size ||
+        lhs.fields_[i].offset != rhs.fields_[i].offset ||
+        lhs.fields_[i].component_count != rhs.fields_[i].component_count |
+            lhs.fields_[i].type != rhs.fields_[i].type)
+      return false;
+  }
+  for (const auto &item : lhs.field_id_map_) {
+    auto it = rhs.field_id_map_.find(item.first);
+    if (it == rhs.field_id_map_.end())
+      return false;
+    if (item.second != it->second)
+      return false;
+  }
+  return true;
+}
+
+bool operator!=(const AoS::Layout &lhs, const AoS::Layout &rhs) {
+  return !(lhs == rhs);
+}
+
 u64 AoS::Layout::sizeOf(u64 field_id) const { return fields_[field_id].size; }
 
 AoS::~AoS() noexcept { HERMES_CHECK_HE_RESULT(clear()); }
@@ -140,6 +169,19 @@ HeError AoS::resize(u64 count) {
 const Block &AoS::data() const { return data_; }
 
 Block &AoS::data() { return data_; }
+
+HeError AoS::append(const AoS &other) {
+  if (layout_ != other.layout_)
+    return HeError::InvalidInput;
+  Block new_block;
+  auto new_count = size_ + other.size_;
+  HERMES_RETURN_HE_ERROR(new_block.resize(new_count * layout_.size_in_bytes_));
+  HERMES_RETURN_HE_ERROR(new_block.copy(data_));
+  HERMES_RETURN_HE_ERROR(new_block.copy(other.data_, data_.sizeInBytes()));
+  data_ = std::move(new_block);
+  size_ = new_count;
+  return HeError::None;
+}
 
 } // namespace hermes::mem
 

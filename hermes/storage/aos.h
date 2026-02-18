@@ -77,7 +77,17 @@ public:
       size_in_bytes_ += d.size;
       return fields_.size() - 1;
     }
-
+    /// \tparam T
+    /// \param data
+    /// \param field_id
+    /// \param i
+    /// \return
+    template <typename T>
+    void set(void *data, u64 field_id, u64 i, const T &value) const {
+      *reinterpret_cast<T *>(reinterpret_cast<h_byte *>(data) +
+                             i * size_in_bytes_ + fields_[field_id].offset) =
+          value;
+    }
     /// \tparam T
     /// \param data
     /// \param field_id
@@ -114,6 +124,7 @@ public:
     u64 sizeOf(u64 field_id) const;
     inline u64 sizeInBytes() const { return size_in_bytes_; }
     const std::type_info &typeInfo(u64 field_id) const;
+    friend bool operator==(const Layout &lhs, const Layout &rhs);
 
   private:
     u64 size_in_bytes_{0};
@@ -318,6 +329,12 @@ public:
                              layout_.fields_[it->second].offset, size_);
   }
 
+  /// Insert elements of other at the end of this.
+  /// \param other
+  /// \return Error status.
+  /// \note The layout of both AoS must match.
+  HeError append(const AoS &other);
+
   template <typename T> u64 pushField(const std::string &name = "") {
     u64 new_field_id = 0;
     std::string field_name = name;
@@ -347,6 +364,11 @@ public:
     } else
       new_field_id = layout_.pushField<T>(field_name);
     return new_field_id;
+  }
+  /// \return
+  template <typename T> void set(u64 field_id, u64 i, const T &value) {
+    *reinterpret_cast<T *>(data_.bytes() + i * layout_.size_in_bytes_ +
+                           layout_.fields_[field_id].offset) = value;
   }
   /// \return
   template <typename T> T &get(u64 field_id, u64 i) {
@@ -403,6 +425,9 @@ private:
 
   friend struct DebugTraits<mem::AoS>;
 };
+
+bool operator==(const AoS::Layout &lhs, const AoS::Layout &rhs);
+bool operator!=(const AoS::Layout &lhs, const AoS::Layout &rhs);
 
 } // namespace hermes::mem
 

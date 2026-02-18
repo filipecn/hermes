@@ -74,7 +74,7 @@ public:
 
   /// Copy from other block
   /// \param memory_block
-  HERMES_NODISCARD HeError copy(const Block &memory_block);
+  HERMES_NODISCARD HeError copy(const Block &memory_block, h_size offset = 0);
   /// Copy content from data
   /// \param data
   /// \param size_in_bytes
