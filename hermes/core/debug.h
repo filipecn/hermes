@@ -30,8 +30,9 @@
 #include <hermes/core/types.h>
 #include <hermes/io/logger.h>
 
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
 #include <algorithm> //  std::count
-#include <cmath>
+#endif
 
 #ifndef HERMES_DEBUG
 #define HERMES_DEBUG
@@ -188,9 +189,15 @@ struct DebugMessage {
   typename std::enable_if<DebugTraits<V>::is_string_serializable,
                           DebugMessage &>::type
   addMap(const std::string &name, const std::unordered_map<K, V> &map) {
-    for (const auto &item : map)
-      addFmt("{}[{}] = {}\n", name, item.first,
-             DebugTraits<V>::message(item.second));
+    for (const auto &item : map) {
+      auto m = DebugTraits<V>::message(item.second);
+      if (m.isMultiline()) {
+        std::stringstream ss;
+        ss << std::format("{}[{}]:", name, item.first);
+        addFmt("{}\n{}\n", ss.str(), m.setOffset(ss.str().size()).str());
+      } else
+        addFmt("{}[{}] = {}\n", name, item.first, m.str());
+    }
     return *this;
   }
   template <typename K, typename V>

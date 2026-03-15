@@ -24,6 +24,14 @@ class DebugTraitsTestStructB {
   friend class hermes::DebugTraits<DebugTraitsTestStructB>;
 };
 
+class DebugTraitsTestStructC {
+  std::vector<DebugTraitsTestStructA> as = {DebugTraitsTestStructA(),
+                                            DebugTraitsTestStructA()};
+  std::unordered_map<i32, DebugTraitsTestStructB> bs = {
+      {1, DebugTraitsTestStructB()}, {2, DebugTraitsTestStructB()}};
+  friend class hermes::DebugTraits<DebugTraitsTestStructC>;
+};
+
 template <> struct hermes::DebugTraits<DebugTraitsTestStructA> {
   static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
   static hermes::DebugMessage message(const DebugTraitsTestStructA &data) {
@@ -48,10 +56,22 @@ template <> struct hermes::DebugTraits<DebugTraitsTestStructB> {
   }
 };
 
+template <> struct hermes::DebugTraits<DebugTraitsTestStructC> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static hermes::DebugMessage message(const DebugTraitsTestStructC &data) {
+    return hermes::DebugMessage()
+        .addTitle("DebugTraitsTestStructC")
+        .addArray("as", data.as)
+        .addMap("bs", data.bs);
+  }
+};
+
 TEST_CASE("Debug Traits") {
   DebugTraitsTestStructB t;
   std::cout << "DUDE!!!! " << hermes::to_string(t) << std::endl;
   std::cout << t << std::endl;
+  DebugTraitsTestStructC c;
+  std::cout << hermes::to_string(c) << std::endl;
 }
 
 #endif
