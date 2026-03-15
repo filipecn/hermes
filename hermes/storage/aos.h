@@ -132,7 +132,9 @@ public:
     std::unordered_map<std::string, u64> field_id_map_;
 
     friend class AoS;
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
     friend struct DebugTraits<mem::AoS::Layout>;
+#endif
   };
 
   /// Provides access to a single field
@@ -423,13 +425,17 @@ private:
   Layout layout_;
   Block data_;
 
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
   friend struct DebugTraits<mem::AoS>;
+#endif
 };
 
 bool operator==(const AoS::Layout &lhs, const AoS::Layout &rhs);
 bool operator!=(const AoS::Layout &lhs, const AoS::Layout &rhs);
 
 } // namespace hermes::mem
+
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
 
 namespace hermes {
 
@@ -526,6 +532,8 @@ template <> struct DebugTraits<mem::AoS> {
 };
 
 } // namespace hermes
+
+#endif
 
 /*
 inline std::ostream &operator<<(std::ostream &o,

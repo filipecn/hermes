@@ -29,6 +29,7 @@
 
 #include <hermes/core/types.h>
 
+#include <string_view>
 #include <utility> // std::move
 
 /// Enumeration of errors handled by hermes.
@@ -203,7 +204,6 @@ private:
   bool ok_{false};
 };
 
-#ifdef HERMES_INCLUDE_DEBUG_TRAITS
 inline std::string_view to_string(HeError error) {
 #define ENUM_NAME(E)                                                           \
   if (HeError::E == error)                                                     \
@@ -219,6 +219,5 @@ inline std::string_view to_string(HeError error) {
   return "";
 #undef ENUM_NAME
 }
-#endif
 
 } // namespace hermes

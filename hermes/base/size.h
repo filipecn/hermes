@@ -154,6 +154,8 @@ template <typename T> struct Size3 {
   T depth{0};  //!< 2-th dimension size
 };
 
+#ifdef HERMES_INCLUDE_DEBUG_TRAITS
+
 template <typename T> struct DebugTraits<Size2<T>> {
   static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
   static DebugMessage message(const Size2<T> &data) {
@@ -168,6 +170,8 @@ template <typename T> struct DebugTraits<Size3<T>> {
                         data.depth);
   }
 };
+
+#endif
 
 using size2 = Size2<u32>;    //!< u32
 using size2_8 = Size2<u8>;   //!< u8

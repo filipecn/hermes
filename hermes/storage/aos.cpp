@@ -87,8 +87,8 @@ bool operator==(const AoS::Layout &lhs, const AoS::Layout &rhs) {
     if (lhs.fields_[i].name != rhs.fields_[i].name ||
         lhs.fields_[i].size != rhs.fields_[i].size ||
         lhs.fields_[i].offset != rhs.fields_[i].offset ||
-        lhs.fields_[i].component_count != rhs.fields_[i].component_count |
-            lhs.fields_[i].type != rhs.fields_[i].type)
+        lhs.fields_[i].component_count != rhs.fields_[i].component_count ||
+        lhs.fields_[i].type != rhs.fields_[i].type)
       return false;
   }
   for (const auto &item : lhs.field_id_map_) {
