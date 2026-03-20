@@ -14,7 +14,7 @@ class DebugTraitsTestStructA {
   std::unordered_map<i32, i32> map = {{1, 2}, {2, 3}, {3, 4}};
   hermes::geo::Transform t;
 
-  friend class hermes::DebugTraits<DebugTraitsTestStructA>;
+  friend struct hermes::DebugTraits<DebugTraitsTestStructA>;
 };
 
 class DebugTraitsTestStructB {
@@ -68,7 +68,7 @@ template <> struct hermes::DebugTraits<DebugTraitsTestStructC> {
 
 TEST_CASE("Debug Traits") {
   DebugTraitsTestStructB t;
-  std::cout << "DUDE!!!! " << hermes::to_string(t) << std::endl;
+  std::cout << hermes::to_string(t) << std::endl;
   std::cout << t << std::endl;
   DebugTraitsTestStructC c;
   std::cout << hermes::to_string(c) << std::endl;
@@ -337,4 +337,18 @@ TEST_CASE("ref") {
       REQUIRE(!ww.expired());
     } //
   } //
+  SECTION("abstract") {
+    struct Abstract {
+      virtual i32 m() = 0;
+    };
+    struct Concrete : public Abstract {
+      i32 m() override { return 3; }
+    };
+    auto c = hermes::Ref<Concrete>::shared();
+    hermes::Ref<Abstract> a = c;
+    REQUIRE(a->m() == c->m());
+    REQUIRE((*c).m() == 3);
+    // cant compile
+    // REQUIRE((*a).m() == 3);
+  }
 }

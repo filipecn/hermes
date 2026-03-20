@@ -240,7 +240,10 @@ public:
         data_);
   }
 
+  template <typename U = T,
+            typename std::enable_if_t<!std::is_abstract_v<U>, int> * = nullptr>
   T &operator*() {
+    static T dummy_;
     return std::visit(
         [](auto &&arg) -> T & {
           using V = std::decay_t<decltype(arg)>;
@@ -258,7 +261,10 @@ public:
         data_);
   }
 
+  template <typename U = T,
+            typename std::enable_if_t<!std::is_abstract_v<U>, int> * = nullptr>
   const T &operator*() const {
+    static T dummy_;
     return std::visit(
         [](auto &&arg) -> const T & {
           using V = std::decay_t<decltype(arg)>;
@@ -323,11 +329,7 @@ public:
   }
 
 private:
-  static T dummy_;
-
   StorageType data_;
 };
-
-template <typename T> T Ref<T>::dummy_{};
 
 } // namespace hermes

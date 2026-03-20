@@ -250,13 +250,13 @@ HERMES_CPU_GPU inline f64 bits2double(uint64_t ui) {
 /// Extracts exponent from floating-point number
 /// \param v
 /// \return
-HERMES_CPU_GPU inline int floatExponent(f32 v) {
+HERMES_CPU_GPU inline i32 floatExponent(f32 v) {
   return (float2bits(v) >> 23) - 127;
 }
 /// Extracts significand bits
 /// \param v
 /// \return
-HERMES_CPU_GPU inline int floatSignificand(f32 v) {
+HERMES_CPU_GPU inline i32 floatSignificand(f32 v) {
   return float2bits(v) & ((1 << 23) - 1);
 }
 /// Extracts sign bit
@@ -501,17 +501,19 @@ HERMES_CPU_GPU inline real_t sqrtRoundUp(real_t a) {
 /// rounds up
 /// \param f **[in]**
 /// \return ceil of **f**
-HERMES_CPU_GPU inline int ceil2Int(float f) {
+HERMES_CPU_GPU inline i32 ceil2Int(float f) {
   return static_cast<int>(f + 0.5f);
 }
 /// rounds down
 /// \param f **[in]**
 /// \return floor of **f**
-HERMES_CPU_GPU inline int floor2Int(float f) { return static_cast<int>(f); }
+HERMES_CPU_GPU inline i32 floor2Int(float f) { return static_cast<i32>(f); }
 /// rounds to closest integer
 /// \param f **[in]**
 /// \return next integer greater or equal to **f**
-HERMES_CPU_GPU inline int round2Int(float f) { return f + .5f; }
+HERMES_CPU_GPU inline i32 round2Int(float f) {
+  return static_cast<i32>(f + .5f);
+}
 /// Computes number of digits
 /// \param t
 /// \param base
@@ -530,7 +532,7 @@ namespace numeric {
 
 struct constants {
   static constexpr real_t machine_epsilon =
-      std::numeric_limits<real_t>::epsilon() * .5;
+      std::numeric_limits<real_t>::epsilon() * static_cast<real_t>(.5);
   static constexpr real_t real_infinity = std::numeric_limits<real_t>::max();
   static constexpr f64 f64_one_minus_epsilon = 0x1.fffffffffffffp-1;
   static constexpr f32 f32_one_minus_epsilon = 0x1.fffffep-1;
@@ -544,10 +546,10 @@ struct constants {
 struct limits {
   /// Gets minimum representable 32 bit signed integer
   /// \return
-  HERMES_CPU_GPU static constexpr int lowest_int() { return -2147483647; }
+  HERMES_CPU_GPU static constexpr i32 lowest_int() { return -2147483647; }
   /// Gets maximum representable 32 bit signed integer
   /// \return
-  HERMES_CPU_GPU static constexpr int greatest_int() { return 2147483647; }
+  HERMES_CPU_GPU static constexpr i32 greatest_int() { return 2147483647; }
 
   /// Gets lowest representable 64 bit floating point
   /// \tparam T
@@ -567,7 +569,7 @@ struct limits {
   }
   /// Gets greatest representable 32 bit floating point
   /// \return
-  HERMES_CPU_GPU static constexpr f64 greatest_f32() { return 0x1.fffffep+127; }
+  HERMES_CPU_GPU static constexpr f32 greatest_f32() { return 0x1.fffffep+127; }
   /// Gets greatest representable 64 bit floating point
   /// \return
   HERMES_CPU_GPU static constexpr f64 greatest_f64() {
