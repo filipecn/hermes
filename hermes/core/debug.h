@@ -193,7 +193,11 @@ struct DebugMessage {
       auto m = DebugTraits<V>::message(item.second);
       if (m.isMultiline()) {
         std::stringstream ss;
-        ss << std::format("{}[{}]:", name, item.first);
+        if constexpr (DebugTraits<K>::is_string_serializable)
+          ss << std::format("{}[{}]:", name,
+                            DebugTraits<K>::message(item.first));
+        else
+          ss << std::format("{}[{}]:", name, item.first);
         addFmt("{}\n{}\n", ss.str(), m.setOffset(ss.str().size()).str());
       } else
         addFmt("{}[{}] = {}\n", name, item.first, m.str());
