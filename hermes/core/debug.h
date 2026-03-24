@@ -186,18 +186,33 @@ struct DebugMessage {
     return *this;
   }
   template <typename K, typename V>
-  typename std::enable_if<DebugTraits<V>::is_string_serializable,
+  typename std::enable_if<DebugTraits<K>::is_string_serializable &&
+                              DebugTraits<V>::is_string_serializable,
                           DebugMessage &>::type
   addMap(const std::string &name, const std::unordered_map<K, V> &map) {
     for (const auto &item : map) {
       auto m = DebugTraits<V>::message(item.second);
       if (m.isMultiline()) {
         std::stringstream ss;
-        if constexpr (DebugTraits<K>::is_string_serializable)
-          ss << std::format("{}[{}]:", name,
-                            DebugTraits<K>::message(item.first));
-        else
-          ss << std::format("{}[{}]:", name, item.first);
+        ss << std::format("{}[{}]:", name,
+                          DebugTraits<K>::message(item.first).str());
+        addFmt("{}\n{}\n", ss.str(), m.setOffset(ss.str().size()).str());
+      } else
+        addFmt("{}[{}] = {}\n", name, DebugTraits<K>::message(item.first).str(),
+               m.str());
+    }
+    return *this;
+  }
+  template <typename K, typename V>
+  typename std::enable_if<!DebugTraits<K>::is_string_serializable &&
+                              DebugTraits<V>::is_string_serializable,
+                          DebugMessage &>::type
+  addMap(const std::string &name, const std::unordered_map<K, V> &map) {
+    for (const auto &item : map) {
+      auto m = DebugTraits<V>::message(item.second);
+      if (m.isMultiline()) {
+        std::stringstream ss;
+        ss << std::format("{}[{}]:", name, item.first);
         addFmt("{}\n{}\n", ss.str(), m.setOffset(ss.str().size()).str());
       } else
         addFmt("{}[{}] = {}\n", name, item.first, m.str());
@@ -205,7 +220,8 @@ struct DebugMessage {
     return *this;
   }
   template <typename K, typename V>
-  typename std::enable_if<!DebugTraits<V>::is_string_serializable,
+  typename std::enable_if<!DebugTraits<K>::is_string_serializable &&
+                              !DebugTraits<V>::is_string_serializable,
                           DebugMessage &>::type
   addMap(const std::string &name, const std::unordered_map<K, V> &map) {
     for (const auto &item : map)

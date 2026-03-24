@@ -7,6 +7,22 @@
 
 #ifdef HERMES_INCLUDE_DEBUG_TRAITS
 
+struct DebugTraitsKey {
+  int a;
+  int b;
+  bool operator==(const DebugTraitsKey &other) const {
+    return (a == other.a && b == other.b);
+  }
+};
+
+namespace std {
+template <> struct hash<DebugTraitsKey> {
+  inline size_t operator()(const DebugTraitsKey &key) const {
+    return key.a ^ key.b;
+  }
+};
+} // namespace std
+
 class DebugTraitsTestStructA {
   int a = 2;
   int b = 3;
@@ -30,6 +46,13 @@ class DebugTraitsTestStructC {
   std::unordered_map<i32, DebugTraitsTestStructB> bs = {
       {1, DebugTraitsTestStructB()}, {2, DebugTraitsTestStructB()}};
   friend class hermes::DebugTraits<DebugTraitsTestStructC>;
+};
+
+template <> struct hermes::DebugTraits<DebugTraitsKey> {
+  static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
+  static hermes::DebugMessage message(const DebugTraitsKey &data) {
+    return hermes::DebugMessage().addFmt("[{},{}]", data.a, data.b);
+  }
 };
 
 template <> struct hermes::DebugTraits<DebugTraitsTestStructA> {
@@ -72,6 +95,12 @@ TEST_CASE("Debug Traits") {
   std::cout << t << std::endl;
   DebugTraitsTestStructC c;
   std::cout << hermes::to_string(c) << std::endl;
+  std::unordered_map<DebugTraitsKey, DebugTraitsTestStructB> m;
+  DebugTraitsKey k;
+  k.a = 1;
+  k.b = 2;
+  m[k] = t;
+  std::cout << hermes::DebugMessage().addMap("m", m).str() << std::endl;
 }
 
 #endif
