@@ -165,6 +165,22 @@ HERMES_CPU_GPU static constexpr real_t radians2degrees(real_t a) {
 HERMES_CPU_GPU static constexpr real_t degrees2radians(real_t a) {
   return a * constants::pi / 180.f;
 }
+HERMES_CPU_GPU static constexpr real_t wrapRadians(real_t radians) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return fmod((fmod(radians, constants::two_pi) + constants::two_pi),
+              constants::two_pi);
+#else
+  return std::fmod((std::fmod(radians, constants::two_pi) + constants::two_pi),
+                   constants::two_pi);
+#endif
+}
+HERMES_CPU_GPU static constexpr real_t wrapDegrees(real_t degrees) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return fmod((fmod(degrees, 360.0f) + 360.0f), 360.0f);
+#else
+  return std::fmod((std::fmod(degrees, 360.0f) + 360.0f), 360.0f);
+#endif
+}
 /// Computes acos with clamped input
 /// \param x
 /// \return

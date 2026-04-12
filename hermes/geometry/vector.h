@@ -85,7 +85,7 @@ public:
     y OP## = v.y;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Vector2 &operator OP## = (real_t f) {                         \
+  HERMES_CPU_GPU Vector2 &operator OP## = (T f) {                              \
     x OP## = f;                                                                \
     y OP## = f;                                                                \
     return *this;                                                              \
@@ -93,9 +93,7 @@ public:
   HERMES_CPU_GPU Vector2 operator OP(const Vector2<T> &b) const {              \
     return {x OP b.x, y OP b.y};                                               \
   }                                                                            \
-  HERMES_CPU_GPU Vector2 operator OP(real_t f) const {                         \
-    return {x OP f, y OP f};                                                   \
-  }
+  HERMES_CPU_GPU Vector2 operator OP(T f) const { return {x OP f, y OP f}; }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
   ARITHMETIC_OP(*)
@@ -130,6 +128,28 @@ public:
   /// \return
   HERMES_CPU_GPU Vector2 left() const { return Vector2(-y, x); }
 
+  HERMES_CPU_GPU T angleToX() const {
+    return math::wrapRadians(std::atan2(y, x));
+  }
+
+  /// Normalizes this vector
+  /// \note Normalization by vector length
+  /// \note Defined as v / ||v||
+  HERMES_CPU_GPU void normalize() {
+    auto l = length();
+    if (l != 0.f) {
+      x /= l;
+      y /= l;
+    }
+  }
+  /// Gets a normalized copy of this vector
+  /// \note Normalization by vector length
+  /// \note Defined as v / ||v||
+  /// \return Normalized vector of this vector
+  HERMES_CPU_GPU Vector2 normalized() const {
+    auto l = length();
+    return (*this) / l;
+  }
   // swizzle
 
   /// Gets swizzle form (x, y)
@@ -144,6 +164,10 @@ public:
   T x = T(0.0); //!< 0-th component
   T y = T(0.0); //!< 1-th component
 };
+
+template <typename T> Vector2<T> operator*(const T &f, const Vector2<T> &v) {
+  return v * f;
+}
 
 template <typename T> class Point3;
 

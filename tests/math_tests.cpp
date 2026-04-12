@@ -4,6 +4,21 @@
 #include <hermes/math/math.h>
 #include <hermes/math/space_filling.h>
 
+TEST_CASE("angles", "[math]") {
+
+  REQUIRE_THAT(hermes::math::wrapDegrees(-720),
+               Catch::Matchers::WithinRel(0.0, 1e-6));
+
+  REQUIRE_THAT(hermes::math::wrapDegrees(270 * 7),
+               Catch::Matchers::WithinRel(90.0, 1e-6));
+
+  REQUIRE_THAT(hermes::math::wrapDegrees(-270 * 7),
+               Catch::Matchers::WithinRel(270.0, 1e-6));
+
+  REQUIRE_THAT(hermes::math::wrapDegrees(-180.0),
+               Catch::Matchers::WithinRel(180.0, 1e-6));
+}
+
 TEST_CASE("Space Filling", "math") {
   SECTION("onion") {
     SECTION("sanity") {
