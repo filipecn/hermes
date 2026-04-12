@@ -165,10 +165,6 @@ public:
   T y = T(0.0); //!< 1-th component
 };
 
-template <typename T> Vector2<T> operator*(const T &f, const Vector2<T> &v) {
-  return v * f;
-}
-
 template <typename T> class Point3;
 
 // *****************************************************************************
