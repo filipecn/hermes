@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include <hermes/base/arg_parser.h>
 #include <hermes/base/flags.h>
 #include <hermes/base/index.h>
 #include <hermes/base/str.h>
@@ -387,4 +388,108 @@ TEST_CASE("index", "[base]") {
     }
     REQUIRE(cur == 10 * 10 * 10);
   } //
+}
+
+TEST_CASE("ArgParser") {
+  SECTION("simple") {
+    const char *argv[3] = {"bin", "int_argument", "3"};
+    ArgParser parser("test_bin", "test bin description");
+    parser.addArgument("int_argument", "int argument description");
+    parser.addArgument("arg2");
+    REQUIRE(parser.parse(3, argv, true));
+    REQUIRE(parser.get<int>("int_argument", 0) == 3);
+    REQUIRE(!parser.check("arg2"));
+  } //
+  SECTION("simple 2") {
+    const char *argv[6] = {"bin", "-v", "-f", "100", "-fps", "200"};
+    ArgParser parser;
+    parser.addArgument("-f");
+    parser.addArgument("-fps");
+    parser.addArgument("-v");
+    parser.parse(6, argv, true);
+    REQUIRE(parser.get<int>("-f", 0) == 100);
+    REQUIRE(parser.get<int>("-fps", 0) == 200);
+    REQUIRE(parser.check("-v"));
+
+  } //
+  SECTION("simple 2") {
+    const char *argv[4] = {"bin", "100", "200", "-v"};
+    ArgParser parser;
+    parser.addArgument("-f");
+    parser.addArgument("-fps");
+    parser.addArgument("-v");
+    parser.parse(4, argv);
+    REQUIRE(parser.get<int>("-f", 0) == 100);
+    REQUIRE(parser.get<int>("-fps", 0) == 200);
+    REQUIRE(parser.check("-v"));
+  } //
+  SECTION("simple 3") {
+    const char *argv[5] = {"bin", "-f", "100", "-fps", "200"};
+    ArgParser parser;
+    parser.addArgument("-f");
+    parser.addArgument("-fps");
+    parser.addArgument("-v");
+    parser.parse(5, argv);
+    REQUIRE(parser.get<int>("-f", 0) == 100);
+    REQUIRE(parser.get<int>("-fps", 0) == 200);
+    REQUIRE(!parser.check("-v"));
+    REQUIRE(!parser.check("-v"));
+
+  } //
+  SECTION("required") {
+    const char *argv[3] = {"bin", "int_argument", "3"};
+    ArgParser parser;
+    parser.addArgument("req", "", true);
+    parser.addArgument("int_argument");
+    REQUIRE(!parser.parse(3, argv));
+
+  } //
+  SECTION("positional arguments") {
+    const char *argv[5] = {"bin", "4", "arg", "1", "2"};
+    ArgParser parser;
+    parser.addArgument("a0");
+    parser.addArgument("a1");
+    parser.addArgument("a2");
+    parser.addArgument("a3");
+    REQUIRE(parser.parse(5, argv));
+    REQUIRE(parser.get<int>("a0") == 4);
+    REQUIRE(parser.get<std::string>("a1") == "arg");
+    REQUIRE(parser.get<int>("a2") == 1);
+    REQUIRE(parser.get<int>("a3") == 2);
+    REQUIRE(parser.check("a0"));
+    REQUIRE(parser.check("a1"));
+    REQUIRE(parser.check("a2"));
+    REQUIRE(parser.check("a3"));
+  } //
+  SECTION("positional arguments mixed") {
+    const char *argv[5] = {"bin", "4", "a1", "1", "2"};
+    ArgParser parser;
+    parser.addArgument("a0");
+    parser.addArgument("a1");
+    parser.addArgument("a2");
+    REQUIRE(parser.parse(5, argv));
+    REQUIRE(parser.get<int>("a0") == 4);
+    REQUIRE(parser.get<int>("a1") == 1);
+    REQUIRE(parser.get<int>("a2") == 2);
+    REQUIRE(parser.check("a0"));
+    REQUIRE(parser.check("a1"));
+    REQUIRE(parser.check("a2"));
+  } //
+  SECTION("print help") {
+    ArgParser parser("test bin", "test bin description.");
+    parser.addArgument("a0", "a0 description", false);
+    parser.addArgument("a1", "a1 description", false);
+    parser.addArgument("a2", "a2 description", true);
+    parser.addArgument("a3", "a3 description", true);
+    parser.printHelp();
+  } //
+  SECTION("list 1") {
+    const char *argv[3] = {"bin", "list", "-1,2,-3"};
+    ArgParser parser("test bin", "test bin description.");
+    parser.addArgument("list");
+    REQUIRE(parser.parse(3, argv, true));
+    auto l = parser.getList<int>("list");
+    for (int i = 0; i < 3; ++i)
+      REQUIRE(l[i] == ((i % 2 == 0) ? -(i + 1) : (i + 1)));
+  }
 }

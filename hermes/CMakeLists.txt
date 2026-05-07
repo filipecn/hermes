@@ -1,4 +1,5 @@
 set(HERMES_HEADERS
+  base/arg_parser.h
   base/flags.h
   base/index.h
   base/size.h
@@ -46,6 +47,8 @@ set(HERMES_HEADERS
 )
 
 set(HERMES_SOURCES 
+  base/arg_parser.cpp
+
   io/logger.cpp
 
   system/profile.cpp

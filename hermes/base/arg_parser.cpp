@@ -1,37 +1,36 @@
-/// Copyright (c) 2020, FilipeCN.
-///
-/// The MIT License (MIT)
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to
-/// deal in the Software without restriction, including without limitation the
-/// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-/// sell copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-/// IN THE SOFTWARE.
-///
-///\file arg_parser.cpp
-///\author FilipeCN (filipedecn@gmail.com)
-///\date 2020-13-07
-///
-///\brief Simple argument parser
+/* Copyright (c) 2020, FilipeCN.
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
-#include <hermes/common/arg_parser.h>
-#include <hermes/common/debug.h>
+/// \file   arg_parser.cpp
+/// \author FilipeCN (filipedecn@gmail.com)
+/// \date   2020-01-28
 
-#include <iostream>
-#include <iomanip>
-#include <utility>
+#include <hermes/base/arg_parser.h>
+#include <hermes/core/debug.h>
+
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <utility>
 
 namespace hermes {
 
@@ -39,8 +38,8 @@ ArgParser::ArgParser(std::string bin, std::string description)
     : bin_{std::move(bin)}, description_{std::move(description)} {}
 
 bool ArgParser::parse(int argc, const char **argv, bool verbose_parsing) {
-  // TODO support multiple list of values... right now the vectors names and values
-  // expect only one value!
+  // TODO support multiple list of values... right now the vectors names and
+  // values expect only one value!
   if (verbose_parsing) {
     std::cout << "parsing arguments:\n\t";
     for (int i = 0; i < argc; ++i)
@@ -63,7 +62,8 @@ bool ArgParser::parse(int argc, const char **argv, bool verbose_parsing) {
       arguments_[current_argument].values.emplace_back(argv[i]);
       current_argument = -1;
     } else if (current_unknown < arguments_.size()) {
-      while (current_unknown < arguments_.size() && arguments_[current_unknown].given)
+      while (current_unknown < arguments_.size() &&
+             arguments_[current_unknown].given)
         current_unknown++;
       arguments_[current_unknown].values.emplace_back(argv[i]);
       arguments_[current_unknown].given = true;
@@ -71,7 +71,7 @@ bool ArgParser::parse(int argc, const char **argv, bool verbose_parsing) {
   }
   if (verbose_parsing) {
     std::cout << "the following arguments were given:\n";
-    for (const auto &a: arguments_)
+    for (const auto &a : arguments_)
       if (a.given) {
         std::cout << "\t[" << a.names[0] << "]";
         if (!a.values.empty())
@@ -80,16 +80,17 @@ bool ArgParser::parse(int argc, const char **argv, bool verbose_parsing) {
       }
   }
   // check if all required arguments were given
-  if(!std::all_of(arguments_.begin(), arguments_.end(),
-                     [](const auto &a) { return !(a.required && !a.given); })) {
+  if (!std::all_of(arguments_.begin(), arguments_.end(),
+                   [](const auto &a) { return !(a.required && !a.given); })) {
     printHelp();
-    HERMES_LOG_ERROR("Required arguments not given in argument parser.");
+    HERMES_ERROR("Required arguments not given in argument parser.");
     return false;
   }
   return true;
 }
 
-void ArgParser::addArgument(const std::string &name, const std::string &description, bool is_required) {
+void ArgParser::addArgument(const std::string &name,
+                            const std::string &description, bool is_required) {
   Argument arg{};
   arg.description = description;
   arg.required = is_required;
@@ -105,8 +106,8 @@ void ArgParser::printHelp() const {
     std::string argument_name = a.names[0];
     for (u64 i = 1; i < a.names.size(); ++i)
       argument_name += ", " + a.names[i];
-    std::cout << "    " << std::setw(23) << std::left << argument_name << std::setw(23)
-              << a.description;
+    std::cout << "    " << std::setw(23) << std::left << argument_name
+              << std::setw(23) << a.description;
     if (a.required)
       std::cout << "(required)";
     std::cout << std::endl;
@@ -120,4 +121,4 @@ bool ArgParser::check(const std::string &name) const {
   return arguments_[it->second].given;
 }
 
-}
+} // namespace hermes
