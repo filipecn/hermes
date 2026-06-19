@@ -120,7 +120,8 @@ public:
   /// \param c corner index
   /// \return corner point
   HERMES_NODISCARD HERMES_CPU_GPU Point2<T> corner(int c) const {
-    return Point2<T>((*this)[(c & 1)].x, (*this)[(c & 2) ? 1 : 0].y);
+    return Point2<T>((*this)[(c & 2) ? !(c & 1) : (c & 1)].x,
+                     (*this)[(c & 2)].y);
   }
 
   std::vector<Point2<T>> corners() const {
