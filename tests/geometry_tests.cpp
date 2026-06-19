@@ -109,34 +109,40 @@ TEST_CASE("BBox", "[geometry][bounds]") {
     SECTION("range") {
       // bounds::bbox2 b = range2({1, 1}, {10, 10});
       // REQUIRE(b == bounds::bbox2({1, 1}, {9, 9}));
-      //  REQUIRE(static_cast<range2>(b) == range2({1, 1}, {10, 10}));
+      // REQUIRE(static_cast<range2>(b) == range2({1, 1}, {10, 10}));
+    }
+    SECTION("corners") {
+      auto b = bounds::bbox2::unit().corners();
+      HERMES_LOG_ARRAY(b);
     }
   } //
-  SECTION("union") {
-    bounds::bbox3 a(point3(), point3(1));
-    bounds::bbox3 b(point3(-1), point3());
-    bounds::bbox3 c = make_union(a, b);
-    HERMES_LOG_VARIABLE(a);
-    point3 l(-1), u(1);
-    REQUIRE(c.lower == l);
-    REQUIRE(c.upper == u);
-  } //
-  SECTION("access") {
-    auto l = point3(0, 1, 2);
-    auto u = point3(3, 4, 3);
-    bounds::bbox3 b(l, u);
-    REQUIRE(b.lower == l);
-    REQUIRE(b.upper == u);
-    REQUIRE(b[0] == l);
-    REQUIRE(b[1] == u);
-    REQUIRE(b.corner(0) == point3(0, 1, 2));
-    REQUIRE(b.corner(1) == point3(3, 1, 2));
-    REQUIRE(b.corner(2) == point3(0, 4, 2));
-    REQUIRE(b.corner(3) == point3(3, 4, 2));
-    REQUIRE(b.corner(4) == point3(0, 1, 3));
-    REQUIRE(b.corner(5) == point3(3, 1, 3));
-    REQUIRE(b.corner(6) == point3(0, 4, 3));
-    REQUIRE(b.corner(7) == point3(3, 4, 3));
+  SECTION("bbox3") {
+    SECTION("union") {
+      bounds::bbox3 a(point3(), point3(1));
+      bounds::bbox3 b(point3(-1), point3());
+      bounds::bbox3 c = make_union(a, b);
+      HERMES_LOG_VARIABLE(a);
+      point3 l(-1), u(1);
+      REQUIRE(c.lower == l);
+      REQUIRE(c.upper == u);
+    } //
+    SECTION("access") {
+      auto l = point3(0, 1, 2);
+      auto u = point3(3, 4, 3);
+      bounds::bbox3 b(l, u);
+      REQUIRE(b.lower == l);
+      REQUIRE(b.upper == u);
+      REQUIRE(b[0] == l);
+      REQUIRE(b[1] == u);
+      REQUIRE(b.corner(0) == point3(0, 1, 2));
+      REQUIRE(b.corner(1) == point3(3, 1, 2));
+      REQUIRE(b.corner(2) == point3(0, 4, 2));
+      REQUIRE(b.corner(3) == point3(3, 4, 2));
+      REQUIRE(b.corner(4) == point3(0, 1, 3));
+      REQUIRE(b.corner(5) == point3(3, 1, 3));
+      REQUIRE(b.corner(6) == point3(0, 4, 3));
+      REQUIRE(b.corner(7) == point3(3, 4, 3));
+    }
   }
 }
 

@@ -117,6 +117,20 @@ public:
   HERMES_CPU_GPU Point2<T> &operator[](int i) {
     return (i == 0) ? lower : upper;
   }
+  /// \param c corner index
+  /// \return corner point
+  HERMES_NODISCARD HERMES_CPU_GPU Point2<T> corner(int c) const {
+    return Point2<T>((*this)[(c & 1)].x, (*this)[(c & 2) ? 1 : 0].y);
+  }
+
+  std::vector<Point2<T>> corners() const {
+    return {
+        corner(0),
+        corner(1),
+        corner(2),
+        corner(3),
+    };
+  }
 
 #define ARITHMETIC_OP(OP, O)                                                   \
   HERMES_CPU_GPU BoundingBox2 &operator OP## = (const O &o) {                  \

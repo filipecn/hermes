@@ -313,9 +313,16 @@ private:
 /// \pre All elements must support `std::stringstream` << operator
 /// \param array/vector object
 #define HERMES_LOG_ARRAY(A)                                                    \
-  HERMES_LOG("values of \"{}\":", #A);                                         \
+  hermes::io::Logger::message(                                                 \
+      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
+      "values of \"{}\":",                                                     \
+      hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #A);     \
   for (const auto &hermes_log_array_element : A)                               \
-  HERMES_LOG("  {}", hermes::to_string(hermes_log_array_element))
+    hermes::io::Logger::message(                                               \
+        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info, \
+        "  {}",                                                                \
+        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__},        \
+        hermes::to_string(hermes_log_array_element));
 #endif
 /// \brief Auxiliary support to log multiple variables
 /// \tparam T
