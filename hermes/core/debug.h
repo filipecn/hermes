@@ -338,9 +338,8 @@ operator<<(std::ostream &os, const T &t) {
   } else {                                                                     \
     hermes::io::Logger::message(                                               \
         hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn, \
-        "[CHECK_EQUAL FAIL {} == {}] {}",                                      \
-        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, (#A),  \
-        (#B), A, B, HERMES_CSTR_FORMAT(__VA_ARGS__));                          \
+        "[CHECK_EQUAL FAIL {} == {}] {}", std::source_location::current(),     \
+        (#A), (#B), A, B, HERMES_CSTR_FORMAT(__VA_ARGS__));                    \
   }
 
 /// \brief Warns if expression is false
@@ -350,9 +349,8 @@ operator<<(std::ostream &os, const T &t) {
   } else {                                                                     \
     hermes::io::Logger::message(                                               \
         hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn, \
-        "[CHECK_EXP FAIL {}] {}",                                              \
-        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__},        \
-        (#expr), HERMES_CSTR_FORMAT(__VA_ARGS__));                             \
+        "[CHECK_EXP FAIL {}] {}", std::source_location::current(), (#expr),    \
+        HERMES_CSTR_FORMAT(__VA_ARGS__));                                      \
   }
 
 #else
@@ -373,11 +371,11 @@ operator<<(std::ostream &os, const T &t) {
 #define HERMES_ASSERT(expr, ...)                                               \
   if (expr) {                                                                  \
   } else {                                                                     \
-    hermes::io::Logger::message(                                               \
-        hermes::io::logger_option_bits::none,                                  \
-        hermes::io::Logger::Level::error, "[ASSERT FAIL {}] {}",               \
-        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #expr, \
-        HERMES_CSTR_FORMAT(__VA_ARGS__));                                      \
+    hermes::io::Logger::message(hermes::io::logger_option_bits::none,          \
+                                hermes::io::Logger::Level::error,              \
+                                "[ASSERT FAIL {}] {}",                         \
+                                std::source_location::current(), #expr,        \
+                                HERMES_CSTR_FORMAT(__VA_ARGS__));              \
     debugBreak();                                                              \
   }
 #else

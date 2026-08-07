@@ -20,6 +20,11 @@ TEST_CASE("Log", "[io]") {
   int a = 0;
   int b = 3;
   int c = 4;
+  HERMES_LOG_VARIABLE_IF(a == b, a);
+  HERMES_LOG_VARIABLE_IF(a == a, a);
+  HERMES_LOG_IF(a == b, "this is a if(false) log");
+  HERMES_LOG_IF(a != b, "this is a if(true) log");
+  HERMES_LOG_IF(a == a, "this is a if(true) log");
   io::Logger::removeOptions(io::logger_option_bits::location);
   HERMES_LOG_VARIABLE(a);
   HERMES_LOG_VARIABLES(a, b, c);

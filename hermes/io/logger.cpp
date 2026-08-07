@@ -86,7 +86,7 @@ void Logger::setLogCallback(Level level,
 }
 
 cstr Logger::label(const logger_options &message_options, Logger::Level level,
-                   const Logger::Location &location) {
+                   const std::source_location &location) {
   cstr s;
 
   if (message_options.contain(logger_option_bits::use_colors))
@@ -101,14 +101,14 @@ cstr Logger::label(const logger_options &message_options, Logger::Level level,
 
   if (message_options.contain(logger_option_bits::location) ||
       message_options.contain(logger_option_bits::full_path_location))
-    s +=
-        std::format("[{}][{}][{}][{}] ",
-                    processPath(message_options,
-                                abbreviate(message_options, location.file_name))
-                        .c_str(),
-                    location.line,
-                    abbreviate(message_options, location.function_name).c_str(),
-                    level_names[(u8)level]);
+    s += std::format(
+        "[{}][{}][{}][{}] ",
+        processPath(message_options,
+                    abbreviate(message_options, location.file_name()))
+            .c_str(),
+        location.line(),
+        abbreviate(message_options, location.function_name()).c_str(),
+        level_names[(u8)level]);
 
   return s;
 }

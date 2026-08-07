@@ -32,6 +32,7 @@
 #include <hermes/io/console_colors.h>
 
 #include <cstring>
+#include <source_location>
 
 namespace hermes::io {
 
@@ -73,12 +74,6 @@ namespace hermes::io {
 /// Static class that manages logging messages
 class Logger {
 public:
-  /// Holds information about log call location
-  struct Location {
-    const char *file_name;     //!< file path
-    int line;                  //!< file line number
-    const char *function_name; //!< scope name
-  };
   /// Represents the log level.
   /// \note Log messages can be filtered by level.
   enum class Level {
@@ -98,9 +93,9 @@ public:
   /// \param location
   /// \param args
   template <typename... Ts>
-  HERMES_CPU_GPU static inline void message(logger_options message_options,
-                                            Level level, const char *fmt,
-                                            Location location, Ts &&...args) {
+  HERMES_CPU_GPU static inline void
+  message(logger_options message_options, Level level, const char *fmt,
+          std::source_location location, Ts &&...args) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
     // printf(fmt, std::forward<Ts>(args)...);
     printf("CUDA LOG not supported");
@@ -165,7 +160,7 @@ public:
 
 private:
   static cstr label(const logger_options &message_options, Level level,
-                    const Location &location);
+                    const std::source_location &location);
   static cstr abbreviate(logger_options message_options, const char *str);
   static cstr processPath(logger_options options,
                           const std::filesystem::path &path);
@@ -194,9 +189,18 @@ private:
 #ifndef HERMES_PING
 /// \brief Logs into info stream code location
 #define HERMES_PING                                                            \
-  hermes::io::Logger::message(                                                 \
-      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::debug,  \
-      "", hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__});
+  hermes::io::Logger::message(hermes::io::logger_option_bits::none,            \
+                              hermes::io::Logger::Level::debug, "",            \
+                              std::source_location::current());
+#endif
+
+#ifndef HERMES_LOG_IF
+#define HERMES_LOG_IF(A, FMT, ...)                                             \
+  if (A) {                                                                     \
+    hermes::io::Logger::message(                                               \
+        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info, \
+        FMT, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__);      \
+  }
 #endif
 
 #ifndef HERMES_DEBUG
@@ -211,9 +215,7 @@ private:
 #define HERMES_DEBUG(FMT, ...)                                                 \
   hermes::io::Logger::message(                                                 \
       hermes::io::logger_option_bits::none, hermes::io::Logger::Level::debug,  \
-      FMT,                                                                     \
-      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
-                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+      FMT, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into warning log stream
 /// \code{cpp}
@@ -227,9 +229,7 @@ private:
 #define HERMES_TRACE(FMT, ...)                                                 \
   hermes::io::Logger::message(                                                 \
       hermes::io::logger_option_bits::none, hermes::io::Logger::Level::trace,  \
-      FMT,                                                                     \
-      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
-                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+      FMT, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into warning log stream
 /// \code{cpp}
@@ -243,9 +243,7 @@ private:
 #define HERMES_INFO(FMT, ...)                                                  \
   hermes::io::Logger::message(                                                 \
       hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
-      FMT,                                                                     \
-      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
-                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+      FMT, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into warning log stream
 /// \code{cpp}
@@ -259,9 +257,7 @@ private:
 #define HERMES_WARN(FMT, ...)                                                  \
   hermes::io::Logger::message(                                                 \
       hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn,   \
-      FMT,                                                                     \
-      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
-                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+      FMT, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into error log stream
 /// \code{cpp}
@@ -275,9 +271,7 @@ private:
 #define HERMES_ERROR(FMT, ...)                                                 \
   hermes::io::Logger::message(                                                 \
       hermes::io::logger_option_bits::none, hermes::io::Logger::Level::error,  \
-      FMT,                                                                     \
-      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
-                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+      FMT, std::source_location::current() __VA_OPT__(, ) __VA_ARGS__)
 #endif
 /// \brief Logs into critical log stream
 /// \code{cpp}
@@ -289,11 +283,19 @@ private:
 /// \param ... format values
 #ifndef HERMES_CRITICAL
 #define HERMES_CRITICAL(FMT, ...)                                              \
-  hermes::io::Logger::message(                                                 \
-      hermes::io::logger_option_bits::none,                                    \
-      hermes::io::Logger::Level::critical, FMT,                                \
-      hermes::io::Logger::Location{__FILE__, __LINE__,                         \
-                                   __FUNCTION__} __VA_OPT__(, ) __VA_ARGS__)
+  hermes::io::Logger::message(hermes::io::logger_option_bits::none,            \
+                              hermes::io::Logger::Level::critical, FMT,        \
+                              std::source_location::current() __VA_OPT__(, )   \
+                                  __VA_ARGS__)
+#endif
+
+#ifndef HERMES_LOG_VARIABLE_IF
+#define HERMES_LOG_VARIABLE_IF(B, A)                                           \
+  if (B) {                                                                     \
+    hermes::io::Logger::message(                                               \
+        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info, \
+        "{} = {}", std::source_location::current(), #A, hermes::to_string(A)); \
+  }
 #endif
 
 #ifndef HERMES_LOG_VARIABLE
@@ -303,9 +305,7 @@ private:
 #define HERMES_LOG_VARIABLE(A)                                                 \
   hermes::io::Logger::message(                                                 \
       hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
-      "{} = {}",                                                               \
-      hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #A,      \
-      hermes::to_string(A))
+      "{} = {}", std::source_location::current(), #A, hermes::to_string(A))
 #endif
 
 #ifndef HERMES_LOG_ARRAY
@@ -315,14 +315,12 @@ private:
 #define HERMES_LOG_ARRAY(A)                                                    \
   hermes::io::Logger::message(                                                 \
       hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
-      "values of \"{}\":",                                                     \
-      hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__}, #A);     \
+      "values of \"{}\":", std::source_location::current(), #A);               \
   for (const auto &hermes_log_array_element : A)                               \
-    hermes::io::Logger::message(                                               \
-        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info, \
-        "  {}",                                                                \
-        hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__},        \
-        hermes::to_string(hermes_log_array_element));
+    hermes::io::Logger::message(hermes::io::logger_option_bits::none,          \
+                                hermes::io::Logger::Level::info, "  {}",       \
+                                std::source_location::current(),               \
+                                hermes::to_string(hermes_log_array_element));
 #endif
 /// \brief Auxiliary support to log multiple variables
 /// \tparam T
@@ -365,10 +363,10 @@ static inline std::string hermes_log_variables(Args &&...args) {
 /// \pre All variables must support `std::stringstream` << operator
 /// \param ... variables
 #define HERMES_LOG_VARIABLES(...)                                              \
-  hermes::io::Logger::message(                                                 \
-      hermes::io::logger_option_bits::none, hermes::io::Logger::Level::info,   \
-      "{}", hermes::io::Logger::Location{__FILE__, __LINE__, __FUNCTION__},    \
-      hermes_log_variables(__VA_ARGS__))
+  hermes::io::Logger::message(hermes::io::logger_option_bits::none,            \
+                              hermes::io::Logger::Level::info, "{}",           \
+                              std::source_location::current(),                 \
+                              hermes_log_variables(__VA_ARGS__))
 #endif
 
 #ifndef HERMES_C_LOG
