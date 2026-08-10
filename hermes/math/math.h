@@ -92,7 +92,7 @@ HERMES_CPU_GPU static inline f32 log2(f32 x) {
 /// \param x
 /// \return
 HERMES_CPU_GPU [[maybe_unused]] static f32 safe_sqrt(f32 x) {
-  HERMES_CHECK(x >= -1e-3f)
+  HERMES_CHECK(x >= -1e-3f);
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
   return sqrtf(fmaxf(0.f, x));
 #else

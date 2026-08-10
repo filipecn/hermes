@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <hermes/core/traits.h>
 #include <hermes/core/types.h>
 #include <hermes/io/logger.h>
 
@@ -77,16 +78,6 @@
 #ifdef HERMES_INCLUDE_DEBUG_TRAITS
 
 namespace hermes {
-
-template <typename T, typename = void>
-struct is_stream_writable : std::false_type {};
-
-template <typename T>
-struct is_stream_writable<T,
-                          std::void_t<decltype(std::declval<std::ostream &>()
-                                               << std::declval<const T &>())>>
-    : std::true_type {};
-
 /// @brief Trait for objects that can be converted to debug strings
 template <typename T> struct DebugTraits {
   static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = false;
@@ -248,7 +239,7 @@ struct DebugMessage {
   }
   template <typename T>
   typename std::enable_if<!DebugTraits<T>::is_string_serializable &&
-                              is_stream_writable<T>::value,
+                              is_streamable<T>::value,
                           DebugMessage &>::type
   add(const std::string &name, const T &t) {
     std::stringstream ss;
@@ -325,33 +316,141 @@ operator<<(std::ostream &os, const T &t) {
 #endif
 #endif
 
+namespace hermes::debug {
+
+// Fallback stringifier if type cannot be sent to ostream
+template <typename T> std::string stringify(T const &value) {
+  if constexpr (is_streamable<T>::value) {
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+  } else {
+    return "{?}";
+  }
+}
+
+template <typename T> class UnaryExpression {
+  T const &value_;
+
+public:
+  explicit UnaryExpression(T const &value) : value_(value) {}
+
+  bool evaluate() const { return static_cast<bool>(value_); }
+
+  std::string reconstruct() const {
+    // Fallback to value representation if streamable, otherwise print truth
+    // evaluation
+    if constexpr (is_streamable<T>::value) {
+      return stringify(value_);
+    } else {
+      return evaluate() ? "true" : "false";
+    }
+  }
+};
+
+template <typename LhsT, typename RhsT> class BinaryExpression {
+  LhsT const &lhs_;
+  RhsT const &rhs_;
+  std::string op_;
+
+public:
+  BinaryExpression(LhsT const &lhs, std::string op, RhsT const &rhs)
+      : lhs_(lhs), op_(op), rhs_(rhs) {}
+
+  bool evaluate() const {
+    if (op_ == "==")
+      return lhs_ == rhs_;
+    if (op_ == "!=")
+      return lhs_ != rhs_;
+    if (op_ == ">=")
+      return lhs_ >= rhs_;
+    if (op_ == "<=")
+      return lhs_ <= rhs_;
+    if (op_ == ">")
+      return lhs_ > rhs_;
+    if (op_ == "<")
+      return lhs_ < rhs_;
+    return false;
+  }
+
+  std::string reconstruct() const {
+    std::stringstream ss;
+    ss << stringify(lhs_) << " " << op_ << " " << stringify(rhs_);
+    return ss.str();
+  }
+};
+
+template <typename LhsT> class ExpressionLhs {
+  LhsT const &lhs_;
+
+public:
+  explicit ExpressionLhs(LhsT const &lhs) : lhs_(lhs) {}
+
+  template <typename RhsT>
+  auto operator==(RhsT const &rhs) -> BinaryExpression<LhsT, RhsT> {
+    return BinaryExpression<LhsT, RhsT>(lhs_, "==", rhs);
+  }
+
+  template <typename RhsT>
+  auto operator!=(RhsT const &rhs) -> BinaryExpression<LhsT, RhsT> {
+    return BinaryExpression<LhsT, RhsT>(lhs_, "!=", rhs);
+  }
+
+  template <typename RhsT>
+  auto operator>=(RhsT const &rhs) -> BinaryExpression<LhsT, RhsT> {
+    return BinaryExpression<LhsT, RhsT>(lhs_, ">=", rhs);
+  }
+
+  template <typename RhsT>
+  auto operator<=(RhsT const &rhs) -> BinaryExpression<LhsT, RhsT> {
+    return BinaryExpression<LhsT, RhsT>(lhs_, "<=", rhs);
+  }
+
+  template <typename RhsT>
+  auto operator<(RhsT const &rhs) -> BinaryExpression<LhsT, RhsT> {
+    return BinaryExpression<LhsT, RhsT>(lhs_, "<", rhs);
+  }
+
+  template <typename RhsT>
+  auto operator>(RhsT const &rhs) -> BinaryExpression<LhsT, RhsT> {
+    return BinaryExpression<LhsT, RhsT>(lhs_, ">", rhs);
+  }
+
+  // Fallbacks if no binary operators are invoked
+  bool evaluate() const { return UnaryExpression<LhsT>(lhs_).evaluate(); }
+
+  std::string reconstruct() const {
+    return UnaryExpression<LhsT>(lhs_).reconstruct();
+  }
+};
+
+struct Decomposer {
+  template <typename T> auto operator->*(T const &lhs) -> ExpressionLhs<T> {
+    return ExpressionLhs<T>(lhs);
+  }
+};
+
+} // namespace hermes::debug
+
 // *****************************************************************************
 //                                                                     CHECKS
 // *****************************************************************************
 #ifdef CHECKS_ENABLED
 
-/// \brief Warns if values are different
-/// \param A first value
-/// \param B second value
-#define HERMES_CHECK_EQUAL(A, B, ...)                                          \
-  if (A == B) {                                                                \
-  } else {                                                                     \
-    hermes::io::Logger::message(                                               \
-        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn, \
-        "[CHECK_EQUAL FAIL {} == {}] {}", std::source_location::current(),     \
-        (#A), (#B), A, B, HERMES_CSTR_FORMAT(__VA_ARGS__));                    \
-  }
-
 /// \brief Warns if expression is false
 /// \param expr expressicssn
 #define HERMES_CHECK(expr, ...)                                                \
-  if (expr) {                                                                  \
-  } else {                                                                     \
-    hermes::io::Logger::message(                                               \
-        hermes::io::logger_option_bits::none, hermes::io::Logger::Level::warn, \
-        "[CHECK_EXP FAIL {}] {}", std::source_location::current(), (#expr),    \
-        HERMES_CSTR_FORMAT(__VA_ARGS__));                                      \
-  }
+  do {                                                                         \
+    if (expr) {                                                                \
+    } else {                                                                   \
+      hermes::io::Logger::message(                                             \
+          hermes::io::logger_option_bits::none,                                \
+          hermes::io::Logger::Level::warn, "[CHECK_EXP FAIL {}] ({}) {}",      \
+          std::source_location::current(), (#expr),                            \
+          (hermes::debug::Decomposer()->*expr).reconstruct(),                  \
+          HERMES_CSTR_FORMAT(__VA_ARGS__));                                    \
+    }                                                                          \
+  } while (false)
 
 #else
 
@@ -369,15 +468,18 @@ operator<<(std::ostream &os, const T &t) {
 /// \brief Errors if expression is false
 /// \param expr expression
 #define HERMES_ASSERT(expr, ...)                                               \
-  if (expr) {                                                                  \
-  } else {                                                                     \
-    hermes::io::Logger::message(hermes::io::logger_option_bits::none,          \
-                                hermes::io::Logger::Level::error,              \
-                                "[ASSERT FAIL {}] {}",                         \
-                                std::source_location::current(), #expr,        \
-                                HERMES_CSTR_FORMAT(__VA_ARGS__));              \
-    debugBreak();                                                              \
-  }
+  do {                                                                         \
+    if (expr) {                                                                \
+    } else {                                                                   \
+      hermes::io::Logger::message(                                             \
+          hermes::io::logger_option_bits::none,                                \
+          hermes::io::Logger::Level::error, "[ASSERT FAIL {}] ({}) {}",        \
+          std::source_location::current(), #expr,                              \
+          (hermes::debug::Decomposer()->*expr).reconstruct(),                  \
+          HERMES_CSTR_FORMAT(__VA_ARGS__));                                    \
+      debugBreak();                                                            \
+    }                                                                          \
+  } while (false)
 #else
 
 #define HERMES_ASSERT(expr)

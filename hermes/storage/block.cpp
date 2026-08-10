@@ -151,7 +151,7 @@ HeError Block::resize(const size3 &new_size, h_size new_pitch) {
 }
 
 HeError Block::copy(const Block &memory_block, h_size offset) {
-  HERMES_ASSERT(sizeInBytes() >= memory_block.sizeInBytes() + offset);
+  HERMES_ASSERT(sizeInBytes() >= (memory_block.sizeInBytes() + offset));
   u8 *offset_data = reinterpret_cast<u8 *>(data_) + offset;
   return writes::copy(location_, offset_data, pitch_, size_,
                       memory_block.location_, memory_block.data_,
@@ -160,7 +160,7 @@ HeError Block::copy(const Block &memory_block, h_size offset) {
 
 HeError Block::copy(void *data, h_size size_in_bytes, h_size offset,
                     MemoryLocation data_location) {
-  HERMES_ASSERT(sizeInBytes() >= offset + size_in_bytes);
+  HERMES_ASSERT(sizeInBytes() >= (offset + size_in_bytes));
   u8 *offset_data = reinterpret_cast<u8 *>(data_) + offset;
   return writes::copy(location_, offset_data, data_location, data,
                       size_in_bytes);
