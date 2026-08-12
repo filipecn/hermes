@@ -207,6 +207,18 @@ TEST_CASE("result") {
     REQUIRE(ResultTest::copy_operator_count == 0);
     REQUIRE(ResultTest::assign_operator_count == 1);
   }
+  SECTION("const ref") {
+    struct E {
+      int a;
+      int b;
+    };
+    E e;
+    e.a = 2;
+    e.b = -1;
+    hermes::Result<const E &> r(e);
+    REQUIRE(r->a == e.a);
+    REQUIRE(r->b == e.b);
+  }
 }
 
 TEST_CASE("ref") {

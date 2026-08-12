@@ -204,6 +204,28 @@ private:
   bool ok_{false};
 };
 
+template <class T, class E> class Result<T &, E> {
+public:
+  // Constructors take a T& and store it as a T* internally
+  HERMES_CPU_GPU Result(T &v) : ptr_(&v), ok_(true) {}
+  HERMES_CPU_GPU Result(const E &err) : err_(err), ok_(false) {}
+
+  HERMES_CPU_GPU T &value() const { return *ptr_; }
+  HERMES_CPU_GPU T &operator*() const { return *ptr_; }
+  HERMES_CPU_GPU T *operator->() const { return ptr_; }
+
+  HERMES_CPU_GPU bool good() const { return ok_; }
+  HERMES_CPU_GPU explicit operator bool() const { return ok_; }
+  HERMES_CPU_GPU E status() const { return err_; }
+
+private:
+  union {
+    E err_;
+    T *ptr_;
+  };
+  bool ok_;
+};
+
 inline std::string_view to_string(HeError error) {
 #define ENUM_NAME(E)                                                           \
   if (HeError::E == error)                                                     \
