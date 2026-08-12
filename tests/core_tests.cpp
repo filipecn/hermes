@@ -150,6 +150,10 @@ u32 ResultTest::assign_constructor_count = 0;
 u32 ResultTest::copy_operator_count = 0;
 u32 ResultTest::assign_operator_count = 0;
 
+namespace outside {
+template <typename T> using Result = hermes::Result<T, int>;
+}
+
 TEST_CASE("result") {
   SECTION("copy assignment") {
     {
@@ -216,9 +220,13 @@ TEST_CASE("result") {
     e.a = 2;
     e.b = -1;
     hermes::Result<const E &> r(e);
+    outside::Result<const E &> ot(e);
     REQUIRE(r->a == e.a);
     REQUIRE(r->b == e.b);
+    REQUIRE(ot->a == e.a);
+    REQUIRE(ot->b == e.b);
   }
+  SECTION("alias") {}
 }
 
 TEST_CASE("ref") {

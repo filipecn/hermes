@@ -206,17 +206,36 @@ private:
 
 template <class T, class E> class Result<T &, E> {
 public:
-  // Constructors take a T& and store it as a T* internally
-  HERMES_CPU_GPU Result(T &v) : ptr_(&v), ok_(true) {}
+  HERMES_CPU_GPU static Result<T &, E> error(E e) {
+    return Result<T &, E>(detail::UnexpectedResultType<E>{e});
+  }
+
   HERMES_CPU_GPU Result(const E &err) : err_(err), ok_(false) {}
+  HERMES_CPU_GPU Result(detail::UnexpectedResultType<E> err)
+      : err_(err.value), ok_(false) {}
+  HERMES_CPU_GPU Result(T &v) : ptr_(&v), ok_(true) {}
 
-  HERMES_CPU_GPU T &value() const { return *ptr_; }
-  HERMES_CPU_GPU T &operator*() const { return *ptr_; }
+  Result(const Result &rhs) = default;
+  Result(Result &&rhs) noexcept = default;
+  Result &operator=(const Result &rhs) = default;
+  Result &operator=(Result &&rhs) noexcept = default;
+  ~Result() = default;
+
+  HERMES_CPU_GPU explicit operator bool() const noexcept { return ok_; }
+
   HERMES_CPU_GPU T *operator->() const { return ptr_; }
+  HERMES_CPU_GPU T &operator*() const { return *ptr_; }
 
-  HERMES_CPU_GPU bool good() const { return ok_; }
-  HERMES_CPU_GPU explicit operator bool() const { return ok_; }
-  HERMES_CPU_GPU E status() const { return err_; }
+  HERMES_NODISCARD HERMES_CPU_GPU bool good() const { return ok_; }
+  HERMES_NODISCARD HERMES_CPU_GPU E status() const { return err_; }
+  HERMES_CPU_GPU void reset() { ok_ = false; }
+
+  HERMES_NODISCARD HERMES_CPU_GPU T &value() const & { return *ptr_; }
+  HERMES_NODISCARD HERMES_CPU_GPU T &value() & { return *ptr_; }
+
+  HERMES_NODISCARD HERMES_CPU_GPU T &valueOr(T &fallback_value) const {
+    return good() ? *ptr_ : fallback_value;
+  }
 
 private:
   union {
