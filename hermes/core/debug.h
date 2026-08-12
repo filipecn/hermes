@@ -350,8 +350,8 @@ public:
 
 template <typename LhsT, typename RhsT> class BinaryExpression {
   LhsT const &lhs_;
-  RhsT const &rhs_;
   std::string op_;
+  RhsT const &rhs_;
 
 public:
   BinaryExpression(LhsT const &lhs, std::string op, RhsT const &rhs)
