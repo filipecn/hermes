@@ -114,6 +114,10 @@ h_size mortonEncode(const hermes::index2 &coordinates) {
   return numbers::interleaveBits(coordinates.i, coordinates.j);
 }
 
+h_size mortonEncode(const hermes::index3 &coordinates) {
+  return numbers::interleaveBits(coordinates.i, coordinates.j, coordinates.k);
+}
+
 uint32_t morton_1(uint64_t x_or_y_bits) {
   x_or_y_bits = x_or_y_bits & 0x5555555555555555; // Selects odd/even bits
   x_or_y_bits = (x_or_y_bits | (x_or_y_bits >> 1)) & 0x3333333333333333;
@@ -125,6 +129,19 @@ uint32_t morton_1(uint64_t x_or_y_bits) {
 }
 
 index2 mortonDecode2(h_size z) { return index2(morton_1(z), morton_1(z >> 1)); }
+
+uint32_t morton_2(uint32_t x) {
+  x &= 0x09249249;                  // 00001001 00100100 10010010 01001001
+  x = (x ^ (x >> 2)) & 0x030C30C3;  // Shift and mask
+  x = (x ^ (x >> 4)) & 0x03000F00;  // Shift and mask
+  x = (x ^ (x >> 8)) & 0xFF0000FF;  // Shift and mask
+  x = (x ^ (x >> 16)) & 0x000003FF; // Final clamp to 10 bits
+  return x;
+}
+
+index3 mortonDecode3(h_size z) {
+  return index3(morton_2(z), morton_2(z >> 1), morton_2(z >> 2));
+}
 
 MortonRange::iterator::iterator(h_size z) noexcept : z_(z) {}
 

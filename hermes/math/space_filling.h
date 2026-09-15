@@ -75,8 +75,10 @@ private:
 
 ///
 HERMES_CPU_GPU h_size mortonEncode(const index2 &coordinates);
+HERMES_CPU_GPU h_size mortonEncode(const index3 &coordinates);
 ///
 HERMES_CPU_GPU index2 mortonDecode2(h_size z);
+HERMES_CPU_GPU index3 mortonDecode3(h_size z);
 
 class MortonRange {
 public:

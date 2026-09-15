@@ -213,15 +213,16 @@ HERMES_CPU_GPU Transform Transform::perspective(real_t fovy_in_degrees,
 HERMES_CPU_GPU Transform Transform::translate(const vec3 &d) {
   math::mat4 m(1.f, 0.f, 0.f, d.x, 0.f, 1.f, 0.f, d.y, 0.f, 0.f, 1.f, d.z, 0.f,
                0.f, 0.f, 1.f);
-  math::mat4 m_inv(1.f, 0.f, 0.f, -d.x, 0.f, 1.f, 0.f, -d.y, 0.f, 0.f, 1.f,
-                   -d.z, 0.f, 0.f, 0.f, 1.f);
   return {m};
 }
 
 HERMES_CPU_GPU Transform Transform::scale(real_t x, real_t y, real_t z) {
   math::mat4 m(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
-  math::mat4 inv(1.f / x, 0, 0, 0, 0, 1.f / y, 0, 0, 0, 0, 1.f / z, 0, 0, 0, 0,
-                 1);
+  return {m};
+}
+
+HERMES_CPU_GPU Transform Transform::scale(const vec3 &s) {
+  math::mat4 m(s.x, 0, 0, 0, 0, s.y, 0, 0, 0, 0, s.z, 0, 0, 0, 0, 1);
   return {m};
 }
 

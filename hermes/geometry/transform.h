@@ -328,6 +328,10 @@ public:
   /// \param z
   /// \return
   HERMES_CPU_GPU static Transform scale(real_t x, real_t y, real_t z);
+  /// \brief Creates a scale transform
+  /// \param s
+  /// \return
+  HERMES_CPU_GPU static Transform scale(const vec3 &s);
   /// \brief Creates a translation transform
   /// \param d
   /// \return
