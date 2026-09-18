@@ -387,6 +387,15 @@ TEST_CASE("index", "[base]") {
       cur++;
     }
     REQUIRE(cur == 10 * 10 * 10);
+
+    cur = 0;
+    for (auto index : Index3<i32>::Range(10, 10, 1)) {
+      REQUIRE((cur % 100) % 10 == index.i);
+      REQUIRE((cur % 100) / 10 == index.j);
+      REQUIRE(cur / 100 == index.k);
+      cur++;
+    }
+    REQUIRE(cur == 10 * 10 * 1);
   } //
 }
 

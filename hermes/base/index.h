@@ -413,6 +413,7 @@ template <typename T> struct Index3 {
       }
       ///\return iterator&
       HERMES_CPU_GPU iterator &operator++() {
+        auto ii = index_;
         index_.i++;
         if (index_.i >= upper_.i) {
           index_.i = lower_.i;
@@ -610,7 +611,7 @@ template <typename T> struct DebugTraits<Index2<T>> {
 template <typename T> struct DebugTraits<Index3<T>> {
   static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
   static DebugMessage message(const Index3<T> &data) {
-    return DebugMessage("Index[{}, {}, {}]", data.i, data.j, data.j);
+    return DebugMessage("Index[{}, {}, {}]", data.i, data.j, data.k);
   }
 };
 
