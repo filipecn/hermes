@@ -9,16 +9,13 @@
 
 using namespace hermes;
 
-TEST_CASE("Numbers")
-{
-  SECTION("f32ing point")
-  {
+TEST_CASE("Numbers") {
+  SECTION("f32ing point") {
     REQUIRE_THAT(numbers::fract(0.1), Catch::Matchers::WithinRel(0.1, 1e-6));
     REQUIRE_THAT(numbers::fract(10.2), Catch::Matchers::WithinRel(0.2, 1e-6));
     REQUIRE_THAT(numbers::fract(-20.3), Catch::Matchers::WithinRel(-0.3, 1e-5));
   } //
-  SECTION("limits")
-  {
+  SECTION("limits") {
     REQUIRE(numeric::limits::lowest<f32>() ==
             std::numeric_limits<f32>::lowest());
     REQUIRE(numeric::limits::lowest<f64>() ==
@@ -28,19 +25,16 @@ TEST_CASE("Numbers")
     REQUIRE(numeric::limits::greatest<f64>() ==
             std::numeric_limits<f64>::max());
   } //
-  SECTION("functions")
-  {
+  SECTION("functions") {
     REQUIRE(numbers::cmp::min({9, 0, 1, 4, -1}) == -1);
     REQUIRE(numbers::cmp::max({9, 0, 1, 4, -1}) == 9);
   } //
-  SECTION("fast exp")
-  {
+  SECTION("fast exp") {
     REQUIRE(1 == math::fastExp(0));
 
     real_t maxErr = 0;
     sampling::RNG rng(6502);
-    for (int i = 0; i < 100; ++i)
-    {
+    for (int i = 0; i < 100; ++i) {
       real_t v = numeric::lerp(rng.randomFloat(), -20.f, 20.f);
       real_t f = math::fastExp(v);
       real_t e = std::exp(v);
@@ -48,8 +42,7 @@ TEST_CASE("Numbers")
       maxErr = (std::max)(err, maxErr);
       REQUIRE(err < 0.0003f);
     } //
-    SECTION("pow")
-    {
+    SECTION("pow") {
       REQUIRE(math::pow<0>(2.f) == 1 << 0);
       REQUIRE(math::pow<1>(2.f) == 1 << 1);
       REQUIRE(math::pow<2>(2.f) == 1 << 2);
@@ -86,8 +79,7 @@ TEST_CASE("Numbers")
 
 TEST_CASE("Check") { REQUIRE(!numbers::is_nan(3.f)); }
 
-TEST_CASE("numeric")
-{
+TEST_CASE("numeric") {
   real_t A[2][2] = {{0, 1}, {1, 0}};
   real_t B[2] = {3, 4};
   real_t x0 = 0, x1 = 0;
@@ -96,10 +88,8 @@ TEST_CASE("numeric")
   REQUIRE_THAT(x1, Catch::Matchers::WithinRel(3, 1e-6));
 }
 
-TEST_CASE("interval")
-{
-  SECTION("sanity")
-  {
+TEST_CASE("interval") {
+  SECTION("sanity") {
     hermes::Interval<f32> a(-1, 1), b(0, 2);
     auto c = a * b;
     HERMES_UNUSED_VARIABLE(c);
@@ -109,12 +99,10 @@ TEST_CASE("interval")
   } //
 }
 
-TEST_CASE("Matrix", "[numeric]")
-{
+TEST_CASE("Matrix", "[numeric]") {
   REQUIRE(sizeof(math::mat4) == sizeof(real_t) * 16);
   REQUIRE(sizeof(math::mat3) == sizeof(real_t) * 9);
-  SECTION("Identity")
-  {
+  SECTION("Identity") {
     math::mat4 m;
     m.setIdentity();
     for (int r = 0; r < 4; ++r)
@@ -126,8 +114,7 @@ TEST_CASE("Matrix", "[numeric]")
     REQUIRE(m.isIdentity());
     HERMES_ERROR("{}", hermes::to_string(m));
   }
-  SECTION("Multiplication")
-  {
+  SECTION("Multiplication") {
     math::mat4 I;
     I.setIdentity();
     I = I * 2.f;
@@ -140,8 +127,7 @@ TEST_CASE("Matrix", "[numeric]")
     HERMES_LOG_VARIABLE(I * a);
     HERMES_LOG_VARIABLE(a * I);
   } //
-  SECTION("Sanity")
-  {
+  SECTION("Sanity") {
     math::mat3 m;
     for (int i = 0; i < 3; ++i)
       for (int j = 0; j < 3; ++j)
@@ -150,29 +136,23 @@ TEST_CASE("Matrix", "[numeric]")
   }
 }
 
-TEST_CASE("interpolation", "[numeric][interpolation]")
-{
-  SECTION("linear")
-  {
+TEST_CASE("interpolation", "[numeric][interpolation]") {
+  SECTION("linear") {
     { // 1D
       f32 dx = 0.01;
-      auto f = [](f32 x) -> f32
-      { return std::cos(x) * std::sin(x); };
+      auto f = [](f32 x) -> f32 { return std::cos(x) * std::sin(x); };
       sampling::HaltonSequence sampler;
-      for (int i = 0; i < 1000; ++i)
-      {
+      for (int i = 0; i < 1000; ++i) {
         auto p = sampler.randomFloat();
         REQUIRE_THAT(numeric::lerp<f32>(p, f(0), f(dx)),
                      Catch::Matchers::WithinRel(f(p * dx), 1e-3f));
       }
     }
     { // 2D
-      auto f = [](f32 x, f32 y) -> f32
-      { return std::cos(x) * std::sin(y); };
+      auto f = [](f32 x, f32 y) -> f32 { return std::cos(x) * std::sin(y); };
       sampling::RNGSampler sampler;
       f32 dx = 0.01;
-      for (int i = 0; i < 1000; ++i)
-      {
+      for (int i = 0; i < 1000; ++i) {
         auto p = sampler.sample(geo::bounds::bbox2::unit());
         REQUIRE_THAT(numeric::bilerp<f32>(p.x, p.y, f(0.00, 0.00), f(dx, 0.00),
                                           f(dx, dx), f(0.00, dx)),
@@ -184,30 +164,25 @@ TEST_CASE("interpolation", "[numeric][interpolation]")
     }
   }
 
-  SECTION("monotonicCubic")
-  {
+  SECTION("monotonicCubic") {
     { // 1D test
-      f32 dx = 0.01;
-      auto f = [](f32 x) -> f32
-      { return std::cos(x) * std::sin(x); };
-      for (f32 s = 0.0; s <= 1.0; s += 0.01)
-      {
+      real_t dx = 0.01;
+      auto f = [](f32 x) -> f32 { return std::cos(x) * std::sin(x); };
+      for (f32 s = 0.0; s <= 1.0; s += 0.01) {
         REQUIRE_THAT(numeric::monotonicCubicInterpolate(
                          f(-1 * dx), f(0), f(1 * dx), f(2 * dx), s),
                      Catch::Matchers::WithinRel(f(s * dx), 1e-3f));
       }
     }
     { // 2D test
-      f32 dx = 0.01;
-      auto f = [](f32 x, f32 y) -> f32
-      { return std::cos(x) * std::sin(y); };
-      f32 v[4][4];
+      real_t dx = 0.01;
+      auto f = [](f32 x, f32 y) -> f32 { return std::cos(x) * std::sin(y); };
+      real_t v[4][4];
       for (int s = 0; s < 4; s++)
         for (int u = 0; u < 4; u++)
           v[s][u] = f(s * dx, u * dx);
       sampling::RNGSampler sampler;
-      for (int i = 0; i < 1000; ++i)
-      {
+      for (int i = 0; i < 1000; ++i) {
         auto p = sampler.sample(geo::bounds::bbox2::unit());
         REQUIRE_THAT(
             numeric::monotonicCubicInterpolate(v, geo::point2(p.x, p.y)),
@@ -216,18 +191,16 @@ TEST_CASE("interpolation", "[numeric][interpolation]")
     }
     { // 3D test
       f32 dx = 0.01;
-      auto f = [](f32 x, f32 y, f32 z) -> f32
-      {
+      auto f = [](f32 x, f32 y, f32 z) -> f32 {
         return std::cos(x) * std::sin(y) * std::sin(z);
       };
-      f32 v[4][4][4];
+      real_t v[4][4][4];
       for (int s = 0; s < 4; s++)
         for (int u = 0; u < 4; u++)
           for (int w = 0; w < 4; w++)
             v[s][u][w] = f(s * dx, u * dx, w * dx);
       sampling::RNGSampler sampler;
-      for (int i = 0; i < 1000; ++i)
-      {
+      for (int i = 0; i < 1000; ++i) {
         auto p = sampler.sample(geo::bounds::bbox3::unit());
         REQUIRE_THAT(
             numeric::monotonicCubicInterpolate(v, p),

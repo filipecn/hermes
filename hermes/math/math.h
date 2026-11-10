@@ -142,14 +142,14 @@ HERMES_CPU_GPU static inline real_t fastExp(real_t x) {
 /// Computes v to the power of 1
 /// \param v
 /// \return
-template <> HERMES_CPU_GPU inline constexpr float pow<1>(float v) {
+template <> HERMES_CPU_GPU inline constexpr real_t pow<1>(real_t v) {
   HERMES_UNUSED_VARIABLE(v);
   return v;
 }
 /// Computes v to the power of 0
 /// \param v
 /// \return
-template <> HERMES_CPU_GPU inline constexpr float pow<0>(float v) {
+template <> HERMES_CPU_GPU inline constexpr real_t pow<0>(real_t v) {
   HERMES_UNUSED_VARIABLE(v);
   return 1;
 }

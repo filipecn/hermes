@@ -29,7 +29,6 @@
 
 #include <hermes/core/debug.h>
 
-#include <algorithm>
 #include <cmath>
 #include <cstring>
 
@@ -303,6 +302,25 @@ HERMES_CPU_GPU inline f32 nextFloatDown(f32 v) {
     ++ui;
   return bitsToFloat(ui);
 }
+/// Computes the next smaller representable floating-point value
+/// \param v floating point value
+/// \return the next smaller floating point value
+HERMES_CPU_GPU inline f64 nextFloatDown(f64 v) {
+#if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
+  if (isinf(v) && v > 0.)
+#else
+  if (std::isinf(v) && v > 0.)
+#endif
+    return v;
+  if (v == 0.f)
+    v = -0.f;
+  uint64_t ui = float2bits(v);
+  if (v > 0)
+    --ui;
+  else
+    ++ui;
+  return bitsToFloat(ui);
+}
 /// Computes the next greater representable floating-point value
 /// \param v floating point value
 /// \return the next greater floating point value
@@ -354,7 +372,18 @@ HERMES_CPU_GPU inline real_t fract(real_t x) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t mulRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 mulRoundDown(f32 a, f32 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __fmul_rd(a, b);
+#else
+  return nextFloatDown(a * b);
+#endif
+}
+/// Multiplies and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 mulRoundDown(f64 a, f64 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
   return __dmul_rd(a, b);
@@ -369,13 +398,20 @@ HERMES_CPU_GPU inline real_t mulRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t mulRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 mulRoundUp(f32 a, f32 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __dmul_ru(a, b);
-#else
   return __fmul_ru(a, b);
+#else
+  return nextFloatUp(a * b);
 #endif
+}
+/// Multiplies and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 mulRoundUp(f64 a, f64 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __dmul_ru(a, b);
 #else
   return nextFloatUp(a * b);
 #endif
@@ -384,13 +420,20 @@ HERMES_CPU_GPU inline real_t mulRoundUp(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t divRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 divRoundDown(f32 a, f32 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __ddiv_rd(a, b);
-#else
   return __fdiv_rd(a, b);
+#else
+  return nextFloatDown(a / b);
 #endif
+}
+/// Divides and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 divRoundDown(f64 a, f64 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __ddiv_rd(a, b);
 #else
   return nextFloatDown(a / b);
 #endif
@@ -399,13 +442,20 @@ HERMES_CPU_GPU inline real_t divRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t divRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 divRoundUp(f32 a, f32 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __ddiv_ru(a, b);
-#else
   return __fdiv_ru(a, b);
+#else
+  return nextFloatUp(a / b);
 #endif
+}
+/// Divides and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 divRoundUp(f64 a, f64 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __ddiv_ru(a, b);
 #else
   return nextFloatUp(a / b);
 #endif
@@ -414,13 +464,20 @@ HERMES_CPU_GPU inline real_t divRoundUp(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t addRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 addRoundDown(f32 a, f32 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __dadd_rd(a, b);
-#else
   return __fadd_rd(a, b);
+#else
+  return nextFloatDown(a + b);
 #endif
+}
+/// Adds and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 addRoundDown(f64 a, f64 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __dadd_rd(a, b);
 #else
   return nextFloatDown(a + b);
 #endif
@@ -429,13 +486,20 @@ HERMES_CPU_GPU inline real_t addRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t addRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 addRoundUp(f32 a, f32 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __dadd_ru(a, b);
-#else
   return __fadd_ru(a, b);
+#else
+  return nextFloatUp(a + b);
 #endif
+}
+/// Adds and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 addRoundUp(f64 a, f64 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __dadd_ru(a, b);
 #else
   return nextFloatUp(a + b);
 #endif
@@ -444,13 +508,20 @@ HERMES_CPU_GPU inline real_t addRoundUp(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t subRoundDown(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 subRoundDown(f32 a, f32 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __dsub_rd(a, b);
-#else
   return __fsub_rd(a, b);
+#else
+  return nextFloatDown(a - b);
 #endif
+}
+/// Subtracts and rounds down to the next smaller float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 subRoundDown(f64 a, f64 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __dsub_rd(a, b);
 #else
   return nextFloatDown(a - b);
 #endif
@@ -459,13 +530,20 @@ HERMES_CPU_GPU inline real_t subRoundDown(real_t a, real_t b) {
 /// \param a
 /// \param b
 /// \return
-HERMES_CPU_GPU inline real_t subRoundUp(real_t a, real_t b) {
+HERMES_CPU_GPU inline f32 subRoundUp(f32 a, f32 b) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __dsub_ru(a, b);
-#else
   return __fsub_ru(a, b);
+#else
+  return nextFloatUp(a - b);
 #endif
+}
+/// Subtracts and rounds up to the next float value
+/// \param a
+/// \param b
+/// \return
+HERMES_CPU_GPU inline f64 subRoundUp(f64 a, f64 b) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __dsub_ru(a, b);
 #else
   return nextFloatUp(a - b);
 #endif
@@ -473,27 +551,39 @@ HERMES_CPU_GPU inline real_t subRoundUp(real_t a, real_t b) {
 /// Computes square root rounded down to the next smaller float value
 /// \param a
 /// \return
-HERMES_CPU_GPU inline real_t sqrtRoundDown(real_t a) {
+HERMES_CPU_GPU inline f32 sqrtRoundDown(f32 a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+  return __fsqrt_rd(a);
+#else
+  return cmp::max<f32>(0, nextFloatDown(std::sqrt(a)));
+#endif
+}
+/// Computes square root rounded down to the next smaller float value
+/// \param a
+/// \return
+HERMES_CPU_GPU inline f64 sqrtRoundDown(f64 a) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
   return __dsqrt_rd(a);
 #else
-  return __fsqrt_rd(a);
-#endif
-#else
-  return cmp::max<real_t>(0, nextFloatDown(std::sqrt(a)));
+  return cmp::max<f64>(0, nextFloatDown(std::sqrt(a)));
 #endif
 }
 /// Computes square root rounded up to the next float value
 /// \param a
 /// \return
-HERMES_CPU_GPU inline real_t sqrtRoundUp(real_t a) {
+HERMES_CPU_GPU inline f32 sqrtRoundUp(f32 a) {
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
-#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
-  return __dsqrt_ru(a);
-#else
   return __fsqrt_ru(a);
+#else
+  return nextFloatUp(std::sqrt(a));
 #endif
+}
+/// Computes square root rounded up to the next float value
+/// \param a
+/// \return
+HERMES_CPU_GPU inline f64 sqrtRoundUp(f64 a) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ > 0
+  return __dsqrt_ru(a);
 #else
   return nextFloatUp(std::sqrt(a));
 #endif

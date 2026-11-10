@@ -55,6 +55,5 @@ endif (UNIX)
 
 list(APPEND CMAKE_MODULE_PATH ${CATCH2_EXTRAS})
 enable_testing()
-include(CTest) 
 include(Catch)
 catch_discover_tests(hermes_tests)

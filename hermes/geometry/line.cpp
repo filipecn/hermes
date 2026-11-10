@@ -36,11 +36,11 @@ Line2::Line2(const point2 &_a, const vec2 &_d) {
   d = normalize(_d);
 }
 
-point2 Line2::operator()(f32 t) const { return a + d * t; }
+point2 Line2::operator()(real_t t) const { return a + d * t; }
 
 vec2 Line2::direction() const { return normalize(d); }
 
-f32 Line2::projection(const point2 &p) const { return dot((p - a), d); }
+real_t Line2::projection(const point2 &p) const { return dot((p - a), d); }
 
 point2 Line2::closestPoint(const point2 &p) const {
   return (*this)(projection(p));

@@ -255,7 +255,7 @@ HERMES_CPU_GPU Transform Transform::rotateZ(real_t angle_in_radians) {
 
 HERMES_CPU_GPU Transform Transform::rotate(real_t angle_in_radians,
                                            const vec3 &axis) {
-  quat q(sinf(angle_in_radians / 2) * axis, cosf(angle_in_radians / 2));
+  quat q(std::sin(angle_in_radians / 2) * axis, std::cos(angle_in_radians / 2));
   return {q.normalized().matrix()};
 
   vec3 a = normalize(axis);
@@ -299,11 +299,11 @@ HERMES_CPU_GPU Transform Transform::alignVectors(const vec3 &a, const vec3 &b) {
   vec3 u = cross(na, nb);
   auto c = dot(na, nb);
   // parallel case
-  if (numbers::cmp::is_equal(1.f, c))
+  if (numbers::cmp::is_equal(1., c))
     return Transform();
   // anti-parallel case
-  if (numbers::cmp::is_equal(-1.f, c)) {
-    if (numbers::cmp::is_equal(na.z, 1.f)) {
+  if (numbers::cmp::is_equal(-1., c)) {
+    if (numbers::cmp::is_equal(na.z, 1.)) {
       m[0][0] = -1;
       m[2][2] = -1;
     } else {

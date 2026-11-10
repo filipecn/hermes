@@ -14,6 +14,7 @@ option(HERMES_BUILD_EXAMPLES "build library examples" OFF)
 option(HERMES_BUILD_SHARED "build shared library" OFF)
 option(HERMES_BUILD_DOCS "build library documentation" OFF)
 option(HERMES_INCLUDE_DEBUG_TRAITS "include hermes::to_string methods" ON)
+option(HERMES_USE_DOUBLE_AS_DEFAULT "use double as default floating point type" OFF)
 
 # ##############################################################################
 #                                                                      PROJECT #

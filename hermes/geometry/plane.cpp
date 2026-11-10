@@ -55,7 +55,7 @@ Plane Plane::YZ(bool invert_normal) {
 }
 
 point3 Plane::closestPoint(const point3 &p) const {
-  float t = (dot(vec3(normal), vec3(p)) - offset) / vec3(normal).length2();
+  real_t t = (dot(vec3(normal), vec3(p)) - offset) / vec3(normal).length2();
   return p - t * vec3(normal);
 }
 

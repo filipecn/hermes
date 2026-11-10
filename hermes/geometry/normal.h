@@ -245,9 +245,14 @@ using normal3d = Normal3<f64>;
 namespace hermes {
 
 HERMES_TYPE_LAYOUT_METHODS(geo::normal2, f32, 2)
-HERMES_TYPE_LAYOUT_METHODS(geo::normal2d, f64, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::normal3, f32, 3)
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+HERMES_TYPE_LAYOUT_METHODS(geo::normal2f, f32, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::normal3f, f32, 3)
+#else
+HERMES_TYPE_LAYOUT_METHODS(geo::normal2d, f64, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::normal3d, f64, 3)
+#endif
 
 template <typename T> struct DebugTraits<geo::Normal2<T>> {
   static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;

@@ -714,10 +714,15 @@ using vec3i = Vector3<Interval<real_t>>;
 
 namespace hermes {
 
-HERMES_TYPE_LAYOUT_METHODS(geo::vec2, f32, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec2, real_t, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec3, real_t, 3)
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+HERMES_TYPE_LAYOUT_METHODS(geo::vec2f, f32, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec3f, f32, 3)
+#else
 HERMES_TYPE_LAYOUT_METHODS(geo::vec2d, f64, 2)
-HERMES_TYPE_LAYOUT_METHODS(geo::vec3, f32, 3)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec3d, f64, 3)
+#endif
 HERMES_TYPE_LAYOUT_METHODS(geo::vec4, real_t, 4)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec2i, Interval<real_t>, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec3i, Interval<real_t>, 3)

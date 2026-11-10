@@ -870,7 +870,11 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(fields[0].size == sizeof(geo::vec3));
     REQUIRE(fields[0].offset == 0);
     REQUIRE(fields[0].component_count == 3);
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+    REQUIRE(fields[0].type == DataType::F64);
+#else
     REQUIRE(fields[0].type == DataType::F32);
+#endif
     REQUIRE(fields[1].name == "f32");
     REQUIRE(fields[1].size == sizeof(f32));
     REQUIRE(fields[1].offset == sizeof(geo::vec3));
@@ -939,7 +943,11 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(fields[0].size == sizeof(geo::vec3));
     REQUIRE(fields[0].offset == 0);
     REQUIRE(fields[0].component_count == 3);
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+    REQUIRE(fields[0].type == DataType::F64);
+#else
     REQUIRE(fields[0].type == DataType::F32);
+#endif
     REQUIRE(fields[1].name == "f32");
     REQUIRE(fields[1].size == sizeof(f32));
     REQUIRE(fields[1].offset == sizeof(geo::vec3));
@@ -987,7 +995,11 @@ TEST_CASE("AOS", "[storage][aos]") {
     REQUIRE(fields[0].size == sizeof(geo::vec3));
     REQUIRE(fields[0].offset == 0);
     REQUIRE(fields[0].component_count == 3);
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+    REQUIRE(fields[0].type == DataType::F64);
+#else
     REQUIRE(fields[0].type == DataType::F32);
+#endif
     REQUIRE(fields[1].name == "f32");
     REQUIRE(fields[1].size == sizeof(f32));
     REQUIRE(fields[1].offset == sizeof(geo::vec3));

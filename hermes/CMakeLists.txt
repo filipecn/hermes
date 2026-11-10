@@ -90,6 +90,10 @@ if(HERMES_INCLUDE_DEBUG_TRAITS)
   target_compile_definitions(hermes PUBLIC HERMES_INCLUDE_DEBUG_TRAITS)
 endif(HERMES_INCLUDE_DEBUG_TRAITS)
 
+if(HERMES_USE_DOUBLE_AS_DEFAULT)
+  target_compile_definitions(hermes PUBLIC HERMES_USE_DOUBLE_AS_DEFAULT)
+endif(HERMES_USE_DOUBLE_AS_DEFAULT)
+
 setup_target(hermes)
 
 set_target_properties(hermes PROPERTIES

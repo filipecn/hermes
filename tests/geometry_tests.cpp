@@ -81,7 +81,7 @@ TEST_CASE("Vector", "[geometry][vector]") {
     SECTION("geometry") {
       vec2 a(1, 2);
       vec2 b(3, 4);
-      REQUIRE(numbers::cmp::is_equal(dot(a, b), 11.f));
+      REQUIRE(numbers::cmp::is_equal(dot(a, b), 11.));
       REQUIRE(normalize(b) == vec2(3 / 5., 4 / 5.));
       REQUIRE(orthonormal(b, true) == vec2(-4 / 5., 3 / 5.));
       REQUIRE(orthonormal(b, false) == vec2(4 / 5., -3 / 5.));

@@ -370,9 +370,14 @@ bool is_equal(const Point3<T> &a, const Point3<T> &b, f64 e) {
 namespace hermes {
 
 HERMES_TYPE_LAYOUT_METHODS(geo::point2, f32, 2)
-HERMES_TYPE_LAYOUT_METHODS(geo::point2d, f64, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::point3, f32, 3)
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+HERMES_TYPE_LAYOUT_METHODS(geo::point2f, f32, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::point3f, f32, 3)
+#else
+HERMES_TYPE_LAYOUT_METHODS(geo::point2d, f64, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::point3d, f64, 3)
+#endif
 HERMES_TYPE_LAYOUT_METHODS(geo::point2i, Interval<real_t>, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::point3i, Interval<real_t>, 3)
 
