@@ -92,13 +92,19 @@ HERMES_CPU_GPU constexpr bool is_zero(T a, real_t e = 1e-8) {
   return std::fabs(a) < e;
 #endif
 }
+template <typename T1, typename T2>
+HERMES_CPU_GPU constexpr bool is_equal(T1 a, T2 b, real_t e = 1e-8) {
+  return fabs(a - b) < e;
+}
 /// Checks if two numbers are at most 1e-8 apart
 /// \tparam T
 /// \param a **[in]**
 /// \param b **[in]**
 /// \return constexpr bool
-template <typename T>
-HERMES_CPU_GPU constexpr bool is_equal(T a, T b, f64 e = 1e-6) {
+HERMES_CPU_GPU constexpr bool is_equal(f32 a, f32 b, f32 e = 1e-8f) {
+  return fabsf(a - b) < e;
+}
+HERMES_CPU_GPU constexpr bool is_equal(f64 a, f64 b, f64 e = 1e-8) {
   return fabs(a - b) < e;
 }
 /// Checks if a number is in a open interval
