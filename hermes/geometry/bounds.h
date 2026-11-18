@@ -207,7 +207,7 @@ public:
   /// Creates a bounding box of 2r side centered at c
   /// \param c center point
   /// \param r radius
-  HERMES_CPU_GPU BoundingBox3(const Point3<T> &c, real_t r) {
+  HERMES_CPU_GPU BoundingBox3(const Point3<T> &c, T r) {
     lower = c - Vector3<T>(r, r, r);
     upper = c + Vector3<T>(r, r, r);
   }
@@ -248,7 +248,7 @@ public:
 
   /// Pads the bbox in both dimensions
   /// \param delta expansion factor (lower - delta, upper + delta)
-  HERMES_CPU_GPU void expand(real_t delta) {
+  HERMES_CPU_GPU void expand(T delta) {
     lower -= Vector3<T>(delta, delta, delta);
     upper += Vector3<T>(delta, delta, delta);
   }
@@ -529,12 +529,19 @@ HERMES_CPU_GPU BoundingBox3<T> intersect(const BoundingBox3<T> &a,
 #endif
 }
 
-typedef BoundingBox1<real_t> bbox1;
-typedef BoundingBox2<real_t> bbox2;
-typedef BoundingBox3<real_t> bbox3;
-typedef BoundingBox3<float> bbox3f;
+using bbox1 = BoundingBox1<real_t>;
+using bbox2 = BoundingBox2<real_t>;
+using bbox3 = BoundingBox3<real_t>;
+using bbox1f = BoundingBox1<f32>;
+using bbox1d = BoundingBox1<f64>;
+using bbox2f = BoundingBox2<f32>;
+using bbox2d = BoundingBox2<f64>;
+using bbox3f = BoundingBox3<f32>;
+using bbox3d = BoundingBox3<f64>;
 
-typedef BoundingSphere3<real_t> bsphere3;
+using bsphere3 = BoundingSphere3<real_t>;
+using bsphere3f = BoundingSphere3<f32>;
+using bsphere3d = BoundingSphere3<f64>;
 
 } // namespace hermes::geo::bounds
 
