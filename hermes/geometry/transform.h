@@ -126,7 +126,7 @@ public:
   /// \return
   HERMES_CPU_GPU static Transform2 rotate(T angle) {
     T a = math::degrees2radians(angle);
-    T sn = static_cast<T>(sin(a)), cs = static_cast<T>(cos(a));
+    T sn = static_cast<T>(sin(a)), cs = static_cast<T>(std::cos(a));
     return matrix_type(cs, -sn, T(0), sn, cs, T(0), T(0), T(0), T(1));
   }
   /// \brief Creates translation transform
@@ -759,8 +759,8 @@ HERMES_CPU_GPU Transform3<T> Transform3<T>::scale(const Vector3<T> &s) {
 
 template <typename T>
 HERMES_CPU_GPU Transform3<T> Transform3<T>::rotateX(T angle_in_radians) {
-  T sin_a = sin(angle_in_radians);
-  T cos_a = cos(angle_in_radians);
+  T sin_a = std::sin(angle_in_radians);
+  T cos_a = std::cos(angle_in_radians);
   math::MatrixNxM<T, 4, 4> m(1.f, 0.f, 0.f, 0.f, 0.f, cos_a, -sin_a, 0.f, 0.f,
                              sin_a, cos_a, 0.f, 0.f, 0.f, 0.f, 1.f);
   //  return {m, transpose(m)};
@@ -769,8 +769,8 @@ HERMES_CPU_GPU Transform3<T> Transform3<T>::rotateX(T angle_in_radians) {
 
 template <typename T>
 HERMES_CPU_GPU Transform3<T> Transform3<T>::rotateY(T angle_in_radians) {
-  T sin_a = sin(angle_in_radians);
-  T cos_a = cos(angle_in_radians);
+  T sin_a = std::sin(angle_in_radians);
+  T cos_a = std::cos(angle_in_radians);
   math::MatrixNxM<T, 4, 4> m(cos_a, 0.f, sin_a, 0.f, 0.f, 1.f, 0.f, 0.f, -sin_a,
                              0.f, cos_a, 0.f, 0.f, 0.f, 0.f, 1.f);
   //  return {m, transpose(m)};
@@ -779,8 +779,8 @@ HERMES_CPU_GPU Transform3<T> Transform3<T>::rotateY(T angle_in_radians) {
 
 template <typename T>
 HERMES_CPU_GPU Transform3<T> Transform3<T>::rotateZ(T angle_in_radians) {
-  T sin_a = sin(angle_in_radians);
-  T cos_a = cos(angle_in_radians);
+  T sin_a = std::sin(angle_in_radians);
+  T cos_a = std::cos(angle_in_radians);
   math::MatrixNxM<T, 4, 4> m(cos_a, -sin_a, 0.f, 0.f, sin_a, cos_a, 0.f, 0.f,
                              0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f);
   //  return {m, transpose(m)};
