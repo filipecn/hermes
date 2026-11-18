@@ -889,10 +889,10 @@ segmentToSegmentTransform(Point3<T> a, Point3<T> b, Point3<T> c, Point3<T> d) {
 
 using transform2 = Transform2<real_t>;
 using transform3 = Transform3<real_t>;
-using Transform2f = Transform2<f32>;
-using Transform2d = Transform2<f64>;
-using Transform3f = Transform3<f32>;
-using Transform3d = Transform3<f64>;
+using transform2f = Transform2<f32>;
+using transform2d = Transform2<f64>;
+using transform3f = Transform3<f32>;
+using transform3d = Transform3<f64>;
 
 } // namespace hermes::geo
 
