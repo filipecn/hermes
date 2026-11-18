@@ -31,6 +31,7 @@
 #include <hermes/numeric/interval.h>
 
 #include <iostream>
+#include <type_traits>
 
 namespace hermes::geo {
 
@@ -46,16 +47,44 @@ template <typename T> class Point2 {
                 "Point2 must hold a float type!");
 
 public:
+  HERMES_CPU_GPU Point2() noexcept {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Point2(const Point2<S> &p)
+      : x(static_cast<T>(p.x)), y(static_cast<T>(p.y)) {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Point2(Point2<S> &&p)
+      : x(static_cast<T>(p.x)), y(static_cast<T>(p.y)) {}
+  HERMES_CPU_GPU Point2(const Point2<T> &p) noexcept : x(p.x), y(p.y) {}
+  HERMES_CPU_GPU Point2(Point2<T> &&p) noexcept : x(p.x), y(p.y) {}
+  constexpr HERMES_CPU_GPU Point2 &operator=(const Point2<T> &p) noexcept {
+    x = p.x;
+    y = p.y;
+    return *this;
+  }
+  template <typename S>
+  constexpr HERMES_CPU_GPU Point2 &operator=(const Point2<S> &p) noexcept {
+    x = static_cast<T>(p.x);
+    y = static_cast<T>(p.y);
+    return *this;
+  }
+
   /// \brief Constructs from single component value
   /// \param f
-  HERMES_CPU_GPU explicit Point2(T f = T(0)) { x = y = f; }
+  template <typename S, std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>
+  HERMES_CPU_GPU explicit Point2(S f) {
+    x = y = static_cast<T>(f);
+  }
   /// \brief Constructs from component array
   /// \param v
-  HERMES_CPU_GPU explicit Point2(const real_t *v) : x(v[0]), y(v[1]) {}
+  template <typename S>
+  HERMES_CPU_GPU explicit Point2(const S *v)
+      : x(static_cast<T>(v[0])), y(static_cast<T>(v[1])) {}
   /// \brief Constructs from component values
   /// \param _x
   /// \param _y
-  HERMES_CPU_GPU Point2(real_t _x, real_t _y) : x(_x), y(_y) {}
+  template <typename S, typename U>
+  HERMES_CPU_GPU Point2(S _x, U _y)
+      : x(static_cast<T>(_x)), y(static_cast<T>(_y)) {}
   /// \brief Constructs from index2
   /// \tparam U
   /// \param index
@@ -153,6 +182,31 @@ template <typename T> class Point3 {
 public:
   /// \brief Default constructor
   HERMES_CPU_GPU Point3() : x{0}, y{0}, z{0} {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Point3(const Point3<S> &p)
+      : x(static_cast<T>(p.x)), y(static_cast<T>(p.y)),
+        z(static_cast<T>(p.z)) {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Point3(Point3<S> &&p)
+      : x(static_cast<T>(p.x)), y(static_cast<T>(p.y)),
+        z(static_cast<T>(p.z)) {}
+  HERMES_CPU_GPU Point3(const Point3<T> &p) noexcept
+      : x(p.x), y(p.y), z(p.z) {}
+  HERMES_CPU_GPU Point3(Point3<T> &&p) noexcept
+      : x(p.x), y(p.y), z(p.z) {}
+  constexpr HERMES_CPU_GPU Point3 &operator=(const Point3<T> &p) noexcept {
+    x = p.x;
+    y = p.y;
+    z = p.z;
+    return *this;
+  }
+  template <typename S>
+  constexpr HERMES_CPU_GPU Point3 &operator=(const Point3<S> &p) noexcept {
+    x = static_cast<T>(p.x);
+    y = static_cast<T>(p.y);
+    z = static_cast<T>(p.z);
+    return *this;
+  }
   /// \brief Constructs from single component value
   /// \param v
   HERMES_CPU_GPU explicit Point3(T v) { x = y = z = v; }
