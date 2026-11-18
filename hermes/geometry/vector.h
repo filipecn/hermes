@@ -730,7 +730,7 @@ HERMES_CPU_GPU void tangential(const Vector3<T> &a, Vector3<T> &b,
 #define MATH_OP(D, OP)                                                         \
   template <typename T, typename S,                                            \
             std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>           \
-  HERMES_CPU_GPU Vector##D<T> operator OP(T f, const Vector##D<T> &v) {        \
+  HERMES_CPU_GPU Vector##D<T> operator OP(S f, const Vector##D<T> &v) {        \
     return Vector##D<T>(DOP##D(OP));                                           \
   }
 MATH_OP(2, *)
