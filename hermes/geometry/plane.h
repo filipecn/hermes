@@ -32,58 +32,97 @@
 #include <hermes/geometry/normal.h>
 #include <hermes/geometry/point.h>
 #include <hermes/geometry/vector.h>
+#include <type_traits>
 
 namespace hermes::geo {
 
 /** Implements the equation normal X = offset.
  */
-class Plane {
+template <typename T> class Plane3 {
+  static_assert(std::is_same<T, f32>::value || std::is_same<T, f64>::value,
+                "Plane3 supports only f32 and f64");
+
 public:
+  using scalar_type = T;
+  using normal_type = Normal3<T>;
+  using point_type = Point3<T>;
+  using vector_type = Vector3<T>;
   /// default_color constructor
-  Plane();
+  HERMES_CPU_GPU Plane3() = default;
   /** Constructor
    * \param n **[in]** normal
    * \param o **[in]** offset
    */
-  Plane(normal3 n, real_t o);
-  Plane(normal3 n, point3 p);
+  HERMES_CPU_GPU Plane3(normal_type n, T o) : normal(n), offset(o) {}
+  HERMES_CPU_GPU Plane3(normal_type n, point_type p)
+      : normal(n), offset(dot(n, static_cast<vector_type>(p))) {}
   /// \param invert_normal
   /// \return a plane with offset = 0 and normal(0,0,1)
-  static Plane XY(bool invert_normal = false);
+  HERMES_CPU_GPU static Plane3 XY(bool invert_normal = false) {
+    return {normal_type(0, 0, invert_normal ? T(-1) : T(1)), T(0)};
+  }
   /// \param invert_normal
   /// \return a plane with offset = 0 and normal(0,1,0)
-  static Plane XZ(bool invert_normal = false);
+  HERMES_CPU_GPU static Plane3 XZ(bool invert_normal = false) {
+    return {normal_type(0, invert_normal ? T(-1) : T(1), 0), T(0)};
+  }
   /// \param invert_normal
   /// \return a plane with offset = 0 and normal(1,0,0)
-  static Plane YZ(bool invert_normal = false);
+  HERMES_CPU_GPU static Plane3 YZ(bool invert_normal = false) {
+    return {normal_type(invert_normal ? T(-1) : T(1), 0, 0), T(0)};
+  }
 
-  HERMES_NODISCARD point3 closestPoint(const point3 &p) const;
+  HERMES_NODISCARD HERMES_CPU_GPU point_type
+  closestPoint(const point_type &p) const {
+    vector_type n(normal);
+    T t = (dot(n, vector_type(p)) - offset) / n.length2();
+    return p - t * n;
+  }
   /** \brief  projects **v** on plane
    * \param v
    * \returns projected **v**
    */
-  HERMES_NODISCARD vec3 project(const vec3 &v) const;
+  HERMES_NODISCARD HERMES_CPU_GPU vector_type
+  project(const vector_type &v) const {
+    return hermes::geo::project(v, normal);
+  }
   /** \brief  reflects **v** fron plane
    * \param v
    * \returns reflected **v**
    */
-  HERMES_NODISCARD vec3 reflect(const vec3 &v) const;
-  HERMES_NODISCARD bool isOnNormalSide(const point3 &p) const;
+  HERMES_NODISCARD HERMES_CPU_GPU vector_type
+  reflect(const vector_type &v) const {
+    return hermes::geo::reflect(v, normal);
+  }
+  HERMES_NODISCARD HERMES_CPU_GPU bool
+  isOnNormalSide(const point_type &p) const {
+    return dot(vector_type(normal), p - closestPoint(p)) >= T(0);
+  }
 
-  normal3 normal;
-  real_t offset;
+  normal_type normal;
+  T offset{0};
 };
+
+using plane3 = Plane3<real_t>;
+using plane3f = Plane3<f32>;
+using plane3d = Plane3<f64>;
 
 } // namespace hermes::geo
 
 namespace hermes {
 
-HERMES_TYPE_LAYOUT_METHODS(geo::Plane, real_t, 4)
+HERMES_TYPE_LAYOUT_METHODS(geo::Plane3<real_t>, real_t, 4)
 
-template <> struct DebugTraits<geo::Plane> {
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+HERMES_TYPE_LAYOUT_METHODS(geo::Plane3<f32>, f32, 4)
+#else
+HERMES_TYPE_LAYOUT_METHODS(geo::Plane3<f64>, f64, 4)
+#endif
+
+template <typename T> struct DebugTraits<geo::Plane3<T>> {
   static HERMES_CONST_OR_CONSTEXPR bool is_string_serializable = true;
-  static DebugMessage message(const geo::Plane &data) {
-    return DebugMessage("Plane[n={} o={}]", hermes::to_string(data.normal),
+  static DebugMessage message(const geo::Plane3<T> &data) {
+    return DebugMessage("Plane3[n={} o={}]", hermes::to_string(data.normal),
                         data.offset);
   }
 };
@@ -143,7 +182,7 @@ template <> struct DebugTraits<geo::Plane> {
 //
 //  friend std::ostream &operator<<(std::ostream &os, const ImplicitPlane2D &p)
 //  {
-//    os << "[Plane] offset " << p.offset << " " << p.normal;
+//    os << "[Plane3] offset " << p.offset << " " << p.normal;
 //    return os;
 //  }
 //

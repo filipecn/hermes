@@ -37,19 +37,8 @@ namespace hermes::geo {
 // }
 //
 
-bool queries::intersect(const Plane &pl, const Line &l, point3 *p) {
-  vec3 nvector = vec3(pl.normal.x, pl.normal.y, pl.normal.z);
-  real_t k = dot(nvector, l.direction());
-  if (numbers::cmp::is_zero(k))
-    return false;
-  if (p) {
-    real_t r = (pl.offset - dot(nvector, vec3(l.a.x, l.a.y, l.a.z))) / k;
-    *p = l(r);
-  }
-  return true;
-}
 //
-// bool GeometricQueries::intersect(const Sphere &s, const Line &l, point3 &p1,
+// bool GeometricQueries::intersect(const Sphere &s, const Line3 &l, point3 &p1,
 //                                  point3 &p2) {
 //   real_t a = dot(l.direction(), l.direction());
 //   real_t b = 2.f * dot(l.direction(), l.a - s.c);
@@ -338,7 +327,7 @@ bool queries::intersect(const Plane &pl, const Line &l, point3 *p) {
 //   return Result<real_t>(t);
 // }
 //
-// Result<real_t> GeometricPredicates::intersect(const Plane &plane,
+// Result<real_t> GeometricPredicates::intersect(const Plane3 &plane,
 //                                               const Ray3 &ray) {
 //   vec3 n_vector = vec3(plane.normal.x, plane.normal.y, plane.normal.z);
 //   real_t k = dot(n_vector, ray.d);

@@ -52,12 +52,12 @@ public:
         !bottom.onNormalSide(p) && !top.onNormalSide(p);
   }
 
-  Plane near_;
-  Plane far_;
-  Plane left;
-  Plane right;
-  Plane bottom;
-  Plane top;
+  Plane3<> near_;
+  Plane3<> far_;
+  Plane3<> left;
+  Plane3<> right;
+  Plane3<> bottom;
+  Plane3<> top;
 };
 
 } // namespace hermes

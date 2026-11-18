@@ -45,19 +45,31 @@ struct queries {
   /// \param l
   /// \param p
   /// \return
-  static bool intersect(const Plane &pl, const Line &l, point3 *p = nullptr);
+  template <typename T>
+  static bool intersect(const Plane3<T> &pl, const Line3<T> &l,
+                        Point3<T> *p = nullptr) {
+    Vector3<T> nvector(pl.normal.x, pl.normal.y, pl.normal.z);
+    T k = dot(nvector, l.direction());
+    if (numbers::cmp::is_zero(k))
+      return false;
+    if (p) {
+      T r = (pl.offset - dot(nvector, Vector3<T>(l.a))) / k;
+      *p = l(r);
+    }
+    return true;
+  }
   ///  \brief  intersection test
   /// \param s **[in]** sphere
   /// \param l **[in]** line
   /// \param p1 **[out]** first intersection
   /// \param p2 **[out]** second intersection
   ///
-  /// Sphere / Line intersection test
+  /// Sphere / Line3 intersection test
   ///
   /// **p1** = **p2** if line is tangent to sphere
   ///
   /// /return **true** if intersection exists
-  // static bool intersect(const Sphere &s, const Line &l, point3 &p1, point3
+  // static bool intersect(const Sphere &s, const Line3<> &l, point3 &p1, point3
   // &p2);
   /** \brief  intersection test
    * \param box **[in]**
@@ -144,7 +156,7 @@ struct predicates {
   /// \param plane
   /// \param ray
   /// \return
-  // static Result<real_t> intersect(const Plane &plane, const Ray3 &ray);
+  // static Result<real_t> intersect(const Plane3 &plane, const Ray3 &ray);
 };
 
 } // namespace hermes::geo

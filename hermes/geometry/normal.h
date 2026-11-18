@@ -244,8 +244,8 @@ using normal3d = Normal3<f64>;
 
 namespace hermes {
 
-HERMES_TYPE_LAYOUT_METHODS(geo::normal2, f32, 2)
-HERMES_TYPE_LAYOUT_METHODS(geo::normal3, f32, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::normal2, real_t, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::normal3, real_t, 3)
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
 HERMES_TYPE_LAYOUT_METHODS(geo::normal2f, f32, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::normal3f, f32, 3)

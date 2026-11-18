@@ -322,7 +322,7 @@ TEST_CASE("Quaternion") {
 TEST_CASE("Geometric Queries/Predicates", "[geometry]") {
   SECTION("line_ray") {
     {
-      Line2 line({0, 0}, {1, 0});
+      Line2<> line({0, 0}, {1, 0});
       Ray2 ray({0, 1}, {0, -1});
       auto i = GeometricPredicates::intersect(line, ray);
       REQUIRE(i);
@@ -330,7 +330,7 @@ TEST_CASE("Geometric Queries/Predicates", "[geometry]") {
       REQUIRE(GeometricQueries::intersect(line, ray));
     }
     {
-      Line2 line({0, 0}, {1, 0});
+      Line2<> line({0, 0}, {1, 0});
       Ray2 ray({0, 1}, {0, 1});
       auto i = GeometricPredicates::intersect(line, ray);
       REQUIRE_FALSE(i);

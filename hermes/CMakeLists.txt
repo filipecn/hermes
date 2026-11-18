@@ -57,10 +57,6 @@ set(HERMES_SOURCES
 set(HERMES_CUDA_SOURCES
   colors/color.cpp
 
-  geometry/line.cpp
-  geometry/plane.cpp
-  geometry/queries.cpp
-
   math/space_filling.cpp
 
   sampling/sampling.cpp
