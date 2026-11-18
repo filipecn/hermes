@@ -14,7 +14,7 @@ using namespace hermes::geo;
 #ifdef HERMES_DEVICE_ENABLED
 HERMES_CUDA_KERNEL(testPoint)(int *result) {
   HERMES_CUDA_RETURN_IF_NOT_THREAD_0
-  Transform t;
+  Transform3<> t;
   result[0] = 0;
   {
     point2 a(1, 2);
@@ -159,9 +159,9 @@ TEST_CASE("BSphere ", "[geometry][bounds]") {
   } //
 }
 
-TEST_CASE("Transform", "[geometry]") {
-  REQUIRE(sizeof(Transform2) == sizeof(real_t) * 9);
-  REQUIRE(sizeof(Transform) == sizeof(real_t) * 16);
+TEST_CASE("Transform3", "[geometry]") {
+  REQUIRE(sizeof(Transform2<>) == sizeof(real_t) * 9);
+  REQUIRE(sizeof(Transform3<>) == sizeof(real_t) * 16);
   SECTION("options") {
     HERMES_LOG_VARIABLE(transform_option_bits::left_handed);
     transform_options options;
@@ -171,26 +171,26 @@ TEST_CASE("Transform", "[geometry]") {
     HERMES_LOG_VARIABLE(options);
   }
   SECTION("Sanity") {
-    Transform t;
+    Transform3<> t;
     REQUIRE(t.matrix().isIdentity());
     HERMES_LOG_VARIABLE(t);
   } //
   SECTION("orthographic projection") {
     SECTION("left handed") {
-      auto t = Transform::ortho(-1, 1, -1, 1, -1, 1);
+      auto t = Transform3<>::ortho(-1, 1, -1, 1, -1, 1);
       REQUIRE(t(vec3(1, 0, 0)) == vec3(1, 0, 0));
       REQUIRE(t(vec3(0, 1, 0)) == vec3(0, 1, 0));
       REQUIRE(t(vec3(0, 0, 1)) == vec3(0, 0, 1));
     } //
     SECTION("right handed") {
-      auto t = Transform::ortho(-1, 1, -1, 1, -1, 1,
+      auto t = Transform3<>::ortho(-1, 1, -1, 1, -1, 1,
                                 transform_option_bits::right_handed);
       REQUIRE(t(vec3(1, 0, 0)) == vec3(1, 0, 0));
       REQUIRE(t(vec3(0, 1, 0)) == vec3(0, 1, 0));
       REQUIRE(t(vec3(0, 0, 1)) == vec3(0, 0, -1));
     } //
     SECTION("cube") {
-      auto t = Transform::ortho(-10, 10, -20, 20, -1, 1);
+      auto t = Transform3<>::ortho(-10, 10, -20, 20, -1, 1);
       REQUIRE(t.matrix() == math::mat4(0.1, 0, 0, 0,  //
                                        0, 0.05, 0, 0, //
                                        0, 0, 1, 0,    //
@@ -198,7 +198,7 @@ TEST_CASE("Transform", "[geometry]") {
                                        ));
     } //
     SECTION("zero to one") {
-      auto t = Transform::ortho(-10, 10, -20, 20, -1, 1,
+      auto t = Transform3<>::ortho(-10, 10, -20, 20, -1, 1,
                                 transform_option_bits::right_handed |
                                     transform_option_bits::zero_to_one);
       REQUIRE(t.matrix() == math::mat4(0.1, 0, 0, -0,   //
@@ -210,7 +210,7 @@ TEST_CASE("Transform", "[geometry]") {
   } //
   SECTION("perspective projection") {
     SECTION("LH") {
-      auto t = Transform::perspective(90, 1, 1, 11);
+      auto t = Transform3<>::perspective(90, 1, 1, 11);
       // near
       REQUIRE(cmp::is_equal(point3(0, 0, -1), t(point3(0, 0, 1)), 1e-6));
       // far
@@ -224,7 +224,7 @@ TEST_CASE("Transform", "[geometry]") {
           cmp::is_equal(point3(0, 0, 0), t(point3(0, 0, 11.f / 6.f)), 1e-6));
     } //
     SECTION("RH") {
-      auto t = Transform::perspective(90, 1, 1, 11,
+      auto t = Transform3<>::perspective(90, 1, 1, 11,
                                       transform_option_bits::right_handed);
       // near
       HERMES_LOG_VARIABLE(t(point3(0, 0, -1)));
@@ -241,7 +241,7 @@ TEST_CASE("Transform", "[geometry]") {
           cmp::is_equal(point3(0, 0, 0), t(point3(0, 0, -11.f / 6.f)), 1e-6));
     } //
     SECTION("RH 01") {
-      auto t = Transform::perspective(90, 1, 1, 11,
+      auto t = Transform3<>::perspective(90, 1, 1, 11,
                                       transform_option_bits::right_handed |
                                           transform_option_bits::zero_to_one);
       // near
@@ -259,7 +259,7 @@ TEST_CASE("Transform", "[geometry]") {
   } //
   SECTION("look at") {
     SECTION("LH") {
-      auto t = Transform::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0});
+      auto t = Transform3<>::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0});
       REQUIRE(cmp::is_equal(t(point3(-1, 0, 0)), point3(0, 0, 2), 1e-6));
       REQUIRE(cmp::is_equal(t(point3(0, 0, 0)), point3(0, 0, 1), 1e-6));
       REQUIRE(cmp::is_equal(t(point3(1, 0, 0)), point3(0, 0, 0), 1e-6));
@@ -267,7 +267,7 @@ TEST_CASE("Transform", "[geometry]") {
       REQUIRE(cmp::is_equal(t(point3(0, 1, 1)), point3(1, 1, 1), 1e-6));
     } //
     SECTION("RH") {
-      auto t = Transform::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0},
+      auto t = Transform3<>::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0},
                                  transform_option_bits::right_handed);
       REQUIRE(cmp::is_equal(t(point3(-1, 0, 0)), point3(0, 0, -2), 1e-6));
       REQUIRE(cmp::is_equal(t(point3(0, 0, 0)), point3(0, 0, -1), 1e-6));
@@ -279,31 +279,31 @@ TEST_CASE("Transform", "[geometry]") {
   SECTION("align vectors") {
     vec3 a = {1, 0, 0};
     vec3 b = {0, 0, 1};
-    auto t = Transform::alignVectors(a, b);
+    auto t = Transform3<>::alignVectors(a, b);
     REQUIRE(t(a) == b);
     a = {0, 1, 0};
     b = {0, 0, 1};
-    t = Transform::alignVectors(a, b);
+    t = Transform3<>::alignVectors(a, b);
     REQUIRE(t(a) == b);
     a = {0, 0, 1};
     b = {0, 0, 1};
-    t = Transform::alignVectors(a, b);
+    t = Transform3<>::alignVectors(a, b);
     REQUIRE(t(a) == b);
     a = {1, 0, 0};
     b = {0, 1, 0};
-    t = Transform::alignVectors(a, b);
+    t = Transform3<>::alignVectors(a, b);
     REQUIRE(t(a) == b);
     a = {0, 1, 0};
     b = {0, 1, 0};
-    t = Transform::alignVectors(a, b);
+    t = Transform3<>::alignVectors(a, b);
     REQUIRE(t(a) == b);
     a = {0, 0, 1};
     b = {1, 0, 0};
-    t = Transform::alignVectors(a, b);
+    t = Transform3<>::alignVectors(a, b);
     REQUIRE(t(a) == b);
   } //
   SECTION("rotation") {
-    REQUIRE(Transform::rotate(math::constants::pi_over_two,
+    REQUIRE(Transform3<>::rotate(math::constants::pi_over_two,
                               {1, 0, 0})(vec3(0, 1, 0)) == vec3(0, 0, 1));
   } //
 }
@@ -312,7 +312,7 @@ TEST_CASE("Quaternion") {
   SECTION("rotation") {
     auto angle = math::degrees2radians(90);
     quat q({std::sin(angle / 2), 0, 0}, std::cos(angle / 2));
-    Transform t(q.matrix());
+    Transform3<> t(q.matrix());
     REQUIRE(t(vec3(0, 1, 0)) == vec3(0, 0, 1));
     HERMES_LOG_VARIABLE(q);
   } //

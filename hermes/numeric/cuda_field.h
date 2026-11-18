@@ -58,9 +58,9 @@ public:
   Texture<T> &texture() { return texture_; }
   /// \return const Texture<T>& const reference to texture object
   const Texture<T> &texture() const { return texture_; }
-  /// \return const Transform<float, D>& world to field transform
+  /// \return const Transform2<float>& world to field transform
   const Transform2<float> &toFieldTransform() const { return toField; }
-  /// \return const Transform<float, D>& field to world transform
+  /// \return const Transform2<float>& field to world transform
   const Transform2<float> &toWorldTransform() const { return toWorld; }
 
 private:
@@ -74,12 +74,12 @@ public:
   FieldTexture3() = default;
   /// \param toField world to field transform
   /// \param size texture resolution
-  FieldTexture3(const Transform<float> toField, const size3 &size)
+  FieldTexture3(const Transform3<float> toField, const size3 &size)
       : toField(toField), toWorld(inverse(toField)) {
     texture_.resize(size[0], size[1], size[2]);
   }
   /// \param toFieldTransform world to field transform
-  void setTransform(const Transform<float> toWorldTransform) {
+  void setTransform(const Transform3<float> toWorldTransform) {
     toWorld = toWorldTransform;
     toField = inverse(toWorldTransform);
   }
@@ -92,14 +92,14 @@ public:
   Texture3<T> &texture() { return texture_; }
   /// \return const Texture<T>& const reference to texture object
   const Texture3<T> &texture() const { return texture_; }
-  /// \return const Transform<float, D>& world to field transform
-  [[nodiscard]] const Transform<float> &toFieldTransform() const { return toField; }
-  /// \return const Transform<float, D>& field to world transform
-  [[nodiscard]] const Transform<float> &toWorldTransform() const { return toWorld; }
+  /// \return const Transform3<float>& world to field transform
+  [[nodiscard]] const Transform3<float> &toFieldTransform() const { return toField; }
+  /// \return const Transform3<float>& field to world transform
+  [[nodiscard]] const Transform3<float> &toWorldTransform() const { return toWorld; }
 
 private:
-  Transform<float> toField;
-  Transform<float> toWorld;
+  Transform3<float> toField;
+  Transform3<float> toWorld;
   Texture3<T> texture_;
 };
 

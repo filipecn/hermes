@@ -55,7 +55,7 @@ void RawMesh::addFace(std::initializer_list<int> l) {
   }
 }
 
-void RawMesh::apply(const Transform &t) {
+void RawMesh::apply(const Transform3<> &t) {
   for (size_t i = 0; i < positionDescriptor.count; i++)
     t.applyToPoint(&positions[i * positionDescriptor.elementSize],
                    &positions[i * positionDescriptor.elementSize],
@@ -190,12 +190,12 @@ void fitToBBox(RawMesh *rm, const bbox2 &bbox) {
   float ratio = rm->bbox.size(1) / rm->bbox.size(0);
   if (rm->bbox.size(0) > rm->bbox.size(1))
     rm->apply(
-        Transform::scale(1.f / rm->bbox.size(0), ratio * (1.f / rm->bbox.size(0)), 0) *
-            Transform::translate(point3() - rm->bbox.lower));
+        Transform3<>::scale(1.f / rm->bbox.size(0), ratio * (1.f / rm->bbox.size(0)), 0) *
+            Transform3<>::translate(point3() - rm->bbox.lower));
   else
     rm->apply(
-        Transform::scale((1.f / rm->bbox.size(1)) / ratio, 1.f / rm->bbox.size(1), 0) *
-            Transform::translate(point3() - rm->bbox.lower));
+        Transform3<>::scale((1.f / rm->bbox.size(1)) / ratio, 1.f / rm->bbox.size(1), 0) *
+            Transform3<>::translate(point3() - rm->bbox.lower));
   rm->computeBBox();
 }
 

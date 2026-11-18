@@ -227,7 +227,7 @@ public:
     z OP## = v.z;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Vector3 &operator OP## = (real_t f) {                         \
+  template <typename S> HERMES_CPU_GPU Vector3 &operator OP## = (S f) {        \
     x OP## = f;                                                                \
     y OP## = f;                                                                \
     z OP## = f;                                                                \
@@ -703,10 +703,12 @@ MATH_OP(cos, std::cos, 3)
 using vec2 = Vector2<real_t>;
 using vec3 = Vector3<real_t>;
 using vec4 = Vector4<real_t>;
-using vec3d = Vector3<f64>;
-using vec3f = Vector3<f32>;
 using vec2f = Vector2<f32>;
+using vec3f = Vector3<f32>;
+using vec4f = Vector4<f32>;
 using vec2d = Vector2<f64>;
+using vec3d = Vector3<f64>;
+using vec4d = Vector4<f64>;
 using vec2i = Vector2<Interval<real_t>>;
 using vec3i = Vector3<Interval<real_t>>;
 
@@ -716,14 +718,16 @@ namespace hermes {
 
 HERMES_TYPE_LAYOUT_METHODS(geo::vec2, real_t, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec3, real_t, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec4, real_t, 4)
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
 HERMES_TYPE_LAYOUT_METHODS(geo::vec2f, f32, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec3f, f32, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec4f, f32, 4)
 #else
 HERMES_TYPE_LAYOUT_METHODS(geo::vec2d, f64, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec3d, f64, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::vec4d, f64, 4)
 #endif
-HERMES_TYPE_LAYOUT_METHODS(geo::vec4, real_t, 4)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec2i, Interval<real_t>, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::vec3i, Interval<real_t>, 3)
 

@@ -143,7 +143,7 @@ public:
   real_t r;
 };
 
-inline bbox2 compute_bbox(const Circle &po, const Transform2 *t = nullptr) {
+inline bbox2 compute_bbox(const Circle &po, const Transform2<> *t = nullptr) {
   bbox2 b;
   hermes::point2 center = po.c;
   if (t != nullptr) {

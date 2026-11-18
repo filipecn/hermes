@@ -28,7 +28,7 @@ class DebugTraitsTestStructA {
   int b = 3;
   std::vector<i32> list = {5, 4, 3, 2, 1};
   std::unordered_map<i32, i32> map = {{1, 2}, {2, 3}, {3, 4}};
-  hermes::geo::Transform t;
+  hermes::geo::Transform3<> t;
 
   friend struct hermes::DebugTraits<DebugTraitsTestStructA>;
 };

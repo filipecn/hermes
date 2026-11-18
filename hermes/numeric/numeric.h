@@ -84,16 +84,16 @@ HERMES_CPU_GPU inline constexpr T max(std::initializer_list<T> l) {
 /// \tparam T
 /// \param a **[in]**
 /// \return constexpr bool
-template <typename T>
-HERMES_CPU_GPU constexpr bool is_zero(T a, real_t e = 1e-8) {
+template <typename T, typename E = T>
+HERMES_CPU_GPU constexpr bool is_zero(T a, E e = 1e-8) {
 #if (defined(__CUDA_ARCH__) && (__CUDA_ARCH__ > 0))
   return fabs(a) < e;
 #else
   return std::fabs(a) < e;
 #endif
 }
-template <typename T1, typename T2>
-HERMES_CPU_GPU constexpr bool is_equal(T1 a, T2 b, real_t e = 1e-8) {
+template <typename T1, typename T2, typename E = T1>
+HERMES_CPU_GPU constexpr bool is_equal(T1 a, T2 b, E e = 1e-8) {
   return fabs(a - b) < e;
 }
 /// Checks if two numbers are at most 1e-8 apart
@@ -101,11 +101,13 @@ HERMES_CPU_GPU constexpr bool is_equal(T1 a, T2 b, real_t e = 1e-8) {
 /// \param a **[in]**
 /// \param b **[in]**
 /// \return constexpr bool
-HERMES_CPU_GPU constexpr bool is_equal(f32 a, f32 b, f32 e = 1e-8f) {
-  return fabsf(a - b) < e;
+template <typename E>
+HERMES_CPU_GPU constexpr bool is_equal(f32 a, f32 b, E e = 1e-8) {
+  return fabsf(a - b) < static_cast<f32>(e);
 }
-HERMES_CPU_GPU constexpr bool is_equal(f64 a, f64 b, f64 e = 1e-8) {
-  return fabs(a - b) < e;
+template <typename E>
+HERMES_CPU_GPU constexpr bool is_equal(f64 a, f64 b, E e = 1e-8) {
+  return fabs(a - b) < static_cast<f64>(e);
 }
 /// Checks if a number is in a open interval
 /// \tparam T

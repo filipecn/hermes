@@ -71,14 +71,14 @@ public:
 
   /// \brief
   /// \return
-  HERMES_CPU_GPU Transform matrix() const {
-    Transform m;
-    float Nv = v.x * v.x + v.y * v.y + v.z * v.z + r * r;
-    float s = (Nv > 0.f) ? (2.f / Nv) : 0.f;
-    float xs = v.x * s, ys = v.y * s, zs = v.z * s;
-    float wx = r * xs, wy = r * ys, wz = r * zs;
-    float xx = v.x * xs, xy = v.x * ys, xz = v.x * zs;
-    float yy = v.y * ys, yz = v.y * zs, zz = v.z * zs;
+  HERMES_CPU_GPU Transform3<T> matrix() const {
+    Transform3<T> m;
+    T Nv = v.x * v.x + v.y * v.y + v.z * v.z + r * r;
+    T s = (Nv > 0) ? (T(2) / Nv) : T(0);
+    T xs = v.x * s, ys = v.y * s, zs = v.z * s;
+    T wx = r * xs, wy = r * ys, wz = r * zs;
+    T xx = v.x * xs, xy = v.x * ys, xz = v.x * zs;
+    T yy = v.y * ys, yz = v.y * zs, zz = v.z * zs;
     m[0][0] = 1.f - (yy + zz);
     m[1][0] = xy + wz;
     m[2][0] = xz - wy;

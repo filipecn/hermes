@@ -64,7 +64,7 @@ public:
   };
   /// Applies transform **t** to all vertices.
   /// \param t transform
-  void apply(const Transform &t);
+  void apply(const Transform3<> &t);
   void splitIndexData();
   void computeBBox();
   /// Append positions.

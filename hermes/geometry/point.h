@@ -93,26 +93,31 @@ public:
   HERMES_CPU_GPU T &operator[](int i) { return (&x)[i]; }
   //                                                                                                       arithmetic
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_CPU_GPU Point2 &operator OP## = (const Vector2<T> &v) {               \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Point2 &operator OP## = (const Vector2<S> &v) {               \
     x OP## = v.x;                                                              \
     y OP## = v.y;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Point2 &operator OP## = (real_t f) {                          \
+  template <typename S> HERMES_CPU_GPU Point2 &operator OP## = (S f) {         \
     x OP## = f;                                                                \
     y OP## = f;                                                                \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Point2 operator OP(const Vector2<T> &v) const {               \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Point2 operator OP(const Vector2<S> &v) const {               \
     return {x OP v.x, y OP v.y};                                               \
   }                                                                            \
-  HERMES_CPU_GPU Point2 operator OP(real_t f) const { return {x OP f, y OP f}; }
+  template <typename S> HERMES_CPU_GPU Point2 operator OP(S f) const {         \
+    return {x OP f, y OP f};                                                   \
+  }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
   ARITHMETIC_OP(/)
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
-  HERMES_CPU_GPU Vector2<T> operator-(const Point2<T> &b) const {
+  template <typename S>
+  HERMES_CPU_GPU Vector2<T> operator-(const Point2<S> &b) const {
     return Vector2<T>(x - b.x, y - b.y);
   }
   //                                                                                                       relational
@@ -212,7 +217,7 @@ public:
   /// \warning `i` is not checked
   /// \param i component index in [0, 2]
   /// \return
-  HERMES_CPU_GPU T operator[](int i) const { return (&x)[i]; }
+  HERMES_CPU_GPU const T &operator[](int i) const { return (&x)[i]; }
   /// \brief Get i-th component reference
   /// \warning `i` is not checked
   /// \param i component index in [0, 2]
@@ -220,22 +225,24 @@ public:
   HERMES_CPU_GPU T &operator[](int i) { return (&x)[i]; }
 
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_CPU_GPU Point3 &operator OP## = (const Vector3<T> &v) {               \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Point3 &operator OP## = (const Vector3<S> &v) {               \
     x OP## = v.x;                                                              \
     y OP## = v.y;                                                              \
     z OP## = v.z;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Point3 &operator OP## = (real_t f) {                          \
+  template <typename S> HERMES_CPU_GPU Point3 &operator OP## = (S f) {         \
     x OP## = f;                                                                \
     y OP## = f;                                                                \
     z OP## = f;                                                                \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Point3 operator OP(const Vector3<T> &v) const {               \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Point3 operator OP(const Vector3<S> &v) const {               \
     return {x OP v.x, y OP v.y, z OP v.z};                                     \
   }                                                                            \
-  HERMES_CPU_GPU Point3 operator OP(T f) const {                               \
+  template <typename S> HERMES_CPU_GPU Point3 operator OP(S f) const {         \
     return {x OP f, y OP f, z OP f};                                           \
   }
   ARITHMETIC_OP(+)
@@ -282,8 +289,8 @@ public:
 /// \param f
 /// \param a
 /// \return
-template <typename T>
-HERMES_CPU_GPU Point2<T> operator*(real_t f, const Point2<T> &a) {
+template <typename S, typename T>
+HERMES_CPU_GPU Point2<T> operator*(S f, const Point2<T> &a) {
   return Point2<T>(a.x * f, a.y * f);
 }
 
@@ -293,7 +300,7 @@ HERMES_CPU_GPU Point2<T> operator*(real_t f, const Point2<T> &a) {
 /// \param b
 /// \return
 template <typename T>
-HERMES_CPU_GPU real_t distance(const Point2<T> &a, const Point2<T> &b) {
+HERMES_CPU_GPU T distance(const Point2<T> &a, const Point2<T> &b) {
   return (a - b).length();
 }
 /// \brief Computes the squared Euclidean distance between two points
@@ -302,7 +309,7 @@ HERMES_CPU_GPU real_t distance(const Point2<T> &a, const Point2<T> &b) {
 /// \param b
 /// \return
 template <typename T>
-HERMES_CPU_GPU real_t distance2(const Point2<T> &a, const Point2<T> &b) {
+HERMES_CPU_GPU T distance2(const Point2<T> &a, const Point2<T> &b) {
   return (a - b).length2();
 }
 /// \brief Computes the Euclidean distance between two points
@@ -311,7 +318,7 @@ HERMES_CPU_GPU real_t distance2(const Point2<T> &a, const Point2<T> &b) {
 /// \param b
 /// \return
 template <typename T>
-HERMES_CPU_GPU real_t distance(const Point3<T> &a, const Point3<T> &b) {
+HERMES_CPU_GPU T distance(const Point3<T> &a, const Point3<T> &b) {
   return (a - b).length();
 }
 /// \brief Computes the squared Euclidean distance between two points
@@ -320,7 +327,7 @@ HERMES_CPU_GPU real_t distance(const Point3<T> &a, const Point3<T> &b) {
 /// \param b
 /// \return
 template <typename T>
-HERMES_CPU_GPU real_t distance2(const Point3<T> &a, const Point3<T> &b) {
+HERMES_CPU_GPU T distance2(const Point3<T> &a, const Point3<T> &b) {
   return (a - b).length2();
 }
 //                                                                                                            numbers
@@ -340,24 +347,24 @@ MATH_OP(abs, std::abs)
 #undef MATH_OP
 
 using point2 = Point2<real_t>;
-using point2f = Point2<float>;
-using point2d = Point2<double>;
 using point3 = Point3<real_t>;
-using point3f = Point3<float>;
-using point3d = Point3<double>;
+using point2f = Point2<f32>;
+using point3f = Point3<f32>;
+using point2d = Point2<f64>;
+using point3d = Point3<f64>;
 using point2i = Point2<Interval<real_t>>;
 using point3i = Point3<Interval<real_t>>;
 
 namespace cmp {
 
-template <typename T>
-bool is_equal(const Point2<T> &a, const Point2<T> &b, f64 e) {
+template <typename T, typename E>
+bool is_equal(const Point2<T> &a, const Point2<T> &b, E e) {
   return numbers::cmp::is_equal(a.x, b.x, e) &&
          numbers::cmp::is_equal(a.y, b.y, e);
 }
 
-template <typename T>
-bool is_equal(const Point3<T> &a, const Point3<T> &b, f64 e) {
+template <typename T, typename E>
+bool is_equal(const Point3<T> &a, const Point3<T> &b, E e) {
   return numbers::cmp::is_equal(a.x, b.x, e) &&
          numbers::cmp::is_equal(a.y, b.y, e) &&
          numbers::cmp::is_equal(a.z, b.z, e);
@@ -369,8 +376,8 @@ bool is_equal(const Point3<T> &a, const Point3<T> &b, f64 e) {
 
 namespace hermes {
 
-HERMES_TYPE_LAYOUT_METHODS(geo::point2, f32, 2)
-HERMES_TYPE_LAYOUT_METHODS(geo::point3, f32, 3)
+HERMES_TYPE_LAYOUT_METHODS(geo::point2, real_t, 2)
+HERMES_TYPE_LAYOUT_METHODS(geo::point3, real_t, 3)
 #ifdef HERMES_USE_DOUBLE_AS_DEFAULT
 HERMES_TYPE_LAYOUT_METHODS(geo::point2f, f32, 2)
 HERMES_TYPE_LAYOUT_METHODS(geo::point3f, f32, 3)

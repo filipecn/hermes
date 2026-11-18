@@ -45,6 +45,16 @@
       }
     },
     {
+      "name": "release-double",
+      "inherits": "release",
+      "binaryDir": "${sourceDir}/build/Release",
+      "displayName": "Release Double Build",
+      "description": "Configures a release build.",
+      "cacheVariables": {
+        "HERMES_USE_DOUBLE_AS_DEFAULT": "ON"
+      }
+    },
+    {
       "name": "release-cuda",
       "inherits": "release",
       "binaryDir": "${sourceDir}/build/Release_Cuda",
@@ -93,4 +103,3 @@
     }
   ]
 }
-

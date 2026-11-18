@@ -586,6 +586,12 @@ HERMES_CPU_GPU MatrixNxM<T, 3, 3> star(const MatrixNxM<T, 3, 1> a) {
 using mat4 = MatrixNxM<real_t, 4, 4>;
 using mat3 = MatrixNxM<real_t, 3, 3>;
 using mat2 = MatrixNxM<real_t, 2, 2>;
+using mat4f = MatrixNxM<f32, 4, 4>;
+using mat3f = MatrixNxM<f32, 3, 3>;
+using mat2f = MatrixNxM<f32, 2, 2>;
+using mat4d = MatrixNxM<f64, 4, 4>;
+using mat3d = MatrixNxM<f64, 3, 3>;
+using mat2d = MatrixNxM<f64, 2, 2>;
 
 namespace cmp {
 
@@ -621,8 +627,18 @@ struct DebugTraits<math::MatrixNxM<T, N, M>> {
   }
 };
 
-HERMES_TYPE_LAYOUT_METHODS(math::mat4, f32, 16)
-HERMES_TYPE_LAYOUT_METHODS(math::mat3, f32, 9)
-HERMES_TYPE_LAYOUT_METHODS(math::mat2, f32, 4)
+HERMES_TYPE_LAYOUT_METHODS(math::mat4, real_t, 16)
+HERMES_TYPE_LAYOUT_METHODS(math::mat3, real_t, 9)
+HERMES_TYPE_LAYOUT_METHODS(math::mat2, real_t, 4)
+
+#ifdef HERMES_USE_DOUBLE_AS_DEFAULT
+HERMES_TYPE_LAYOUT_METHODS(math::mat4f, f32, 16)
+HERMES_TYPE_LAYOUT_METHODS(math::mat3f, f32, 9)
+HERMES_TYPE_LAYOUT_METHODS(math::mat2f, f32, 4)
+#else
+HERMES_TYPE_LAYOUT_METHODS(math::mat4d, f64, 16)
+HERMES_TYPE_LAYOUT_METHODS(math::mat3d, f64, 9)
+HERMES_TYPE_LAYOUT_METHODS(math::mat2d, f64, 4)
+#endif
 
 } // namespace hermes

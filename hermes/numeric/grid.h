@@ -417,8 +417,8 @@ struct Grid2Info {
 
 // TODO: DEPRECATED
 struct Grid3Info {
-  Transform<float> toField;
-  Transform<float> toWorld;
+  Transform3<float> toField;
+  Transform3<float> toWorld;
   size3 resolution;
   point3f origin;
   float dx;
@@ -433,8 +433,8 @@ struct RegularGrid2Info {
 };
 
 struct RegularGrid3Info {
-  Transform<float> toGrid;
-  Transform<float> toWorld;
+  Transform3<float> toGrid;
+  Transform3<float> toWorld;
   size3 resolution;
   point3f origin;
   vec3f spacing;
@@ -1191,7 +1191,7 @@ public:
   /// \return const Texture<T>&
   const Texture<T> &texture() const { return texGrid.texture(); }
   ///
-  /// \return Transform<float, 2>
+  /// \return Transform2<float>
   Transform2<float> toWorldTransform() const {
     return texGrid.toWorldTransform();
   }
@@ -1260,13 +1260,13 @@ public:
   /// \return const Texture<T>&
   const Texture3<T> &texture() const { return texGrid.texture(); }
   ///
-  /// \return Transform<float, 3>
-  Transform<float> toWorldTransform() const {
+  /// \return Transform3<float>
+  Transform3<float> toWorldTransform() const {
     return texGrid.toWorldTransform();
   }
   ///
   /// \return Transform3<float>
-  Transform<float> toFieldTransform() const {
+  Transform3<float> toFieldTransform() const {
     return texGrid.toFieldTransform();
   }
 

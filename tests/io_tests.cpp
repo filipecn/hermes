@@ -164,11 +164,11 @@ TEST_CASE("MemoryDumper", "[log]") {
   SECTION("colored output") {
     SECTION("sanity") {
       struct S {
-        geo::Transform t;
+        geo::Transform3<> t;
         math::mat4 m;
         u32 a;
       };
-      S v[2] = {{geo::Transform(), math::mat4::I(), 0},
+      S v[2] = {{geo::Transform3<>(), math::mat4::I(), 0},
                 {{}, math::mat4::I(), 1}};
       MemoryDumper::dump(
           v, 2, 16,
@@ -342,8 +342,8 @@ TEST_CASE("MemoryDumper", "[log]") {
     //} //
   } //
   // SECTION("transforms") {
-  //   Transform t;
-  //   MemoryDumper::dump(&t, 1, 16, Transform::memoryDumpLayout(),
+  //   Transform3 t;
+  //   MemoryDumper::dump(&t, 1, 16, Transform3::memoryDumpLayout(),
   //                      memory_dumper_options::colored_output |
   //                          memory_dumper_options::type_values);
   // } //

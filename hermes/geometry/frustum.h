@@ -15,7 +15,7 @@ public:
   // http://gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
   // it t is the projection matrix, then frustum is in view space
   // it t is the M * V * P matrix, then frustum is in model space
-  void set(Transform t) {
+  void set(Transform3<> t) {
     left.normal.x = t.matrix()[3][0] + t.matrix()[0][0];
     left.normal.y = t.matrix()[3][1] + t.matrix()[0][1];
     left.normal.z = t.matrix()[3][2] + t.matrix()[0][2];

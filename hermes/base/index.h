@@ -413,7 +413,6 @@ template <typename T> struct Index3 {
       }
       ///\return iterator&
       HERMES_CPU_GPU iterator &operator++() {
-        auto ii = index_;
         index_.i++;
         if (index_.i >= upper_.i) {
           index_.i = lower_.i;

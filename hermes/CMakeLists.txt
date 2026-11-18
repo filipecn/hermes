@@ -60,7 +60,6 @@ set(HERMES_CUDA_SOURCES
   geometry/line.cpp
   geometry/plane.cpp
   geometry/queries.cpp
-  geometry/transform.cpp
 
   math/space_filling.cpp
 
