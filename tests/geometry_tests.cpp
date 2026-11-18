@@ -184,7 +184,7 @@ TEST_CASE("Transform3", "[geometry]") {
     } //
     SECTION("right handed") {
       auto t = Transform3<>::ortho(-1, 1, -1, 1, -1, 1,
-                                transform_option_bits::right_handed);
+                                   transform_option_bits::right_handed);
       REQUIRE(t(vec3(1, 0, 0)) == vec3(1, 0, 0));
       REQUIRE(t(vec3(0, 1, 0)) == vec3(0, 1, 0));
       REQUIRE(t(vec3(0, 0, 1)) == vec3(0, 0, -1));
@@ -199,8 +199,8 @@ TEST_CASE("Transform3", "[geometry]") {
     } //
     SECTION("zero to one") {
       auto t = Transform3<>::ortho(-10, 10, -20, 20, -1, 1,
-                                transform_option_bits::right_handed |
-                                    transform_option_bits::zero_to_one);
+                                   transform_option_bits::right_handed |
+                                       transform_option_bits::zero_to_one);
       REQUIRE(t.matrix() == math::mat4(0.1, 0, 0, -0,   //
                                        0, 0.05, 0, -0,  //
                                        0, 0, -0.5, 0.5, //
@@ -225,7 +225,7 @@ TEST_CASE("Transform3", "[geometry]") {
     } //
     SECTION("RH") {
       auto t = Transform3<>::perspective(90, 1, 1, 11,
-                                      transform_option_bits::right_handed);
+                                         transform_option_bits::right_handed);
       // near
       HERMES_LOG_VARIABLE(t(point3(0, 0, -1)));
       REQUIRE(cmp::is_equal(point3(0, 0, 1), t(point3(0, 0, -1)), 1e-6));
@@ -241,9 +241,10 @@ TEST_CASE("Transform3", "[geometry]") {
           cmp::is_equal(point3(0, 0, 0), t(point3(0, 0, -11.f / 6.f)), 1e-6));
     } //
     SECTION("RH 01") {
-      auto t = Transform3<>::perspective(90, 1, 1, 11,
-                                      transform_option_bits::right_handed |
-                                          transform_option_bits::zero_to_one);
+      auto t =
+          Transform3<>::perspective(90, 1, 1, 11,
+                                    transform_option_bits::right_handed |
+                                        transform_option_bits::zero_to_one);
       // near
       REQUIRE(cmp::is_equal(point3(0, 0, 1), t(point3(0, 0, -1)), 1e-6));
       // far
@@ -268,7 +269,7 @@ TEST_CASE("Transform3", "[geometry]") {
     } //
     SECTION("RH") {
       auto t = Transform3<>::lookAt({1.f, 0.f, 0.f}, {0, 0, 0}, {0, 1, 0},
-                                 transform_option_bits::right_handed);
+                                    transform_option_bits::right_handed);
       REQUIRE(cmp::is_equal(t(point3(-1, 0, 0)), point3(0, 0, -2), 1e-6));
       REQUIRE(cmp::is_equal(t(point3(0, 0, 0)), point3(0, 0, -1), 1e-6));
       REQUIRE(cmp::is_equal(t(point3(1, 0, 0)), point3(0, 0, 0), 1e-6));
@@ -304,7 +305,7 @@ TEST_CASE("Transform3", "[geometry]") {
   } //
   SECTION("rotation") {
     REQUIRE(Transform3<>::rotate(math::constants::pi_over_two,
-                              {1, 0, 0})(vec3(0, 1, 0)) == vec3(0, 0, 1));
+                                 {1, 0, 0})(vec3(0, 1, 0)) == vec3(0, 0, 1));
   } //
 }
 

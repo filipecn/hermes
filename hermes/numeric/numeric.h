@@ -31,6 +31,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <type_traits>
 
 namespace hermes {
 
@@ -92,17 +93,22 @@ HERMES_CPU_GPU constexpr bool is_zero(T a, E e = 1e-8) {
   return std::fabs(a) < e;
 #endif
 }
-template <typename T1, typename T2, typename E = T1>
-HERMES_CPU_GPU constexpr bool is_equal(T1 a, T2 b, E e = 1e-8) {
+/// Uses a default tolerance of 1e-6 for f32 comparisons and 1e-8 otherwise.
+template <typename T1, typename T2,
+          typename E = std::conditional_t<std::is_same<T1, f32>::value ||
+                                              std::is_same<T2, f32>::value,
+                                          f32, f64>>
+HERMES_CPU_GPU constexpr bool is_equal(
+    T1 a, T2 b,
+    E e = std::is_same<E, f32>::value ? E(1e-6) : E(1e-8)) {
   return fabs(a - b) < e;
 }
-/// Checks if two numbers are at most 1e-8 apart
 /// \tparam T
 /// \param a **[in]**
 /// \param b **[in]**
 /// \return constexpr bool
 template <typename E>
-HERMES_CPU_GPU constexpr bool is_equal(f32 a, f32 b, E e = 1e-8) {
+HERMES_CPU_GPU constexpr bool is_equal(f32 a, f32 b, E e = 1e-6) {
   return fabsf(a - b) < static_cast<f32>(e);
 }
 template <typename E>

@@ -31,6 +31,7 @@
 #include <hermes/numeric/interval.h>
 
 #include <cstring>
+#include <type_traits>
 
 namespace hermes::geo {
 
@@ -51,19 +52,43 @@ template <typename T> class Vector2 {
 public:
   /// Default constructor
   HERMES_CPU_GPU Vector2() : x{0}, y{0} {};
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Vector2(const Vector2<S> &v)
+      : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)) {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Vector2(Vector2<S> &&v)
+      : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)) {}
+  HERMES_CPU_GPU Vector2(const Vector2<T> &v) noexcept : x(v.x), y(v.y) {}
+  HERMES_CPU_GPU Vector2(Vector2<T> &&v) noexcept : x(v.x), y(v.y) {}
+  constexpr HERMES_CPU_GPU Vector2 &operator=(const Vector2<T> &v) noexcept {
+    x = v.x;
+    y = v.y;
+    return *this;
+  }
+  template <typename S>
+  constexpr HERMES_CPU_GPU Vector2 &operator=(const Vector2<S> &v) noexcept {
+    x = static_cast<T>(v.x);
+    y = static_cast<T>(v.y);
+    return *this;
+  }
   /// Constructs from component values
   /// \param _x
   /// \param _y
-  HERMES_CPU_GPU Vector2(T _x, T _y) : x(_x), y(_y) {}
+  template <typename S, typename U>
+  HERMES_CPU_GPU Vector2(S _x, U _y) : x(_x), y(_y) {}
   /// Constructs from geometric point
   /// \param p
   HERMES_CPU_GPU explicit Vector2(const Point2<T> &p) : x(p.x), y(p.y) {}
   /// Constructs from single component value
   /// \param f
-  HERMES_CPU_GPU explicit Vector2(T f) { x = y = f; }
+  template <typename S, std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>
+  HERMES_CPU_GPU explicit Vector2(S f) {
+    x = y = f;
+  }
   /// Constructs from component array
   /// \param f
-  HERMES_CPU_GPU explicit Vector2(T *f) {
+  template <typename S, std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>
+  HERMES_CPU_GPU explicit Vector2(S *f) {
     x = f[0];
     y = f[1];
   }
@@ -80,20 +105,28 @@ public:
   HERMES_CPU_GPU T &operator[](size_t i) { return (&x)[i]; }
 
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_CPU_GPU Vector2 &operator OP## = (const Vector2 &v) {                 \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Vector2 &operator OP## = (const Vector2<S> &v) {              \
     x OP## = v.x;                                                              \
     y OP## = v.y;                                                              \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Vector2 &operator OP## = (T f) {                              \
+  template <typename S,                                                        \
+            std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>           \
+  HERMES_CPU_GPU Vector2 &operator OP## = (S f) {                              \
     x OP## = f;                                                                \
     y OP## = f;                                                                \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Vector2 operator OP(const Vector2<T> &b) const {              \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Vector2 operator OP(const Vector2<S> &b) const {              \
     return {x OP b.x, y OP b.y};                                               \
   }                                                                            \
-  HERMES_CPU_GPU Vector2 operator OP(T f) const { return {x OP f, y OP f}; }
+  template <typename S,                                                        \
+            std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>           \
+  HERMES_CPU_GPU Vector2 operator OP(S f) const {                              \
+    return {x OP f, y OP f};                                                   \
+  }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
   ARITHMETIC_OP(*)
@@ -181,25 +214,53 @@ template <typename T> class Vector3 {
 public:
   /// Default constructor
   HERMES_CPU_GPU Vector3() : x{0}, y{0}, z{0} {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Vector3(const Vector3<S> &v)
+      : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)), z(static_cast<T>(v.z)) {
+  }
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Vector3(Vector3<S> &&v)
+      : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)), z(static_cast<T>(v.z)) {
+  }
+  HERMES_CPU_GPU Vector3(const Vector3<T> &v) noexcept
+      : x(v.x), y(v.y), z(v.z) {}
+  HERMES_CPU_GPU Vector3(Vector3<T> &&v) noexcept : x(v.x), y(v.y), z(v.z) {}
+  constexpr HERMES_CPU_GPU Vector3 &operator=(const Vector3<T> &v) noexcept {
+    x = v.x;
+    y = v.y;
+    z = v.z;
+    return *this;
+  }
+  template <typename S>
+  constexpr HERMES_CPU_GPU Vector3 &operator=(const Vector3<S> &v) noexcept {
+    x = static_cast<T>(v.x);
+    y = static_cast<T>(v.y);
+    z = static_cast<T>(v.z);
+    return *this;
+  }
   /// Constructs from single component value
   /// \param _f
-  HERMES_CPU_GPU explicit Vector3(T _f) : x(_f), y(_f), z(_f) {}
+  template <typename S, std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>
+  HERMES_CPU_GPU explicit Vector3(S _f) : x(_f), y(_f), z(_f) {}
   /// Constructs from component values
   /// \param _x
   /// \param _y
   /// \param _z
-  HERMES_CPU_GPU Vector3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
+  template <typename X, typename Y, typename Z>
+  HERMES_CPU_GPU Vector3(X _x, Y _y, Z _z)
+      : x(static_cast<T>(_x)), y(static_cast<T>(_y)), z(static_cast<T>(_z)) {}
   /// Constructs from component array
   /// \param v
-  HERMES_CPU_GPU explicit Vector3(const T *v) {
-    x = v[0];
-    y = v[1];
-    z = v[2];
+  template <typename S> HERMES_CPU_GPU explicit Vector3(const S *v) {
+    x = static_cast<T>(v[0]);
+    y = static_cast<T>(v[1]);
+    z = static_cast<T>(v[2]);
   }
 
   /// Casts from geometric point
   /// \param p
-  HERMES_CPU_GPU explicit Vector3(const Point3<T> &p)
+  template <typename S>
+  HERMES_CPU_GPU explicit Vector3(const Point3<S> &p)
       : x(p.x), y(p.y), z(p.z) {}
   /// Constructs from interval
   /// \tparam S
@@ -215,13 +276,15 @@ public:
   /// Copy assign
   /// \param v
   /// \return
-  HERMES_CPU_GPU Vector3 &operator=(const T &v) {
+  template <typename S, std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>
+  HERMES_CPU_GPU Vector3 &operator=(const S &v) {
     x = y = z = v;
     return *this;
   }
 
 #define ARITHMETIC_OP(OP)                                                      \
-  HERMES_CPU_GPU Vector3 &operator OP## = (const Vector3 &v) {                 \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Vector3 &operator OP## = (const Vector3<S> &v) {              \
     x OP## = v.x;                                                              \
     y OP## = v.y;                                                              \
     z OP## = v.z;                                                              \
@@ -233,17 +296,18 @@ public:
     z OP## = f;                                                                \
     return *this;                                                              \
   }                                                                            \
-  HERMES_CPU_GPU Vector3 operator OP(const Vector3<T> &b) const {              \
+  template <typename S>                                                        \
+  HERMES_CPU_GPU Vector3 operator OP(const Vector3<S> &b) const {              \
     return {x OP b.x, y OP b.y, z OP b.z};                                     \
   }                                                                            \
-  HERMES_CPU_GPU Vector3 operator OP(T f) const {                              \
+  template <typename S> HERMES_CPU_GPU Vector3 operator OP(S f) const {        \
     return {x OP f, y OP f, z OP f};                                           \
   }
   ARITHMETIC_OP(+)
   ARITHMETIC_OP(-)
   ARITHMETIC_OP(*)
 #undef ARITHMETIC_OP
-  HERMES_CPU_GPU Vector3<T> &operator/=(T f) {
+  template <typename S> HERMES_CPU_GPU Vector3<T> &operator/=(S f) {
     HERMES_CHECK_EXP(numbers::cmp::is_zero(f));
     T inv = 1.f / f;
     x *= inv;
@@ -251,13 +315,15 @@ public:
     z *= inv;
     return *this;
   }
-  HERMES_CPU_GPU Vector3<T> &operator/=(const Vector3<T> &v) {
+  template <typename S>
+  HERMES_CPU_GPU Vector3<T> &operator/=(const Vector3<S> &v) {
     x /= v.x;
     y /= v.y;
     z /= v.z;
     return *this;
   }
-  HERMES_CPU_GPU Vector3<T> operator/(const T &f) const {
+  template <typename S, std::enable_if_t<std::is_arithmetic<S>::value, int> = 0>
+  HERMES_CPU_GPU Vector3<T> operator/(const S &f) const {
     T inv = 1.f / f;
     return Vector3<T>(x * inv, y * inv, z * inv);
   }
@@ -432,6 +498,33 @@ template <typename T> class Vector4 {
 public:
   /// Default constructor
   HERMES_CPU_GPU Vector4() : x{0}, y{0}, z{0}, w{0} {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Vector4(const Vector4<S> &v)
+      : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)), z(static_cast<T>(v.z)),
+        w(static_cast<T>(v.w)) {}
+  template <typename S, std::enable_if_t<!std::is_same<S, T>::value, int> = 0>
+  HERMES_CPU_GPU Vector4(Vector4<S> &&v)
+      : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)), z(static_cast<T>(v.z)),
+        w(static_cast<T>(v.w)) {}
+  HERMES_CPU_GPU Vector4(const Vector4<T> &v) noexcept
+      : x(v.x), y(v.y), z(v.z), w(v.w) {}
+  HERMES_CPU_GPU Vector4(Vector4<T> &&v) noexcept
+      : x(v.x), y(v.y), z(v.z), w(v.w) {}
+  constexpr HERMES_CPU_GPU Vector4 &operator=(const Vector4<T> &v) noexcept {
+    x = v.x;
+    y = v.y;
+    z = v.z;
+    w = v.w;
+    return *this;
+  }
+  template <typename S>
+  constexpr HERMES_CPU_GPU Vector4 &operator=(const Vector4<S> &v) noexcept {
+    x = static_cast<T>(v.x);
+    y = static_cast<T>(v.y);
+    z = static_cast<T>(v.z);
+    w = static_cast<T>(v.w);
+    return *this;
+  }
   /// Construct from component values
   /// \param _x
   /// \param _y
