@@ -111,7 +111,11 @@ public:
       std::istringstream in(value);
       T t{};
       in >> t;
+#ifdef _MSC_VER
+      values.emplace_back(t);
+#else
       values.template emplace_back(t);
+#endif
     }
     return values;
   }
