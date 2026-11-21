@@ -313,19 +313,20 @@ public:
   ///         0         2 / (t - b)       0         -(t + b) / (t - b)
   ///         0             0         1 / (f - n)          n / (f - n)
   ///         0             0             0                  1
-  /// \note Note that n > f. This function negates the values of near and far in
+  /// \note Note that n > f. This function negates the values of near_plane and
+  /// far_plane in
   ///       case the given values are f > n. Because by default, this transform
   ///       uses a left-handed coordinate system.
   /// \param left
   /// \param right
   /// \param bottom
   /// \param top
-  /// \param near
-  /// \param far
+  /// \param near_plane
+  /// \param far_plane
   /// \param options
   /// \return
   HERMES_CPU_GPU static Transform3
-  ortho(T left, T right, T bottom, T top, T near, T far,
+  ortho(T left, T right, T bottom, T top, T near_plane, T far_plane,
         transform_options options = transform_option_bits::left_handed);
   /// Creates a Perspective Projection
   ///
@@ -343,12 +344,12 @@ public:
   ///       with the zero_to_one option.
   /// \param fovy_in_degrees
   /// \param aspect_ratio
-  /// \param near
-  /// \param far
+  /// \param near_plane
+  /// \param far_plane
   /// \param options
   /// \return
   HERMES_CPU_GPU static Transform3
-  perspective(T fovy_in_degrees, T aspect_ratio, T near, T far,
+  perspective(T fovy_in_degrees, T aspect_ratio, T near_plane, T far_plane,
               transform_options options = transform_option_bits::left_handed);
   /// \brief Creates a scale transform
   /// \param x
@@ -663,16 +664,16 @@ Transform3<T>::lookAt(const Point3<T> &eye, const Point3<T> &target,
 }
 
 template <typename T>
-HERMES_CPU_GPU Transform3<T> Transform3<T>::ortho(T left, T right, T bottom,
-                                                  T top, T near, T far,
-                                                  transform_options options) {
+HERMES_CPU_GPU Transform3<T>
+Transform3<T>::ortho(T left, T right, T bottom, T top, T near_plane,
+                     T far_plane, transform_options options) {
   const auto zero_to_one = options.contain(transform_option_bits::zero_to_one);
   auto right_handed = options.contain(transform_option_bits::right_handed);
   auto flip_y = options.contain(transform_option_bits::flip_y);
 
   auto w_inv = 1 / (right - left);
   auto h_inv = 1 / (top - bottom);
-  auto d_inv = 1 / (far - near);
+  auto d_inv = 1 / (far_plane - near_plane);
   math::MatrixNxM<T, 4, 4> m;
   // row 0
   m[0][0] = 2 * w_inv;
@@ -688,7 +689,7 @@ HERMES_CPU_GPU Transform3<T> Transform3<T>::ortho(T left, T right, T bottom,
   m[2][0] = 0;
   m[2][1] = 0;
   m[2][2] = (zero_to_one ? 1.f : 2.f) * (right_handed ? -1.f : 1.f) * d_inv;
-  m[2][3] = -(zero_to_one ? near : (far + near)) * d_inv;
+  m[2][3] = -(zero_to_one ? near_plane : (far_plane + near_plane)) * d_inv;
   // row 3
   m[3][0] = 0;
   m[3][1] = 0;
@@ -700,14 +701,14 @@ HERMES_CPU_GPU Transform3<T> Transform3<T>::ortho(T left, T right, T bottom,
 
 template <typename T>
 HERMES_CPU_GPU Transform3<T>
-Transform3<T>::perspective(T fovy_in_degrees, T aspect_ratio, T near, T far,
-                           transform_options options) {
+Transform3<T>::perspective(T fovy_in_degrees, T aspect_ratio, T near_plane,
+                           T far_plane, transform_options options) {
   const auto zero_to_one = options.contain(transform_option_bits::zero_to_one);
   auto right_handed = options.contain(transform_option_bits::right_handed);
   auto flip_y = options.contain(transform_option_bits::flip_y);
 
   auto y_scale = 1.f / std::tan(math::degrees2radians(fovy_in_degrees) * 0.5f);
-  auto d_inv = 1 / (near - far);
+  auto d_inv = 1 / (near_plane - far_plane);
 
   math::MatrixNxM<T, 4, 4> m;
   // row 0
@@ -723,10 +724,10 @@ Transform3<T>::perspective(T fovy_in_degrees, T aspect_ratio, T near, T far,
   // row 2
   m[2][0] = 0;
   m[2][1] = 0;
-  m[2][2] = (right_handed ? -1.f : -1.f) * (zero_to_one ? near : (far + near)) *
-            d_inv;
-  m[2][3] = (right_handed ? -1.f : 1.f) * (zero_to_one ? 1.f : 2.f) * near *
-            far * d_inv;
+  m[2][2] = (right_handed ? -1.f : -1.f) *
+            (zero_to_one ? near_plane : (far_plane + near_plane)) * d_inv;
+  m[2][3] = (right_handed ? -1.f : 1.f) * (zero_to_one ? 1.f : 2.f) *
+            near_plane * far_plane * d_inv;
   // row 3
   m[3][0] = 0;
   m[3][1] = 0;
